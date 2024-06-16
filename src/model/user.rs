@@ -1,8 +1,7 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use strum_macros::{EnumString, Display};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct User
 {
     pub user_uuid: String,
