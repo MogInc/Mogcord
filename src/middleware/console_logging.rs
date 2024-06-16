@@ -1,12 +1,15 @@
-use axum::{response::Response};
-use serde::{Serialize, Deserialize};
-use serde_json;
+use axum::response::{Response};
 
-pub async fn log_api_route_to_console(res:Response) -> Response
+pub async fn log_api_request_to_console(req:Request) -> Request
 {
-    let j = serde_json::to_string(&res);
+    println!("[INFO]: {:?}", req);
 
-    println!("[INFO]: {}", res.status());
+    return req;
+}
+
+pub async fn log_api_response_to_console(res:Response) -> Response
+{
+    println!("[INFO]: {:?}", res);
 
     return res;
 }

@@ -1,6 +1,14 @@
-use axum::response::{Html, IntoResponse};
+use axum::{response::{Html, IntoResponse}, routing::get, Router};
 
-pub async fn get_hello() -> impl IntoResponse
+pub fn routes_hello() -> Router
+{
+    return Router::new().route(
+        "/hello",
+        get(get_hello),
+    );
+}
+
+async fn get_hello() -> impl IntoResponse
 {
     Html("Hello world")
 }
