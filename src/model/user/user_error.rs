@@ -4,7 +4,7 @@ use axum::{
     Json,
 };
 use serde_json::json;
-use derive_more::{Display};
+use derive_more::Display;
 
 #[derive(Debug, Display)]
 pub enum UserError {
