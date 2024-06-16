@@ -1,6 +1,9 @@
 use std::time::Duration;
 
+use axum::async_trait;
 use mongodb::{error::Error, options::{ClientOptions, Compressor}, results::InsertOneResult, Client, Collection};
+
+use crate::model::user::{user::User, user_error::UserError, user_repository::UserRepository};
 
 use super::model::mongol_user::MongolUser;
 
@@ -37,10 +40,28 @@ impl MongolDB
 
         Ok(Self { users : users })
     }
+}
 
-    pub async fn create_user(&self, user: MongolUser)
-        -> Result<InsertOneResult, Error>
+#[async_trait]
+impl UserRepository for MongolDB
+{
+    // async fn does_user_exist_by_id(&self, user_id: String) -> Result<bool, UserError>
+    // {
+
+    // }
+    // async fn does_user_exist_by_mail(&self, user_mail: String) -> Result<bool, UserError>
+    // {
+        
+    // }
+
+    async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        return self.users.insert_one(&user, None).await;
+        let db_user = MongolUser::convert_to_db(&user);
+
+        match self.users.insert_one(&db_user, None).await
+        {
+            Ok(_) => Ok(user),
+            Err(_) => Err(UserError::UnexpectedError)
+        }
     }
 }

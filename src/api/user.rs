@@ -1,11 +1,11 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post, Router}, Json};
-use mongodb::Client;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use derive_more::{Display};
 
-use crate::{db::mongoldb::{model::mongol_user::MongolUser, mongoldb::MongolDB}, model::user::user::User};
+use crate::model::user::user_repository::UserRepository;
+use crate::{db::mongoldb::mongoldb::MongolDB, model::user::user::User};
 
 pub fn routes_user(state: Arc<MongolDB>) -> Router
 {
@@ -33,12 +33,11 @@ async fn post_user(
     extract::Json(payload): extract::Json<CreateUserRequest>) 
     -> impl IntoResponse
 {
-
     let user = User::new(payload.user_name, payload.user_mail);
 
-    let db_user = MongolUser::convert_to_db(&user);
-
-    let _ = db.create_user(db_user).await;
-
-    return Json(user);
+    match db.create_user(user).await 
+    {
+        Ok(user) => Ok(Json(user)),
+        Err(e) => Err(e),
+    }
 }
