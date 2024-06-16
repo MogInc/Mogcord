@@ -5,9 +5,9 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use derive_more::{Display};
 
-#[path ="../model/mod.rs"]
+#[path ="../model/user/mod.rs"]
 mod model;
-use model::user::User;
+use model::{user::User, user_error::UserError};
 
 pub fn routes_user(state: Arc<Client>) -> Router
 {
@@ -19,18 +19,10 @@ pub fn routes_user(state: Arc<Client>) -> Router
 
 const DB_NAME: &str = "user";
 
-#[derive(Debug, Display)]
-pub enum UserError
-{
-    UserNotFound,
-    MailAlreadyInUse,
-    UnexpectedError,
-}
-
 async fn get_user(Path(uuid): Path<String>) 
+-> impl IntoResponse
 {
     println!("{}", uuid);
-
 }
 
 #[derive(Deserialize)]
@@ -43,10 +35,13 @@ pub struct CreateUserRequest
 async fn post_user(
     State(client): State<Arc<Client>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>) 
+    -> Json<User>
 {
     let accounts = client.database(DB_NAME).collection::<User>("accounts");
     
     let account = User::new(payload.user_name, payload.user_mail);
 
-    accounts.insert_one(account, None).await;
+    let _ = accounts.insert_one(&account, None).await;
+
+    return Json(account);
 }
