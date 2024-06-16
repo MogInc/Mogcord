@@ -1,5 +1,6 @@
 mod api;
 mod db;
+mod model;
 
 use std::sync::Arc;
 
@@ -15,12 +16,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let address = "127.0.0.1:8080";
 
     let db = MongolDB::init(mongodb_address).await?;
-    let client = db.client;
-    let client_arc: Arc<_> = Arc::new(client);
+    let db_arc: Arc<_> = Arc::new(db);
 
 
     let api_routes = Router::new()
-    .merge(routes_user(client_arc));
+    .merge(routes_user(db_arc));
 
 
     let app = Router::new()
