@@ -1,6 +1,6 @@
 mod api;
 
-use api::hello::{routes_hello};
+use api::user::{routes_user};
 
 use axum::routing::Router;
 use tokio::net::TcpListener;
@@ -10,7 +10,7 @@ use tokio::net::TcpListener;
 async fn main() -> std::io::Result<()> {
 
     let api_routes = Router::new()
-    .merge(routes_hello());
+    .merge(routes_user());
 
     let app = Router::new()
     .nest("/api", api_routes);
