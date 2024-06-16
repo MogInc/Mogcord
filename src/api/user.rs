@@ -35,7 +35,7 @@ pub struct CreateUserRequest
 async fn post_user(
     State(client): State<Arc<Client>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>) 
-    -> Json<User>
+    -> impl IntoResponse
 {
     let accounts = client.database(DB_NAME).collection::<User>("accounts");
     
