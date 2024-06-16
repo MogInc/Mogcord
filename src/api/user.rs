@@ -5,19 +5,15 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use derive_more::{Display};
 
-#[path ="../model/user/mod.rs"]
-mod model;
-use model::{user::User, user_error::UserError};
+use crate::{db::mongoldb::{model::mongol_user::MongolUser, mongoldb::MongolDB}, model::user::user::User};
 
-pub fn routes_user(state: Arc<Client>) -> Router
+pub fn routes_user(state: Arc<MongolDB>) -> Router
 {
     Router::new()
     .route("/user/:id", get(get_user))
     .route("/user", post(post_user))
     .with_state(state)
 }
-
-const DB_NAME: &str = "user";
 
 async fn get_user(Path(uuid): Path<String>) 
 -> impl IntoResponse
@@ -33,15 +29,16 @@ pub struct CreateUserRequest
 }
 
 async fn post_user(
-    State(client): State<Arc<Client>>, 
+    State(db): State<Arc<MongolDB>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>) 
     -> impl IntoResponse
 {
-    let accounts = client.database(DB_NAME).collection::<User>("accounts");
-    
-    let account = User::new(payload.user_name, payload.user_mail);
 
-    let _ = accounts.insert_one(&account, None).await;
+    let user = User::new(payload.user_name, payload.user_mail);
 
-    return Json(account);
+    let db_user = MongolUser::convert_to_db(&user);
+
+    let _ = db.create_user(db_user).await;
+
+    return Json(user);
 }

@@ -1,11 +1,13 @@
 use std::time::Duration;
 
-use mongodb::{options::{ClientOptions, Compressor}, Client};
+use mongodb::{error::Error, options::{ClientOptions, Compressor}, results::InsertOneResult, Client, Collection};
+
+use super::model::mongol_user::MongolUser;
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
 {
-    pub client: Client
+    users: Collection<MongolUser>
 }
 
 impl MongolDB
@@ -29,6 +31,16 @@ impl MongolDB
     
         let client = Client::with_options(client_options)?;
 
-        Ok(Self { client : client })
+        let db = client.database("db_mogcord");
+
+        let users: Collection<MongolUser> = db.collection("users");
+
+        Ok(Self { users : users })
+    }
+
+    pub async fn create_user(&self, user: MongolUser)
+        -> Result<InsertOneResult, Error>
+    {
+        return self.users.insert_one(&user, None).await;
     }
 }
