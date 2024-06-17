@@ -6,9 +6,9 @@ use crate::model::user::User;
 pub struct MongolUser
 {
     pub _id : ObjectId,
-    pub user_uuid: String,
-    pub user_name: String,
-    pub user_mail: String,
+    pub uuid: String,
+    pub name: String,
+    pub mail: String,
 }
 
 impl MongolUser
@@ -18,14 +18,14 @@ impl MongolUser
         MongolUser
         {
             _id: ObjectId::new(),
-            user_uuid: user.user_uuid.clone(),
-            user_name: user.user_name.clone(),
-            user_mail: user.user_mail.clone()
+            uuid: user.uuid.clone(),
+            name: user.name.clone(),
+            mail: user.mail.clone()
         }
     }
 
     pub fn convert_to_domain(self) -> User
     {
-        User::convert(self.user_uuid, self.user_name, self.user_mail)
+        User::convert(self.uuid, self.name, self.mail)
     }
 }

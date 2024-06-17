@@ -4,9 +4,9 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize)]
 pub struct User
 {
-    pub user_uuid: String,
-    pub user_name: String,
-    pub user_mail: String,
+    pub uuid: String,
+    pub name: String,
+    pub mail: String,
 }
 
 impl User
@@ -15,9 +15,9 @@ impl User
     {
         User
         {
-            user_uuid: uuid,
-            user_name: name,
-            user_mail: mail
+            uuid,
+            name,
+            mail
         }
     }
 
@@ -25,9 +25,9 @@ impl User
     {
         User
         {
-            user_uuid: Uuid::new_v4().to_string(),
-            user_name: name,
-            user_mail: mail
+            uuid: Uuid::new_v4().to_string(),
+            name,
+            mail
         }
     }
 }
