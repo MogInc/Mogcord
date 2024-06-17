@@ -10,8 +10,19 @@ pub enum ChatType
 pub struct Chat
 {
     pub uuid: String,
-    pub name: String,
+    pub name: Option<String>,
     pub r#type: ChatType,
-    pub owner: User,
-    pub members: Vec<User>,
+    pub owners: Vec<User>,
+    pub members: Option<Vec<User>>,
+    pub buckets: Option<Vec<Bucket>>
+}
+
+pub struct Bucket
+{
+
+}
+
+pub struct Message
+{
+
 }
