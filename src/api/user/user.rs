@@ -13,10 +13,16 @@ pub fn routes_user(state: Arc<MongolDB>) -> Router
     .with_state(state)
 }
 
-async fn get_user(Path(uuid): Path<String>) 
+async fn get_user(
+    State(db): State<Arc<dyn UserRepository>>,
+    Path(uuid): Path<String>) 
     -> impl IntoResponse
 {
-    println!("{}", uuid);
+    match db.get_user_by_id(&uuid).await 
+    {
+        Ok(user) => Ok(Json(user)),
+        Err(e) => Err(e),
+    }
 }
 
 #[derive(Deserialize)]

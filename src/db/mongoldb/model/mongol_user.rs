@@ -23,4 +23,9 @@ impl MongolUser
             user_mail: user.user_mail.clone()
         }
     }
+
+    pub fn convert_to_domain(self) -> User
+    {
+        User::convert(self.user_uuid, self.user_name, self.user_mail)
+    }
 }

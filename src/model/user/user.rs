@@ -11,7 +11,17 @@ pub struct User
 
 impl User
 {
-    pub fn new(name: String, mail: String) -> User
+    pub fn convert(uuid: String, name: String, mail: String) -> Self
+    {
+        User
+        {
+            user_uuid: uuid,
+            user_name: name,
+            user_mail: mail
+        }
+    }
+
+    pub fn new(name: String, mail: String) -> Self
     {
         User
         {

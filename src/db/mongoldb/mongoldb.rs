@@ -72,4 +72,20 @@ impl UserRepository for MongolDB
             Err(_) => Err(UserError::UnexpectedError)
         }
     }
+
+    async fn get_user_by_id(&self, user_id: &String) -> Result<User, UserError>
+    {
+        match self.users.find_one(doc! { "user_uuid" : user_id }, None).await
+        {
+            Ok(option) => 
+            {
+                match option
+                {
+                    Some(user) => Ok(user.convert_to_domain()),
+                    None => Err(UserError::UserNotFound)
+                }
+            },
+            Err(_) => Err(UserError::UnexpectedError)
+        }
+    }
 }
