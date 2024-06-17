@@ -43,8 +43,7 @@ impl MongolUser
         User::convert(self.uuid, self.name, self.mail)
     }
 
-    fn new_mongol_user(user : &User)
-        ->  MongolUser
+    fn new_mongol_user(user : &User) ->  MongolUser
     {
         MongolUser
         {
