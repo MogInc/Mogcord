@@ -20,7 +20,7 @@ async fn get_user(Path(uuid): Path<String>)
 }
 
 #[derive(Deserialize)]
-pub struct CreateUserRequest
+struct CreateUserRequest
 {
     user_name: String,
     user_mail: String,
