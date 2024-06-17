@@ -39,6 +39,22 @@ impl MongolDB
 
         Ok(Self { users : users })
     }
+
+    pub async fn get_user_db_object_by_id(&self, user_id: &String) -> Result<MongolUser, UserError>
+    {
+        match self.users.find_one(doc! { "uuid" : user_id }, None).await
+        {
+            Ok(option) => 
+            {
+                match option
+                {
+                    Some(user) => Ok(user),
+                    None => Err(UserError::UserNotFound)
+                }
+            },
+            Err(_) => Err(UserError::UnexpectedError)
+        }
+    }
 }
 
 #[async_trait]
@@ -46,7 +62,7 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, UserError>
     {
-        match self.users.find_one(doc! { "user_uuid" : user_id }, None).await
+        match self.users.find_one(doc! { "uuid" : user_id }, None).await
         {
             Ok(option) => Ok(option.is_some()),
             Err(_) => Err(UserError::UnexpectedError)
@@ -55,7 +71,7 @@ impl UserRepository for MongolDB
 
     async fn does_user_exist_by_mail(&self, user_mail: &String) -> Result<bool, UserError>
     {
-        match self.users.find_one(doc! { "user_mail" : user_mail }, None).await
+        match self.users.find_one(doc! { "mail" : user_mail }, None).await
         {
             Ok(option) => Ok(option.is_some()),
             Err(_) => Err(UserError::UnexpectedError)
@@ -64,7 +80,7 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user = MongolUser::convert_to_db(&user);
+        let db_user = MongolUser::convert_to_db(&user, Some(self)).await;
 
         match self.users.insert_one(&db_user, None).await
         {
@@ -75,7 +91,7 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &String) -> Result<User, UserError>
     {
-        match self.users.find_one(doc! { "user_uuid" : user_id }, None).await
+        match self.users.find_one(doc! { "uuid" : user_id }, None).await
         {
             Ok(option) => 
             {
