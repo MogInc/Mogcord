@@ -1,5 +1,5 @@
 mod mongoldb;
-mod mongol_user;
+mod model;
 
 pub use mongoldb::*;
-pub use mongol_user::*;
+pub use model::*;

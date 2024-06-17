@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::doc, options::{ClientOptions, Compressor}, Client, Collection};
 
 use crate::model::user::{User, UserError, UserRepository};
-use super::mongol_user::MongolUser;
+use crate::db::mongoldb::model::MongolUser;
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
