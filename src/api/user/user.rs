@@ -3,7 +3,7 @@ use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, 
 use serde::Deserialize;
 
 use crate::model::user::{UserError, UserRepository};
-use crate::{db::mongoldb::mongoldb::MongolDB, model::user::User};
+use crate::{db::mongoldb::MongolDB, model::user::User};
 
 pub fn routes_user(state: Arc<MongolDB>) -> Router
 {

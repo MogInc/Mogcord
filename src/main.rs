@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{http::StatusCode, response::IntoResponse, routing::Router};
-use mogcord::{api::user::user::routes_user, db::mongoldb::mongoldb::MongolDB};
+use mogcord::{api::user::routes_user, db::mongoldb::MongolDB};
 use tokio::net::TcpListener;
 
 #[tokio::main]
