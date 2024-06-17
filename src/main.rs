@@ -1,13 +1,7 @@
-mod api;
-mod db;
-mod model;
-
 use std::sync::Arc;
 
-use db::mongoldb::mongoldb::MongolDB;
-use api::user::{routes_user};
-
 use axum::{http::StatusCode, response::IntoResponse, routing::Router};
+use mogcord::{api::user::user::routes_user, db::mongoldb::mongoldb::MongolDB};
 use tokio::net::TcpListener;
 
 #[tokio::main]

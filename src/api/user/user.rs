@@ -1,11 +1,9 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
-use serde_json::{json, Value};
-use derive_more::{Display};
 
-use crate::model::user::user_repository::UserRepository;
-use crate::{db::mongoldb::mongoldb::MongolDB, model::user::user::User};
+use crate::model::user::{UserError, UserRepository};
+use crate::{db::mongoldb::mongoldb::MongolDB, model::user::User};
 
 pub fn routes_user(state: Arc<MongolDB>) -> Router
 {
@@ -16,7 +14,7 @@ pub fn routes_user(state: Arc<MongolDB>) -> Router
 }
 
 async fn get_user(Path(uuid): Path<String>) 
--> impl IntoResponse
+    -> impl IntoResponse
 {
     println!("{}", uuid);
 }
@@ -29,11 +27,16 @@ pub struct CreateUserRequest
 }
 
 async fn post_user(
-    State(db): State<Arc<MongolDB>>, 
+    State(db): State<Arc<dyn UserRepository>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>) 
     -> impl IntoResponse
 {
     let user = User::new(payload.user_name, payload.user_mail);
+
+    if db.does_user_exist_by_mail(&user.user_mail).await?
+    {
+        return Err(UserError::MailAlreadyInUse);
+    }
 
     match db.create_user(user).await 
     {

@@ -1,6 +1,6 @@
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
-use crate::model::user::user::User;
+use crate::model::user::User;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolUser

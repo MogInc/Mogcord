@@ -1,3 +1,2 @@
-pub mod model;
-pub mod repo;
 pub mod mongoldb;
+pub mod mongol_user;

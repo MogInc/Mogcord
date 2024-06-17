@@ -1,11 +1,10 @@
 use std::time::Duration;
 
 use axum::async_trait;
-use mongodb::{error::Error, options::{ClientOptions, Compressor}, results::InsertOneResult, Client, Collection};
+use mongodb::{bson::doc, options::{ClientOptions, Compressor}, Client, Collection};
 
-use crate::model::user::{user::User, user_error::UserError, user_repository::UserRepository};
-
-use super::model::mongol_user::MongolUser;
+use crate::model::user::{User, UserError, UserRepository};
+use super::mongol_user::MongolUser;
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
@@ -45,14 +44,23 @@ impl MongolDB
 #[async_trait]
 impl UserRepository for MongolDB
 {
-    // async fn does_user_exist_by_id(&self, user_id: String) -> Result<bool, UserError>
-    // {
+    async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, UserError>
+    {
+        match self.users.find_one(doc! { "user_uuid" : user_id }, None).await
+        {
+            Ok(option) => Ok(option.is_some()),
+            Err(_) => Err(UserError::UnexpectedError)
+        }
+    }
 
-    // }
-    // async fn does_user_exist_by_mail(&self, user_mail: String) -> Result<bool, UserError>
-    // {
-        
-    // }
+    async fn does_user_exist_by_mail(&self, user_mail: &String) -> Result<bool, UserError>
+    {
+        match self.users.find_one(doc! { "user_mail" : user_mail }, None).await
+        {
+            Ok(option) => Ok(option.is_some()),
+            Err(_) => Err(UserError::UnexpectedError)
+        }
+    }
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
