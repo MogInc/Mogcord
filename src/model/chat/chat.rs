@@ -24,5 +24,9 @@ pub struct Bucket
 
 pub struct Message
 {
-
+    pub uuid: String,
+    pub value: String,
+    pub owner: User,
+    pub chat: Chat,
+    pub bucket: Bucket,
 }
