@@ -39,7 +39,7 @@ impl FromStr for UserFlag
 
     fn from_str(input: &str) -> Result<UserFlag, Self::Err> 
     {
-        let parts: Vec<&str> = input.splitn(2, ':').collect();
+        let parts: Vec<&str> = input.splitn(2, '|').collect();
         match parts[0].to_lowercase().as_str() 
         {
             "none" => Ok(UserFlag::None),
