@@ -72,3 +72,135 @@ impl FromStr for UserFlag
         }
     }
 }
+
+#[cfg(test)]
+mod tests 
+{
+    use std::str::FromStr;
+
+    use chrono::Utc;
+
+    use super::UserFlag;
+
+    
+    #[test]
+    fn test_from_str_none_all_lowercase_is_valid() 
+    {
+        let enum_value = "none";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::None, _result));
+    }
+
+    #[test]
+    fn test_from_str_none_all_uppercase_is_valid() 
+    {
+        let enum_value = "NONE";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::None, _result));
+    }
+
+    #[test]
+    fn test_from_str_disabled_all_lowercase_is_valid() 
+    {
+        let enum_value = "disabled";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_disabled_all_uppercase_is_valid() {
+        let enum_value = "DISABLED";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_deleted_all_lowercase_is_valid() 
+    {
+        let utc = Utc::now();
+        let utc_str = utc.to_string();
+
+        let mut enum_value = "deleted|".to_owned();
+        enum_value.push_str(&utc_str);
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_deleted_all_uppercase_is_valid() 
+    {
+        let utc = Utc::now();
+        let utc_str = utc.to_string();
+
+        let mut enum_value = "DELETED|".to_owned();
+        enum_value.push_str(&utc_str);
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_banned_all_lowercase_is_valid() 
+    {
+        let utc = Utc::now();
+        let utc_str = utc.to_string();
+
+        let mut enum_value = "banned|".to_owned();
+        enum_value.push_str(&utc_str);
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_banned_all_uppercase_is_valid() 
+    {
+        let utc = Utc::now();
+        let utc_str = utc.to_string();
+
+        let mut enum_value = "BANNED|".to_owned();
+        enum_value.push_str(&utc_str);
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_admin_all_lowercase_is_valid() 
+    {
+        let enum_value = "admin";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_admin_all_uppercase_is_valid() {
+        let enum_value = "ADMIN";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_owner_all_lowercase_is_valid() 
+    {
+        let enum_value = "owner";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+
+    #[test]
+    fn test_from_str_owned_all_uppercase_is_valid() {
+        let enum_value = "OWNER";
+        let _result = UserFlag::from_str(&enum_value).unwrap();
+
+        assert!(matches!(UserFlag::Disabled, _result));
+    }
+}
