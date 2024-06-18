@@ -125,10 +125,10 @@ mod tests
     fn test_from_str_deleted_all_lowercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_rfc3339();
+        let utc_string = utc.to_rfc3339();
 
         let mut enum_value = "deleted|".to_owned();
-        enum_value.push_str(&utc_str);
+        enum_value.push_str(&utc_string);
         let result = UserFlag::from_str(&enum_value).unwrap();
 
         assert_matches!(result, UserFlag::Deleted { .. });
@@ -143,10 +143,10 @@ mod tests
     fn test_from_str_deleted_all_uppercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_rfc3339();
+        let utc_string = utc.to_rfc3339();
 
         let mut enum_value = "DELETED|".to_owned();
-        enum_value.push_str(&utc_str);
+        enum_value.push_str(&utc_string);
         let result = UserFlag::from_str(&enum_value).unwrap();
 
         assert_matches!(result, UserFlag::Deleted{ .. });
@@ -179,10 +179,10 @@ mod tests
     fn test_from_str_banned_all_lowercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_string();
+        let utc_string = utc.to_string();
 
         let mut enum_value = "banned|".to_owned();
-        enum_value.push_str(&utc_str);
+        enum_value.push_str(&utc_string);
         let result = UserFlag::from_str(&enum_value).unwrap();
 
         assert_matches!(result, UserFlag::Banned{ .. });
@@ -197,10 +197,10 @@ mod tests
     fn test_from_str_banned_all_uppercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_string();
+        let utc_string = utc.to_string();
 
         let mut enum_value = "BANNED|".to_owned();
-        enum_value.push_str(&utc_str);
+        enum_value.push_str(&utc_string);
         let result = UserFlag::from_str(&enum_value).unwrap();
 
         assert_matches!(result, UserFlag::Banned{ .. });
