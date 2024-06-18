@@ -50,9 +50,9 @@ mod tests
 
         let user = User::convert(uuid.clone(), name.clone(), mail.clone());
 
-        assert_eq!(user.uuid, uuid);
-        assert_eq!(user.name, name);
-        assert_eq!(user.mail, mail);
+        assert_eq!(uuid, user.uuid);
+        assert_eq!(name, user.name);
+        assert_eq!(mail, user.mail);
     }
 
     #[test]
@@ -63,7 +63,7 @@ mod tests
         let user = User::new(name.clone(), mail.clone());
 
         assert!(Uuid::parse_str(&user.uuid).is_ok());
-        assert_eq!(user.name, name);
-        assert_eq!(user.mail, mail);
+        assert_eq!(name, user.name);
+        assert_eq!(mail, user.mail);
     }
 }
