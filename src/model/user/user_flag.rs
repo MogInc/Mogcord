@@ -23,6 +23,7 @@ impl fmt::Display for UserFlagParseError
 
 impl std::error::Error for UserFlagParseError {}
 
+#[derive(Debug)]
 pub enum UserFlag 
 {
     None,
@@ -80,6 +81,8 @@ mod tests
 
     use chrono::Utc;
 
+    use crate::model::user::UserFlagParseError;
+
     use super::UserFlag;
 
     
@@ -87,61 +90,89 @@ mod tests
     fn test_from_str_none_all_lowercase_is_valid() 
     {
         let enum_value = "none";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::None, _result));
+        assert_matches!(result, UserFlag::None);
     }
 
     #[test]
     fn test_from_str_none_all_uppercase_is_valid() 
     {
         let enum_value = "NONE";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::None, _result));
+        assert_matches!(result, UserFlag::None);
     }
 
     #[test]
     fn test_from_str_disabled_all_lowercase_is_valid() 
     {
         let enum_value = "disabled";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Disabled);
     }
 
     #[test]
     fn test_from_str_disabled_all_uppercase_is_valid() {
         let enum_value = "DISABLED";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Disabled);
     }
 
     #[test]
     fn test_from_str_deleted_all_lowercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_string();
+        let utc_str = utc.to_rfc3339();
 
         let mut enum_value = "deleted|".to_owned();
         enum_value.push_str(&utc_str);
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Deleted { .. });
+        match result
+        {
+            UserFlag::Deleted{ date } => assert_eq!(date, utc),
+            _ => assert!(false, "Failed"),
+        }
     }
 
     #[test]
     fn test_from_str_deleted_all_uppercase_is_valid() 
     {
         let utc = Utc::now();
-        let utc_str = utc.to_string();
+        let utc_str = utc.to_rfc3339();
 
         let mut enum_value = "DELETED|".to_owned();
         enum_value.push_str(&utc_str);
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Deleted{ .. });
+        match result
+        {
+            UserFlag::Deleted{ date } => assert_eq!(date, utc),
+            _ => assert!(false, "Failed"),
+        }
+    }
+
+    #[test]
+    fn test_from_str_deleted_invalid_format_is_invalid() 
+    {
+        let enum_value = "deleted";
+        let result = UserFlag::from_str(&enum_value).unwrap_err();
+
+        assert_matches!(result, UserFlagParseError::InvalidFormat);
+    }
+
+    #[test]
+    fn test_from_str_deleted_invalid_date_is_invalid() 
+    {
+        let enum_value = "deleted|24-10-2024";
+        let result = UserFlag::from_str(&enum_value).unwrap_err();
+
+        assert_matches!(result, UserFlagParseError::InvalidDate);
     }
 
     #[test]
@@ -152,9 +183,14 @@ mod tests
 
         let mut enum_value = "banned|".to_owned();
         enum_value.push_str(&utc_str);
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Banned{ .. });
+        match result
+        {
+            UserFlag::Banned{ date } => assert_eq!(date, utc),
+            _ => assert!(false, "Failed"),
+        }
     }
 
     #[test]
@@ -165,42 +201,73 @@ mod tests
 
         let mut enum_value = "BANNED|".to_owned();
         enum_value.push_str(&utc_str);
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Banned{ .. });
+        match result
+        {
+            UserFlag::Banned{ date } => assert_eq!(date, utc),
+            _ => assert!(false, "Failed"),
+        }
+    }
+
+    #[test]
+    fn test_from_str_banned_invalid_format_is_invalid() 
+    {
+        let enum_value = "banned";
+        let result = UserFlag::from_str(&enum_value).unwrap_err();
+
+        assert_matches!(result, UserFlagParseError::InvalidFormat);
+    }
+
+    #[test]
+    fn test_from_str_banned_invalid_date_is_invalid() 
+    {
+        let enum_value = "banned|24-10-2024";
+        let result = UserFlag::from_str(&enum_value).unwrap_err();
+        
+        assert_matches!(result, UserFlagParseError::InvalidDate);
     }
 
     #[test]
     fn test_from_str_admin_all_lowercase_is_valid() 
     {
         let enum_value = "admin";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Admin);
     }
 
     #[test]
     fn test_from_str_admin_all_uppercase_is_valid() {
         let enum_value = "ADMIN";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Admin);
     }
 
     #[test]
     fn test_from_str_owner_all_lowercase_is_valid() 
     {
         let enum_value = "owner";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Owner);
     }
 
     #[test]
     fn test_from_str_owned_all_uppercase_is_valid() {
         let enum_value = "OWNER";
-        let _result = UserFlag::from_str(&enum_value).unwrap();
+        let result = UserFlag::from_str(&enum_value).unwrap();
 
-        assert!(matches!(UserFlag::Disabled, _result));
+        assert_matches!(result, UserFlag::Owner);
+    }
+
+    #[test]
+    fn test_from_str_is_invalid() {
+        let enum_value = "a";
+        let result = UserFlag::from_str(&enum_value).unwrap_err();
+
+        assert_matches!(result, UserFlagParseError::InvalidFormat);
     }
 }
