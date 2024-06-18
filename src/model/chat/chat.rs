@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 
 use crate::model::user::User;
+use super::MessageFlag;
 
 pub enum ChatType
 {
@@ -24,13 +25,6 @@ pub struct Bucket
     pub chat: Chat,
     pub date: DateTime<Utc>,
     pub messages: Option<Vec<Message>>,
-}
-
-pub enum MessageFlag
-{
-    None,
-    Edited { date: DateTime<Utc> },
-    Deleted { date: DateTime<Utc> },
 }
 
 pub struct Message
