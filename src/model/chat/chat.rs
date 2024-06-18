@@ -29,8 +29,8 @@ pub struct Bucket
 pub enum MessageFlag
 {
     None,
-    Edited,
-    Deleted,
+    Edited { date: DateTime<Utc> },
+    Deleted { date: DateTime<Utc> },
 }
 
 pub struct Message
