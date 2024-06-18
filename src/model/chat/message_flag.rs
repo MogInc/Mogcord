@@ -39,7 +39,8 @@ impl FromStr for MessageFlag
         match parts[0].to_lowercase().as_str() 
         {
             "none" => Ok(MessageFlag::None),
-            "edited" => {
+            "edited" => 
+            {
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()
@@ -50,7 +51,8 @@ impl FromStr for MessageFlag
                     Err(MessageFlagParseError::InvalidFormat)
                 }
             }
-            "deleted" => {
+            "deleted" => 
+            {
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()

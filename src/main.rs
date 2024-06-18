@@ -5,7 +5,9 @@ use mogcord::{api::user::routes_user, db::mongoldb::MongolDB};
 use tokio::net::TcpListener;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() 
+    -> Result<(), Box<dyn std::error::Error>> 
+{
     let mongodb_address = "mongodb://localhost:27017";
     let address = "127.0.0.1:8080";
 
@@ -37,6 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn page_not_found() -> impl IntoResponse {
+async fn page_not_found() -> impl IntoResponse 
+{
     (StatusCode::NOT_FOUND, "404 Page Not Found")
 }

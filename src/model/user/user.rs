@@ -43,7 +43,8 @@ mod tests
     use crate::model::user::User;
     
     #[test]
-    fn test_convert_user_is_valid() {
+    fn test_convert_user_is_valid() 
+    {
         let uuid = String::from("12345678");
         let name = String::from("Gwilom");
         let mail = String::from("ElGoblino@example.com");
@@ -56,7 +57,8 @@ mod tests
     }
 
     #[test]
-    fn test_new_user_is_valid() {
+    fn test_new_user_is_valid() 
+    {
         let name = String::from("Gwilom");
         let mail = String::from("ElGoblino@example.com");
 

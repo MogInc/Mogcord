@@ -45,7 +45,8 @@ impl FromStr for UserFlag
         {
             "none" => Ok(UserFlag::None),
             "disabled" => Ok(UserFlag::Disabled),
-            "deleted" => {
+            "deleted" => 
+            {
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()
@@ -56,7 +57,8 @@ impl FromStr for UserFlag
                     Err(UserFlagParseError::InvalidFormat)
                 }
             }
-            "banned" => {
+            "banned" => 
+            {
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()
@@ -78,11 +80,9 @@ impl FromStr for UserFlag
 mod tests 
 {
     use std::str::FromStr;
-
     use chrono::Utc;
 
     use crate::model::user::UserFlagParseError;
-
     use super::UserFlag;
 
     
@@ -256,7 +256,8 @@ mod tests
     }
 
     #[test]
-    fn test_from_str_owned_all_uppercase_is_valid() {
+    fn test_from_str_owned_all_uppercase_is_valid() 
+    {
         let enum_value = "OWNER";
         let result = UserFlag::from_str(&enum_value).unwrap();
 
@@ -264,7 +265,8 @@ mod tests
     }
 
     #[test]
-    fn test_from_str_is_invalid() {
+    fn test_from_str_is_invalid() 
+    {
         let enum_value = "a";
         let result = UserFlag::from_str(&enum_value).unwrap_err();
 

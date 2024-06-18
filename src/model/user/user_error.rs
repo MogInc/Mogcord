@@ -7,16 +7,20 @@ use serde_json::json;
 use derive_more::Display;
 
 #[derive(Debug, Display)]
-pub enum UserError {
+pub enum UserError 
+{
     UserNotFound,
     MailAlreadyInUse,
     UnexpectedError,
     DatabaseError(String),
 }
 
-impl IntoResponse for UserError {
-    fn into_response(self) -> Response {
-        let status_code = match self {
+impl IntoResponse for UserError 
+{
+    fn into_response(self) -> Response 
+    {
+        let status_code = match self 
+        {
             UserError::MailAlreadyInUse => StatusCode::BAD_REQUEST,
             UserError::UserNotFound => StatusCode::NOT_FOUND,
             UserError::UnexpectedError => StatusCode::BAD_REQUEST,
