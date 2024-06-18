@@ -29,6 +29,7 @@ pub struct Bucket
 pub enum MessageFlag
 {
     None,
+    Edited,
     Deleted,
 }
 
