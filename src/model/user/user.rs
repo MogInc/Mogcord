@@ -1,5 +1,16 @@
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+
+pub enum UserFlag
+{
+    None,
+    Disabled,
+    Deleted { date: DateTime<Utc> },
+    Banned { date: DateTime<Utc> },
+    Admin,
+    Owner,
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct User
