@@ -97,6 +97,7 @@ impl UserRepository for MongolDB
     {
         let user_uuid = Uuid::parse_str(user_id)
                               .map_err(|_| UserError::UserNotFound)?;
+
         let user_option = self.users.find_one(doc! { "_id": user_uuid }, None)
                                          .await
                                          .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;

@@ -21,7 +21,11 @@ impl fmt::Display for UserError {
             UserError::UserNotFound => write!(f, "User not found"),
             UserError::MailAlreadyInUse => write!(f, "Mail already in use"),
 
-            UserError::UnexpectedError(Some(err)) => write!(f, "Unexpected error: {:?}", err),
+            UserError::UnexpectedError(Some(err)) => 
+            {
+                println!("{}", err);
+                write!(f, "Unexpected error")
+            },
             UserError::UnexpectedError(None) => write!(f, "Unexpected error"),
         }
     }
