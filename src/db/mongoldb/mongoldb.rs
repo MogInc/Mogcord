@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use axum::async_trait;
-use mongodb::{bson::doc, options::{ClientOptions, Compressor}, Client, Collection};
+use mongodb::{bson::{doc, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
 
 use crate::model::user::{User, UserError, UserRepository};
 use crate::db::mongoldb::model::MongolUser;
@@ -62,10 +62,17 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, UserError>
     {
-        match self.users.find_one(doc! { "uuid" : user_id }, None).await
+        match Uuid::parse_str(user_id)
         {
-            Ok(option) => Ok(option.is_some()),
-            Err(_) => Err(UserError::UnexpectedError)
+            Ok(user_uuid) => 
+            {
+                match self.users.find_one(doc! { "_id" : user_uuid }, None).await
+                {
+                    Ok(option) => Ok(option.is_some()),
+                    Err(_) => Err(UserError::UnexpectedError)
+                }
+            },
+            Err(_) => Err(UserError::UserNotFound)
         }
     }
 
@@ -80,28 +87,45 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user = MongolUser::convert_to_db(&user, Some(self)).await;
+        let db_user_result = MongolUser::convert_to_db(&user).await;
+        
+        if let Err(_) = db_user_result
+        {
+            return Err(UserError::UnexpectedError);
+        }
+
+        let db_user = db_user_result.unwrap();
 
         match self.users.insert_one(&db_user, None).await
         {
             Ok(_) => Ok(user),
-            Err(_) => Err(UserError::UnexpectedError)
+            Err(err) => {
+                println!("{}", err);
+                return Err(UserError::UnexpectedError);
+            }
         }
     }
 
     async fn get_user_by_id(&self, user_id: &String) -> Result<User, UserError>
     {
-        match self.users.find_one(doc! { "uuid" : user_id }, None).await
+        match Uuid::parse_str(user_id)
         {
-            Ok(option) => 
+            Ok(user_uuid) => 
             {
-                match option
+                match self.users.find_one(doc! { "_id" : user_uuid }, None).await
                 {
-                    Some(user) => Ok(user.convert_to_domain()),
-                    None => Err(UserError::UserNotFound)
+                    Ok(option) => 
+                    {
+                        match option
+                        {
+                            Some(user) => Ok(user.convert_to_domain()),
+                            None => Err(UserError::UserNotFound)
+                        }
+                    },
+                    Err(_) => Err(UserError::UnexpectedError)
                 }
             },
-            Err(_) => Err(UserError::UnexpectedError)
+            Err(_) => Err(UserError::UserNotFound)
         }
     }
 }

@@ -37,6 +37,7 @@ async fn post_user(
     extract::Json(payload): extract::Json<CreateUserRequest>) 
     -> impl IntoResponse
 {
+
     let user = User::new(payload.user_name, payload.user_mail);
 
     if db.does_user_exist_by_mail(&user.mail).await?

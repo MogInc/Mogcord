@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::model::user::User;
 use super::MessageFlag;
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum ChatType
 {
     Private,
