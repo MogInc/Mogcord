@@ -24,9 +24,9 @@ impl fmt::Display for UserError {
             UserError::UnexpectedError(Some(err)) => 
             {
                 println!("{}", err);
-                write!(f, "Unexpected error")
+                write!(f, "Oopsie, unexpected error")
             },
-            UserError::UnexpectedError(None) => write!(f, "Unexpected error"),
+            UserError::UnexpectedError(None) => write!(f, "Oopsie, unexpected error"),
         }
     }
 }
