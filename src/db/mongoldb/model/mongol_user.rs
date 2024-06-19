@@ -18,10 +18,10 @@ impl MongolUser
     {
         match Uuid::parse_str(&user.uuid)
         {
-            Ok(_id) => Ok(
+            Ok(parsed_id) => Ok(
                 MongolUser
                 {
-                    _id: _id.clone(),
+                    _id: parsed_id.clone(),
                     name: user.name.clone(),
                     mail: user.mail.clone(),
                 }
