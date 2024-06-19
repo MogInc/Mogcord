@@ -1,17 +1,30 @@
+use std::fmt;
+
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
 };
 use serde_json::json;
-use derive_more::Display;
 
-#[derive(Debug, Display)]
+#[derive(Debug)]
 pub enum UserError 
 {
     UserNotFound,
     MailAlreadyInUse,
-    UnexpectedError,
+    UnexpectedError(Option<String>),
+}
+
+impl fmt::Display for UserError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            UserError::UserNotFound => write!(f, "User not found"),
+            UserError::MailAlreadyInUse => write!(f, "Mail already in use"),
+
+            UserError::UnexpectedError(Some(err)) => write!(f, "Unexpected error: {:?}", err),
+            UserError::UnexpectedError(None) => write!(f, "Unexpected error"),
+        }
+    }
 }
 
 impl IntoResponse for UserError 
@@ -22,7 +35,7 @@ impl IntoResponse for UserError
         {
             UserError::MailAlreadyInUse => StatusCode::BAD_REQUEST,
             UserError::UserNotFound => StatusCode::NOT_FOUND,
-            UserError::UnexpectedError => StatusCode::BAD_REQUEST,
+            UserError::UnexpectedError(_) => StatusCode::BAD_REQUEST,
         };
 
         let body = Json(json!({ "error": self.to_string() }));

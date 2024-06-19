@@ -42,17 +42,16 @@ impl MongolDB
 
     pub async fn get_user_db_object_by_id(&self, user_id: &String) -> Result<MongolUser, UserError>
     {
-        match self.users.find_one(doc! { "uuid" : user_id }, None).await
+        let user_option = self
+                                              .users
+                                              .find_one(doc! { "uuid" : user_id }, None)
+                                              .await
+                                              .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+
+        match user_option
         {
-            Ok(option) => 
-            {
-                match option
-                {
-                    Some(user) => Ok(user),
-                    None => Err(UserError::UserNotFound)
-                }
-            },
-            Err(_) => Err(UserError::UnexpectedError)
+            Some(user) => Ok(user),
+            None => Err(UserError::UserNotFound)
         }
     }
 }
@@ -62,17 +61,13 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, UserError>
     {
-        match Uuid::parse_str(user_id)
+        let user_uuid = Uuid::parse_str(user_id)
+                              .map_err(|_| UserError::UserNotFound)?;
+
+        match self.users.find_one(doc! { "_id" : user_uuid }, None).await
         {
-            Ok(user_uuid) => 
-            {
-                match self.users.find_one(doc! { "_id" : user_uuid }, None).await
-                {
-                    Ok(option) => Ok(option.is_some()),
-                    Err(_) => Err(UserError::UnexpectedError)
-                }
-            },
-            Err(_) => Err(UserError::UserNotFound)
+            Ok(option) => Ok(option.is_some()),
+            Err(err) => Err(UserError::UnexpectedError(Some(err.to_string())))
         }
     }
 
@@ -81,51 +76,35 @@ impl UserRepository for MongolDB
         match self.users.find_one(doc! { "mail" : user_mail }, None).await
         {
             Ok(option) => Ok(option.is_some()),
-            Err(_) => Err(UserError::UnexpectedError)
+            Err(err) => Err(UserError::UnexpectedError(Some(err.to_string())))
         }
     }
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user_result = MongolUser::convert_to_db(&user).await;
+        let db_user = MongolUser::convert_to_db(&user)
+                                  .await
+                                  .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
         
-        if let Err(_) = db_user_result
-        {
-            return Err(UserError::UnexpectedError);
-        }
-
-        let db_user = db_user_result.unwrap();
-
         match self.users.insert_one(&db_user, None).await
         {
             Ok(_) => Ok(user),
-            Err(err) => {
-                println!("{}", err);
-                return Err(UserError::UnexpectedError);
-            }
+            Err(err) => Err(UserError::UnexpectedError(Some(err.to_string()))),
         }
     }
 
     async fn get_user_by_id(&self, user_id: &String) -> Result<User, UserError>
     {
-        match Uuid::parse_str(user_id)
+        let user_uuid = Uuid::parse_str(user_id)
+                              .map_err(|_| UserError::UserNotFound)?;
+        let user_option = self.users.find_one(doc! { "_id": user_uuid }, None)
+                                         .await
+                                         .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+        
+        match user_option 
         {
-            Ok(user_uuid) => 
-            {
-                match self.users.find_one(doc! { "_id" : user_uuid }, None).await
-                {
-                    Ok(option) => 
-                    {
-                        match option
-                        {
-                            Some(user) => Ok(user.convert_to_domain()),
-                            None => Err(UserError::UserNotFound)
-                        }
-                    },
-                    Err(_) => Err(UserError::UnexpectedError)
-                }
-            },
-            Err(_) => Err(UserError::UserNotFound)
+            Some(user) => Ok(user.convert_to_domain()),
+            None => Err(UserError::UserNotFound),
         }
     }
 }
