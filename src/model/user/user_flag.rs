@@ -109,12 +109,12 @@ mod tests
     {
         test_from_str_none_all_lowercase_is_valid:("none", UserFlag::None),
         test_from_str_none_all_uppercase_is_valid:("NONE", UserFlag::None),
-        test_from_str_disabled_all_lowercase_is_valid:("disabled", UserFlag::None),
-        test_from_str_disabled_all_uppercase_is_valid:("DISABLED", UserFlag::None),
-        test_from_str_admin_all_lowercase_is_valid:("admin", UserFlag::None),
-        test_from_str_admin_all_uppercase_is_valid:("ADMIN", UserFlag::None),
-        test_from_str_owner_all_lowercase_is_valid:("owner", UserFlag::None),
-        test_from_str_owner_all_uppercase_is_valid:("OWNER", UserFlag::None),
+        test_from_str_disabled_all_lowercase_is_valid:("disabled", UserFlag::Disabled),
+        test_from_str_disabled_all_uppercase_is_valid:("DISABLED", UserFlag::Disabled),
+        test_from_str_admin_all_lowercase_is_valid:("admin", UserFlag::Admin),
+        test_from_str_admin_all_uppercase_is_valid:("ADMIN", UserFlag::Admin),
+        test_from_str_owner_all_lowercase_is_valid:("owner", UserFlag::Owner),
+        test_from_str_owner_all_uppercase_is_valid:("OWNER", UserFlag::Owner),
     }
 
     macro_rules! from_str_base_tests_invalid
@@ -136,103 +136,188 @@ mod tests
     from_str_base_tests_invalid! 
     {
         test_from_str_is_invalid:("AAAaaa", UserFlagParseError::InvalidFormat),
-        test_from_str_edited_invalid_format_is_invalid:("edited", UserFlagParseError::InvalidFormat),
-        test_from_str_edited_invalid_separator_is_invalid:("edited+utc_time", UserFlagParseError::InvalidFormat),
-        test_from_str_edited_invalid_date_is_invalid:("edited|utc_time", UserFlagParseError::InvalidDate),
-        test_from_str_deleted_invalid_format_is_invalid:("deleted", UserFlagParseError::InvalidFormat),
-        test_from_str_deleted_invalid_separator_is_invalid:("deleted+utc_time", UserFlagParseError::InvalidFormat),
-        test_from_str_deleted_invalid_date_is_invalid:("deleted|utc_time", UserFlagParseError::InvalidDate),
+        test_from_str_edited_invalid_format_is_invalid:("deleted", UserFlagParseError::InvalidFormat),
+        test_from_str_edited_invalid_separator_is_invalid:("deleted+utc_time", UserFlagParseError::InvalidFormat),
+        test_from_str_edited_invalid_date_is_invalid:("deleted|utc_time", UserFlagParseError::InvalidDate),
+        test_from_str_deleted_invalid_format_is_invalid:("banned", UserFlagParseError::InvalidFormat),
+        test_from_str_deleted_invalid_separator_is_invalid:("banned+utc_time", UserFlagParseError::InvalidFormat),
+        test_from_str_deleted_invalid_date_is_invalid:("banned|utc_time", UserFlagParseError::InvalidDate),
     }
 
-
-    #[test]
-    fn test_from_str_deleted_all_lowercase_is_valid() 
+    macro_rules! from_str_date_tests_valid 
     {
-        let utc = Utc::now();
-        let utc_string = utc.to_rfc3339();
-
-        let mut enum_value = "deleted|".to_owned();
-        enum_value.push_str(&utc_string);
-        let result = UserFlag::from_str(&enum_value).unwrap();
-
-        assert_matches!(result, UserFlag::Deleted { .. });
-        match result
+        ($($name:ident: $value:expr,)*) => 
         {
-            UserFlag::Deleted{ date } => assert_eq!(date, utc),
-            _ => assert!(false, "Failed"),
-        }
-    }
+        $(
+            #[test]
+            fn $name() 
+            {
+                let (input, utc, expected) = $value;
 
-    #[test]
-    fn test_from_str_deleted_all_uppercase_is_valid() 
-    {
-        let utc = Utc::now();
-        let utc_string = utc.to_rfc3339();
-
-        let mut enum_value = "DELETED|".to_owned();
-        enum_value.push_str(&utc_string);
-        let result = UserFlag::from_str(&enum_value).unwrap();
-
-        assert_matches!(result, UserFlag::Deleted{ .. });
-        match result
-        {
-            UserFlag::Deleted{ date } => assert_eq!(date, utc),
-            _ => assert!(false, "Failed"),
-        }
-    }
-
-
-    #[test]
-    fn test_from_str_banned_all_lowercase_is_valid() 
-    {
-        let utc = Utc::now();
-        let utc_string = utc.to_string();
-
-        let mut enum_value = "banned|".to_owned();
-        enum_value.push_str(&utc_string);
-        let result = UserFlag::from_str(&enum_value).unwrap();
-
-        assert_matches!(result, UserFlag::Banned{ .. });
-        match result
-        {
-            UserFlag::Banned{ date } => assert_eq!(date, utc),
-            _ => assert!(false, "Failed"),
-        }
-    }
-
-    #[test]
-    fn test_from_str_banned_all_uppercase_is_valid() 
-    {
-        let utc = Utc::now();
-        let utc_string = utc.to_string();
-
-        let mut enum_value = "BANNED|".to_owned();
-        enum_value.push_str(&utc_string);
-        let result = UserFlag::from_str(&enum_value).unwrap();
-
-        assert_matches!(result, UserFlag::Banned{ .. });
-        match result
-        {
-            UserFlag::Banned{ date } => assert_eq!(date, utc),
-            _ => assert!(false, "Failed"),
-        }
-    }
-
-    #[test]
-    fn test_from_str_banned_invalid_format_is_invalid() 
-    {
-        let enum_value = "banned";
-        let result = UserFlag::from_str(&enum_value).unwrap_err();
-
-        assert_matches!(result, UserFlagParseError::InvalidFormat);
-    }
-
-    #[test]
-    fn test_from_str_banned_invalid_date_is_invalid() 
-    {
-        let enum_value = "banned|24-10-2024";
-        let result = UserFlag::from_str(&enum_value).unwrap_err();
+                let utc_string = utc.to_rfc3339();
         
-        assert_matches!(result, UserFlagParseError::InvalidDate);
+                let mut enum_value = input.to_owned();
+                enum_value.push_str(&utc_string);
+        
+                let result = UserFlag::from_str(&enum_value).unwrap();
+        
+                assert_eq!(result, expected);
+            }
+        )*
+        }
+    }
+
+    from_str_date_tests_valid!
+    {
+        test_from_str_deleted_all_lowercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("deleted|", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" deleted | ", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\ndeleted\n|\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rdeleted\r|\r", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\ndeleted\r\n|\r\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("DELETED|", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" DELETED | ", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDELETED\n|\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDELETED\r|\r", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nDELETED\r\n|\r\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("DeLEted|", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" DeLEted | ", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDeLEted\n|\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDeLEted\r|\r", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nDeLEted\r\n|\r\n", fixed_utc, UserFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_banned_all_lowercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("banned|", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_lowercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" banned | ", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_lowercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\nbanned\n|\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_lowercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rbanned\r|\r", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_lowercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nbanned\r\n|\r\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_uppercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("BANNED|", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_uppercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" BANNED | ", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_uppercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rBANNED\n|\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_uppercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rBANNED\r|\r", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_all_uppercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nBANNED\r\n|\r\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_variant_casing_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("baNNEd|", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_variant_casing_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" baNNEd | ", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_variant_casing_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rbaNNEd\n|\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_variant_casing_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rbaNNEd\r|\r", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
+        test_from_str_banned_variant_casing_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nbaNNEd\r\n|\r\n", fixed_utc, UserFlag::Banned { date: fixed_utc })
+        },
     }
 }
