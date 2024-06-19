@@ -243,5 +243,80 @@ mod tests
             let fixed_utc = Utc::now();
             ("\r\nediTED\r\n|\r\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
         },
+        test_from_str_deleted_all_lowercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("deleted|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" deleted | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\ndeleted\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rdeleted\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_lowercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\ndeleted\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("DELETED|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" DELETED | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDELETED\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rDELETED\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_all_uppercase_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\nDELETED\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("deLEted|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_whitespace_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            (" deLEted | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_lf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rdeLEted\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_cr_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\rdeLEted\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
+        test_from_str_deleted_variant_casing_with_crlf_is_valid: 
+        {
+            let fixed_utc = Utc::now();
+            ("\r\ndeLEted\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+        },
     }
 }
