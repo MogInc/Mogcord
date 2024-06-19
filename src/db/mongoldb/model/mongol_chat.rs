@@ -11,7 +11,7 @@ pub struct MongolChat
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owner: Vec<MongolUser>,
-    pub users: Vec<MongolUser>,
+    pub users: Option<Vec<MongolUser>>,
     pub bucket_ids: Option<Vec<String>>
 }
 
