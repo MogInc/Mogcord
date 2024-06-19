@@ -108,11 +108,11 @@ mod tests
     from_str_base_tests_valid!
     {
         test_from_str_none_all_lowercase_is_valid:("none", UserFlag::None),
-        
         test_from_str_none_all_lowercase_with_whitespace_is_valid: (" none ", UserFlag::None),
         test_from_str_none_all_lowercase_with_lf_is_valid: ("\nnone\n", UserFlag::None),
         test_from_str_none_all_lowercase_with_cr_is_valid: ("\rnone\r", UserFlag::None),
         test_from_str_none_all_lowercase_with_crlf_is_valid: ("\r\nnone\r\n", UserFlag::None),
+        test_from_str_none_all_uppercase_is_valid: ("NONE", UserFlag::None),
         test_from_str_none_all_uppercase_with_whitespace_is_valid: (" NONE ", UserFlag::None),
         test_from_str_none_all_uppercase_with_lf_is_valid: ("\nNONE\n", UserFlag::None),
         test_from_str_none_all_uppercase_with_cr_is_valid: ("\rNONE\r", UserFlag::None),
@@ -138,11 +138,27 @@ mod tests
         test_from_str_disabled_variant_casing_with_cr_is_valid: ("\rdisaBLEd\r", UserFlag::Disabled),
         test_from_str_disabled_variant_casing_with_crlf_is_valid: ("\r\ndisaBLEd\r\n", UserFlag::Disabled),
         test_from_str_admin_all_lowercase_is_valid:("admin", UserFlag::Admin),
+        test_from_str_admin_all_lowercase_with_whitespace_is_valid: (" admin ", UserFlag::Admin),
+        test_from_str_admin_all_lowercase_with_lf_is_valid: ("\nadmin\n", UserFlag::Admin),
+        test_from_str_admin_all_lowercase_with_cr_is_valid: ("\radmin\r", UserFlag::Admin),
+        test_from_str_admin_all_lowercase_with_crlf_is_valid: ("\r\nadmin\r\n", UserFlag::Admin),
         test_from_str_admin_all_uppercase_is_valid:("ADMIN", UserFlag::Admin),
+        test_from_str_admin_all_uppercase_with_whitespace_is_valid: (" ADMIN ", UserFlag::Admin),
+        test_from_str_admin_all_uppercase_with_lf_is_valid: ("\nADMIN\n", UserFlag::Admin),
+        test_from_str_admin_all_uppercase_with_cr_is_valid: ("\rADMIN\r", UserFlag::Admin),
+        test_from_str_admin_all_uppercase_with_crlf_is_valid: ("\r\nADMIN\r\n", UserFlag::Admin),
         test_from_str_admin_variant_casing_is_valid:("adMIn", UserFlag::Admin),
+        test_from_str_admin_variant_casing_with_whitespace_is_valid: (" adMIn ", UserFlag::Admin),
+        test_from_str_admin_variant_casing_with_lf_is_valid: ("\nadMIn\n", UserFlag::Admin),
+        test_from_str_admin_variant_casing_with_cr_is_valid: ("\radMIn\r", UserFlag::Admin),
+        test_from_str_admin_variant_casing_with_crlf_is_valid: ("\r\nadMIn\r\n", UserFlag::Admin),
         test_from_str_owner_all_lowercase_is_valid:("owner", UserFlag::Owner),
         test_from_str_owner_all_uppercase_is_valid:("OWNER", UserFlag::Owner),
         test_from_str_owner_variant_casing_is_valid:("owNER", UserFlag::Owner),
+        test_from_str_owner_variant_casing_with_whitespace_is_valid: (" owNER ", UserFlag::Owner),
+        test_from_str_owner_variant_casing_with_lf_is_valid: ("\nowNER\n", UserFlag::Owner),
+        test_from_str_owner_variant_casing_with_cr_is_valid: ("\rowNER\r", UserFlag::Owner),
+        test_from_str_owner_variant_casing_with_crlf_is_valid: ("\r\nowNER\r\n", UserFlag::Owner),
     }
 
     macro_rules! from_str_base_tests_invalid
