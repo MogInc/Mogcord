@@ -19,7 +19,8 @@ impl MongolUser
     ) -> MongolUser
     {
 
-        if let Some(mongol_db) = mongol_db_option {
+        if let Some(mongol_db) = mongol_db_option 
+        {
             match mongol_db.get_user_db_object_by_id(&user.uuid).await
             {
                 Ok(user_from_db) => 
