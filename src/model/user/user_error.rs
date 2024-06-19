@@ -12,7 +12,6 @@ pub enum UserError
     UserNotFound,
     MailAlreadyInUse,
     UnexpectedError,
-    DatabaseError(String),
 }
 
 impl IntoResponse for UserError 
@@ -24,7 +23,6 @@ impl IntoResponse for UserError
             UserError::MailAlreadyInUse => StatusCode::BAD_REQUEST,
             UserError::UserNotFound => StatusCode::NOT_FOUND,
             UserError::UnexpectedError => StatusCode::BAD_REQUEST,
-            UserError::DatabaseError(_) => StatusCode::BAD_REQUEST,
         };
 
         let body = Json(json!({ "error": self.to_string() }));
