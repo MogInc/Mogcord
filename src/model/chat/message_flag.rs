@@ -90,7 +90,7 @@ mod tests
             fn $name() 
             {
                 let (input, expected) = $value;
-                let result : MessageFlag = MessageFlag::from_str(input).unwrap();
+                let result = MessageFlag::from_str(input).unwrap();
                 assert_eq!(result, expected);
             }
         )*
@@ -125,7 +125,7 @@ mod tests
             fn $name() 
             {
                 let (input, expected) = $value;
-                let result : MessageFlagParseError = MessageFlag::from_str(input).unwrap_err();
+                let result = MessageFlag::from_str(input).unwrap_err();
                 assert_eq!(result, expected);
             }
         )*
