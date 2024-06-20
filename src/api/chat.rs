@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
+use serde::Deserialize;
 
 use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatRepository}, user::User}};
 
@@ -25,6 +26,7 @@ async fn get_chat(
     // }
 }
 
+#[derive(Deserialize)]
 struct CreateChatRequest
 {
 
