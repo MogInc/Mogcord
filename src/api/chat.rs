@@ -17,13 +17,11 @@ async fn get_chat(
     Path(uuid): Path<String>) 
     -> impl IntoResponse
 {
-
-
-    // match db.get_chat_by_id(&uuid).await 
-    // {
-    //     Ok(chat) => Ok(Json(chat)),
-    //     Err(e) => Err(e),
-    // }
+    match db.get_chat_by_id(&uuid).await 
+    {
+        Ok(chat) => Ok(Json(chat)),
+        Err(e) => Err(e),
+    }
 }
 
 #[derive(Deserialize)]
