@@ -18,3 +18,4 @@ derive_more = "^0.99"
 uuid = { version = "^0.8", features = ["v4"]}
 mongodb = { version = "2.8.2", features = ["zlib-compression", "zstd-compression", "snappy-compression"] }
 chrono = { version = "0.4", features = ["serde"] }
+futures-util = "0.3"
