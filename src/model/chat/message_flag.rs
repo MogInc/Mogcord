@@ -23,7 +23,7 @@ impl fmt::Display for MessageFlagParseError
 
 impl std::error::Error for MessageFlagParseError {}
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum MessageFlag
 {
     None,
