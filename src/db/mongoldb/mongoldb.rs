@@ -91,7 +91,7 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user = MongolUser::try_from(user)
+        let db_user = MongolUser::try_from(user.clone())
                                   .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
         
         match self.users.insert_one(&db_user, None).await
@@ -121,12 +121,30 @@ impl UserRepository for MongolDB
 #[async_trait]
 impl ChatRepository for MongolDB
 {
-    async fn create_chat(&self, user: Chat) -> Result<Chat, ChatError>
+    async fn create_chat(&self, chat: Chat) -> Result<Chat, ChatError>
     {
+        let db_chat = MongolChat::try_from(chat.clone())
+                                  .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
 
+        match self.chats.insert_one(&db_chat, None).await
+        {
+            Ok(_) => Ok(chat),
+            Err(err) => Err(ChatError::UnexpectedError(Some(err.to_string()))),
+        }
     }
+
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ChatError>
     {
-        
+        let chat_option = self
+                                              .chats
+                                              .find_one(doc!{ "_uuid" : chat_id }, None)
+                                              .await
+                                              .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+
+        match chat_option
+        {
+            Some(chat) => Ok(),
+            None => Err(ChatError::ChatNotFound),
+        }
     }
 }
