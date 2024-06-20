@@ -91,8 +91,7 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user = MongolUser::convert_to_db(&user)
-                                  .await
+        let db_user = MongolUser::try_from(user)
                                   .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
         
         match self.users.insert_one(&db_user, None).await
@@ -113,7 +112,7 @@ impl UserRepository for MongolDB
         
         match user_option 
         {
-            Some(user) => Ok(user.convert_to_domain()),
+            Some(user) => Ok(User::from(user)),
             None => Err(UserError::UserNotFound),
         }
     }
