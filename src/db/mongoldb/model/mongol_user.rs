@@ -12,26 +12,30 @@ pub struct MongolUser
     pub mail: String,
 }
 
-impl MongolUser
+impl TryFrom<User> for MongolUser
 {
-    pub async fn convert_to_db(user : &User) -> Result<MongolUser, MongolError>
+    type Error = MongolError;
+
+    fn try_from(value: User) -> Result<Self, Self::Error> 
     {
-        match Uuid::parse_str(&user.uuid)
+        match Uuid::parse_str(&value.uuid)
         {
             Ok(_id) => Ok(
                 MongolUser
                 {
                     _id: _id.clone(),
-                    name: user.name.clone(),
-                    mail: user.mail.clone(),
+                    name: value.name.clone(),
+                    mail: value.mail.clone(),
                 }
             ),
             Err(_) => Err(MongolError::FailedUserParsing)
         }
     }
+}
 
-    pub fn convert_to_domain(self) -> User
-    {
-        User::convert(self._id.to_string(), self.name, self.mail)
+impl From<MongolUser> for User
+{
+    fn from(value: MongolUser) -> Self {
+        User::convert(value._id.to_string(), value.name, value.mail)
     }
 }
