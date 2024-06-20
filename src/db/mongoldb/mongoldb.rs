@@ -1,9 +1,10 @@
 use std::time::Duration;
 
 use axum::async_trait;
-use mongodb::{bson::{doc, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
+use mongodb::{bson::{doc, from_document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
+use futures_util::stream::StreamExt;
 
-use crate::{api::chat, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
+use crate::model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat};
@@ -138,13 +139,16 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ChatError>
     {
+        let chat_uuid = Uuid::parse_str(chat_id)
+                              .map_err(|_| ChatError::ChatNotFound)?;
+
         let pipelines = vec![
             //filter
             doc! 
             {
                 "$match":
                 {
-                    "_id": chat_id
+                    "_id": chat_uuid
                 }
             },
             //join with owners
@@ -166,7 +170,7 @@ impl ChatRepository for MongolDB
                     "from": "users",
                     "localField": "user_ids",
                     "foreignField": "_id",
-                    "as": "owners"
+                    "as": "members"
                 },
             },
             //join with buckets
@@ -175,23 +179,33 @@ impl ChatRepository for MongolDB
                 "$lookup":
                 {
                     "from": "buckets",
-                    "localField": "user_ids",
+                    "localField": "bucket_ids",
                     "foreignField": "_id",
-                    "as": "owners"
+                    "as": "buckets"
                 },
             }
         ];
 
-        let document = self
-                                         .chats
-                                         .aggregate(pipelines, None)
-                                         .await
-                                         .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+        let mut cursor = self
+                                       .chats
+                                       .aggregate(pipelines, None)
+                                       .await
+                                       .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
 
-        match chat_option
+        let document_option = cursor
+                                     .next()
+                                     .await
+                                     .transpose()
+                                     .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+
+        match document_option
         {
-            Some(chat) => Ok(),
-            None => Err(ChatError::ChatNotFound),
+            Some(document) => 
+            {
+                let chat : Chat = from_document(document).map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
+                return Ok(chat);
+            },
+            None => Err(ChatError::ChatNotFound), 
         }
     }
 }
