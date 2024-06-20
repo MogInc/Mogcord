@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User
 {
     pub uuid: String,

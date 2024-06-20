@@ -13,7 +13,7 @@ pub enum ChatType
     Server,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Chat
 {
     pub uuid: String,
@@ -46,7 +46,7 @@ impl Chat
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bucket
 {
     pub uuid: String,
@@ -55,7 +55,7 @@ pub struct Bucket
     pub messages: Option<Vec<Message>>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Message
 {
     pub uuid: String,
