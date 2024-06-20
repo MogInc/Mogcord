@@ -3,13 +3,16 @@ use std::time::Duration;
 use axum::async_trait;
 use mongodb::{bson::{doc, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
 
-use crate::model::user::{User, UserError, UserRepository};
+use crate::{api::chat, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
+
+use super::MongolChat;
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
 {
-    users: Collection<MongolUser>
+    users: Collection<MongolUser>,
+    chats: Collection<MongolChat>,
 }
 
 impl MongolDB
@@ -36,8 +39,14 @@ impl MongolDB
         let db = client.database("db_mogcord");
 
         let users: Collection<MongolUser> = db.collection("users");
+        let chats: Collection<MongolChat> = db.collection("chats");
 
-        Ok(Self { users : users })
+        Ok(Self 
+            { 
+                users : users,
+                chats: chats
+            }
+        )
     }
 
     pub async fn get_user_db_object_by_id(&self, user_id: &String) -> Result<MongolUser, UserError>
@@ -107,5 +116,18 @@ impl UserRepository for MongolDB
             Some(user) => Ok(user.convert_to_domain()),
             None => Err(UserError::UserNotFound),
         }
+    }
+}
+
+#[async_trait]
+impl ChatRepository for MongolDB
+{
+    async fn create_chat(&self, user: Chat) -> Result<Chat, ChatError>
+    {
+
+    }
+    async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ChatError>
+    {
+        
     }
 }
