@@ -6,13 +6,14 @@ use mongodb::{bson::{doc, Uuid}, options::{ClientOptions, Compressor}, Client, C
 use crate::{api::chat, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
-use super::MongolChat;
+use super::{MongolBucket, MongolChat};
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
 {
     users: Collection<MongolUser>,
     chats: Collection<MongolChat>,
+    buckets: Collection<MongolBucket>,
 }
 
 impl MongolDB
@@ -40,11 +41,13 @@ impl MongolDB
 
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");
+        let buckets: Collection<MongolBucket> = db.collection("buckets");
 
         Ok(Self 
             { 
                 users : users,
-                chats: chats
+                chats: chats,
+                buckets: buckets,
             }
         )
     }
@@ -135,11 +138,55 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ChatError>
     {
-        let chat_option = self
-                                              .chats
-                                              .find_one(doc!{ "_uuid" : chat_id }, None)
-                                              .await
-                                              .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+        let pipelines = vec![
+            //filter
+            doc! 
+            {
+                "$match":
+                {
+                    "_id": chat_id
+                }
+            },
+            //join with owners
+            doc! 
+            {
+                "$lookup":
+                {
+                    "from": "users",
+                    "localField": "owner_ids",
+                    "foreignField": "_id",
+                    "as": "owners"
+                },
+            },
+            //join with members
+            doc! 
+            {
+                "$lookup":
+                {
+                    "from": "users",
+                    "localField": "user_ids",
+                    "foreignField": "_id",
+                    "as": "owners"
+                },
+            },
+            //join with buckets
+            doc! 
+            {
+                "$lookup":
+                {
+                    "from": "buckets",
+                    "localField": "user_ids",
+                    "foreignField": "_id",
+                    "as": "owners"
+                },
+            }
+        ];
+
+        let document = self
+                                         .chats
+                                         .aggregate(pipelines, None)
+                                         .await
+                                         .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
 
         match chat_option
         {
