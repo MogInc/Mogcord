@@ -1,5 +1,6 @@
 use std::{fmt, str::FromStr};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq)]
 pub enum MessageFlagParseError 
@@ -22,7 +23,7 @@ impl fmt::Display for MessageFlagParseError
 
 impl std::error::Error for MessageFlagParseError {}
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum MessageFlag
 {
     None,
