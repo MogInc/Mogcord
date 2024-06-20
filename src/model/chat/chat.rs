@@ -34,6 +34,7 @@ impl Chat
         buckets: Option<Vec<Bucket>>) 
         -> Self
     {
+        //TODO: add some buzniz checks
         Self
         {
             uuid: Uuid::new_v4().to_string(),
