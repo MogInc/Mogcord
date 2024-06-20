@@ -1,10 +1,11 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::model::user::User;
 use super::MessageFlag;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ChatType
 {
     Private,
@@ -12,7 +13,7 @@ pub enum ChatType
     Server,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Chat
 {
     pub uuid: String,
@@ -23,7 +24,29 @@ pub struct Chat
     pub buckets: Option<Vec<Bucket>>,
 }
 
-#[derive(Serialize, Deserialize)]
+impl Chat
+{
+    pub fn new(
+        name: Option<String>, 
+        r#type: ChatType, 
+        owners: Vec<User>,
+        members: Option<Vec<User>>,
+        buckets: Option<Vec<Bucket>>) 
+        -> Self
+    {
+        Self
+        {
+            uuid: Uuid::new_v4().to_string(),
+            name: name,
+            r#type: r#type,
+            owners: owners,
+            members: members,
+            buckets: buckets,
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Bucket
 {
     pub uuid: String,
@@ -32,7 +55,7 @@ pub struct Bucket
     pub messages: Option<Vec<Message>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Message
 {
     pub uuid: String,
