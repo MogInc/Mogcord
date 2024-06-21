@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use axum::async_trait;
-use mongodb::{bson::{doc, from_document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
+use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
 use futures_util::stream::StreamExt;
 
 use crate::{convert_UUID_to_string, map_mongo_collection, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
@@ -202,13 +202,13 @@ impl ChatRepository for MongolDB
             },
         ];
 
-        let mut cursor = self
+        let mut cursor: Cursor<Document> = self
                                        .chats
                                        .aggregate(pipelines, None)
                                        .await
                                        .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
 
-        let document_option = cursor
+        let document_option: Option<Document> = cursor
                                      .next()
                                      .await
                                      .transpose()
