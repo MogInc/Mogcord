@@ -222,7 +222,7 @@ impl ChatRepository for MongolDB
             Some(document) => 
             {
                 let chat : Chat = from_document(document)
-                    .map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
+                    .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), false))?;
 
                 return Ok(chat);
             },

@@ -14,11 +14,11 @@ pub fn routes_user(state: Arc<MongolDB>) -> Router
 }
 
 async fn get_user(
-    State(db): State<Arc<dyn UserRepository>>,
+    State(repo): State<Arc<dyn UserRepository>>,
     Path(uuid): Path<String>) 
     -> impl IntoResponse
 {
-    match db.get_user_by_id(&uuid).await 
+    match repo.get_user_by_id(&uuid).await 
     {
         Ok(user) => Ok(Json(user)),
         Err(e) => Err(e),
@@ -33,19 +33,19 @@ struct CreateUserRequest
 }
 
 async fn post_user(
-    State(db): State<Arc<dyn UserRepository>>, 
+    State(repo): State<Arc<dyn UserRepository>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>) 
     -> impl IntoResponse
 {
 
     let user: User = User::new(payload.user_name, payload.user_mail);
 
-    if db.does_user_exist_by_mail(&user.mail).await?
+    if repo.does_user_exist_by_mail(&user.mail).await?
     {
         return Err(UserError::MailAlreadyInUse);
     }
 
-    match db.create_user(user).await 
+    match repo.create_user(user).await 
     {
         Ok(user) => Ok(Json(user)),
         Err(e) => Err(e),

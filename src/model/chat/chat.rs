@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::model::user::User;
-use super::MessageFlag;
+use super::{ChatError, MessageFlag};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ChatType
@@ -30,20 +30,33 @@ impl Chat
         name: Option<String>, 
         r#type: ChatType, 
         owners: Vec<User>,
-        members: Option<Vec<User>>,
-        buckets: Option<Vec<Bucket>>) 
-        -> Self
+        members: Option<Vec<User>>) 
+        -> Result<Self, ChatError>
     {
-        //TODO: add some buzniz checks
-        Self
+
+        let max_owner_count: usize = match r#type
         {
+            ChatType::Private => 2,
+            ChatType::Server | ChatType::Group => 1,
+        };
+
+        if max_owner_count != owners.len()
+        {
+            return Err(ChatError::InvalidChat(Some(String::from("Invalid amount of owners for chattype")), true));
+        }
+
+        let members: Option<Vec<User>> = members.map(|members| {
+            members.into_iter().filter(|x| !owners.contains(x)).collect()
+        });
+
+        Ok(Self{
             uuid: Uuid::new_v4().to_string(),
             name: name,
             r#type: r#type,
             owners: owners,
             members: members,
-            buckets: buckets,
-        }
+            buckets: None,
+        })
     }
 }
 

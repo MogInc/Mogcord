@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatRepository}, user::User}};
+use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatRepository, ChatType}, user::{User, UserRepository}}};
 
 pub fn routes_chat(state: Arc<MongolDB>) -> Router
 {
@@ -13,11 +13,11 @@ pub fn routes_chat(state: Arc<MongolDB>) -> Router
 }
 
 async fn get_chat(
-    State(db): State<Arc<dyn ChatRepository>>,
+    State(repo): State<Arc<dyn ChatRepository>>,
     Path(uuid): Path<String>) 
     -> impl IntoResponse
 {
-    match db.get_chat_by_id(&uuid).await 
+    match repo.get_chat_by_id(&uuid).await 
     {
         Ok(chat) => Ok(Json(chat)),
         Err(e) => Err(e),
@@ -27,19 +27,28 @@ async fn get_chat(
 #[derive(Deserialize)]
 struct CreateChatRequest
 {
-
+    name: Option<String>,
+    r#type: ChatType,
+    owners: Vec<String>,
+    members: Option<Vec<String>>,
 }
 
 async fn post_chat(
-    State(db): State<Arc<dyn ChatRepository>>,
-    extract::Json(_payload): extract::Json<CreateChatRequest>)
+    State(repo_chat): State<Arc<dyn ChatRepository>>,
+    State(repo_user): State<Arc<dyn UserRepository>>,
+    extract::Json(payload): extract::Json<CreateChatRequest>)
  -> impl IntoResponse
 {
-    let mut users: Vec<crate::model::user::User> = Vec::new();
-    users.push(User::new(String::from("Ted"), String::from("Ted@shit.com")));
-    let chat = Chat::new(Some(String::from("W in da chat")), crate::model::chat::ChatType::Group, users.clone(),Some(users.clone()), None);
+    
 
-    match db.create_chat(chat).await 
+    let chat: Chat = Chat::new(
+        payload.name,
+        payload.r#type, 
+        users.clone(),
+        None,
+    )?;
+
+    match repo_chat.create_chat(chat).await 
     {
         Ok(user) => Ok(Json(user)),
         Err(e) => Err(e),
