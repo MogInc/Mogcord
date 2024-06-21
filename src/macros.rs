@@ -1,6 +1,8 @@
 #[macro_export]
-macro_rules! convert_UUID_to_string {
-    ($arg:expr) => {
+macro_rules! convert_UUID_to_string 
+{
+    ($arg:expr) => 
+    {
         doc! {
             "$function": 
             {
@@ -13,21 +15,20 @@ macro_rules! convert_UUID_to_string {
 }
 
 #[macro_export]
-macro_rules! map_mongo_collection {
-    ($arg:expr) => {
+macro_rules! map_mongo_collection 
+{
+    ($arg:expr) => 
+    {
         doc!    
         {
-            "owners":
+            "$map":
             {
-                "$map":
+                "input": $arg,
+                "in": 
                 {
-                    "input": "$owners",
-                    "in": 
-                    {
                     "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
-                    }
-                } 
-            }
+                }
+            } 
         }
     };
 }

@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
 use futures_util::stream::StreamExt;
 
-use crate::{convert_UUID_to_string, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
+use crate::{convert_UUID_to_string, map_mongo_collection, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat};
@@ -190,39 +190,9 @@ impl ChatRepository for MongolDB
                 "$addFields":
                 {
                     "uuid": convert_UUID_to_string!("$_id"),
-                    "owners":
-                    {
-                        "$map":
-                        {
-                            "input": "$owners",
-                            "in": 
-                            {
-                              "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
-                            }
-                        } 
-                    },
-                    "members": 
-                    {
-                      "$map": 
-                      {
-                        "input": "$members",
-                        "in": 
-                        {
-                          "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id")}]
-                        }
-                      }
-                    },
-                    "buckets": 
-                    {
-                      "$map": 
-                      {
-                        "input": "$buckets",
-                        "in": 
-                        {
-                          "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
-                        }
-                      }
-                    },
+                    "owners": map_mongo_collection!("$owners"),
+                    "members": map_mongo_collection!("$members"),
+                    "buckets": map_mongo_collection!("$buckets"),
                 }
             },
             //hide fields
@@ -248,7 +218,6 @@ impl ChatRepository for MongolDB
         {
             Some(document) => 
             {
-                println!("{}", document);
                 let chat : Chat = from_document(document)
                                   .map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
                 return Ok(chat);
