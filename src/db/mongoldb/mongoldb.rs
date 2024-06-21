@@ -184,7 +184,7 @@ impl ChatRepository for MongolDB
                     "as": "buckets"
                 },
             },
-            //rename field
+            //rename fields
             doc!
             {
                 "$addFields":
@@ -195,10 +195,9 @@ impl ChatRepository for MongolDB
                       "$map": 
                       {
                         "input": "$owners",
-                        "as": "owner",
                         "in": 
                         {
-                          "$mergeObjects": ["$$owner", { "uuid" : "$$owner._id" }]
+                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
                         }
                       }
                     },
@@ -207,10 +206,9 @@ impl ChatRepository for MongolDB
                       "$map": 
                       {
                         "input": "$members",
-                        "as": "user",
                         "in": 
                         {
-                          "$mergeObjects": ["$$user", { "uuid" : "$$user._id" }]
+                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
                         }
                       }
                     },
@@ -219,10 +217,9 @@ impl ChatRepository for MongolDB
                       "$map": 
                       {
                         "input": "$buckets",
-                        "as": "bucket",
                         "in": 
                         {
-                          "$mergeObjects": ["$$bucket", { "uuid" : "$$bucket._id" }]
+                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
                         }
                       }
                     },
@@ -231,7 +228,7 @@ impl ChatRepository for MongolDB
             //hide fields
             doc! 
             {
-                "$unset": ["_id", "owner_ids", "user_ids", "bucket_ids"]
+                "$unset": ["_id", "owner_ids", "user_ids", "bucket_ids", "owners._id"]
             },
         ];
 
