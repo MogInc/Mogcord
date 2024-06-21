@@ -41,7 +41,7 @@ async fn post_user(
 {
     let repo_user = &state.repo_user;
 
-    let user: User = User::new(payload.user_name, payload.user_mail);
+    let user = User::new(payload.user_name, payload.user_mail);
 
     if repo_user.does_user_exist_by_mail(&user.mail).await?
     {

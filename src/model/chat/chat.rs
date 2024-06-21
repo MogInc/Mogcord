@@ -34,7 +34,7 @@ impl Chat
         -> Result<Self, ChatError>
     {
 
-        if Self::is_owner_size_allowed(&r#type, owners.len())
+        if !Self::is_owner_size_allowed(&r#type, owners.len())
         {
             return Err(ChatError::InvalidOwnerCount);
         }

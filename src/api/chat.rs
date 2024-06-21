@@ -43,15 +43,15 @@ async fn post_chat(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    if Chat::is_owner_size_allowed(&payload.r#type, payload.owners.len())
+    if !Chat::is_owner_size_allowed(&payload.r#type, payload.owners.len())
     {
         return Err(ChatError::InvalidOwnerCount);
     }
 
     let owners = repo_user.get_users_by_id(payload.owners).await
-        .map_err(|_| ChatError::ChatNotFound)?;
+        .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?;
 
-    let chat: Chat = Chat::new(
+    let chat = Chat::new(
         payload.name,
         payload.r#type, 
         owners.clone(),

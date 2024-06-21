@@ -136,7 +136,26 @@ impl UserRepository for MongolDB
         }
 
         let pipelines = vec![
-            doc! { "$match": { "_id": { "$in": user_uuids } } }
+            doc! 
+            { 
+                "$match": 
+                { 
+                    "_id": { "$in": user_uuids } 
+                } 
+            },
+            //rename fields
+            doc!
+            {
+                "$addFields":
+                {
+                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
+                }
+            },
+            //hide fields
+            doc! 
+            {
+                "$unset": ["_id"]
+            },
         ];
 
         let mut cursor = self
