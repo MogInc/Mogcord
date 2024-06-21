@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
 use futures_util::stream::StreamExt;
 
-use crate::{convert_UUID_to_string, map_mongo_collection, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
+use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat};
@@ -189,7 +189,7 @@ impl ChatRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "uuid": convert_UUID_to_string!("$_id"),
+                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
                     "owners": map_mongo_collection!("$owners"),
                     "members": map_mongo_collection!("$members"),
                     "buckets": map_mongo_collection!("$buckets"),

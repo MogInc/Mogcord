@@ -1,14 +1,20 @@
 #[macro_export]
-macro_rules! convert_UUID_to_string 
+macro_rules! convert_mongo_key_to_string 
 {
-    ($arg:expr) => 
+    ($arg:expr, $type:expr) => 
     {
-        doc! {
-            "$function": 
-            {
-                "body": "function(x) { return x.toString().slice(6, -2); }",
-                "args": [ $arg ],
-                "lang": "js"
+        {
+            let slice_params = match $type {
+                "uuid" => (6, -2),
+                _ => (0, 0), 
+            };
+
+            doc! {
+                "$function": {
+                    "body": format!("function(x) {{ return x.toString().slice({}, {}); }}", slice_params.0, slice_params.1),
+                    "args": [ $arg ],
+                    "lang": "js"
+                }
             }
         }
     };
@@ -17,16 +23,16 @@ macro_rules! convert_UUID_to_string
 #[macro_export]
 macro_rules! map_mongo_collection 
 {
-    ($arg:expr) => 
+    ($input:expr) => 
     {
         doc!    
         {
             "$map":
             {
-                "input": $arg,
+                "input": $input,
                 "in": 
                 {
-                    "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
+                    "$mergeObjects": ["$$this", { "uuid" : convert_mongo_key_to_string!("$$this._id", "uuid") }]
                 }
             } 
         }
