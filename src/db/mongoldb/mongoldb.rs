@@ -183,7 +183,56 @@ impl ChatRepository for MongolDB
                     "foreignField": "_id",
                     "as": "buckets"
                 },
-            }
+            },
+            //rename field
+            doc!
+            {
+                "$addFields":
+                {
+                    "uuid": "$_id",
+                    "owners": 
+                    {
+                      "$map": 
+                      {
+                        "input": "$owners",
+                        "as": "owner",
+                        "in": 
+                        {
+                          "$mergeObjects": ["$$owner", { "uuid" : "$$owner._id" }]
+                        }
+                      }
+                    },
+                    "members": 
+                    {
+                      "$map": 
+                      {
+                        "input": "$members",
+                        "as": "user",
+                        "in": 
+                        {
+                          "$mergeObjects": ["$$user", { "uuid" : "$$user._id" }]
+                        }
+                      }
+                    },
+                    "buckets": 
+                    {
+                      "$map": 
+                      {
+                        "input": "$buckets",
+                        "as": "bucket",
+                        "in": 
+                        {
+                          "$mergeObjects": ["$$bucket", { "uuid" : "$$bucket._id" }]
+                        }
+                      }
+                    },
+                },
+            },
+            //hide fields
+            doc! 
+            {
+                "$unset": ["_id", "owner_ids", "user_ids", "bucket_ids"]
+            },
         ];
 
         let mut cursor = self
@@ -202,7 +251,9 @@ impl ChatRepository for MongolDB
         {
             Some(document) => 
             {
-                let chat : Chat = from_document(document).map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
+                println!("{}", document);
+                let chat : Chat = from_document(document)
+                                  .map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
                 return Ok(chat);
             },
             None => Err(ChatError::ChatNotFound), 
