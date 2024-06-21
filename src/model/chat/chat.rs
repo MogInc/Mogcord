@@ -34,7 +34,7 @@ impl Chat
         -> Result<Self, ChatError>
     {
 
-        if Self::is_owner_size_allowed(r#type, owners.len())
+        if Self::is_owner_size_allowed(&r#type, owners.len())
         {
             return Err(ChatError::InvalidOwnerCount);
         }
@@ -53,7 +53,7 @@ impl Chat
         })
     }
 
-    pub fn is_owner_size_allowed(r#type: ChatType, owner_count: usize) -> bool
+    pub fn is_owner_size_allowed(r#type: &ChatType, owner_count: usize) -> bool
     {
         let max_owner_count: usize = match r#type
         {

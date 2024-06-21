@@ -2,9 +2,9 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatError, ChatRepository, ChatType}, user::{User, UserRepository}}};
+use crate::model::{appstate::AppState, chat::{Chat, ChatError, ChatType}};
 
-pub fn routes_chat(state: Arc<MongolDB>) -> Router
+pub fn routes_chat(state: Arc<AppState>) -> Router
 {
     Router::new()
     .route("/chat/:id", get(get_chat))
@@ -13,11 +13,13 @@ pub fn routes_chat(state: Arc<MongolDB>) -> Router
 }
 
 async fn get_chat(
-    State(repo): State<Arc<dyn ChatRepository>>,
+    State(state): State<Arc<AppState>>,
     Path(uuid): Path<String>) 
     -> impl IntoResponse
 {
-    match repo.get_chat_by_id(&uuid).await 
+    let repo_chat = &state.repo_chat;
+
+    match repo_chat.get_chat_by_id(&uuid).await 
     {
         Ok(chat) => Ok(Json(chat)),
         Err(e) => Err(e),
@@ -34,22 +36,25 @@ struct CreateChatRequest
 }
 
 async fn post_chat(
-    State(repo_chat): State<Arc<dyn ChatRepository>>,
-    State(repo_user): State<Arc<dyn UserRepository>>,
+    State(state): State<Arc<AppState>>,
     extract::Json(payload): extract::Json<CreateChatRequest>)
  -> impl IntoResponse
 {
-    if Chat::is_owner_size_allowed(payload.r#type, payload.owners.len())
+    let repo_chat = &state.repo_chat;
+    let repo_user = &state.repo_user;
+
+    if Chat::is_owner_size_allowed(&payload.r#type, payload.owners.len())
     {
         return Err(ChatError::InvalidOwnerCount);
     }
 
-    
+    let owners = repo_user.get_users_by_id(payload.owners).await
+        .map_err(|_| ChatError::ChatNotFound)?;
 
     let chat: Chat = Chat::new(
         payload.name,
         payload.r#type, 
-        users.clone(),
+        owners.clone(),
         None,
     )?;
 

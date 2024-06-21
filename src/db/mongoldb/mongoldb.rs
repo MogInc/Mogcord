@@ -139,7 +139,7 @@ impl UserRepository for MongolDB
             doc! { "$match": { "_id": { "$in": user_uuids } } }
         ];
 
-        let cursor = self
+        let mut cursor = self
             .users
             .aggregate(pipelines, None)
             .await
