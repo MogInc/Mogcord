@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatRepository, ChatType}, user::{User, UserRepository}}};
+use crate::{db::mongoldb::MongolDB, model::{chat::{Chat, ChatError, ChatRepository, ChatType}, user::{User, UserRepository}}};
 
 pub fn routes_chat(state: Arc<MongolDB>) -> Router
 {
@@ -39,7 +39,10 @@ async fn post_chat(
     extract::Json(payload): extract::Json<CreateChatRequest>)
  -> impl IntoResponse
 {
-    
+    if Chat::is_owner_size_allowed(payload.r#type, payload.owners.len())
+    {
+        return Err(ChatError::InvalidOwnerCount);
+    }
 
     let chat: Chat = Chat::new(
         payload.name,

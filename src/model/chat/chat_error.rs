@@ -11,6 +11,7 @@ use serde_json::json;
 pub enum ChatError 
 {
     ChatNotFound,
+    InvalidOwnerCount,
     InvalidChat(Option<String>, bool),
     UnexpectedError(Option<String>),
 }
@@ -19,6 +20,7 @@ impl fmt::Display for ChatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ChatError::ChatNotFound => write!(f, "Chat not found"),
+            ChatError::InvalidOwnerCount => write!(f, "Invalid owner count"),
             ChatError::InvalidChat(Some(err), expose_outside) => 
             {
                 println!("{}", err);
@@ -49,6 +51,7 @@ impl IntoResponse for ChatError
         let status_code = match self 
         {
             ChatError::ChatNotFound => StatusCode::NOT_FOUND,
+            ChatError::InvalidOwnerCount => StatusCode::BAD_REQUEST,
             ChatError::InvalidChat(_,_) => StatusCode::BAD_REQUEST,
             ChatError::UnexpectedError(_) => StatusCode::BAD_REQUEST,
         };

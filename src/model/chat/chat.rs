@@ -34,15 +34,9 @@ impl Chat
         -> Result<Self, ChatError>
     {
 
-        let max_owner_count: usize = match r#type
+        if Self::is_owner_size_allowed(r#type, owners.len())
         {
-            ChatType::Private => 2,
-            ChatType::Server | ChatType::Group => 1,
-        };
-
-        if max_owner_count != owners.len()
-        {
-            return Err(ChatError::InvalidChat(Some(String::from("Invalid amount of owners for chattype")), true));
+            return Err(ChatError::InvalidOwnerCount);
         }
 
         let members: Option<Vec<User>> = members.map(|members| {
@@ -57,6 +51,17 @@ impl Chat
             members: members,
             buckets: None,
         })
+    }
+
+    pub fn is_owner_size_allowed(r#type: ChatType, owner_count: usize) -> bool
+    {
+        let max_owner_count: usize = match r#type
+        {
+            ChatType::Private => 2,
+            ChatType::Server | ChatType::Group => 1,
+        };
+
+        return max_owner_count == owner_count;
     }
 }
 
