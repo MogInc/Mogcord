@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection};
 use futures_util::stream::StreamExt;
 
-use crate::model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}};
+use crate::{convert_UUID_to_string, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat};
@@ -189,17 +189,17 @@ impl ChatRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "uuid": "$_id",
-                    "owners": 
+                    "uuid": convert_UUID_to_string!("$_id"),
+                    "owners":
                     {
-                      "$map": 
-                      {
-                        "input": "$owners",
-                        "in": 
+                        "$map":
                         {
-                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
-                        }
-                      }
+                            "input": "$owners",
+                            "in": 
+                            {
+                              "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
+                            }
+                        } 
                     },
                     "members": 
                     {
@@ -208,7 +208,7 @@ impl ChatRepository for MongolDB
                         "input": "$members",
                         "in": 
                         {
-                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
+                          "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id")}]
                         }
                       }
                     },
@@ -219,11 +219,11 @@ impl ChatRepository for MongolDB
                         "input": "$buckets",
                         "in": 
                         {
-                          "$mergeObjects": ["$$this", { "uuid" : "$$this._id" }]
+                          "$mergeObjects": ["$$this", { "uuid" : convert_UUID_to_string!("$$this._id") }]
                         }
                       }
                     },
-                },
+                }
             },
             //hide fields
             doc! 
