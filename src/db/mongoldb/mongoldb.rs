@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{result, time::Duration};
 
 use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
@@ -121,6 +121,47 @@ impl UserRepository for MongolDB
             Some(user) => Ok(User::from(user)),
             None => Err(UserError::UserNotFound),
         }
+    }
+
+    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, UserError>
+    {
+        let mut user_uuids : Vec<Uuid> = Vec::new();
+
+        for user_id in user_ids
+        {
+            let user_uuid: Uuid = Uuid::parse_str(user_id)
+                .map_err(|_| UserError::UserNotFound)?;
+
+            user_uuids.push(user_uuid);
+        }
+
+        let pipelines = vec![
+            doc! { "$match": { "_id": { "$in": user_uuids } } }
+        ];
+
+        let cursor = self
+            .users
+            .aggregate(pipelines, None)
+            .await
+            .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+        
+        let mut users : Vec<User> = Vec::new();
+
+        while let Some(result) = cursor.next().await
+        {
+            match result
+            {
+                Ok(doc) => 
+                {
+                    let user: User = from_document(doc)
+                        .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+                    users.push(user);
+                },
+                Err(_) => (),
+            }
+        }
+    
+        Ok(users)
     }
 }
 

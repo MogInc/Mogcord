@@ -44,6 +44,8 @@ async fn post_chat(
         return Err(ChatError::InvalidOwnerCount);
     }
 
+    
+
     let chat: Chat = Chat::new(
         payload.name,
         payload.r#type, 
