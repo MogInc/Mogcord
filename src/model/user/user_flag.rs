@@ -41,9 +41,9 @@ impl FromStr for UserFlag
     fn from_str(input: &str) -> Result<UserFlag, Self::Err> 
     {
         let parts: Vec<&str> = input
-                                .splitn(2,'|')
-                                .map(|x| x.trim())
-                                .collect();
+            .splitn(2,'|')
+            .map(|x| x.trim())
+            .collect();
                             
         match parts[0].to_lowercase().as_str() 
         {
@@ -53,9 +53,10 @@ impl FromStr for UserFlag
             {
                 if parts.len() == 2 
                 {
-                    parts[1].parse::<DateTime<Utc>>()
-                        .map(|date| UserFlag::Deleted { date })
-                        .map_err(|_| UserFlagParseError::InvalidDate)
+                    parts[1]
+                    .parse::<DateTime<Utc>>()
+                    .map(|date| UserFlag::Deleted { date })
+                    .map_err(|_| UserFlagParseError::InvalidDate)
                 } else 
                 {
                     Err(UserFlagParseError::InvalidFormat)
@@ -65,9 +66,10 @@ impl FromStr for UserFlag
             {
                 if parts.len() == 2 
                 {
-                    parts[1].parse::<DateTime<Utc>>()
-                        .map(|date| UserFlag::Banned { date })
-                        .map_err(|_| UserFlagParseError::InvalidDate)
+                    parts[1]
+                    .parse::<DateTime<Utc>>()
+                    .map(|date| UserFlag::Banned { date })
+                    .map_err(|_| UserFlagParseError::InvalidDate)
                 } else 
                 {
                     Err(UserFlagParseError::InvalidFormat)

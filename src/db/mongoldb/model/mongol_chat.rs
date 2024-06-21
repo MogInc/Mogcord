@@ -21,26 +21,26 @@ impl TryFrom<Chat> for MongolChat
 
     fn try_from(value: Chat) -> Result<Self, Self::Error>
     {
-        let chat_id =  Uuid::parse_str(&value.uuid)
-                             .map_err(|_| MongolError::InvalidUUID)?;
+        let chat_id: Uuid =  Uuid::parse_str(&value.uuid)
+            .map_err(|_| MongolError::InvalidUUID)?;
         
-        let owner_ids = value.owners
-                                    .into_iter()
-                                    .map(|owner| Uuid::parse_str(&owner.uuid).map_err(|_| MongolError::InvalidUUID))
-                                    .collect::<Result<_, _>>()?;
+        let owner_ids: Vec<Uuid> = value.owners
+            .into_iter()
+            .map(|owner| Uuid::parse_str(&owner.uuid).map_err(|_| MongolError::InvalidUUID))
+            .collect::<Result<_, _>>()?;
 
-        let user_ids = value.members
-        .map(|members| {
-            members.into_iter()
-                .map(|member| Uuid::parse_str(&member.uuid).map_err(|_| MongolError::InvalidUUID))
-                .collect::<Result<_, _>>()
-        }).transpose()?;
+        let user_ids: Option<Vec<Uuid>> = value.members
+            .map(|members| {
+                    members.into_iter()
+                    .map(|member| Uuid::parse_str(&member.uuid).map_err(|_| MongolError::InvalidUUID))
+                    .collect::<Result<_, _>>()
+            }).transpose()?;
 
-        let bucket_ids = value.buckets
-        .map(|buckets| {
-            buckets.into_iter().map(|bucket| Uuid::parse_str(&bucket.uuid).map_err(|_| MongolError::InvalidUUID))
-            .collect::<Result<_,_>>()
-        }).transpose()?;
+        let bucket_ids: Option<Vec<Uuid>> = value.buckets
+            .map(|buckets| {
+                buckets.into_iter().map(|bucket| Uuid::parse_str(&bucket.uuid).map_err(|_| MongolError::InvalidUUID))
+                .collect::<Result<_,_>>()
+            }).transpose()?;
 
         Ok(
             Self 

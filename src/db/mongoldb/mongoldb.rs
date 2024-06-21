@@ -22,7 +22,7 @@ impl MongolDB
     pub async fn init(connection_string: &str) 
         -> Result<Self, Box<dyn std::error::Error>>
     {
-        let mut client_options = ClientOptions::parse(connection_string).await?;
+        let mut client_options: ClientOptions = ClientOptions::parse(connection_string).await?;
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
@@ -36,9 +36,9 @@ impl MongolDB
             },
         ]);
     
-        let client = Client::with_options(client_options)?;
+        let client: Client = Client::with_options(client_options)?;
 
-        let db = client.database("db_mogcord");
+        let db: mongodb::Database = client.database("db_mogcord");
 
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");
@@ -55,11 +55,11 @@ impl MongolDB
 
     pub async fn get_user_db_object_by_id(&self, user_id: &String) -> Result<MongolUser, UserError>
     {
-        let user_option = self
-                                              .users
-                                              .find_one(doc! { "uuid" : user_id }, None)
-                                              .await
-                                              .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+        let user_option: Option<MongolUser> = self
+            .users
+            .find_one(doc! { "uuid" : user_id }, None)
+            .await
+            .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
 
         match user_option
         {
@@ -74,8 +74,8 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, UserError>
     {
-        let user_uuid = Uuid::parse_str(user_id)
-                              .map_err(|_| UserError::UserNotFound)?;
+        let user_uuid: Uuid = Uuid::parse_str(user_id)
+            .map_err(|_| UserError::UserNotFound)?;
 
         match self.users.find_one(doc! { "_id" : user_uuid }, None).await
         {
@@ -95,8 +95,8 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, UserError>
     {
-        let db_user = MongolUser::try_from(user.clone())
-                                  .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+        let db_user: MongolUser = MongolUser::try_from(user.clone())
+            .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
         
         match self.users.insert_one(&db_user, None).await
         {
@@ -107,12 +107,14 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &String) -> Result<User, UserError>
     {
-        let user_uuid = Uuid::parse_str(user_id)
-                              .map_err(|_| UserError::UserNotFound)?;
+        let user_uuid: Uuid = Uuid::parse_str(user_id)
+            .map_err(|_| UserError::UserNotFound)?;
 
-        let user_option = self.users.find_one(doc! { "_id": user_uuid }, None)
-                                         .await
-                                         .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
+        let user_option: Option<MongolUser> = self
+            .users
+            .find_one(doc! { "_id": user_uuid }, None)
+            .await
+            .map_err(|err| UserError::UnexpectedError(Some(err.to_string())))?;
         
         match user_option 
         {
@@ -127,8 +129,8 @@ impl ChatRepository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, ChatError>
     {
-        let db_chat = MongolChat::try_from(chat.clone())
-                                  .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+        let db_chat: MongolChat = MongolChat::try_from(chat.clone())
+            .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
 
         match self.chats.insert_one(&db_chat, None).await
         {
@@ -139,8 +141,8 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ChatError>
     {
-        let chat_uuid = Uuid::parse_str(chat_id)
-                              .map_err(|_| ChatError::ChatNotFound)?;
+        let chat_uuid: Uuid = Uuid::parse_str(chat_id)
+            .map_err(|_| ChatError::ChatNotFound)?;
 
         let pipelines = vec![
             //filter
@@ -203,23 +205,25 @@ impl ChatRepository for MongolDB
         ];
 
         let mut cursor: Cursor<Document> = self
-                                       .chats
-                                       .aggregate(pipelines, None)
-                                       .await
-                                       .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
-
+            .chats
+            .aggregate(pipelines, None)
+            .await
+            .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+    
         let document_option: Option<Document> = cursor
-                                     .next()
-                                     .await
-                                     .transpose()
-                                     .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| ChatError::UnexpectedError(Some(err.to_string())))?;
+    
 
         match document_option
         {
             Some(document) => 
             {
                 let chat : Chat = from_document(document)
-                                  .map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
+                    .map_err(|err| ChatError::InvalidChat(Some(err.to_string())))?;
+
                 return Ok(chat);
             },
             None => Err(ChatError::ChatNotFound), 

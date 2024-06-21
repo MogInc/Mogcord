@@ -32,7 +32,7 @@ struct CreateChatRequest
 
 async fn post_chat(
     State(db): State<Arc<dyn ChatRepository>>,
-    extract::Json(payload): extract::Json<CreateChatRequest>)
+    extract::Json(_payload): extract::Json<CreateChatRequest>)
  -> impl IntoResponse
 {
     let mut users: Vec<crate::model::user::User> = Vec::new();

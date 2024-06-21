@@ -45,11 +45,11 @@ mod tests
     #[test]
     fn test_convert_user_is_valid() 
     {
-        let uuid = String::from("12345678");
-        let name = String::from("Gwilom");
-        let mail = String::from("ElGoblino@example.com");
+        let uuid: String = String::from("12345678");
+        let name: String = String::from("Gwilom");
+        let mail: String = String::from("ElGoblino@example.com");
 
-        let user = User::convert(uuid.clone(), name.clone(), mail.clone());
+        let user: User = User::convert(uuid.clone(), name.clone(), mail.clone());
 
         assert_eq!(uuid, user.uuid);
         assert_eq!(name, user.name);
@@ -59,10 +59,10 @@ mod tests
     #[test]
     fn test_new_user_is_valid() 
     {
-        let name = String::from("Gwilom");
-        let mail = String::from("ElGoblino@example.com");
+        let name: String = String::from("Gwilom");
+        let mail: String = String::from("ElGoblino@example.com");
 
-        let user = User::new(name.clone(), mail.clone());
+        let user: User = User::new(name.clone(), mail.clone());
 
         assert!(Uuid::parse_str(&user.uuid).is_ok());
         assert_eq!(name, user.name);
