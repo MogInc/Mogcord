@@ -7,7 +7,7 @@ use futures_util::stream::StreamExt;
 use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatError, ChatRepository}, user::{User, UserError, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
-use super::{MongolBucket, MongolChat};
+use super::{MongolBucket, MongolChat, MongolMessage};
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
@@ -15,6 +15,7 @@ pub struct MongolDB
     users: Collection<MongolUser>,
     chats: Collection<MongolChat>,
     buckets: Collection<MongolBucket>,
+    messages: Collection<MongolMessage>,
 }
 
 impl MongolDB
@@ -43,12 +44,14 @@ impl MongolDB
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
+        let messages: Collection<MongolMessage> = db.collection("messages");
 
         Ok(Self 
             { 
                 users : users,
                 chats: chats,
                 buckets: buckets,
+                messages: messages
             }
         )
     }
