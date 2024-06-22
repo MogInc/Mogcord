@@ -48,6 +48,8 @@ async fn post_chat(
         return Err(ChatError::InvalidOwnerCount);
     }
 
+    //TODO: make sure a chat is unique
+
     let owners = repo_user.get_users_by_id(payload.owners).await
         .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?;
 
