@@ -1,4 +1,4 @@
-use std::{result, time::Duration};
+use std::time::Duration;
 
 use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
