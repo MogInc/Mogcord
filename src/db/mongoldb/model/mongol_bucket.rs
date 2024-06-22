@@ -1,15 +1,16 @@
-use mongodb::bson::{oid::ObjectId, DateTime};
+use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MongolBucket {
-    pub _id: ObjectId,
-    pub chat_id: ObjectId, 
+pub struct MongolBucket 
+{
+    pub _id: Uuid,
+    pub chat_id: Uuid, 
     pub date: DateTime,
-    pub message_ids: Option<Vec<ObjectId>>, 
+    pub message_ids: Option<Vec<Uuid>>, 
 }
 
 impl MongolBucket
 {
 
-}
+}   
