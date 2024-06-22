@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
+use futures_util::FutureExt;
 use serde::Deserialize;
 
 use crate::model::{appstate::AppState, chat::{Chat, ChatError, ChatType}};
@@ -53,11 +54,19 @@ async fn post_chat(
     let owners = repo_user.get_users_by_id(payload.owners).await
         .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?;
 
+    let members = match payload.members
+    {
+        Some(members) => Some(repo_user.get_users_by_id(members)
+            .await
+            .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?),
+        None => None,
+    };
+
     let chat = Chat::new(
         payload.name,
         payload.r#type, 
         owners.clone(),
-        None,
+        members,
     )?;
 
     match repo_chat.create_chat(chat).await 
