@@ -17,8 +17,6 @@ async fn main()
     let api_socket = env::var("API_SOCKET")
         .unwrap_or("127.0.0.1:3000".to_owned());
 
-    println!("{}", mongoldb_connection_string);
-
     let db: MongolDB = MongolDB::init(&mongoldb_connection_string).await?;
     
     let repo_chat: Arc<dyn ChatRepository> = Arc::new(db.clone());
