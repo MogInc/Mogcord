@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use dotenv::dotenv;
+use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, response::IntoResponse, routing::Router};
 use mogcord::{api::{chat::routes_chat, user::routes_user}, db::mongoldb::MongolDB, model::{appstate::AppState, chat::ChatRepository, user::UserRepository}};
@@ -8,10 +9,17 @@ use tokio::net::TcpListener;
 async fn main() 
     -> Result<(), Box<dyn std::error::Error>> 
 {
-    let mongodb_address = "mongodb://localhost:27017";
-    let address: &str = "127.0.0.1:8080";
+    dotenv().ok();
 
-    let db: MongolDB = MongolDB::init(mongodb_address).await?;
+    let mongoldb_connection_string = env::var("MONGOLDB_CONNECTION")
+        .unwrap_or("mongodb://localhost:27017".to_owned());
+
+    let api_socket = env::var("API_SOCKET")
+        .unwrap_or("127.0.0.1:3000".to_owned());
+
+    println!("{}", mongoldb_connection_string);
+
+    let db: MongolDB = MongolDB::init(&mongoldb_connection_string).await?;
     
     let repo_chat: Arc<dyn ChatRepository> = Arc::new(db.clone());
     let repo_user: Arc<dyn UserRepository> = Arc::new(db.clone());
@@ -31,7 +39,7 @@ async fn main()
         .fallback(page_not_found);
 
 
-    let listener: TcpListener = TcpListener::bind(address)
+    let listener: TcpListener = TcpListener::bind(api_socket)
         .await
         .unwrap();
 

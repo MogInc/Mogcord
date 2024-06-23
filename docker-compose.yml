@@ -1,0 +1,37 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gwilom/mogcord
+    environment:
+      MONGOLDB_CONNECTION: mongodb://${MONGOLDB_CONTAINER_NAME}:${MONGOLDB_PORT}
+      API_SOCKET: ${API_ADDRESS}:${API_PORT}
+    env_file:
+    - .env
+    ports:
+      - "${API_PORT}:3000"
+    depends_on:
+      - mongoldb
+    networks:
+      - mogcord-network
+
+  mongoldb:
+    image: mongo:7.0
+    restart: always
+    container_name: ${MONGOLDB_CONTAINER_NAME}
+    ports:
+      - "${MONGOLDB_PORT}:27017"
+    volumes:
+      - mongoldb:/data/mongoldb
+    networks:
+      - mogcord-network
+
+
+volumes:
+  mongoldb:
+    driver: local
+
+networks:
+  mogcord-network:
+    driver: bridge
