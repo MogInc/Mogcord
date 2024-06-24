@@ -43,7 +43,11 @@ async fn post_chat(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    if !Chat::is_owner_size_allowed(&payload.r#type, payload.owners.len())
+    //Naive solution
+    //when AA gets added, check if chat is allowed to be made
+    //also handle chat queu so that opposing members dont get auto dragged in it
+
+    if !payload.r#type.is_owner_size_allowed(payload.owners.len())
     {
         return Err(ServerError::InvalidOwnerCount);
     }
@@ -68,9 +72,11 @@ async fn post_chat(
     let chat = Chat::new(
         payload.name,
         payload.r#type, 
-        owners.clone(),
+        owners,
         members,
     )?;
+
+    
 
     match repo_chat.create_chat(chat).await 
     {
