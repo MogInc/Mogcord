@@ -17,6 +17,7 @@ impl ChatType
 {
     fn get_requirements(&self) -> Result<ChatTypeRequirements, ServerError>
     {
+        #[allow(unreachable_patterns)]
         match self
         {
             ChatType::Private => Ok(
