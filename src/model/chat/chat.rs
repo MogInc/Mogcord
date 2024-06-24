@@ -68,7 +68,7 @@ impl ChatType
                 found: requirements.owners_count,
             });
         }
-        
+
         if valid_requirements.has_name != requirements.has_name 
         {
             return Err(ServerError::InvalidNameRequirement 
@@ -127,7 +127,7 @@ impl Chat
         -> Result<Self, ServerError>
     {
 
-        let members: Option<Vec<User>> = members.map(|members| {
+        let members_sanitized: Option<Vec<User>> = members.map(|members| {
             members.into_iter().filter(|x| !owners.contains(x)).collect()
         });
         
@@ -135,7 +135,7 @@ impl Chat
         {
             owners_count: owners.len(),
             has_name: name.as_ref().is_some_and(|x| !x.trim().is_empty()),
-            has_members: members.as_ref().is_some_and(|x| x.len() > 0),
+            has_members: members_sanitized.as_ref().is_some_and(|x| x.len() > 0),
         };
 
         if let Err(err) = r#type.is_chat_meeting_requirements(requirements)
@@ -143,13 +143,24 @@ impl Chat
             return Err(err);
         }
 
+        let name_sanitized = match name
+        {
+            Some(name) => Some(name.trim().to_owned()),
+            None => None,
+        };
+
+        let members_sanitized = match members_sanitized
+        {
+            Some(members) if members.is_empty() => None,
+            _ => members_sanitized
+        };
 
         Ok(Self{
             uuid: Uuid::new_v4().to_string(),
-            name: name,
+            name: name_sanitized,
             r#type: r#type,
             owners: owners,
-            members: members,
+            members: members_sanitized,
             buckets: None,
         })
     }
