@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::user::User;
-use super::{ChatError, MessageFlag};
+use crate::model::{error::ServerError, user::User};
+use super::MessageFlag;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ChatType
@@ -31,12 +31,12 @@ impl Chat
         r#type: ChatType, 
         owners: Vec<User>,
         members: Option<Vec<User>>) 
-        -> Result<Self, ChatError>
+        -> Result<Self, ServerError>
     {
 
         if !Self::is_owner_size_allowed(&r#type, owners.len())
         {
-            return Err(ChatError::InvalidOwnerCount);
+            return Err(ServerError::InvalidOwnerCount);
         }
 
         let members: Option<Vec<User>> = members.map(|members| {

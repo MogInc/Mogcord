@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, user::UserError};
+use crate::model::{appstate::AppState, error::ServerError};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -45,7 +45,7 @@ async fn post_user(
 
     if repo_user.does_user_exist_by_mail(&user.mail).await?
     {
-        return Err(UserError::MailAlreadyInUse);
+        return Err(ServerError::MailAlreadyInUse);
     }
 
     match repo_user.create_user(user).await 

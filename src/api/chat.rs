@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, chat::{Chat, ChatError, ChatType}};
+use crate::model::{appstate::AppState, chat::{Chat, ChatType}, error::ServerError};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -45,19 +45,23 @@ async fn post_chat(
 
     if !Chat::is_owner_size_allowed(&payload.r#type, payload.owners.len())
     {
-        return Err(ChatError::InvalidOwnerCount);
+        return Err(ServerError::InvalidOwnerCount);
     }
 
     //TODO: make sure a chat is unique
 
-    let owners = repo_user.get_users_by_id(payload.owners).await
-        .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?;
+    let owners = repo_user
+        .get_users_by_id(payload.owners)
+        .await
+        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
     let members = match payload.members
     {
-        Some(members) => Some(repo_user.get_users_by_id(members)
+        Some(members) => Some(repo_user
+            .get_users_by_id(members)
             .await
-            .map_err(|err| ChatError::InvalidChat(Some(err.to_string()), true))?),
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?
+        ),
         None => None,
     };
 
