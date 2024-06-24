@@ -16,10 +16,11 @@ pub enum ServerError
 
 	//chat
 	ChatNotFound,
+	ChatAlreadyExists,
 	InvalidOwnerCount,
 	InvalidOwnersCount { expected: usize, found: usize },
 	InvalidNameRequirement { expected: bool, found: bool },
-	InvalidMembersRequirement { expected: bool, found: bool },
+	InvalidUsersRequirement { expected: bool, found: bool },
 	InvalidChatRequirements,
 
 	//fallback
@@ -54,6 +55,7 @@ impl ServerError
         {
             Self::MailAlreadyInUse 
             | Self::UserNotFound
+			| Self::ChatAlreadyExists
 			| Self::ChatNotFound
 			| Self::InvalidOwnerCount
 			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),

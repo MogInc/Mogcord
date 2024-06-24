@@ -1,4 +1,4 @@
-use mongodb::bson::Uuid;
+use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
 use crate::model::chat::{Chat, ChatType};
 
@@ -29,10 +29,10 @@ impl TryFrom<Chat> for MongolChat
             .map(|owner| Uuid::parse_str(&owner.uuid).map_err(|_| MongolError::InvalidUUID))
             .collect::<Result<_, _>>()?;
 
-        let user_ids: Option<Vec<Uuid>> = value.members
-            .map(|members| {
-                    members.into_iter()
-                    .map(|member| Uuid::parse_str(&member.uuid).map_err(|_| MongolError::InvalidUUID))
+        let user_ids: Option<Vec<Uuid>> = value.users
+            .map(|users| {
+                    users.into_iter()
+                    .map(|user| Uuid::parse_str(&user.uuid).map_err(|_| MongolError::InvalidUUID))
                     .collect::<Result<_, _>>()
             }).transpose()?;
 
@@ -53,5 +53,12 @@ impl TryFrom<Chat> for MongolChat
                 bucket_ids: bucket_ids,
             }
         )
+    }
+}
+
+impl From<ChatType> for Bson {
+    fn from(chat_type: ChatType) -> Bson {
+        // Add your conversion logic here
+        Bson::String(chat_type.to_string())
     }
 }

@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 
 use crate::model::error::ServerError;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum ChatType
 {
     Private,
@@ -22,7 +23,7 @@ impl ChatType
                 {
                     owners_count: 2,
                     has_name: false,
-                    has_members: false,
+                    has_users: false,
                 }
             ),
             ChatType::Group => Ok(
@@ -30,7 +31,7 @@ impl ChatType
                 {
                     owners_count: 1,
                     has_name: false,
-                    has_members: true,
+                    has_users: true,
                 }
             ),
             ChatType::Server => Ok(
@@ -38,7 +39,7 @@ impl ChatType
                 {
                     owners_count: 0,
                     has_name: true,
-                    has_members: false,
+                    has_users: false,
                 }
             ),
             _ => Err(ServerError::NotImplemented),
@@ -76,12 +77,12 @@ impl ChatType
             });
         }
 
-        if valid_requirements.has_members != requirements.has_members 
+        if valid_requirements.has_users != requirements.has_users 
         {
-            return Err(ServerError::InvalidMembersRequirement 
+            return Err(ServerError::InvalidUsersRequirement 
             {
-                expected: valid_requirements.has_members,
-                found: requirements.has_members,
+                expected: valid_requirements.has_users,
+                found: requirements.has_users,
             });
         }
 
@@ -93,18 +94,18 @@ pub struct ChatTypeRequirements
 {
     owners_count: usize,
     has_name: bool,
-    has_members: bool,
+    has_users: bool,
 }
 
 impl ChatTypeRequirements
 {
-    pub fn new(owners_count: usize, has_name: bool, has_members: bool) -> Self
+    pub fn new(owners_count: usize, has_name: bool, has_users: bool) -> Self
     {
         Self
         {
             owners_count: owners_count,
             has_name: has_name,
-            has_members: has_members,
+            has_users: has_users,
         }
     }
 }
@@ -113,6 +114,6 @@ impl PartialEq for ChatTypeRequirements {
     fn eq(&self, other: &Self) -> bool {
         self.owners_count == other.owners_count
         && self.has_name == other.has_name
-        && self.has_members == other.has_members
+        && self.has_users == other.has_users
     }
 }

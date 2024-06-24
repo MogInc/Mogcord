@@ -227,7 +227,7 @@ impl ChatRepository for MongolDB
                     "as": "owners"
                 },
             },
-            //join with members
+            //join with users
             doc! 
             {
                 "$lookup":
@@ -235,7 +235,7 @@ impl ChatRepository for MongolDB
                     "from": "users",
                     "localField": "user_ids",
                     "foreignField": "_id",
-                    "as": "members"
+                    "as": "users"
                 },
             },
             //join with buckets
@@ -256,7 +256,7 @@ impl ChatRepository for MongolDB
                 {
                     "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
                     "owners": map_mongo_collection!("$owners"),
-                    "members": map_mongo_collection!("$members"),
+                    "users": map_mongo_collection!("$users"),
                     "buckets": map_mongo_collection!("$buckets"),
                 }
             },
@@ -296,18 +296,40 @@ impl ChatRepository for MongolDB
     async fn does_chat_exist(&self, chat: &Chat)
         -> Result<bool, ServerError>
     {
-        // match chat.r#type
-        // {
-        //     ChatType::Private => {},
-        //     ChatType::Group => {},
-        //     ChatType::Server => {},
-        //     _ => Err(ServerError::NotImplemented),
-        // }
+        let mongol_chat = MongolChat::try_from(chat.clone())
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        match self.users.find_one(doc! { "mail" : chat.uuid.to_string() }, None).await
+        let pipilines = vec![
+            doc! 
+            {
+                "$match":
+                {
+                    "type": mongol_chat.r#type,
+                    "name": mongol_chat.name,
+                    "owner_ids": mongol_chat.owner_ids,
+                    "user_ids": mongol_chat.user_ids,
+                }
+            }
+        ];
+
+        let mut cursor = self
+            .chats
+            .aggregate(pipilines, None)
+            .await
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+
+        let document_option: Option<Document> = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+    
+
+        match document_option
         {
-            Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
+            Some(_) => Ok(true),
+            None => Ok(false), 
         }
     }
 }

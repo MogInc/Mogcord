@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
+use futures_util::{FutureExt, TryFutureExt};
 use serde::Deserialize;
 
 use crate::model::{appstate::AppState, chat::{Chat, ChatType}, error::ServerError};
@@ -32,7 +33,7 @@ struct CreateChatRequest
     name: Option<String>,
     r#type: ChatType,
     owners: Vec<String>,
-    members: Option<Vec<String>>,
+    users: Option<Vec<String>>,
 }
 
 async fn post_chat(
@@ -45,7 +46,7 @@ async fn post_chat(
 
     //Naive solution
     //when AA gets added, check if chat is allowed to be made
-    //also handle chat queu so that opposing members dont get auto dragged in it
+    //also handle chat queu so that opposing users dont get auto dragged in it
 
     if !payload.r#type.is_owner_size_allowed(payload.owners.len())
     {
@@ -59,10 +60,10 @@ async fn post_chat(
         .await
         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-    let members = match payload.members
+    let users = match payload.users
     {
-        Some(members) => Some(repo_user
-            .get_users_by_id(members)
+        Some(users) => Some(repo_user
+            .get_users_by_id(users)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?
         ),
@@ -73,10 +74,16 @@ async fn post_chat(
         payload.name,
         payload.r#type, 
         owners,
-        members,
+        users,
     )?;
 
-    
+    if repo_chat
+        .does_chat_exist(&chat)
+        .await
+        .map_err(|err|  ServerError::UnexpectedError(err.to_string()))?
+    {
+        return Err(ServerError::ChatAlreadyExists);
+    }
 
     match repo_chat.create_chat(chat).await 
     {

@@ -13,7 +13,7 @@ pub struct Chat
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owners: Vec<User>,
-    pub members: Option<Vec<User>>,
+    pub users: Option<Vec<User>>,
     pub buckets: Option<Vec<Bucket>>,
 }
 
@@ -23,18 +23,18 @@ impl Chat
         name: Option<String>, 
         r#type: ChatType, 
         owners: Vec<User>,
-        members: Option<Vec<User>>) 
+        users: Option<Vec<User>>) 
         -> Result<Self, ServerError>
     {
 
-        let members_sanitized: Option<Vec<User>> = members.map(|members| {
-            members.into_iter().filter(|x| !owners.contains(x)).collect()
+        let users_sanitized: Option<Vec<User>> = users.map(|users| {
+            users.into_iter().filter(|x| !owners.contains(x)).collect()
         });
         
         let requirements = ChatTypeRequirements::new(
             owners.len(), 
             name.as_ref().is_some_and(|x| !x.trim().is_empty()), 
-            members_sanitized.as_ref().is_some_and(|x| x.len() > 0)
+            users_sanitized.as_ref().is_some_and(|x| x.len() > 0)
         );
 
         if let Err(err) = r#type.is_chat_meeting_requirements(requirements)
@@ -48,10 +48,10 @@ impl Chat
             None => None,
         };
 
-        let members_sanitized = match members_sanitized
+        let users_sanitized = match users_sanitized
         {
-            Some(members) if members.is_empty() => None,
-            _ => members_sanitized
+            Some(users) if users.is_empty() => None,
+            _ => users_sanitized
         };
 
         Ok(Self{
@@ -59,7 +59,7 @@ impl Chat
             name: name_sanitized,
             r#type: r#type,
             owners: owners,
-            members: members_sanitized,
+            users: users_sanitized,
             buckets: None,
         })
     }
