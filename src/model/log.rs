@@ -35,6 +35,8 @@ pub async fn log_request(
 	};
 
 	println!("   ->> log_request: \n{}", json!(log_line));
+
+    //TODO add saving to db or file
 }
 
 #[skip_serializing_none]
