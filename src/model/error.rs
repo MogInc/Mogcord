@@ -4,8 +4,10 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use serde::Serialize;
 
-#[derive(Debug, Clone, strum_macros::AsRefStr)]
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
 pub enum ServerError 
 {
 	//user
@@ -30,8 +32,6 @@ impl IntoResponse for ServerError
 {
     fn into_response(self) -> Response 
     {
-        println!("->> {:<12} - {self:?}", "INTO_RES");
-
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
 		response.extensions_mut().insert(self);
