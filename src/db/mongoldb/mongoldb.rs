@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
 use futures_util::stream::StreamExt;
 
-use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository}, error::ServerError, user::{User, UserRepository}}};
+use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository, ChatType}, error::ServerError, user::{User, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat, MongolMessage};
@@ -290,6 +290,24 @@ impl ChatRepository for MongolDB
                 return Ok(chat);
             },
             None => Err(ServerError::ChatNotFound), 
+        }
+    }
+
+    async fn does_chat_exist(&self, chat: &Chat)
+        -> Result<bool, ServerError>
+    {
+        // match chat.r#type
+        // {
+        //     ChatType::Private => {},
+        //     ChatType::Group => {},
+        //     ChatType::Server => {},
+        //     _ => Err(ServerError::NotImplemented),
+        // }
+
+        match self.users.find_one(doc! { "mail" : chat.uuid.to_string() }, None).await
+        {
+            Ok(option) => Ok(option.is_some()),
+            Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
         }
     }
 }

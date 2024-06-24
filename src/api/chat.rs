@@ -49,7 +49,7 @@ async fn post_chat(
 
     if !payload.r#type.is_owner_size_allowed(payload.owners.len())
     {
-        return Err(ServerError::InvalidOwnerCount);
+        return Err(ServerError::InvalidChatRequirements);
     }
 
     //TODO: make sure a chat is unique
