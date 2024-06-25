@@ -293,17 +293,6 @@ impl ChatRepository for MongolDB
                     "as": "users"
                 },
             },
-            //join with buckets
-            doc! 
-            {
-                "$lookup":
-                {
-                    "from": "buckets",
-                    "localField": "bucket_ids",
-                    "foreignField": "_id",
-                    "as": "buckets"
-                },
-            },
             //rename fields
             doc!
             {
@@ -312,13 +301,12 @@ impl ChatRepository for MongolDB
                     "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
                     "owners": map_mongo_collection!("$owners"),
                     "users": map_mongo_collection!("$users"),
-                    "buckets": map_mongo_collection!("$buckets"),
                 }
             },
             //hide fields
             doc! 
             {
-                "$unset": ["_id", "owner_ids", "user_ids", "bucket_ids", "owners._id"]
+                "$unset": ["_id", "owner_ids", "user_ids", "owners._id"]
             },
         ];
 
@@ -384,7 +372,7 @@ impl ChatRepository for MongolDB
         match document_option
         {
             Some(_) => Ok(true),
-            None => Ok(false), 
+            None => Ok(false),
         }
     }
 }

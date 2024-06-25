@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{misc::ServerError, user::User};
-use super::{chat_type::{ChatType, ChatTypeRequirements}, MessageFlag};
+use crate::model::{message::Message, misc::ServerError, user::User};
+use super::chat_type::{ChatType, ChatTypeRequirements};
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -72,17 +72,4 @@ pub struct Bucket
     pub chat: Chat,
     pub date: DateTime<Utc>,
     pub messages: Option<Vec<Message>>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Message
-{
-    pub uuid: String,
-    pub value: String,
-    pub owner: User,
-    pub chat: Chat,
-    pub bucket: Bucket,
-    //we actually gonna delete stuff?
-    //(:sins:)
-    pub flag: MessageFlag,
 }
