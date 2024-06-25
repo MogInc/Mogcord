@@ -15,9 +15,11 @@ pub struct MongolChat
     pub bucket_ids: Option<Vec<Uuid>>
 }
 
-impl MongolChat
+impl TryFrom<Chat> for MongolChat
 {
-    pub fn new(value: Chat) -> Result<Self, MongolError>
+    type Error = MongolError;
+
+    fn try_from(value: Chat) -> Result<Self, Self::Error>
     {
         let chat_id: Uuid =  Uuid::parse_str(&value.uuid)
             .map_err(|_| MongolError::InvalidUUID)?;
