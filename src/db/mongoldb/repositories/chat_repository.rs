@@ -12,7 +12,7 @@ impl ChatRepository for MongolDB
         let db_chat: MongolChat = MongolChat::try_from(chat.clone())
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        match self.chats().insert_one(&db_chat, None).await
+        match self.chats().insert_one(&db_chat).await
         {
             Ok(_) => Ok(chat),
             Err(err) => Err(ServerError::UnexpectedError(err.to_string())),
@@ -74,7 +74,7 @@ impl ChatRepository for MongolDB
 
         let mut cursor: Cursor<Document> = self
             .chats()
-            .aggregate(pipelines, None)
+            .aggregate(pipelines)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
     
@@ -119,7 +119,7 @@ impl ChatRepository for MongolDB
 
         let mut cursor = self
             .chats()
-            .aggregate(pipilines, None)
+            .aggregate(pipilines)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
