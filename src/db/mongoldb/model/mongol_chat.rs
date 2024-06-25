@@ -36,12 +36,6 @@ impl TryFrom<Chat> for MongolChat
                     .collect::<Result<_, _>>()
             }).transpose()?;
 
-        let bucket_ids: Option<Vec<Uuid>> = value.buckets
-            .map(|buckets| {
-                buckets.into_iter().map(|bucket| Uuid::parse_str(&bucket.uuid).map_err(|_| MongolError::InvalidUUID))
-                .collect::<Result<_,_>>()
-            }).transpose()?;
-
         Ok(
             Self 
             {
@@ -50,7 +44,7 @@ impl TryFrom<Chat> for MongolChat
                 r#type: value.r#type,
                 owner_ids: owner_ids,
                 user_ids: user_ids,
-                bucket_ids: bucket_ids,
+                bucket_ids: None,
             }
         )
     }

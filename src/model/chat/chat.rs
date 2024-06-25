@@ -14,7 +14,6 @@ pub struct Chat
     pub r#type: ChatType,
     pub owners: Vec<User>,
     pub users: Option<Vec<User>>,
-    pub buckets: Option<Vec<Bucket>>,
 }
 
 impl Chat
@@ -60,11 +59,12 @@ impl Chat
             r#type: r#type,
             owners: owners,
             users: users_sanitized,
-            buckets: None,
         })
     }
 }
 
+
+//doubt i need this in model
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bucket
 {
