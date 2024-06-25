@@ -1,4 +1,6 @@
-use mongodb::bson::Uuid;
+use std::time::SystemTime;
+
+use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
 use crate::model::message::{Message, MessageFlag};
@@ -9,8 +11,9 @@ use super::MongolError;
 pub struct MongolMessage
 {
     pub _id : Uuid,
-    pub owner_id: Uuid,
     pub value: String,
+    pub timestamp: DateTime,
+    pub owner_id: Uuid,
     pub chat_id: Uuid,
     pub bucket_id: Option<Uuid>,
     pub flag: MessageFlag
@@ -35,12 +38,15 @@ impl TryFrom<Message> for MongolMessage
             Uuid::parse_str(bucket.uuid).map_err(|_| MongolError::InvalidUUID)
         ).transpose()?;
 
+        let timestamp: SystemTime = value.timestamp.into();
+
         Ok(
             Self
             { 
                 _id: message_uuid, 
-                owner_id: owner_uuid, 
                 value: value.value, 
+                timestamp: DateTime::from(timestamp),
+                owner_id: owner_uuid, 
                 chat_id: chat_uuid,
                 bucket_id: bucket_uuid_option,
                 flag: value.flag
