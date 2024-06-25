@@ -7,6 +7,7 @@ use super::{MongolBucket, MongolChat, MongolMessage};
 #[derive(Clone, Debug)]
 pub struct MongolDB
 {
+    client: Client,
     users: Collection<MongolUser>,
     chats: Collection<MongolChat>,
     buckets: Collection<MongolBucket>,
@@ -43,12 +44,20 @@ impl MongolDB
 
         Ok(Self 
             { 
+                client: client,
                 users : users,
                 chats: chats,
                 buckets: buckets,
                 messages: messages
             }
         )
+    }
+}
+
+impl MongolDB
+{
+    pub fn client(&self) -> &Client {
+        &self.client
     }
 
     pub fn users(&self) -> &Collection<MongolUser> {
