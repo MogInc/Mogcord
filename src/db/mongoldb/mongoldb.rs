@@ -1,9 +1,7 @@
 use std::time::Duration;
-use mongodb::{bson::doc, options::{ClientOptions, Compressor}, Client, Collection};
+use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};
 
-use crate::model::misc::ServerError;
 use crate::db::mongoldb::model::MongolUser;
-
 use super::{MongolBucket, MongolChat, MongolMessage};
 
 #[derive(Clone, Debug)]
@@ -67,20 +65,5 @@ impl MongolDB
 
     pub fn messages(&self) -> &Collection<MongolMessage> {
         &self.messages
-    }
-
-    pub async fn get_user_db_object_by_id(&self, user_id: &String) -> Result<MongolUser, ServerError>
-    {
-        let user_option: Option<MongolUser> = self
-            .users
-            .find_one(doc! { "uuid" : user_id }, None)
-            .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
-
-        match user_option
-        {
-            Some(user) => Ok(user),
-            None => Err(ServerError::UserNotFound)
-        }
     }
 }

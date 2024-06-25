@@ -1,6 +1,6 @@
 use axum::async_trait;
 
-use crate::{db::mongoldb::MongolDB, model::{message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
+use crate::{db::mongoldb::{MongolDB, MongolMessage}, model::{message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -8,6 +8,11 @@ impl MessageRepository for MongolDB
     async fn create_message(&self, message: Message) 
         -> Result<Message, ServerError>
     {
+        let db_message = MongolMessage::try_from(message)
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+
+
         Err(ServerError::ChatAlreadyExists)
     }
 
