@@ -3,7 +3,7 @@ use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, 
 use futures_util::{FutureExt, TryFutureExt};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, chat::{Chat, ChatType}, error::ServerError};
+use crate::model::{misc::AppState, chat::{Chat, ChatType}, misc::ServerError};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {

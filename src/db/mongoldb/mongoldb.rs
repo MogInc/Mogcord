@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
 use futures_util::stream::StreamExt;
 
-use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository}, error::ServerError, pagination::Pagination, user::{User, UserRepository}}};
+use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository}, misc::ServerError, misc::Pagination, user::{User, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat, MongolMessage};

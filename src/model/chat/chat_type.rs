@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
-use crate::model::error::ServerError;
+use crate::model::misc::ServerError;
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum ChatType

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, error::ServerError, pagination::Pagination};
+use crate::model::{misc::AppState, misc::ServerError, misc::Pagination};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router

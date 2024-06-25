@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{error::ServerError, user::User};
+use crate::model::{misc::ServerError, user::User};
 use super::{chat_type::{ChatType, ChatTypeRequirements}, MessageFlag};
 
 
