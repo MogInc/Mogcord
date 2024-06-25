@@ -4,7 +4,7 @@ use uuid::Uuid;
 use std::{env, sync::Arc};
 
 use axum::{http::{Method, StatusCode, Uri}, middleware, response::{IntoResponse, Response}, routing::Router, Json};
-use mogcord::{api::{chat::routes_chat, user::routes_user}, db::mongoldb::MongolDB, model::{chat::ChatRepository, misc::{log_request, AppState, ServerError}, user::UserRepository}};
+use mogcord::{api::{chat::routes_chat, user::routes_user}, db::mongoldb::MongolDB, model::{chat::ChatRepository, message::MessageRepository, misc::{log_request, AppState, ServerError}, user::UserRepository}};
 use tokio::net::TcpListener;
 
 #[tokio::main]
@@ -19,14 +19,16 @@ async fn main()
     let api_socket = env::var("API_SOCKET")
         .unwrap_or("127.0.0.1:3000".to_owned());
 
-    let db: MongolDB = MongolDB::init(&mongoldb_connection_string).await?;
+    let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
     
-    let repo_chat: Arc<dyn ChatRepository> = Arc::new(db.clone());
-    let repo_user: Arc<dyn UserRepository> = Arc::new(db.clone());
+    let repo_user = Arc::clone(&db) as Arc<dyn UserRepository>;
+    let repo_chat =  Arc::clone(&db) as Arc<dyn ChatRepository>;
+    let repo_message = Arc::clone(&db) as Arc<dyn MessageRepository>;
 
     let state: Arc<AppState> = Arc::new(AppState {
         repo_chat,
         repo_user,
+        repo_message,
     });
 
     let api_routes = Router::new()
