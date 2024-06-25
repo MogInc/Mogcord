@@ -1,8 +1,8 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post, Router}, Json};
+use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, error::ServerError};
+use crate::model::{appstate::AppState, error::ServerError, pagination::Pagination};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -21,6 +21,23 @@ async fn get_user(
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&uuid).await 
+    {
+        Ok(user) => Ok(Json(user)),
+        Err(e) => Err(e),
+    }
+}
+
+
+async fn get_users(
+    State(state): State<Arc<AppState>>,
+    pagination: Option<Query<Pagination>>) 
+    -> impl IntoResponse
+{
+    let repo_user = &state.repo_user;
+
+    let pagination = Pagination::new(pagination);
+
+    match repo_user.get_users(pagination).await 
     {
         Ok(user) => Ok(Json(user)),
         Err(e) => Err(e),
