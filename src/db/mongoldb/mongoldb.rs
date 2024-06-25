@@ -4,7 +4,7 @@ use axum::async_trait;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, options::{ClientOptions, Compressor}, Client, Collection, Cursor};
 use futures_util::stream::StreamExt;
 
-use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository}, error::ServerError, user::{User, UserRepository}}};
+use crate::{convert_mongo_key_to_string, map_mongo_collection, model::{chat::{Chat, ChatRepository}, error::ServerError, pagination::Pagination, user::{User, UserRepository}}};
 use crate::db::mongoldb::model::MongolUser;
 
 use super::{MongolBucket, MongolChat, MongolMessage};
@@ -126,7 +126,7 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
+    async fn get_users_by_ids(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
     {
         let mut user_uuids : Vec<Uuid> = Vec::new();
 
@@ -158,6 +158,61 @@ impl UserRepository for MongolDB
             doc! 
             {
                 "$unset": ["_id"]
+            },
+        ];
+
+        let mut cursor = self
+            .users
+            .aggregate(pipelines, None)
+            .await
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        
+        let mut users : Vec<User> = Vec::new();
+
+        while let Some(result) = cursor.next().await
+        {
+            match result
+            {
+                Ok(doc) => 
+                {
+                    let user: User = from_document(doc)
+                        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    users.push(user);
+                },
+                Err(_) => (),
+            }
+        }
+    
+        Ok(users)
+    }
+
+    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
+    {
+        let offset = (pagination.page - 1) * pagination.page_size;
+
+        let pipelines = vec![
+            //rename fields
+            doc!
+            {
+                "$addFields":
+                {
+                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
+                }
+            },
+            //hide fields
+            doc! 
+            {
+                "$unset": ["_id"]
+            },
+            //skip offset
+            doc! 
+            {
+                "$skip": offset as i32
+            },
+            //limit output
+            doc! 
+            {
+                "$limit": pagination.page_size as i32
             },
         ];
 
