@@ -8,9 +8,9 @@ use crate::model::user::User;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
+    .route("/user", post(post_user))
     .route("/user", get(get_users))
     .route("/user/:id", get(get_user))
-    .route("/user", post(post_user))
     .with_state(state)
 }
 

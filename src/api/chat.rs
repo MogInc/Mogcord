@@ -7,8 +7,9 @@ use crate::model::{misc::AppState, chat::{Chat, ChatType}, misc::ServerError};
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/chat/:id", get(get_chat))
     .route("/chat", post(post_chat))
+    .route("/chat/:id", get(get_chat))
+    .route("/chat/:id/messages", get(get_chat))
     .with_state(state)
 }
 
