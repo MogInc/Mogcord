@@ -1,4 +1,5 @@
 use axum::async_trait;
+use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
 use crate::{convert_mongo_key_to_string, db::mongoldb::{MongolDB, MongolUser}, model::{misc::{Pagination, ServerError}, user::{User, UserRepository}}};
@@ -11,7 +12,7 @@ impl UserRepository for MongolDB
         let user_uuid: Uuid = Uuid::parse_str(user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        match self.users.find_one(doc! { "_id" : user_uuid }, None).await
+        match self.users().find_one(doc! { "_id" : user_uuid }, None).await
         {
             Ok(option) => Ok(option.is_some()),
             Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
@@ -20,7 +21,7 @@ impl UserRepository for MongolDB
 
     async fn does_user_exist_by_mail(&self, user_mail: &String) -> Result<bool, ServerError>
     {
-        match self.users.find_one(doc! { "mail" : user_mail }, None).await
+        match self.users().find_one(doc! { "mail" : user_mail }, None).await
         {
             Ok(option) => Ok(option.is_some()),
             Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
@@ -32,7 +33,7 @@ impl UserRepository for MongolDB
         let db_user: MongolUser = MongolUser::try_from(user.clone())
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
         
-        match self.users.insert_one(&db_user, None).await
+        match self.users().insert_one(&db_user, None).await
         {
             Ok(_) => Ok(user),
             Err(err) => Err(ServerError::UnexpectedError(err.to_string())),
@@ -45,7 +46,7 @@ impl UserRepository for MongolDB
             .map_err(|_| ServerError::UserNotFound)?;
 
         let user_option: Option<MongolUser> = self
-            .users
+            .users()
             .find_one(doc! { "_id": user_uuid }, None)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
@@ -93,7 +94,7 @@ impl UserRepository for MongolDB
         ];
 
         let mut cursor = self
-            .users
+            .users()
             .aggregate(pipelines, None)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
@@ -148,7 +149,7 @@ impl UserRepository for MongolDB
         ];
 
         let mut cursor = self
-            .users
+            .users()
             .aggregate(pipelines, None)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
