@@ -1,4 +1,4 @@
-use serde::{de::{self, Error, Visitor}, Deserialize, Serialize};
+use serde::{de::{self, Visitor}, Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::misc::ServerError;
