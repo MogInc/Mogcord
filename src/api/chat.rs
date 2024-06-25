@@ -1,6 +1,5 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
-use futures_util::{FutureExt, TryFutureExt};
 use serde::Deserialize;
 
 use crate::model::{misc::AppState, chat::{Chat, ChatType}, misc::ServerError};

@@ -28,8 +28,10 @@ pub enum ServerError
     UnexpectedError(String),
 }
 
-impl fmt::Display for ServerError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl fmt::Display for ServerError 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
         write!(f, "{self:?}")
     }
 }
@@ -75,7 +77,8 @@ impl ServerError
 
 #[derive(Debug, strum_macros::AsRefStr)]
 #[allow(non_camel_case_types)]
-pub enum ClientError {
+pub enum ClientError
+{
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
