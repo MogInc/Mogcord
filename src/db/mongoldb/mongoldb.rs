@@ -35,7 +35,7 @@ impl MongolDB
         let client: Client = Client::with_options(client_options)?;
 
         let db: mongodb::Database = client.database("db_mogcord");
-
+        
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
