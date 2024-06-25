@@ -1,14 +1,50 @@
-use serde::{Deserialize, Serialize};
+use serde::{de::{self, Error, Visitor}, Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::misc::ServerError;
 
-#[derive(Clone, Display, Debug, Serialize, Deserialize)]
+#[derive(Clone, Display, Debug, Serialize)]
 pub enum ChatType
 {
     Private,
     Group,
     Server,
+}
+
+impl<'de> Deserialize<'de> for ChatType
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: serde::Deserializer<'de> 
+    {
+        struct ChatTypeVisitor;
+
+        impl<'de> Visitor<'de> for ChatTypeVisitor
+        {
+            type Value = ChatType;
+        
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
+            {
+                return formatter.write_str("data");
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+                where E: serde::de::Error, 
+            {
+                match v.to_lowercase().as_str()
+                {
+                    "private" => Ok(ChatType::Private),
+                    "group" => Ok(ChatType::Group),
+                    "server" => Ok(ChatType::Server),
+                    _ => Err(de::Error::unknown_field(v, FIELDS))
+                }
+            }
+        }
+
+        const FIELDS: &[&str] = &["private", "group", "server"];
+        return deserializer.deserialize_identifier(ChatTypeVisitor);
+    }
+
+
 }
 
 impl ChatType
