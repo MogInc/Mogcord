@@ -54,14 +54,14 @@ async fn post_chat(
     }
 
     let owners = repo_user
-        .get_users_by_id(payload.owners)
+        .get_users_by_ids(payload.owners)
         .await
         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
     let users = match payload.users
     {
         Some(users) => Some(repo_user
-            .get_users_by_id(users)
+            .get_users_by_ids(users)
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?
         ),
