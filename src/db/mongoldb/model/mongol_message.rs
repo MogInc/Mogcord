@@ -31,7 +31,7 @@ impl TryFrom<Message> for MongolMessage
         let chat_uuid = Uuid::parse_str(value.chat.uuid)
             .map_err(|_| MongolError::InvalidUUID)?;
 
-        let bucket_uuid = value.bucket.map(|bucket|
+        let bucket_uuid_option = value.bucket.map(|bucket|
             Uuid::parse_str(bucket.uuid).map_err(|_| MongolError::InvalidUUID)
         ).transpose()?;
 
@@ -42,7 +42,7 @@ impl TryFrom<Message> for MongolMessage
                 owner_id: owner_uuid, 
                 value: value.value, 
                 chat_id: chat_uuid,
-                bucket_id: bucket_uuid,
+                bucket_id: bucket_uuid_option,
                 flag: value.flag
             }
         )
