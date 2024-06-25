@@ -11,7 +11,7 @@ pub struct Message
     pub value: String,
     pub owner: User,
     pub chat: Chat,
-    pub bucket: Bucket,
+    pub bucket: Option<Bucket>,
     //we actually gonna delete stuff?
     //(:sins:)
     pub flag: MessageFlag,
