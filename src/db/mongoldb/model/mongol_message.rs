@@ -1,4 +1,4 @@
-use mongodb::bson::{Bson, Uuid};
+use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::message::{Message, MessageFlag};
