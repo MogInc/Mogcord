@@ -15,8 +15,8 @@ pub fn routes_chat(state: Arc<AppState>) -> Router
 
 async fn get_chat(
     State(state): State<Arc<AppState>>,
-    Path(uuid): Path<String>) 
-    -> impl IntoResponse
+    Path(uuid): Path<String>
+) -> impl IntoResponse
 {
     let repo_chat = &state.repo_chat;
 
@@ -38,8 +38,8 @@ struct CreateChatRequest
 
 async fn post_chat(
     State(state): State<Arc<AppState>>,
-    extract::Json(payload): extract::Json<CreateChatRequest>)
- -> impl IntoResponse
+    extract::Json(payload): extract::Json<CreateChatRequest>
+) -> impl IntoResponse
 {
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
