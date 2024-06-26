@@ -1,5 +1,5 @@
 use axum::async_trait;
-use mongodb::bson::doc;
+use mongodb::bson::{doc, Bson};
 
 use crate::{db::mongoldb::{MongolDB, MongolMessage}, model::{message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
@@ -22,10 +22,9 @@ impl MessageRepository for MongolDB
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
+        let message_date = "";
 
-        let message_date = db_message.timestamp;
-
-        let bucket_filter =doc!
+        let bucket_filter = doc!
         {
             "chat_id": db_message.chat_id,
             "date": message_date,
