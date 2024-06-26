@@ -120,8 +120,6 @@ impl UserRepository for MongolDB
 
     async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
     {
-        let offset = (pagination.page - 1) * pagination.page_size;
-
         let pipelines = vec![
             //rename fields
             doc!
@@ -139,7 +137,7 @@ impl UserRepository for MongolDB
             //skip offset
             doc! 
             {
-                "$skip": offset as i32
+                "$skip": pagination.get_skip_size() as i32
             },
             //limit output
             doc! 
