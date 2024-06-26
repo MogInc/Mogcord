@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Datelike, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -37,5 +37,13 @@ impl Message {
             bucket: None,
             flag: MessageFlag::None
         }
+    }
+}
+
+impl Message
+{
+    pub fn get_timestamp_in_days(&self)
+    {
+        let year_in_days = self.timestamp.timestamp();
     }
 }
