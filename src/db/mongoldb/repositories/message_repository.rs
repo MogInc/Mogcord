@@ -1,6 +1,8 @@
 use axum::async_trait;
-use mongodb::bson::doc;
+use futures_util::StreamExt;
+use mongodb::bson::{doc, document, from_document, Bson, Uuid};
 use crate::db::mongoldb::mongol_helper::MongolHelper;
+use crate::model::message;
 use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
@@ -95,12 +97,68 @@ impl MessageRepository for MongolDB
     async fn get_messages(&self, chat_id: &String, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
+
+        let chat_uuid = Uuid::parse_str(chat_id)
+            .map_err(|_| ServerError::ChatNotFound)?;
+
         //filter buckets
         //order by date DESC
         //skip page
         //grab pagesize
+        //now, how do we get the actual pagesize
+        
+        let pipelines = vec![
+            //filter to only given chats
+            doc! 
+            {
+                "$match":
+                {
+                    "chat_id": chat_uuid
+                },
+            },
+            //sort on date from new to old
+            doc!
+            {
+                "$sort":
+                {
+                    "date": -1
+                }
+            },
+            //skip offset
+            doc! 
+            {
+                "$skip": pagination.get_skip_size() as i32
+            },
+            //limit output
+            doc! 
+            {
+                "$limit": pagination.page_size as i32
+            },
+        ];
+
+        let mut cursor = self
+            .buckets()
+            .aggregate(pipelines)
+            .await
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+        let mut messages: Vec<Message> = Vec::new();
+
+        while let Some(result) = cursor.next().await
+        {
+            match result
+            {
+                Ok(document) => 
+                {
+                    let message: Message = from_document(document)
+                        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    messages.push(message);
+                },
+                Err(_) => (),
+            };
+        }
 
 
-        Err(ServerError::ChatAlreadyExists)
+        return Ok(messages);
     }
 }
