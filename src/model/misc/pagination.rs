@@ -29,6 +29,14 @@ impl Pagination {
     }
 }
 
+impl Pagination
+{
+    pub fn get_skip_size(&self) -> usize
+    {
+        return (self.page - 1) * self.page_size;
+    }
+}
+
 impl Default for Pagination 
 {
     fn default() -> Self 
