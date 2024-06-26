@@ -1,13 +1,12 @@
 use axum::async_trait;
-use mongodb::{action::StartTransaction, options::{ReadConcern, WriteConcern}};
+use mongodb::bson::doc;
 
 use crate::{db::mongoldb::{MongolDB, MongolMessage}, model::{message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
 {
-    async fn create_message(&self, message: Message) 
-        -> Result<Message, ServerError>
+    async fn create_message(&self, message: Message) -> Result<Message, ServerError>
     {
         let db_message = MongolMessage::try_from(message)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
@@ -23,7 +22,20 @@ impl MessageRepository for MongolDB
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        
+
+        let message_date = db_message.timestamp;
+
+        let bucket_filter =doc!
+        {
+            "chat_id": db_message.chat_id,
+            "date": message_date,
+        };
+
+        let bucket = self
+            .buckets()
+            .find_one(bucket_filter)
+            .await
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
         Err(ServerError::ChatAlreadyExists)
     }

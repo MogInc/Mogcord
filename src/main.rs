@@ -8,8 +8,7 @@ use mogcord::{api::{chat::routes_chat, user::routes_user}, db::mongoldb::MongolD
 use tokio::net::TcpListener;
 
 #[tokio::main]
-async fn main() 
-    -> Result<(), Box<dyn std::error::Error>> 
+async fn main() -> Result<(), Box<dyn std::error::Error>> 
 {
     dotenv().ok();
 
@@ -65,8 +64,8 @@ async fn page_not_found() -> impl IntoResponse
 async fn main_response_mapper(
 	uri: Uri,
 	req_method: Method,
-	res: Response) 
-    -> Response 
+	res: Response
+) -> Response 
 {
 	let uuid = Uuid::new_v4();
 

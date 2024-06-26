@@ -22,8 +22,8 @@ impl Chat
         name: Option<String>, 
         r#type: ChatType, 
         owners: Vec<User>,
-        users: Option<Vec<User>>) 
-        -> Result<Self, ServerError>
+        users: Option<Vec<User>>
+    ) -> Result<Self, ServerError>
     {
 
         let users_sanitized: Option<Vec<User>> = users.map(|users| {

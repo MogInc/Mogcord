@@ -16,8 +16,8 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(uuid): Path<String>) 
-    -> impl IntoResponse
+    Path(uuid): Path<String>
+) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
@@ -31,8 +31,8 @@ async fn get_user(
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
-    pagination: Option<Query<Pagination>>) 
-    -> impl IntoResponse
+    pagination: Option<Query<Pagination>>
+) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
@@ -54,8 +54,8 @@ struct CreateUserRequest
 
 async fn post_user(
     State(state): State<Arc<AppState>>, 
-    extract::Json(payload): extract::Json<CreateUserRequest>) 
-    -> impl IntoResponse
+    extract::Json(payload): extract::Json<CreateUserRequest>
+) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 

@@ -16,8 +16,7 @@ pub struct MongolDB
 
 impl MongolDB
 {
-    pub async fn init(connection_string: &str) 
-        -> Result<Self, Box<dyn std::error::Error>>
+    pub async fn init(connection_string: &str) -> Result<Self, Box<dyn std::error::Error>>
     {
         let mut client_options: ClientOptions = ClientOptions::parse(connection_string).await?;
 
@@ -56,23 +55,28 @@ impl MongolDB
 
 impl MongolDB
 {
-    pub fn client(&self) -> &Client {
+    pub fn client(&self) -> &Client 
+    {
         &self.client
     }
 
-    pub fn users(&self) -> &Collection<MongolUser> {
+    pub fn users(&self) -> &Collection<MongolUser>
+    {
         &self.users
     }
 
-    pub fn chats(&self) -> &Collection<MongolChat> {
+    pub fn chats(&self) -> &Collection<MongolChat> 
+    {
         &self.chats
     }
 
-    pub fn buckets(&self) -> &Collection<MongolBucket> {
+    pub fn buckets(&self) -> &Collection<MongolBucket> 
+    {
         &self.buckets
     }
 
-    pub fn messages(&self) -> &Collection<MongolMessage> {
+    pub fn messages(&self) -> &Collection<MongolMessage> 
+    {
         &self.messages
     }
 }

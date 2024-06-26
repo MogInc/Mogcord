@@ -98,8 +98,7 @@ impl ChatRepository for MongolDB
         }
     }
 
-    async fn does_chat_exist(&self, chat: &Chat)
-        -> Result<bool, ServerError>
+    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
     {
         let mongol_chat = MongolChat::try_from(chat.clone())
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
