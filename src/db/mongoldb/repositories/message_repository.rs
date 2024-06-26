@@ -1,8 +1,8 @@
 use axum::async_trait;
-use chrono::{Datelike, Utc};
-use mongodb::bson::{self, doc, Bson};
+use chrono::Datelike;
+use mongodb::bson::{self, doc};
 
-use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
+use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{self, Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -32,23 +32,17 @@ impl MessageRepository for MongolDB
             .build()
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        let bucket_filter = doc!
-        {
-            "chat_id": db_message.chat_id,
-            "date": date,
-        };
 
-        let bucket_option: Option<MongolBucket> = self
-            .buckets()
-            .find_one(bucket_filter.clone())
-            .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
-
-
-        match bucket_option
+        match db_message.bucket_id
         {
             Some(_) =>
             {
+                let bucket_filter = doc!
+                {
+                    "chat_id": db_message.chat_id,
+                    "date": date,
+                };
+
                 let bucket_update = doc! 
                 {
                     "$push": { "message_ids": db_message._id }
@@ -65,7 +59,7 @@ impl MessageRepository for MongolDB
             {
                 let mut bucket = Bucket::new(&message.chat, &message.timestamp);
                 
-                bucket.add_message(message);
+                bucket.add_message(message.clone());
 
                 let db_bucket = MongolBucket::try_from(bucket)
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
@@ -80,7 +74,19 @@ impl MessageRepository for MongolDB
         };
 
 
-        Err(ServerError::ChatAlreadyExists)
+        match self.messages().insert_one(&db_message).session(&mut session).await
+        {
+            Ok(_) => 
+            {
+                let _= session.commit_transaction();
+                return Ok(message);
+            },
+            Err(err) => 
+            {
+                let _= session.abort_transaction();
+                return Err(ServerError::UnexpectedError(err.to_string()));
+            },
+        }
     }
 
     async fn get_messages(&self, chat_id: &String, pagination: Pagination) 
