@@ -95,6 +95,12 @@ impl MessageRepository for MongolDB
     async fn get_messages(&self, chat_id: &String, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
+        //filter buckets
+        //order by date DESC
+        //skip page
+        //grab pagesize
+
+
         Err(ServerError::ChatAlreadyExists)
     }
 }
