@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -70,6 +70,36 @@ pub struct Bucket
 {
     pub uuid: String,
     pub chat: Chat,
-    pub date: DateTime<Utc>,
+    pub date: NaiveDate,
     pub messages: Option<Vec<Message>>,
+}
+
+impl Bucket
+{
+    pub fn new(chat: &Chat, date: &DateTime<Utc>) -> Self
+    {
+        Self
+        {
+            uuid: Uuid::new_v4().to_string(),
+            chat: chat.clone(),
+            date: date.date_naive(),   
+            messages: None,
+        }
+    }
+}
+
+impl Bucket
+{
+    pub fn add_message(&mut self, message: Message)
+    {
+        if self.messages.is_none() 
+        {
+            self.messages = Some(Vec::new());
+        }
+
+        if let Some(messages) = &mut self.messages 
+        {
+            messages.push(message);
+        }
+    }
 }

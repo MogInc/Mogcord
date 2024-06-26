@@ -2,7 +2,7 @@ use axum::async_trait;
 use chrono::{Datelike, Utc};
 use mongodb::bson::{self, doc, Bson};
 
-use crate::{db::mongoldb::{MongolDB, MongolMessage}, model::{message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
+use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -38,17 +38,46 @@ impl MessageRepository for MongolDB
             "date": date,
         };
 
-        let bucket = self
+        let bucket_option: Option<MongolBucket> = self
             .buckets()
-            .find_one(bucket_filter)
+            .find_one(bucket_filter.clone())
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        
-        if()
+
+        match bucket_option
         {
-            
-        }
+            Some(_) =>
+            {
+                let bucket_update = doc! 
+                {
+                    "$push": { "message_ids": db_message._id }
+                };
+
+                let _ = self
+                    .buckets()
+                    .update_one(bucket_filter, bucket_update)
+                    .session(&mut session)
+                    .await
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()));
+            },
+            None =>
+            {
+                let mut bucket = Bucket::new(&message.chat, &message.timestamp);
+                
+                bucket.add_message(message);
+
+                let db_bucket = MongolBucket::try_from(bucket)
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+                let _ = self
+                    .buckets()
+                    .insert_one(&db_bucket)
+                    .session(&mut session)
+                    .await
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()));
+            },
+        };
 
 
         Err(ServerError::ChatAlreadyExists)
