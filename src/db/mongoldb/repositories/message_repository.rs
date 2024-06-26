@@ -78,12 +78,20 @@ impl MessageRepository for MongolDB
         {
             Ok(_) => 
             {
-                let _= session.commit_transaction();
+                session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                
                 return Ok(message);
             },
             Err(err) => 
             {
-                let _= session.abort_transaction();
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
                 return Err(ServerError::UnexpectedError(err.to_string()));
             },
         }
