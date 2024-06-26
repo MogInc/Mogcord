@@ -39,11 +39,3 @@ impl Message {
         }
     }
 }
-
-impl Message
-{
-    pub fn get_timestamp_in_days(&self)
-    {
-        let year_in_days = self.timestamp.timestamp();
-    }
-}

@@ -1,8 +1,9 @@
-use chrono::Datelike;
 use mongodb::bson::{self, DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
-use crate::model::{chat::Bucket, message};
+
+use crate::db::mongoldb::MongolHelper;
+use crate::model::chat::Bucket;
 
 use super::MongolError;
 
@@ -27,13 +28,9 @@ impl TryFrom<Bucket> for MongolBucket
         let chat_uuid = Uuid::parse_str(value.chat.uuid)
             .map_err(|_| MongolError::InvalidUUID)?;
 
-        let bucket_datetime = value.date;
-
-        let bucket_date = bson::DateTime::builder()
-            .year(bucket_datetime.year())
-            .month(bucket_datetime.month().try_into().unwrap())
-            .day(bucket_datetime.day().try_into().unwrap())
-            .build()
+        let bucket_date = value
+            .date
+            .convert_to_bson_datetime()
             .map_err(|_| MongolError::FailedDateParsing)?;
 
         let bucket_message_uuids = value

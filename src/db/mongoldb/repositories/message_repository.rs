@@ -1,8 +1,7 @@
 use axum::async_trait;
-use chrono::Datelike;
-use mongodb::bson::{self, doc};
-
-use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{self, Message, MessageRepository}, misc::{Pagination, ServerError}}};
+use mongodb::bson::doc;
+use crate::db::mongoldb::mongol_helper::MongolHelper;
+use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -23,13 +22,9 @@ impl MessageRepository for MongolDB
             .await
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-        let message_date = message.timestamp.date_naive();
-
-        let date = bson::DateTime::builder()
-            .year(message_date.year())
-            .month(message_date.month().try_into().unwrap())
-            .day(message_date.day().try_into().unwrap())
-            .build()
+        let date = message
+            .timestamp
+            .convert_to_bson_datetime()
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
 
@@ -48,12 +43,12 @@ impl MessageRepository for MongolDB
                     "$push": { "message_ids": db_message._id }
                 };
 
-                let _ = self
+                self
                     .buckets()
                     .update_one(bucket_filter, bucket_update)
                     .session(&mut session)
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()));
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
             },
             None =>
             {
@@ -64,12 +59,12 @@ impl MessageRepository for MongolDB
                 let db_bucket = MongolBucket::try_from(bucket)
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-                let _ = self
+                self
                     .buckets()
                     .insert_one(&db_bucket)
                     .session(&mut session)
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()));
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
             },
         };
 
@@ -82,7 +77,7 @@ impl MessageRepository for MongolDB
                     .commit_transaction()
                     .await
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
-                
+
                 return Ok(message);
             },
             Err(err) => 
