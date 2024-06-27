@@ -1,28 +1,44 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
+use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::model::{misc::AppState, chat::{Chat, ChatType}, misc::ServerError};
+use crate::model::{chat::{Chat, ChatType}, misc::{AppState, Pagination, ServerError}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
     Router::new()
     .route("/chat", post(post_chat))
     .route("/chat/:id", get(get_chat))
-    .route("/chat/:id/messages", get(get_chat))
+    .route("/chat/:id/messages", get(get_messages))
     .with_state(state)
 }
 
 async fn get_chat(
     State(state): State<Arc<AppState>>,
-    Path(uuid): Path<String>
+    Path(chat_uuid): Path<String>
 ) -> impl IntoResponse
 {
     let repo_chat = &state.repo_chat;
 
-    match repo_chat.get_chat_by_id(&uuid).await 
+    match repo_chat.get_chat_by_id(&chat_uuid).await 
     {
         Ok(chat) => Ok(Json(chat)),
+        Err(e) => Err(e),
+    }
+}
+
+async fn get_messages(
+    State(state, ): State<Arc<AppState>>,
+    Path(chat_uuid): Path<String>,
+    pagination: Option<Query<Pagination>>,
+) -> impl IntoResponse
+{
+    let repo_message = &state.repo_message;
+    let pagination = Pagination::new(pagination);
+
+    match repo_message.get_messages(&chat_uuid, pagination).await
+    {
+        Ok(messages) => Ok(Json(messages)),
         Err(e) => Err(e),
     }
 }
