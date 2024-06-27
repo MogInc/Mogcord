@@ -9,8 +9,8 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
     .route("/user", post(post_user))
-    .route("/user", get(get_users))
     .route("/user/:id", get(get_user))
+    .route("/users", get(get_users))
     .with_state(state)
 }
 
