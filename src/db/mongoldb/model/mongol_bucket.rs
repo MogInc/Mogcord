@@ -1,4 +1,4 @@
-use mongodb::bson::{self, DateTime, Uuid};
+use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
 
