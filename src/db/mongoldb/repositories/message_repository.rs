@@ -16,17 +16,17 @@ impl MessageRepository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
         let date = message
             .timestamp
             .convert_to_bson_datetime()
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
 
         match db_message.bucket_id
@@ -49,7 +49,7 @@ impl MessageRepository for MongolDB
                     .update_one(bucket_filter, bucket_update)
                     .session(&mut session)
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
             },
             None =>
             {
@@ -65,7 +65,7 @@ impl MessageRepository for MongolDB
                     .insert_one(&db_bucket)
                     .session(&mut session)
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
             },
         };
 
@@ -77,7 +77,7 @@ impl MessageRepository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
                 return Ok(message);
             },
@@ -86,7 +86,7 @@ impl MessageRepository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
                 return Err(ServerError::UnexpectedError(err.to_string()));
             },
@@ -139,7 +139,7 @@ impl MessageRepository for MongolDB
             .buckets()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
 
         let mut messages: Vec<Message> = Vec::new();
 

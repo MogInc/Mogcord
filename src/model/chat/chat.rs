@@ -64,6 +64,15 @@ impl Chat
 }
 
 
+impl Chat
+{
+    pub fn is_user_part_of_chat(&self, user_uuid: &String) -> bool
+    {
+        true
+    }
+}
+
+
 //doubt i need this in model
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bucket

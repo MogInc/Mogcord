@@ -15,7 +15,7 @@ impl UserRepository for MongolDB
         match self.users().find_one(doc! { "_id" : user_uuid }).await
         {
             Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
+            Err(err) => Err(ServerError::FailedRead(err.to_string()))
         }
     }
 
@@ -24,7 +24,7 @@ impl UserRepository for MongolDB
         match self.users().find_one(doc! { "mail" : user_mail }).await
         {
             Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::UnexpectedError(err.to_string()))
+            Err(err) => Err(ServerError::FailedRead(err.to_string()))
         }
     }
 
@@ -36,7 +36,7 @@ impl UserRepository for MongolDB
         match self.users().insert_one(&db_user).await
         {
             Ok(_) => Ok(user),
-            Err(err) => Err(ServerError::UnexpectedError(err.to_string())),
+            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
         }
     }
 
@@ -49,7 +49,7 @@ impl UserRepository for MongolDB
             .users()
             .find_one(doc! { "_id": user_uuid })
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
         
         match user_option 
         {
@@ -97,7 +97,7 @@ impl UserRepository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
         
         let mut users : Vec<User> = Vec::new();
 
@@ -150,7 +150,7 @@ impl UserRepository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
         
         let mut users : Vec<User> = Vec::new();
 

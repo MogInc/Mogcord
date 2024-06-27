@@ -24,6 +24,14 @@ pub enum ServerError
 	InvalidChatRequirements,
 	UserNotPartOfThisChat,
 
+
+	//db
+	FailedRead(String),
+	FailedInsert(String),
+	FailedUpdate(String),
+	FailedDelete(String),
+	TransactionError(String),
+
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
@@ -66,7 +74,13 @@ impl ServerError
 			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
-            Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
+            
+			Self::FailedRead(_)
+			| Self::FailedInsert(_)
+			| Self::FailedUpdate(_)
+			| Self::FailedDelete(_)
+			| Self::TransactionError(_)
+			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
 
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,

@@ -15,7 +15,7 @@ impl ChatRepository for MongolDB
         match self.chats().insert_one(&db_chat).await
         {
             Ok(_) => Ok(chat),
-            Err(err) => Err(ServerError::UnexpectedError(err.to_string())),
+            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
         }
     }
 
@@ -76,7 +76,7 @@ impl ChatRepository for MongolDB
             .chats()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
     
         let document_option: Option<Document> = cursor
             .next()
@@ -120,7 +120,7 @@ impl ChatRepository for MongolDB
             .chats()
             .aggregate(pipilines)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
 
 
         let document_option: Option<Document> = cursor
