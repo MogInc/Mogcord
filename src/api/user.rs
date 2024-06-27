@@ -16,12 +16,12 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(uuid): Path<String>
+    Path(user_uuid): Path<String>,
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&uuid).await 
+    match repo_user.get_user_by_id(&user_uuid).await 
     {
         Ok(user) => Ok(Json(user)),
         Err(e) => Err(e),
@@ -31,7 +31,7 @@ async fn get_user(
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
-    pagination: Option<Query<Pagination>>
+    pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
