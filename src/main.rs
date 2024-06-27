@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     dotenv().ok();
 
     let mongoldb_connection_string = env::var("MONGOLDB_CONNECTION")
-        .unwrap_or("mongodb://localhost:27017/&retryWrites=false".to_owned());
+        .unwrap_or("mongodb://localhost:27017".to_owned());
 
     let api_socket = env::var("API_SOCKET")
         .unwrap_or("127.0.0.1:3000".to_owned());
