@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::model::{chat::{Chat, ChatType}, misc::{AppState, Pagination, ServerError}};
+use crate::model::{chat::{Chat, ChatType}, message::Message, misc::{AppState, Pagination, ServerError}, user::User};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -10,6 +10,7 @@ pub fn routes_chat(state: Arc<AppState>) -> Router
     .route("/chat", post(post_chat))
     .route("/chat/:id", get(get_chat))
     .route("/chat/:id/messages", get(get_messages))
+    .route("/chat/:id/message", post(post_message))
     .with_state(state)
 }
 
@@ -39,6 +40,44 @@ async fn get_messages(
     match repo_message.get_messages(&chat_uuid, pagination).await
     {
         Ok(messages) => Ok(Json(messages)),
+        Err(e) => Err(e),
+    }
+}
+
+#[derive(Deserialize)]
+struct CreateMessageRequest
+{
+    value: String,
+    owner_id: String,
+}
+async fn post_message(
+    State(state, ): State<Arc<AppState>>,
+    Path(chat_uuid): Path<String>,
+    extract::Json(payload): extract::Json<CreateMessageRequest>,
+) -> impl IntoResponse
+{
+    let repo_message = &state.repo_message;
+    let repo_chat = &state.repo_chat;
+    let repo_user = &state.repo_user;
+
+    let chat: Chat = repo_chat
+        .get_chat_by_id(&chat_uuid)
+        .await?;
+
+    if !chat.is_user_part_of_chat(&payload.owner_id)
+    {
+        return Err(ServerError::UserNotPartOfThisChat);
+    }
+
+    let owner: User = repo_user
+        .get_user_by_id(&payload.owner_id)
+        .await?;
+
+    let message = Message::new(payload.value, owner, chat);
+
+    match repo_message.create_message(message).await
+    {
+        Ok(message) => Ok(Json(message)),
         Err(e) => Err(e),
     }
 }
