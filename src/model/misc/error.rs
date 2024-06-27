@@ -22,6 +22,7 @@ pub enum ServerError
 	InvalidNameRequirement { expected: bool, found: bool },
 	InvalidUsersRequirement { expected: bool, found: bool },
 	InvalidChatRequirements,
+	UserNotPartOfThisChat,
 
 	//fallback
 	NotImplemented,
@@ -62,6 +63,7 @@ impl ServerError
 			| Self::InvalidOwnerCount
 			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
+			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
             Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
