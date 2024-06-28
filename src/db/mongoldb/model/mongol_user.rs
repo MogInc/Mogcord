@@ -50,9 +50,10 @@ impl TryFrom<&Vec<User>> for MongolUserVec
     }
 }
 
-impl From<MongolUser> for User
+impl From<&MongolUser> for User
 {
-    fn from(value: MongolUser) -> Self {
-        User::convert(value._id.to_string(), value.name, value.mail)
+    fn from(value: &MongolUser) -> Self 
+    {
+        User::convert(value._id.to_string(), value.name.clone(), value.mail.clone())
     }
 }

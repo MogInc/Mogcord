@@ -48,8 +48,10 @@ impl TryFrom<&Chat> for MongolChat
     }
 }
 
-impl From<ChatType> for Bson {
-    fn from(chat_type: ChatType) -> Bson {
+impl From<ChatType> for Bson 
+{
+    fn from(chat_type: ChatType) -> Bson 
+    {
         // Add your conversion logic here
         Bson::String(chat_type.to_string())
     }

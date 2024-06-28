@@ -65,7 +65,7 @@ impl UserRepository for MongolDB
         
         match user_option 
         {
-            Some(user) => Ok(User::from(user)),
+            Some(user) => Ok(User::from(&user)),
             None => Err(ServerError::UserNotFound),
         }
     }
