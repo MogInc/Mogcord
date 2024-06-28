@@ -133,16 +133,6 @@ impl MessageRepository for MongolDB
                     "date": -1
                 }
             },
-            //skip offset
-            doc! 
-            {
-                "$skip": pagination.get_skip_size() as i32
-            },
-            //limit output
-            doc! 
-            {
-                "$limit": pagination.page_size as i32
-            },
             //join with messages
             doc! 
             {
@@ -161,6 +151,19 @@ impl MessageRepository for MongolDB
                 {
                     "messages": map_mongo_collection!("$messages", "uuid"),
                 },
+            },
+
+            //if the skip+limit is sooner you're not certain you retrieve the correct amount of messages
+            //unless you wasnt to recursive pull but no clue how or if its even possible with aggregates
+            //skip offset
+            doc! 
+            {
+                "$skip": pagination.get_skip_size() as i32
+            },
+            //limit output
+            doc! 
+            {
+                "$limit": pagination.page_size as i32
             },
         ];
 
