@@ -1,6 +1,6 @@
 use axum::async_trait;
 use futures_util::StreamExt;
-use mongodb::{bson::{doc, from_document, Document, Uuid}, Cursor};
+use mongodb::{bson::{doc, from_document, Document}, Cursor};
 
 use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
 
