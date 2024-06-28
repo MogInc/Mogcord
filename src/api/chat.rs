@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::model::{chat::{Chat, ChatType}, message::Message, misc::{AppState, Pagination, ServerError}, user::User};
+use crate::{dto::ChatDTO, model::{chat::{Chat, ChatType}, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -23,61 +23,7 @@ async fn get_chat(
 
     match repo_chat.get_chat_by_id(&chat_uuid).await 
     {
-        Ok(chat) => Ok(Json(chat)),
-        Err(e) => Err(e),
-    }
-}
-
-async fn get_messages(
-    State(state, ): State<Arc<AppState>>,
-    Path(chat_uuid): Path<String>,
-    pagination: Option<Query<Pagination>>,
-) -> impl IntoResponse
-{
-    let repo_message = &state.repo_message;
-    let pagination = Pagination::new(pagination);
-
-    match repo_message.get_messages(&chat_uuid, pagination).await
-    {
-        Ok(messages) => Ok(Json(messages)),
-        Err(e) => Err(e),
-    }
-}
-
-#[derive(Deserialize)]
-struct CreateMessageRequest
-{
-    value: String,
-    owner_id: String,
-}
-async fn post_message(
-    State(state, ): State<Arc<AppState>>,
-    Path(chat_uuid): Path<String>,
-    extract::Json(payload): extract::Json<CreateMessageRequest>,
-) -> impl IntoResponse
-{
-    let repo_message = &state.repo_message;
-    let repo_chat = &state.repo_chat;
-    let repo_user = &state.repo_user;
-
-    let chat: Chat = repo_chat
-        .get_chat_by_id(&chat_uuid)
-        .await?;
-
-    if !chat.is_user_part_of_chat(&payload.owner_id)
-    {
-        return Err(ServerError::UserNotPartOfThisChat);
-    }
-
-    let owner: User = repo_user
-        .get_user_by_id(&payload.owner_id)
-        .await?;
-
-    let message = Message::new(payload.value, owner, chat);
-
-    match repo_message.create_message(message).await
-    {
-        Ok(message) => Ok(Json(message)),
+        Ok(chat) => Ok(Json(ChatDTO::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }
@@ -140,7 +86,61 @@ async fn post_chat(
 
     match repo_chat.create_chat(chat).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(chat) => Ok(Json(ChatDTO::obj_to_dto(chat))),
+        Err(e) => Err(e),
+    }
+}
+
+async fn get_messages(
+    State(state, ): State<Arc<AppState>>,
+    Path(chat_uuid): Path<String>,
+    pagination: Option<Query<Pagination>>,
+) -> impl IntoResponse
+{
+    let repo_message = &state.repo_message;
+    let pagination = Pagination::new(pagination);
+
+    match repo_message.get_messages(&chat_uuid, pagination).await
+    {
+        Ok(messages) => Ok(Json(messages)),
+        Err(e) => Err(e),
+    }
+}
+
+#[derive(Deserialize)]
+struct CreateMessageRequest
+{
+    value: String,
+    owner_id: String,
+}
+async fn post_message(
+    State(state, ): State<Arc<AppState>>,
+    Path(chat_uuid): Path<String>,
+    extract::Json(payload): extract::Json<CreateMessageRequest>,
+) -> impl IntoResponse
+{
+    let repo_message = &state.repo_message;
+    let repo_chat = &state.repo_chat;
+    let repo_user = &state.repo_user;
+
+    let chat: Chat = repo_chat
+        .get_chat_by_id(&chat_uuid)
+        .await?;
+
+    if !chat.is_user_part_of_chat(&payload.owner_id)
+    {
+        return Err(ServerError::UserNotPartOfThisChat);
+    }
+
+    let owner: User = repo_user
+        .get_user_by_id(&payload.owner_id)
+        .await?;
+
+    let message = Message::new(payload.value, owner, chat);
+
+    match repo_message.create_message(message).await
+    {
+        Ok(message) => Ok(Json(message)),
         Err(e) => Err(e),
     }
 }

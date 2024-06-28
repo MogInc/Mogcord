@@ -24,7 +24,7 @@ impl UserDTO
     
     pub fn vec_to_dto(users: Vec<User>) -> Vec<Self>
     {
-        let mut users_dto: Vec<UserDTO> = Vec::new();
+        let mut users_dto: Vec<Self> = Vec::new();
 
         for user in users
         {
