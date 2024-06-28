@@ -42,7 +42,7 @@ impl MessageRepository for MongolDB
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
 
-        let mut bucket_current : MongolBucket;
+        let bucket_current : MongolBucket;
 
         match bucket_option
         {
