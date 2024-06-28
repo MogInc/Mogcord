@@ -68,7 +68,15 @@ impl Chat
 {
     pub fn is_user_part_of_chat(&self, user_uuid: &String) -> bool
     {
-        true
+        match self.r#type
+        {
+            ChatType::Private => self.owners.iter().any(|owner| &owner.uuid == user_uuid),
+            ChatType::Group => self.owners.iter().any(|owner| &owner.uuid == user_uuid) 
+                || self.users.as_ref().map_or(false, |users|{
+                    users.iter().any(|user| &user.uuid == user_uuid)
+                }),
+            _ => true,
+        }
     }
 }
 
