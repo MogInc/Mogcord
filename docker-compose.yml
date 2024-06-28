@@ -5,32 +5,39 @@ services:
       dockerfile: Dockerfile
     image: gwilom/mogcord
     environment:
-      MONGOLDB_CONNECTION: mongodb://${MONGOLDB_CONTAINER_NAME}:${MONGOLDB_PORT}
+      MONGOLDB_CONNECTION: mongodb://mongoldb0:27017
       API_SOCKET: ${API_ADDRESS}:${API_PORT}
     env_file:
     - .env
     ports:
       - "${API_PORT}:3000"
     depends_on:
-      - mongoldb
+      - mongoldb0
     networks:
       - mogcord-network
 
-  mongoldb:
+  mongoldb0:
+    container_name: mongoldb0
     image: mongo:7.0
-    restart: always
-    container_name: ${MONGOLDB_CONTAINER_NAME}
+    command: mongod --port 27017 --dbpath /data/db --logpath /data/configdb/mongod0.log --replSet rs0 --bind_ip 127.0.0.1
     ports:
-      - "${MONGOLDB_PORT}:27017"
+      - "27017:27017"
+    healthcheck:
+      test: |
+        mongosh --eval "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '127.0.0.1:27017' }] }).ok }"
+      start_period: 0s
+      interval: 2s
+      timeout: 10s
+      retries: 5
     volumes:
-      - mongoldb:/data/mongoldb
+      - mongol_db0:/data/db
+      - mongol_config0:/data/configdb
     networks:
       - mogcord-network
-
 
 volumes:
-  mongoldb:
-    driver: local
+  mongol_db0:
+  mongol_config0:
 
 networks:
   mogcord-network:
