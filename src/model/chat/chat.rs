@@ -20,7 +20,7 @@ impl Chat
 {
     pub fn new(
         name: Option<String>, 
-        r#type: ChatType, 
+        r#type: ChatType,
         owners: Vec<User>,
         users: Option<Vec<User>>
     ) -> Result<Self, ServerError>
