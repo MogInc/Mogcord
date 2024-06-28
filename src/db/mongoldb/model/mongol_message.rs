@@ -19,11 +19,11 @@ pub struct MongolMessage
     pub flag: MessageFlag
 }
 
-impl TryFrom<Message> for MongolMessage
+impl TryFrom<&Message> for MongolMessage
 {
     type Error = MongolError;
 
-    fn try_from(value: Message) -> Result<Self, Self::Error>
+    fn try_from(value: &Message) -> Result<Self, Self::Error>
     {
         let message_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
 
@@ -31,9 +31,10 @@ impl TryFrom<Message> for MongolMessage
 
         let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.chat.id)?;
 
-        let bucket_id_option = value.bucket_id.map(|bucket_id|
-            mongol_helper::convert_domain_id_to_mongol(&bucket_id)
-        ).transpose()?;
+        let bucket_id_option = value.bucket_id
+            .as_ref()
+            .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
+            .transpose()?;
 
         let timestamp: SystemTime = value.timestamp.into();
 
@@ -41,12 +42,12 @@ impl TryFrom<Message> for MongolMessage
             Self
             { 
                 _id: message_id, 
-                value: value.value, 
+                value: value.value.clone(), 
                 timestamp: DateTime::from(timestamp),
                 owner_id, 
                 chat_id,
                 bucket_id: bucket_id_option,
-                flag: value.flag
+                flag: value.flag.clone(),
             }
         )
     }

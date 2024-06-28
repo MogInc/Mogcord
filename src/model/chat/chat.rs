@@ -82,7 +82,7 @@ impl Chat
 
 
 //doubt i need this in model
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Bucket
 {
     pub id: String,

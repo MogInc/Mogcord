@@ -16,11 +16,11 @@ pub struct MongolBucket
     pub message_ids: Option<Vec<Uuid>>, 
 }
 
-impl TryFrom<Bucket> for MongolBucket
+impl TryFrom<&Bucket> for MongolBucket
 {
     type Error = MongolError;
 
-    fn try_from(value: Bucket) -> Result<Self, Self::Error> 
+    fn try_from(value: &Bucket) -> Result<Self, Self::Error> 
     {
         let bucket_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
 
@@ -32,7 +32,7 @@ impl TryFrom<Bucket> for MongolBucket
             .map_err(|_| MongolError::FailedDateParsing)?;
 
         let bucket_message_ids = value
-            .messages
+            .messages.as_ref()
             .map(|messages|{
                 messages.into_iter().map(|message|{
                     mongol_helper::convert_domain_id_to_mongol(&message.id)

@@ -10,7 +10,7 @@ impl MessageRepository for MongolDB
 {
     async fn create_message(&self, mut message: Message) -> Result<Message, ServerError>
     {
-        let mut db_message = MongolMessage::try_from(message.clone())
+        let mut db_message = MongolMessage::try_from(&message)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
         let mut session = self
@@ -68,7 +68,7 @@ impl MessageRepository for MongolDB
                 
                 bucket.add_message(message.clone());
 
-                let db_bucket = MongolBucket::try_from(bucket)
+                let db_bucket = MongolBucket::try_from(&bucket)
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
                 self

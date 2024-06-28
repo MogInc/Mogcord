@@ -14,22 +14,23 @@ pub struct MongolChat
     pub user_ids: Option<Vec<Uuid>>,
 }
 
-impl TryFrom<Chat> for MongolChat
+impl TryFrom<&Chat> for MongolChat
 {
     type Error = MongolError;
 
-    fn try_from(value: Chat) -> Result<Self, Self::Error>
+    fn try_from(value: &Chat) -> Result<Self, Self::Error>
     {
         let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
         
         let owner_ids = value.owners
-            .into_iter()
+            .iter()
             .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
             .collect::<Result<_, _>>()?;
 
         let user_ids = value.users
+            .as_ref()
             .map(|users| {
-                    users.into_iter()
+                    users.iter()
                     .map(|user| mongol_helper::convert_domain_id_to_mongol(&user.id))
                     .collect::<Result<_, _>>()
             }).transpose()?;
@@ -38,8 +39,8 @@ impl TryFrom<Chat> for MongolChat
             Self 
             {
                 _id: chat_id,
-                name: value.name,
-                r#type: value.r#type,
+                name: value.name.clone(),
+                r#type: value.r#type.clone(),
                 owner_ids: owner_ids,
                 user_ids: user_ids,
             }

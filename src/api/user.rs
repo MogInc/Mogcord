@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
@@ -20,6 +20,24 @@ async fn get_user(
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
+
+    let now = Instant::now();
+
+    println!("starting now");
+
+    for _ in 1..1_000_001
+    {
+        let user = User::new_old("name".to_string(), "mail".to_string());
+        repo_user.create_user(user).await?;
+    }
+
+
+    println!("finished: {}", now.elapsed().as_secs());
+
+
+
+
+
 
     match repo_user.get_user_by_id(&user_id).await 
     {

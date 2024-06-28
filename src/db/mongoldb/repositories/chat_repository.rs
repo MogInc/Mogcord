@@ -9,7 +9,7 @@ impl ChatRepository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, ServerError>
     {
-        let db_chat: MongolChat = MongolChat::try_from(chat.clone())
+        let db_chat: MongolChat = MongolChat::try_from(&chat)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
         match self.chats().insert_one(&db_chat).await
@@ -100,7 +100,7 @@ impl ChatRepository for MongolDB
 
     async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
     {
-        let mongol_chat = MongolChat::try_from(chat.clone())
+        let mongol_chat = MongolChat::try_from(chat)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
         let pipilines = vec![

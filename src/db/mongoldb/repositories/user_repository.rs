@@ -2,7 +2,7 @@ use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser}, model::{misc::{Pagination, ServerError}, user::{User, UserRepository}}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserRepository}}};
 
 #[async_trait]
 impl UserRepository for MongolDB
@@ -30,12 +30,24 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, ServerError>
     {
-        let db_user: MongolUser = MongolUser::try_from(user.clone())
+        let db_user: MongolUser = MongolUser::try_from(&user)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
         
         match self.users().insert_one(&db_user).await
         {
             Ok(_) => Ok(user),
+            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+        }
+    }
+
+    async fn create_users(&self, users: Vec<User>) -> Result<(), ServerError>
+    {
+        let db_users = MongolUserVec::try_from(&users)
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        
+        match self.users().insert_many(&db_users.0).await
+        {
+            Ok(_) => Ok(()),
             Err(err) => Err(ServerError::FailedInsert(err.to_string())),
         }
     }

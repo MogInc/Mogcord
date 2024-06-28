@@ -12,11 +12,11 @@ pub struct MongolUser
     pub mail: String,
 }
 
-impl TryFrom<User> for MongolUser
+impl TryFrom<&User> for MongolUser
 {
     type Error = MongolError;
 
-    fn try_from(value: User) -> Result<Self, Self::Error> 
+    fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
         let user_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
 
@@ -24,10 +24,29 @@ impl TryFrom<User> for MongolUser
             Self
             {
                 _id: user_id,
-                name: value.name,
-                mail: value.mail,
+                name: value.name.clone(),
+                mail: value.mail.clone(),
             }
         )
+    }
+}
+
+pub struct MongolUserVec(pub Vec<MongolUser>);
+
+impl TryFrom<&Vec<User>> for MongolUserVec 
+{
+    type Error = MongolError;
+
+    fn try_from(value: &Vec<User>) -> Result<Self, Self::Error> 
+    {
+        let mut db_users = Vec::new();
+
+        for user in value
+        {
+            db_users.push(MongolUser::try_from(user)?);
+        }
+
+        Ok(MongolUserVec(db_users))
     }
 }
 
