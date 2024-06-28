@@ -1,6 +1,7 @@
 use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
+use crate::{convert_mongo_key_to_string, map_mongo_collection};
 use crate::db::mongoldb::mongol_helper::MongolHelper;
 use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
@@ -28,17 +29,23 @@ impl MessageRepository for MongolDB
             .convert_to_bson_datetime()
             .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
+        let bucket_filter = doc!
+        {
+            "chat_id": db_message.chat_id,
+            "date": date,
+        };
 
-        match db_message.bucket_id
+        let bucket_option: Option<MongolBucket> = self
+            .buckets()
+            .find_one(bucket_filter.clone())
+            .await
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+
+        match bucket_option
         {
             Some(_) =>
             {
-                let bucket_filter = doc!
-                {
-                    "chat_id": db_message.chat_id,
-                    "date": date,
-                };
-
                 let bucket_update = doc! 
                 {
                     "$push": { "message_ids": db_message._id }
@@ -99,12 +106,6 @@ impl MessageRepository for MongolDB
 
         let chat_uuid = Uuid::parse_str(chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
-
-        //filter buckets
-        //order by date DESC
-        //skip page
-        //grab pagesize
-        //now, how do we get the actual pagesize
         
         let pipelines = vec![
             //filter to only given chats
@@ -132,6 +133,25 @@ impl MessageRepository for MongolDB
             doc! 
             {
                 "$limit": pagination.page_size as i32
+            },
+            //join with messages
+            doc! 
+            {
+                "$lookup":
+                {
+                    "from": "messages",
+                    "localField": "message_ids",
+                    "foreignField": "_id",
+                    "as": "messages"
+                },
+            },
+            //rename fields
+            doc!
+            {
+                "$addFields":
+                {
+                    "messages": map_mongo_collection!("$messages", "uuid"),
+                },
             },
         ];
 

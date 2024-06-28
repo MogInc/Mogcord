@@ -61,8 +61,8 @@ impl ChatRepository for MongolDB
                 "$addFields":
                 {
                     "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
-                    "owners": map_mongo_collection!("$owners"),
-                    "users": map_mongo_collection!("$users"),
+                    "owners": map_mongo_collection!("$owners", "uuid"),
+                    "users": map_mongo_collection!("$users", "uuid"),
                 }
             },
             //hide fields
