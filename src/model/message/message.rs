@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use ulid::Ulid;
+use uuid::Uuid;
 
 use crate::model::{chat::Chat, user::User};
 
@@ -29,7 +29,7 @@ impl Message {
     {
         Self
         {
-            id: Ulid::new().to_string(),
+            id: Uuid::now_v7().to_string(),
             value: value,
             timestamp: Utc::now(),
             owner: owner,

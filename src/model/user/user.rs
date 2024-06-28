@@ -1,6 +1,6 @@
 
 use serde::{Serialize, Deserialize};
-use ulid::Ulid;
+use uuid::Uuid;
 
 
 
@@ -28,7 +28,7 @@ impl User
     {
         User
         {
-            id: Ulid::new().to_string(),
+            id: Uuid::now_v7().to_string(),
             name,
             mail
         }
@@ -38,7 +38,7 @@ impl User
 #[cfg(test)]
 mod tests 
 {
-    use ulid::Ulid;
+    use uuid::Uuid;
 
     use crate::model::user::User;
     
@@ -64,7 +64,7 @@ mod tests
 
         let user: User = User::new(name.clone(), mail.clone());
 
-        assert!(Ulid::from_string(&user.id).is_ok());
+        assert!(Uuid::parse_str(&user.id).is_ok());
         assert_eq!(name, user.name);
         assert_eq!(mail, user.mail);
     }

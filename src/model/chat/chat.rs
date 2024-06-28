@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use ulid::Ulid;
+use uuid::Uuid;
 
 use crate::model::{message::Message, misc::ServerError, user::User};
 use super::chat_type::{ChatType, ChatTypeRequirements};
@@ -54,7 +54,7 @@ impl Chat
         };
 
         Ok(Self{
-            id: Ulid::new().to_string(),
+            id: Uuid::now_v7().to_string(),
             name: name_sanitized,
             r#type: r#type,
             owners: owners,
@@ -97,7 +97,7 @@ impl Bucket
     {
         Self
         {
-            id: Ulid::new().to_string(),
+            id: Uuid::now_v7().to_string(),
             chat: chat.clone(),
             date: date.date_naive(),   
             messages: None,

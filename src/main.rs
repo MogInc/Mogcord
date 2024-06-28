@@ -1,6 +1,6 @@
 use dotenv::dotenv;
 use serde_json::json;
-use ulid::Ulid;
+use uuid::Uuid;
 use std::{env, sync::Arc};
 
 use axum::{http::{Method, StatusCode, Uri}, middleware, response::{IntoResponse, Response}, routing::Router, Json};
@@ -67,7 +67,7 @@ async fn main_response_mapper(
 	res: Response
 ) -> Response 
 {
-	let req_id = Ulid::new();
+	let req_id = Uuid::now_v7();
 
 	let service_error = res
         .extensions()

@@ -2,12 +2,12 @@ use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
-use ulid::Ulid;
+use uuid::Uuid;
 
 use super::error::{ClientError, ServerError};
 
 pub async fn log_request(
-	req_id: Ulid,
+	req_id: Uuid,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&ServerError>,
