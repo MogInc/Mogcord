@@ -34,8 +34,8 @@ impl TryFrom<Message> for MongolMessage
         let chat_uuid = Uuid::parse_str(value.chat.uuid)
             .map_err(|_| MongolError::InvalidUUID)?;
 
-        let bucket_uuid_option = value.bucket.map(|bucket|
-            Uuid::parse_str(bucket.uuid).map_err(|_| MongolError::InvalidUUID)
+        let bucket_uuid_option = value.bucket_uuid.map(|bucket_uuid|
+            Uuid::parse_str(bucket_uuid).map_err(|_| MongolError::InvalidUUID)
         ).transpose()?;
 
         let timestamp: SystemTime = value.timestamp.into();

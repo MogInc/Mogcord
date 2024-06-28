@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::model::{misc::AppState, misc::ServerError, misc::Pagination};
+use crate::{dto::UserDTO, model::misc::{AppState, Pagination, ServerError}};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -23,7 +23,7 @@ async fn get_user(
 
     match repo_user.get_user_by_id(&user_uuid).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }
@@ -40,7 +40,7 @@ async fn get_users(
 
     match repo_user.get_users(pagination).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(users) => Ok(Json(UserDTO::vec_to_dto(users))),
         Err(e) => Err(e),
     }
 }
@@ -68,7 +68,7 @@ async fn post_user(
 
     match repo_user.create_user(user).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }

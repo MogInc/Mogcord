@@ -8,7 +8,7 @@ use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat:
 #[async_trait]
 impl MessageRepository for MongolDB
 {
-    async fn create_message(&self, message: Message) -> Result<Message, ServerError>
+    async fn create_message(&self, mut message: Message) -> Result<Message, ServerError>
     {
         let mut db_message = MongolMessage::try_from(message.clone())
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
@@ -92,6 +92,8 @@ impl MessageRepository for MongolDB
                     .commit_transaction()
                     .await
                     .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+                message.bucket_uuid = Some(bucket_current._id.to_string());
 
                 return Ok(message);
             },
