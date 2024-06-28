@@ -1,10 +1,11 @@
 use std::{fmt, str::FromStr};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Display, PartialEq, Serialize, Deserialize)]
 pub enum MessageFlag
 {
     None,

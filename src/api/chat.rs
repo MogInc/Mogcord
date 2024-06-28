@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::ChatDTO, model::{chat::{Chat, ChatType}, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
+use crate::{dto::{ChatDTO, MessageDTO}, model::{chat::{Chat, ChatType}, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -102,7 +102,7 @@ async fn get_messages(
 
     match repo_message.get_messages(&chat_uuid, pagination).await
     {
-        Ok(messages) => Ok(Json(messages)),
+        Ok(messages) => Ok(Json(MessageDTO::vec_to_dto(messages))),
         Err(e) => Err(e),
     }
 }
@@ -140,7 +140,7 @@ async fn post_message(
 
     match repo_message.create_message(message).await
     {
-        Ok(message) => Ok(Json(message)),
+        Ok(message) => Ok(Json(MessageDTO::obj_to_dto(message))),
         Err(e) => Err(e),
     }
 }
