@@ -1,6 +1,6 @@
 use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
-use crate::model::chat::{Chat, ChatType};
+use crate::{db::mongoldb::mongol_helper, model::chat::{Chat, ChatType}};
 
 use super::MongolError;
 
@@ -20,18 +20,17 @@ impl TryFrom<Chat> for MongolChat
 
     fn try_from(value: Chat) -> Result<Self, Self::Error>
     {
-        let chat_id: Uuid =  Uuid::parse_str(&value.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
         
-        let owner_ids: Vec<Uuid> = value.owners
+        let owner_ids = value.owners
             .into_iter()
-            .map(|owner| Uuid::parse_str(&owner.id).map_err(|_| MongolError::InvalidID))
+            .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
             .collect::<Result<_, _>>()?;
 
-        let user_ids: Option<Vec<Uuid>> = value.users
+        let user_ids = value.users
             .map(|users| {
                     users.into_iter()
-                    .map(|user| Uuid::parse_str(&user.id).map_err(|_| MongolError::InvalidID))
+                    .map(|user| mongol_helper::convert_domain_id_to_mongol(&user.id))
                     .collect::<Result<_, _>>()
             }).transpose()?;
 

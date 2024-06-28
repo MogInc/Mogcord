@@ -2,7 +2,7 @@ use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
 
-use crate::db::mongoldb::MongolHelper;
+use crate::db::mongoldb::{mongol_helper, MongolHelper};
 use crate::model::chat::Bucket;
 
 use super::MongolError;
@@ -22,11 +22,9 @@ impl TryFrom<Bucket> for MongolBucket
 
     fn try_from(value: Bucket) -> Result<Self, Self::Error> 
     {
-        let bucket_id = Uuid::parse_str(value.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let bucket_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
 
-        let chat_id = Uuid::parse_str(value.chat.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.chat.id)?;
 
         let bucket_date = value
             .date
@@ -37,8 +35,7 @@ impl TryFrom<Bucket> for MongolBucket
             .messages
             .map(|messages|{
                 messages.into_iter().map(|message|{
-                    Uuid::parse_str(message.id)
-                        .map_err(|_| MongolError::InvalidID)
+                    mongol_helper::convert_domain_id_to_mongol(&message.id)
                 }).collect::<Result<_, _>>()
             }).transpose()?;
 

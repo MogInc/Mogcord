@@ -2,7 +2,7 @@ use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::{bson::{doc, from_document, Document, Uuid}, Cursor};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{MongolChat, MongolDB}, map_mongo_collection, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
 
 #[async_trait]
 impl ChatRepository for MongolDB
@@ -21,7 +21,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ServerError>
     {
-        let chat_id_local: Uuid = Uuid::parse_str(chat_id)
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
 
         let pipelines = vec![

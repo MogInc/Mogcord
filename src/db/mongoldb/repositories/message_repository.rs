@@ -2,7 +2,7 @@ use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 use crate::{convert_mongo_key_to_string, map_mongo_collection};
-use crate::db::mongoldb::mongol_helper::MongolHelper;
+use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
 use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
@@ -113,7 +113,7 @@ impl MessageRepository for MongolDB
         -> Result<Vec<Message>, ServerError>
     {
 
-        let chat_id_local = Uuid::parse_str(chat_id)
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
         
         let pipelines = vec![

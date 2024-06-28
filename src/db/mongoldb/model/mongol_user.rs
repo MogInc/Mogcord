@@ -1,6 +1,6 @@
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::model::user::User;
+use crate::{db::mongoldb::mongol_helper, model::user::User};
 
 use super::MongolError;
 
@@ -18,18 +18,16 @@ impl TryFrom<User> for MongolUser
 
     fn try_from(value: User) -> Result<Self, Self::Error> 
     {
-        match Uuid::parse_str(&value.id)
-        {
-            Ok(_id) => Ok(
-                MongolUser
-                {
-                    _id: _id.clone(),
-                    name: value.name.clone(),
-                    mail: value.mail.clone(),
-                }
-            ),
-            Err(_) => Err(MongolError::FailedUserParsing)
-        }
+        let user_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
+
+        Ok(
+            Self
+            {
+                _id: user_id,
+                name: value.name,
+                mail: value.mail,
+            }
+        )
     }
 }
 

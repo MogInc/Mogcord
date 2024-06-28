@@ -3,7 +3,7 @@ use std::time::SystemTime;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
-use crate::model::message::{Message, MessageFlag};
+use crate::{db::mongoldb::mongol_helper, model::message::{Message, MessageFlag}};
 
 use super::MongolError;
 
@@ -25,17 +25,14 @@ impl TryFrom<Message> for MongolMessage
 
     fn try_from(value: Message) -> Result<Self, Self::Error>
     {
-        let message_id = Uuid::parse_str(value.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let message_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
 
-        let owner_id = Uuid::parse_str(value.owner.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let owner_id = mongol_helper::convert_domain_id_to_mongol(&value.owner.id)?;
 
-        let chat_id = Uuid::parse_str(value.chat.id)
-            .map_err(|_| MongolError::InvalidID)?;
+        let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.chat.id)?;
 
         let bucket_id_option = value.bucket_id.map(|bucket_id|
-            Uuid::parse_str(bucket_id).map_err(|_| MongolError::InvalidID)
+            mongol_helper::convert_domain_id_to_mongol(&bucket_id)
         ).transpose()?;
 
         let timestamp: SystemTime = value.timestamp.into();
