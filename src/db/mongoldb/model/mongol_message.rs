@@ -25,17 +25,17 @@ impl TryFrom<Message> for MongolMessage
 
     fn try_from(value: Message) -> Result<Self, Self::Error>
     {
-        let message_uuid = Uuid::parse_str(value.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let message_id = Uuid::parse_str(value.id)
+            .map_err(|_| MongolError::InvalidID)?;
 
-        let owner_uuid = Uuid::parse_str(value.owner.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let owner_id = Uuid::parse_str(value.owner.id)
+            .map_err(|_| MongolError::InvalidID)?;
 
-        let chat_uuid = Uuid::parse_str(value.chat.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let chat_id = Uuid::parse_str(value.chat.id)
+            .map_err(|_| MongolError::InvalidID)?;
 
-        let bucket_uuid_option = value.bucket_uuid.map(|bucket_uuid|
-            Uuid::parse_str(bucket_uuid).map_err(|_| MongolError::InvalidUUID)
+        let bucket_id_option = value.bucket_id.map(|bucket_id|
+            Uuid::parse_str(bucket_id).map_err(|_| MongolError::InvalidID)
         ).transpose()?;
 
         let timestamp: SystemTime = value.timestamp.into();
@@ -43,12 +43,12 @@ impl TryFrom<Message> for MongolMessage
         Ok(
             Self
             { 
-                _id: message_uuid, 
+                _id: message_id, 
                 value: value.value, 
                 timestamp: DateTime::from(timestamp),
-                owner_id: owner_uuid, 
-                chat_id: chat_uuid,
-                bucket_id: bucket_uuid_option,
+                owner_id, 
+                chat_id,
+                bucket_id: bucket_id_option,
                 flag: value.flag
             }
         )

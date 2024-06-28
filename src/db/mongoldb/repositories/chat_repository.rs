@@ -21,7 +21,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ServerError>
     {
-        let chat_uuid: Uuid = Uuid::parse_str(chat_id)
+        let chat_id_local: Uuid = Uuid::parse_str(chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
 
         let pipelines = vec![
@@ -30,7 +30,7 @@ impl ChatRepository for MongolDB
             {
                 "$match":
                 {
-                    "_id": chat_uuid
+                    "_id": chat_id_local
                 }
             },
             //join with owners
@@ -60,9 +60,9 @@ impl ChatRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
-                    "owners": map_mongo_collection!("$owners", "uuid"),
-                    "users": map_mongo_collection!("$users", "uuid"),
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "owners": map_mongo_collection!("$owners", "id", "uuid"),
+                    "users": map_mongo_collection!("$users", "id", "uuid"),
                 }
             },
             //hide fields

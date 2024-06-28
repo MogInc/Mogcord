@@ -21,4 +21,4 @@ serde_with = "3"
 strum_macros = "0.25"
 tokio = { version = "1.0", features = ["full"] }
 tower-http = { version = "0.5", features = ["fs"]}
-uuid = { version = "^0.8", features = ["v4"]}
+ulid = "1.1.2"

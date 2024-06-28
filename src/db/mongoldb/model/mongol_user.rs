@@ -18,7 +18,7 @@ impl TryFrom<User> for MongolUser
 
     fn try_from(value: User) -> Result<Self, Self::Error> 
     {
-        match Uuid::parse_str(&value.uuid)
+        match Uuid::parse_str(&value.id)
         {
             Ok(_id) => Ok(
                 MongolUser

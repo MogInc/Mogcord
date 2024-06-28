@@ -23,7 +23,7 @@ macro_rules! convert_mongo_key_to_string
 #[macro_export]
 macro_rules! map_mongo_collection 
 {
-    ($input:expr, $type:expr) => 
+    ($input:expr, $change_to:expr, $type:expr) => 
     {
         doc!    
         {
@@ -32,7 +32,7 @@ macro_rules! map_mongo_collection
                 "input": $input,
                 "in": 
                 {
-                    "$mergeObjects": ["$$this", { "uuid" : convert_mongo_key_to_string!("$$this._id", $type) }]
+                    "$mergeObjects": ["$$this", { $change_to : convert_mongo_key_to_string!("$$this._id", $type) }]
                 }
             } 
         }

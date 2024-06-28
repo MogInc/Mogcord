@@ -22,33 +22,33 @@ impl TryFrom<Bucket> for MongolBucket
 
     fn try_from(value: Bucket) -> Result<Self, Self::Error> 
     {
-        let bucket_uuid = Uuid::parse_str(value.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let bucket_id = Uuid::parse_str(value.id)
+            .map_err(|_| MongolError::InvalidID)?;
 
-        let chat_uuid = Uuid::parse_str(value.chat.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let chat_id = Uuid::parse_str(value.chat.id)
+            .map_err(|_| MongolError::InvalidID)?;
 
         let bucket_date = value
             .date
             .convert_to_bson_datetime()
             .map_err(|_| MongolError::FailedDateParsing)?;
 
-        let bucket_message_uuids = value
+        let bucket_message_ids = value
             .messages
             .map(|messages|{
                 messages.into_iter().map(|message|{
-                    Uuid::parse_str(message.uuid)
-                        .map_err(|_| MongolError::InvalidUUID)
+                    Uuid::parse_str(message.id)
+                        .map_err(|_| MongolError::InvalidID)
                 }).collect::<Result<_, _>>()
             }).transpose()?;
 
         Ok(
             Self
             {
-                _id: bucket_uuid,
-                chat_id: chat_uuid,
+                _id: bucket_id,
+                chat_id,
                 date: bucket_date,
-                message_ids: bucket_message_uuids,
+                message_ids: bucket_message_ids,
             }
         )
     }

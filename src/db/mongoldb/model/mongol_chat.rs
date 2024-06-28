@@ -12,7 +12,6 @@ pub struct MongolChat
     pub r#type: ChatType,
     pub owner_ids: Vec<Uuid>,
     pub user_ids: Option<Vec<Uuid>>,
-    pub bucket_ids: Option<Vec<Uuid>>
 }
 
 impl TryFrom<Chat> for MongolChat
@@ -21,18 +20,18 @@ impl TryFrom<Chat> for MongolChat
 
     fn try_from(value: Chat) -> Result<Self, Self::Error>
     {
-        let chat_id: Uuid =  Uuid::parse_str(&value.uuid)
-            .map_err(|_| MongolError::InvalidUUID)?;
+        let chat_id: Uuid =  Uuid::parse_str(&value.id)
+            .map_err(|_| MongolError::InvalidID)?;
         
         let owner_ids: Vec<Uuid> = value.owners
             .into_iter()
-            .map(|owner| Uuid::parse_str(&owner.uuid).map_err(|_| MongolError::InvalidUUID))
+            .map(|owner| Uuid::parse_str(&owner.id).map_err(|_| MongolError::InvalidID))
             .collect::<Result<_, _>>()?;
 
         let user_ids: Option<Vec<Uuid>> = value.users
             .map(|users| {
                     users.into_iter()
-                    .map(|user| Uuid::parse_str(&user.uuid).map_err(|_| MongolError::InvalidUUID))
+                    .map(|user| Uuid::parse_str(&user.id).map_err(|_| MongolError::InvalidID))
                     .collect::<Result<_, _>>()
             }).transpose()?;
 
@@ -44,7 +43,6 @@ impl TryFrom<Chat> for MongolChat
                 r#type: value.r#type,
                 owner_ids: owner_ids,
                 user_ids: user_ids,
-                bucket_ids: None,
             }
         )
     }

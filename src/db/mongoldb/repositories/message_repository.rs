@@ -93,7 +93,7 @@ impl MessageRepository for MongolDB
                     .await
                     .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
-                message.bucket_uuid = Some(bucket_current._id.to_string());
+                message.bucket_id = Some(bucket_current._id.to_string());
 
                 return Ok(message);
             },
@@ -113,7 +113,7 @@ impl MessageRepository for MongolDB
         -> Result<Vec<Message>, ServerError>
     {
 
-        let chat_uuid = Uuid::parse_str(chat_id)
+        let chat_id_local = Uuid::parse_str(chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
         
         let pipelines = vec![
@@ -122,7 +122,7 @@ impl MessageRepository for MongolDB
             {
                 "$match":
                 {
-                    "chat_id": chat_uuid
+                    "chat_id": chat_id_local
                 },
             },
             //sort on date from new to old
@@ -144,12 +144,23 @@ impl MessageRepository for MongolDB
                     "as": "messages"
                 },
             },
+            //join chat
+            doc! 
+            {
+                "$lookup":
+                {
+                    "from": "chats",
+                    "localField": "chat_id",
+                    "foreignField": "_id",
+                    "as": "chat"
+                },
+            },
             //rename fields
             doc!
             {
                 "$addFields":
                 {
-                    "messages": map_mongo_collection!("$messages", "uuid"),
+                    "messages": map_mongo_collection!("$messages", "id", "uuid"),
                 },
             },
 
@@ -181,9 +192,11 @@ impl MessageRepository for MongolDB
             {
                 Ok(document) => 
                 {
-                    let message: Message = from_document(document)
+                    let message = from_document(document)
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
-                    messages.push(message);
+
+                    println!("{:?}", message);
+                    //messages.push(message);
                 },
                 Err(_) => (),
             };

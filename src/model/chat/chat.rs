@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use ulid::Ulid;
 
 use crate::model::{message::Message, misc::ServerError, user::User};
 use super::chat_type::{ChatType, ChatTypeRequirements};
@@ -9,7 +9,7 @@ use super::chat_type::{ChatType, ChatTypeRequirements};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Chat
 {
-    pub uuid: String,
+    pub id: String,
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owners: Vec<User>,
@@ -54,7 +54,7 @@ impl Chat
         };
 
         Ok(Self{
-            uuid: Uuid::new_v4().to_string(),
+            id: Ulid::new().to_string(),
             name: name_sanitized,
             r#type: r#type,
             owners: owners,
@@ -66,14 +66,14 @@ impl Chat
 
 impl Chat
 {
-    pub fn is_user_part_of_chat(&self, user_uuid: &String) -> bool
+    pub fn is_user_part_of_chat(&self, user_id: &String) -> bool
     {
         match self.r#type
         {
-            ChatType::Private => self.owners.iter().any(|owner| &owner.uuid == user_uuid),
-            ChatType::Group => self.owners.iter().any(|owner| &owner.uuid == user_uuid) 
+            ChatType::Private => self.owners.iter().any(|owner| &owner.id == user_id),
+            ChatType::Group => self.owners.iter().any(|owner| &owner.id == user_id) 
                 || self.users.as_ref().map_or(false, |users|{
-                    users.iter().any(|user| &user.uuid == user_uuid)
+                    users.iter().any(|user| &user.id == user_id)
                 }),
             _ => true,
         }
@@ -85,7 +85,7 @@ impl Chat
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Bucket
 {
-    pub uuid: String,
+    pub id: String,
     pub chat: Chat,
     pub date: NaiveDate,
     pub messages: Option<Vec<Message>>,
@@ -97,7 +97,7 @@ impl Bucket
     {
         Self
         {
-            uuid: Uuid::new_v4().to_string(),
+            id: Ulid::new().to_string(),
             chat: chat.clone(),
             date: date.date_naive(),   
             messages: None,

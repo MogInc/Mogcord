@@ -2,12 +2,12 @@ use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
-use uuid::Uuid;
+use ulid::Ulid;
 
 use super::error::{ClientError, ServerError};
 
 pub async fn log_request(
-	uuid: Uuid,
+	req_id: Ulid,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&ServerError>,
@@ -23,7 +23,7 @@ pub async fn log_request(
 
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
-		uuid: uuid.to_string(),
+		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
 		req_path: uri.to_string(),
@@ -42,7 +42,7 @@ pub async fn log_request(
 #[skip_serializing_none]
 #[derive(Serialize)]
 struct RequestLogLine {
-	uuid: String,      
+	req_id: String,      
 	timestamp: String,
 
 	// -- http request attributes.

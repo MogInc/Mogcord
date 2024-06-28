@@ -5,11 +5,11 @@ use crate::model::chat::Chat;
 #[derive(Serialize)]
 pub struct ChatDTO
 {
-    uuid: String,
+    id: String,
     name: Option<String>,
     r#type: String,
-    owners: Vec<String>,
-    users: Option<Vec<String>>,
+    owner_ids: Vec<String>,
+    user_ids: Option<Vec<String>>,
 }
 
 impl ChatDTO
@@ -19,24 +19,24 @@ impl ChatDTO
         let owner_ids : Vec<String> = chat
             .owners
             .into_iter()
-            .map(|owner| owner.uuid)
+            .map(|owner| owner.id)
             .collect();
 
         let user_ids : Option<Vec<String>> = chat
             .users
             .map(|users|{
                 users.into_iter()
-                .map(|user| user.uuid)
+                .map(|user| user.id)
                 .collect()
             });
 
         Self
         {
-            uuid: chat.uuid,
+            id: chat.id,
             name: chat.name,
             r#type: chat.r#type.to_string(),
-            owners: owner_ids,
-            users: user_ids
+            owner_ids,
+            user_ids
         }
     }
     

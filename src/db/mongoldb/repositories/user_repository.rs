@@ -9,10 +9,10 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, ServerError>
     {
-        let user_uuid: Uuid = Uuid::parse_str(user_id)
+        let user_id_local: Uuid = Uuid::parse_str(user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        match self.users().find_one(doc! { "_id" : user_uuid }).await
+        match self.users().find_one(doc! { "_id" : user_id_local }).await
         {
             Ok(option) => Ok(option.is_some()),
             Err(err) => Err(ServerError::FailedRead(err.to_string()))
@@ -42,12 +42,12 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &String) -> Result<User, ServerError>
     {
-        let user_uuid: Uuid = Uuid::parse_str(user_id)
+        let user_id_local: Uuid = Uuid::parse_str(user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
         let user_option: Option<MongolUser> = self
             .users()
-            .find_one(doc! { "_id": user_uuid })
+            .find_one(doc! { "_id": user_id_local })
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
         
@@ -60,14 +60,14 @@ impl UserRepository for MongolDB
 
     async fn get_users_by_ids(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
     {
-        let mut user_uuids : Vec<Uuid> = Vec::new();
+        let mut user_ids_local : Vec<Uuid> = Vec::new();
 
         for user_id in user_ids
         {
-            let user_uuid: Uuid = Uuid::parse_str(user_id)
+            let user_id: Uuid = Uuid::parse_str(user_id)
                 .map_err(|_| ServerError::UserNotFound)?;
 
-            user_uuids.push(user_uuid);
+            user_ids_local.push(user_id);
         }
 
         let pipelines = vec![
@@ -75,7 +75,7 @@ impl UserRepository for MongolDB
             { 
                 "$match": 
                 { 
-                    "_id": { "$in": user_uuids } 
+                    "_id": { "$in": user_ids_local } 
                 } 
             },
             //rename fields
@@ -83,7 +83,7 @@ impl UserRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
                 }
             },
             //hide fields
@@ -126,7 +126,7 @@ impl UserRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "uuid": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
                 }
             },
             //hide fields

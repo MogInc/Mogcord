@@ -5,12 +5,12 @@ use crate::model::message::Message;
 #[derive(Serialize)]
 pub struct MessageDTO
 {
-    uuid: String,
+    id: String,
     value: String,
     timestamp: String,
-    owner_uuid: String,
-    chat_uuid: String,
-    bucket_uuid: String,
+    owner_id: String,
+    chat_id: String,
+    bucket_id: String,
     //we actually gonna delete stuff?
     //(:sins:)
     flag: String,
@@ -22,12 +22,12 @@ impl MessageDTO
     {
         Self
         {
-            uuid: message.uuid,
+            id: message.id,
             value: message.value,
             timestamp: message.timestamp.to_rfc3339(),
-            owner_uuid: message.owner.uuid,
-            chat_uuid: message.chat.uuid,
-            bucket_uuid: message.bucket_uuid.map_or(String::from(""), |bucket| bucket),
+            owner_id: message.owner.id,
+            chat_id: message.chat.id,
+            bucket_id: message.bucket_id.map_or(String::from(""), |bucket| bucket),
             flag: message.flag.to_string(),
         }
     }

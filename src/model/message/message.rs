@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use ulid::Ulid;
 
 use crate::model::{chat::Chat, user::User};
 
@@ -9,12 +9,12 @@ use super::MessageFlag;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Message
 {
-    pub uuid: String,
+    pub id: String,
     pub value: String,
     pub timestamp: DateTime<Utc>,
     pub owner: User,
     pub chat: Chat,
-    pub bucket_uuid: Option<String>,
+    pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)
     pub flag: MessageFlag,
@@ -29,12 +29,12 @@ impl Message {
     {
         Self
         {
-            uuid: Uuid::new_v4().to_string(),
+            id: Ulid::new().to_string(),
             value: value,
             timestamp: Utc::now(),
             owner: owner,
             chat: chat,
-            bucket_uuid: None,
+            bucket_id: None,
             flag: MessageFlag::None
         }
     }

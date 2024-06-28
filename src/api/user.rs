@@ -16,12 +16,12 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(user_uuid): Path<String>,
+    Path(user_id): Path<String>,
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&user_uuid).await 
+    match repo_user.get_user_by_id(&user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),

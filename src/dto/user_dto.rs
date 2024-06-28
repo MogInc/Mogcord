@@ -5,7 +5,7 @@ use crate::model::user::User;
 #[derive(Serialize)]
 pub struct UserDTO
 {
-    pub uuid: String,
+    pub id: String,
     pub name: String,
     pub mail: String,
 }
@@ -16,7 +16,7 @@ impl UserDTO
     {
         Self
         {
-            uuid: user.uuid,
+            id: user.id,
             name: user.name,
             mail: user.mail,
         }
