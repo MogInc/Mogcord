@@ -11,7 +11,7 @@ macro_rules! convert_mongo_key_to_string
 
             doc! {
                 "$function": {
-                    "body": format!("function(x) {{ return x?.toString().slice({}, {}); ?? \"\" }}", slice_params.0, slice_params.1),
+                    "body": format!("function(x) {{ return x?.toString().slice({}, {}) ?? \"\"; }}", slice_params.0, slice_params.1),
                     "args": [ $arg ],
                     "lang": "js"
                 }
