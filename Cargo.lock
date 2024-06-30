@@ -211,6 +211,7 @@ dependencies = [
  "ahash",
  "base64 0.13.1",
  "bitvec",
+ "chrono",
  "hex",
  "indexmap 2.2.6",
  "js-sys",
@@ -1087,6 +1088,7 @@ version = "0.1.0"
 dependencies = [
  "assert_matches",
  "axum",
+ "bson",
  "chrono",
  "derive_more",
  "dotenv",
