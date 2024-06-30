@@ -21,8 +21,10 @@ services:
       context: .
       dockerfile: ./docker/mongol/Dockerfile
       args:
+        CONTAINER_NAME: mongol0
+        ENABLE_REPLICA: bigz
         DB_PATH: /data/db
-        LOG_PATH: /data/configdb/mongod0.log
+        LOG_PATH: /data/configdb/mongol.log
     image: gwilom/mogcord-mongol
     container_name: mongol0
     ports: 
