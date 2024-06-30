@@ -201,113 +201,38 @@ impl MessageRepository for MongolDB
                     "as": "chat.users"
                 }
             },
+            //converts from UUID to string
+            doc!
+            {
+                "$addFields":
+                {
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
+                    "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
+                    "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
+                    "chat.owners": map_mongo_collection!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection!("$chat.users", "id", "uuid"),
+                }
+            },
+            //hide unneeded fields
+            doc! 
+            {
+                "$unset": 
+                [
+                    "_id",
+                    "owner_id",
+                    "chat_id",
+                    "chat._id",
+                    "chat.owner_ids",
+                    "chat.user_ids",
+                    "chat.bucket_ids",
+                    "chat.owners._id",
+                    "chat.users._id",
+                    "owner._id"
+                ]
+            },
         ];
 
-        // let pipelines = vec![
-        //     doc! {
-        //         "$addFields": doc! {
-        //             "id": doc! {
-        //                 "$function": doc! {
-        //                     "body": "function(x) { return x.toString().slice(6, -2); }",
-        //                     "args": [
-        //                         "$_id"
-        //                     ],
-        //                     "lang": "js"
-        //                 }
-        //             },
-        //             "bucket_id": doc! {
-        //                 "$function": doc! {
-        //                     "body": "function(x) { return x ? x.toString().slice(6, -2) : \"\"; }",
-        //                     "args": [
-        //                         "$bucket_id"
-        //                     ],
-        //                     "lang": "js"
-        //                 }
-        //             },
-        //             "chat.id": doc! {
-        //                 "$function": doc! {
-        //                     "body": "function(x) { return x.toString().slice(6, -2); }",
-        //                     "args": [
-        //                         "$chat._id"
-        //                     ],
-        //                     "lang": "js"
-        //                 }
-        //             },
-        //             "chat.owners": doc! {
-        //                 "$map": doc! {
-        //                     "input": "$chat.owners",
-        //                     "in": doc! {
-        //                         "$mergeObjects": [
-        //                             "$$this",
-        //                             doc! {
-        //                                 "id": doc! {
-        //                                     "$function": doc! {
-        //                                         "body": "function(x) { return x.toString().slice(6, -2); }",
-        //                                         "args": [
-        //                                             "$$this._id"
-        //                                         ],
-        //                                         "lang": "js"
-        //                                     }
-        //                                 }
-        //                             }
-        //                         ]
-        //                     }
-        //                 }
-        //             },
-        //             "chat.users": doc! {
-        //                 "$map": doc! {
-        //                     "input": "$chat.users",
-        //                     "in": doc! {
-        //                         "$mergeObjects": [
-        //                             "$$this",
-        //                             doc! {
-        //                                 "id": doc! {
-        //                                     "$function": doc! {
-        //                                         "body": "function(x) { return x.toString().slice(6, -2); }",
-        //                                         "args": [
-        //                                             "$$this._id"
-        //                                         ],
-        //                                         "lang": "js"
-        //                                     }
-        //                                 }
-        //                             }
-        //                         ]
-        //                     }
-        //                 }
-        //             },
-        //             "owner": doc! {
-        //                 "$mergeObjects": [
-        //                     "$owner",
-        //                     doc! {
-        //                         "id": doc! {
-        //                             "$function": doc! {
-        //                                 "body": "function(x) { return x.toString().slice(6, -2); }",
-        //                                 "args": [
-        //                                     "$owner._id"
-        //                                 ],
-        //                                 "lang": "js"
-        //                             }
-        //                         }
-        //                     }
-        //                 ]
-        //             },
-        //         }
-        //     },
-        //     doc! {
-        //         "$unset": [
-        //             "_id",
-        //             "owner_id",
-        //             "chat_id",
-        //             "chat._id",
-        //             "chat.owner_ids",
-        //             "chat.user_ids",
-        //             "chat.bucket_ids",
-        //             "chat.owners._id",
-        //             "chat.users._id",
-        //             "owner._id"
-        //         ]
-        //     }
-        // ];
 
         let mut cursor = self
             .messages()
