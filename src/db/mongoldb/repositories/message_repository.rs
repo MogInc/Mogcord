@@ -1,5 +1,6 @@
 use axum::async_trait;
 use futures_util::StreamExt;
+use mongodb::action::DropCollection;
 use mongodb::bson::{doc, from_document};
 use crate::{convert_mongo_key_to_string, map_mongo_collection};
 use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
@@ -117,7 +118,7 @@ impl MessageRepository for MongolDB
             .map_err(|_| ServerError::ChatNotFound)?;
         
         let pipelines = vec![
-            //filter to only given chats
+            //filter to only given chat
             doc! 
             {
                 "$match":
@@ -130,44 +131,11 @@ impl MessageRepository for MongolDB
             {
                 "$sort":
                 {
-                    "date": -1
+                    "timestamp": -1
                 }
             },
-            //join with messages
-            doc! 
-            {
-                "$lookup":
-                {
-                    "from": "messages",
-                    "localField": "message_ids",
-                    "foreignField": "_id",
-                    "as": "messages"
-                },
-            },
-            //join chat
-            doc! 
-            {
-                "$lookup":
-                {
-                    "from": "chats",
-                    "localField": "chat_id",
-                    "foreignField": "_id",
-                    "as": "chat"
-                },
-            },
-            //rename fields
+            // //early skip since i assume it's cheaper
             doc!
-            {
-                "$addFields":
-                {
-                    "messages": map_mongo_collection!("$messages", "id", "uuid"),
-                },
-            },
-
-            //if the skip+limit is sooner you're not certain you retrieve the correct amount of messages
-            //unless you wasnt to recursive pull but no clue how or if its even possible with aggregates
-            //skip offset
-            doc! 
             {
                 "$skip": pagination.get_skip_size() as i32
             },
@@ -176,10 +144,127 @@ impl MessageRepository for MongolDB
             {
                 "$limit": pagination.page_size as i32
             },
+            //join with chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "chats",
+                    "localField": "chat_id",
+                    "foreignField": "_id",
+                    "as": "chat"
+                }
+            },
+            //join with owner of message
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "owner_id",
+                    "foreignField": "_id",
+                    "as": "owner"
+                }
+            },
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$chat"
+                }
+            },
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$owner"
+                }
+            },
+            //join with owners of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.owner_ids",
+                    "foreignField": "_id",
+                    "as": "chat.owners"
+                }
+            },
+            //join with users of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.user_ids",
+                    "foreignField": "_id",
+                    "as": "chat.users"
+                }
+            },
+            //from array to individual chat, only 1 chat anyways
+            doc! 
+            {
+                "$unwind": 
+                {
+                    "path": "$messages.owner"
+                }
+            },
+            //join with owners of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.owner_ids",
+                    "foreignField": "_id",
+                    "as": "chat.owners"
+                }
+            },
+            //join with members of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.user_ids",
+                    "foreignField": "_id",
+                    "as": "chat.users"
+                }
+            },
+            //converts from UUID to string
+            doc!
+            {
+                "$addFields":
+                {
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
+                    "chat.owners": map_mongo_collection!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection!("$chat.users", "id", "uuid"),
+                    "owner": map_mongo_collection!("$owner", "id", "uuid"),
+                }
+            },
+            //hide unneeded fields
+            doc! 
+            {
+                "$unset": 
+                [
+                    "_id",
+                    "owner_id",
+                    "chat_id",
+                    "chat._id",
+                    "chat.owner_ids",
+                    "chat.user_ids",
+                    "chat.bucket_ids",
+                    "chat.owners._id",
+                    "chat.users._id",
+                    "owner._id",
+                ]
+            },
         ];
 
         let mut cursor = self
-            .buckets()
+            .messages()
             .aggregate(pipelines)
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
@@ -192,13 +277,14 @@ impl MessageRepository for MongolDB
             {
                 Ok(document) => 
                 {
+                    println!("{:?}", document);
+                    
                     let message = from_document(document)
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-                    println!("{:?}", message);
-                    //messages.push(message);
+                    messages.push(message);
                 },
-                Err(_) => (),
+                Err(err) => println!("{}", err),
             };
         }
 
