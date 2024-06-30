@@ -176,7 +176,7 @@ impl UserRepository for MongolDB
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
-                Err(_) => (),
+                Err(err) => println!("{}", err),
             }
         }
     
