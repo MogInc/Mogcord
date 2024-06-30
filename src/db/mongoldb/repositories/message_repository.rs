@@ -1,6 +1,5 @@
 use axum::async_trait;
 use futures_util::StreamExt;
-use mongodb::action::DropCollection;
 use mongodb::bson::{doc, from_document};
 use crate::{convert_mongo_key_to_string, map_mongo_collection};
 use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
@@ -278,8 +277,8 @@ impl MessageRepository for MongolDB
                 Ok(document) => 
                 {
                     println!("{:?}", document);
-                    
-                    let message = from_document(document)
+
+                    let message: Message = from_document(document)
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
                     messages.push(message);
