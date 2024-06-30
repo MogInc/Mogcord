@@ -116,138 +116,185 @@ impl MessageRepository for MongolDB
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
         
+        let pipelines = vec![
+            //filter to only given chat
+            doc! 
+            {
+                "$match":
+                {
+                    "chat_id": chat_id_local
+                },
+            },
+            //sort on date from new to old
+            doc!
+            {
+                "$sort":
+                {
+                    "timestamp": -1
+                }
+            },
+            //early skip since i assume it's cheaper
+            doc!
+            {
+                "$skip": pagination.get_skip_size() as i32
+            },
+            //limit output
+            doc! 
+            {
+                "$limit": pagination.page_size as i32
+            },
+            //join with chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "chats",
+                    "localField": "chat_id",
+                    "foreignField": "_id",
+                    "as": "chat"
+                }
+            },
+            //join with owner of message
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "owner_id",
+                    "foreignField": "_id",
+                    "as": "owner"
+                }
+            },
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$chat"
+                }
+            },
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$owner"
+                }
+            },
+            //join with owners of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.owner_ids",
+                    "foreignField": "_id",
+                    "as": "chat.owners"
+                }
+            },
+            //join with users of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.user_ids",
+                    "foreignField": "_id",
+                    "as": "chat.users"
+                }
+            },
+        ];
+
         // let pipelines = vec![
-        //     //filter to only given chat
-        //     doc! 
-        //     {
-        //         "$match":
-        //         {
-        //             "chat_id": chat_id_local
-        //         },
-        //     },
-        //     //sort on date from new to old
-        //     doc!
-        //     {
-        //         "$sort":
-        //         {
-        //             "timestamp": -1
+        //     doc! {
+        //         "$addFields": doc! {
+        //             "id": doc! {
+        //                 "$function": doc! {
+        //                     "body": "function(x) { return x.toString().slice(6, -2); }",
+        //                     "args": [
+        //                         "$_id"
+        //                     ],
+        //                     "lang": "js"
+        //                 }
+        //             },
+        //             "bucket_id": doc! {
+        //                 "$function": doc! {
+        //                     "body": "function(x) { return x ? x.toString().slice(6, -2) : \"\"; }",
+        //                     "args": [
+        //                         "$bucket_id"
+        //                     ],
+        //                     "lang": "js"
+        //                 }
+        //             },
+        //             "chat.id": doc! {
+        //                 "$function": doc! {
+        //                     "body": "function(x) { return x.toString().slice(6, -2); }",
+        //                     "args": [
+        //                         "$chat._id"
+        //                     ],
+        //                     "lang": "js"
+        //                 }
+        //             },
+        //             "chat.owners": doc! {
+        //                 "$map": doc! {
+        //                     "input": "$chat.owners",
+        //                     "in": doc! {
+        //                         "$mergeObjects": [
+        //                             "$$this",
+        //                             doc! {
+        //                                 "id": doc! {
+        //                                     "$function": doc! {
+        //                                         "body": "function(x) { return x.toString().slice(6, -2); }",
+        //                                         "args": [
+        //                                             "$$this._id"
+        //                                         ],
+        //                                         "lang": "js"
+        //                                     }
+        //                                 }
+        //                             }
+        //                         ]
+        //                     }
+        //                 }
+        //             },
+        //             "chat.users": doc! {
+        //                 "$map": doc! {
+        //                     "input": "$chat.users",
+        //                     "in": doc! {
+        //                         "$mergeObjects": [
+        //                             "$$this",
+        //                             doc! {
+        //                                 "id": doc! {
+        //                                     "$function": doc! {
+        //                                         "body": "function(x) { return x.toString().slice(6, -2); }",
+        //                                         "args": [
+        //                                             "$$this._id"
+        //                                         ],
+        //                                         "lang": "js"
+        //                                     }
+        //                                 }
+        //                             }
+        //                         ]
+        //                     }
+        //                 }
+        //             },
+        //             "owner": doc! {
+        //                 "$mergeObjects": [
+        //                     "$owner",
+        //                     doc! {
+        //                         "id": doc! {
+        //                             "$function": doc! {
+        //                                 "body": "function(x) { return x.toString().slice(6, -2); }",
+        //                                 "args": [
+        //                                     "$owner._id"
+        //                                 ],
+        //                                 "lang": "js"
+        //                             }
+        //                         }
+        //                     }
+        //                 ]
+        //             },
         //         }
         //     },
-        //     // //early skip since i assume it's cheaper
-        //     doc!
-        //     {
-        //         "$skip": pagination.get_skip_size() as i32
-        //     },
-        //     //limit output
-        //     doc! 
-        //     {
-        //         "$limit": pagination.page_size as i32
-        //     },
-        //     //join with chat
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "chats",
-        //             "localField": "chat_id",
-        //             "foreignField": "_id",
-        //             "as": "chat"
-        //         }
-        //     },
-        //     //join with owner of message
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "users",
-        //             "localField": "owner_id",
-        //             "foreignField": "_id",
-        //             "as": "owner"
-        //         }
-        //     },
-        //     doc!
-        //     {
-        //         "$unwind": 
-        //         {
-        //             "path": "$chat"
-        //         }
-        //     },
-        //     doc!
-        //     {
-        //         "$unwind": 
-        //         {
-        //             "path": "$owner"
-        //         }
-        //     },
-        //     //join with owners of chat
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "users",
-        //             "localField": "chat.owner_ids",
-        //             "foreignField": "_id",
-        //             "as": "chat.owners"
-        //         }
-        //     },
-        //     //join with users of chat
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "users",
-        //             "localField": "chat.user_ids",
-        //             "foreignField": "_id",
-        //             "as": "chat.users"
-        //         }
-        //     },
-        //     //from array to individual chat, only 1 chat anyways
-        //     doc! 
-        //     {
-        //         "$unwind": 
-        //         {
-        //             "path": "$messages.owner"
-        //         }
-        //     },
-        //     //join with owners of chat
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "users",
-        //             "localField": "chat.owner_ids",
-        //             "foreignField": "_id",
-        //             "as": "chat.owners"
-        //         }
-        //     },
-        //     //join with members of chat
-        //     doc! 
-        //     {
-        //         "$lookup": 
-        //         {
-        //             "from": "users",
-        //             "localField": "chat.user_ids",
-        //             "foreignField": "_id",
-        //             "as": "chat.users"
-        //         }
-        //     },
-        //     //converts from UUID to string
-        //     doc!
-        //     {
-        //         "$addFields":
-        //         {
-        //             "id": convert_mongo_key_to_string!("$_id", "uuid"),
-        //             "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
-        //             "chat.owners": map_mongo_collection!("$chat.owners", "id", "uuid"),
-        //             "chat.users": map_mongo_collection!("$chat.users", "id", "uuid"),
-        //             "owner": map_mongo_collection!("$owner", "id", "uuid"),
-        //         }
-        //     },
-        //     //hide unneeded fields
-        //     doc! 
-        //     {
-        //         "$unset": 
-        //         [
+        //     doc! {
+        //         "$unset": [
         //             "_id",
         //             "owner_id",
         //             "chat_id",
@@ -257,158 +304,10 @@ impl MessageRepository for MongolDB
         //             "chat.bucket_ids",
         //             "chat.owners._id",
         //             "chat.users._id",
-        //             "owner._id",
+        //             "owner._id"
         //         ]
-        //     },
+        //     }
         // ];
-
-        let pipelines = vec![
-            doc! {
-                "$lookup": doc! {
-                    "from": "chats",
-                    "localField": "chat_id",
-                    "foreignField": "_id",
-                    "as": "chat"
-                }
-            },
-            doc! {
-                "$lookup": doc! {
-                    "from": "users",
-                    "localField": "owner_id",
-                    "foreignField": "_id",
-                    "as": "owner"
-                }
-            },
-            doc! {
-                "$unwind": doc! {
-                    "path": "$chat"
-                }
-            },
-            doc! {
-                "$unwind": doc! {
-                    "path": "$owner"
-                }
-            },
-            doc! {
-                "$lookup": doc! {
-                    "from": "users",
-                    "localField": "chat.owner_ids",
-                    "foreignField": "_id",
-                    "as": "chat.owners"
-                }
-            },
-            doc! {
-                "$lookup": doc! {
-                    "from": "users",
-                    "localField": "chat.user_ids",
-                    "foreignField": "_id",
-                    "as": "chat.users"
-                }
-            },
-            doc! {
-                "$addFields": doc! {
-                    "id": doc! {
-                        "$function": doc! {
-                            "body": "function(x) { return x.toString().slice(6, -2); }",
-                            "args": [
-                                "$_id"
-                            ],
-                            "lang": "js"
-                        }
-                    },
-                    "bucket_id": doc! {
-                        "$function": doc! {
-                            "body": "function(x) { return x ? x.toString().slice(6, -2) : \"\"; }",
-                            "args": [
-                                "$bucket_id"
-                            ],
-                            "lang": "js"
-                        }
-                    },
-                    "chat.id": doc! {
-                        "$function": doc! {
-                            "body": "function(x) { return x.toString().slice(6, -2); }",
-                            "args": [
-                                "$chat._id"
-                            ],
-                            "lang": "js"
-                        }
-                    },
-                    "chat.owners": doc! {
-                        "$map": doc! {
-                            "input": "$chat.owners",
-                            "in": doc! {
-                                "$mergeObjects": [
-                                    "$$this",
-                                    doc! {
-                                        "id": doc! {
-                                            "$function": doc! {
-                                                "body": "function(x) { return x.toString().slice(6, -2); }",
-                                                "args": [
-                                                    "$$this._id"
-                                                ],
-                                                "lang": "js"
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "chat.users": doc! {
-                        "$map": doc! {
-                            "input": "$chat.users",
-                            "in": doc! {
-                                "$mergeObjects": [
-                                    "$$this",
-                                    doc! {
-                                        "id": doc! {
-                                            "$function": doc! {
-                                                "body": "function(x) { return x.toString().slice(6, -2); }",
-                                                "args": [
-                                                    "$$this._id"
-                                                ],
-                                                "lang": "js"
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    "owner": doc! {
-                        "$mergeObjects": [
-                            "$owner",
-                            doc! {
-                                "id": doc! {
-                                    "$function": doc! {
-                                        "body": "function(x) { return x.toString().slice(6, -2); }",
-                                        "args": [
-                                            "$owner._id"
-                                        ],
-                                        "lang": "js"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                }
-            },
-            doc! {
-                "$unset": [
-                    "_id",
-                    "owner_id",
-                    "chat_id",
-                    "chat._id",
-                    "chat.owner_ids",
-                    "chat.user_ids",
-                    "chat.bucket_ids",
-                    "chat.owners._id",
-                    "chat.users._id",
-                    "owner._id"
-                ]
-            }
-        ];
 
         let mut cursor = self
             .messages()
