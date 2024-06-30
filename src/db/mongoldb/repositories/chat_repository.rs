@@ -2,7 +2,7 @@ use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::{bson::{doc, from_document, Document}, Cursor};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection_keys, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
 
 #[async_trait]
 impl ChatRepository for MongolDB
@@ -61,8 +61,8 @@ impl ChatRepository for MongolDB
                 "$addFields":
                 {
                     "id": convert_mongo_key_to_string!("$_id", "uuid"),
-                    "owners": map_mongo_collection!("$owners", "id", "uuid"),
-                    "users": map_mongo_collection!("$users", "id", "uuid"),
+                    "owners": map_mongo_collection_keys!("$owners", "id", "uuid"),
+                    "users": map_mongo_collection_keys!("$users", "id", "uuid"),
                 }
             },
             //hide fields

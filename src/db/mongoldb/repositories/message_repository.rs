@@ -1,7 +1,7 @@
 use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
-use crate::{convert_mongo_key_to_string, map_mongo_collection};
+use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
 use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
 use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
@@ -210,8 +210,8 @@ impl MessageRepository for MongolDB
                     "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
                     "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
                     "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection!("$chat.users", "id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
                 }
             },
             //hide unneeded fields

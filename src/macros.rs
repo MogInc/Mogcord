@@ -1,18 +1,21 @@
 #[macro_export]
 macro_rules! convert_mongo_key_to_string 
 {
-    ($arg:expr, $type:expr) => 
+    ($id_field:expr, $id_type:expr) => 
     {
         {
-            let slice_params = match $type {
+            let slice_params = match $id_type 
+            {
                 "uuid" => (6, -2),
                 _ => (0, 0), 
             };
 
-            doc! {
-                "$function": {
+            doc! 
+            {
+                "$function": 
+                {
                     "body": format!("function(x) {{ return x?.toString().slice({}, {}) ?? \"\"; }}", slice_params.0, slice_params.1),
-                    "args": [ $arg ],
+                    "args": [ $id_field ],
                     "lang": "js"
                 }
             }
@@ -21,18 +24,18 @@ macro_rules! convert_mongo_key_to_string
 }
 
 #[macro_export]
-macro_rules! map_mongo_collection 
+macro_rules! map_mongo_collection_keys 
 {
-    ($input:expr, $change_to:expr, $type:expr) => 
+    ($input_collection:expr, $renamed_id:expr, $id_type:expr) => 
     {
         doc!    
         {
             "$map":
             {
-                "input": $input,
+                "input": $input_collection,
                 "in": 
                 {
-                    "$mergeObjects": ["$$this", { $change_to : convert_mongo_key_to_string!("$$this._id", $type) }]
+                    "$mergeObjects": ["$$this", { $renamed_id : convert_mongo_key_to_string!("$$this._id", $id_type) }]
                 }
             } 
         }
