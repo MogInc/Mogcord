@@ -2,33 +2,32 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: gwilom/mogcord
+      dockerfile: ./docker/api/Dockerfile
+    image: gwilom/mogcord-api
     environment:
-      MONGOLDB_CONNECTION: mongodb://mongoldb0:27017
+      MONGOLDB_CONNECTION: mongodb://mongol0:27017
       API_SOCKET: ${API_ADDRESS}:${API_PORT}
     env_file:
     - .env
-    ports:
+    ports: 
       - "${API_PORT}:3000"
     depends_on:
-      - mongoldb0
+      - mongol0
     networks:
       - mogcord-network
 
-  mongoldb0:
-    container_name: mongoldb0
-    image: mongo:7.0
-    command: mongod --port 27017 --dbpath /data/db --logpath /data/configdb/mongod0.log --replSet rs0 --bind_ip 127.0.0.1
-    ports:
-      - "27017:27017"
-    healthcheck:
-      test: |
-        mongosh --eval "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '127.0.0.1:27017' }] }).ok }"
-      start_period: 0s
-      interval: 2s
-      timeout: 10s
-      retries: 5
+  mongol0:
+    build:
+      context: .
+      dockerfile: ./docker/mongol/Dockerfile
+      args:
+        CONTAINER_NAME: mongol0
+        DB_PATH: /data/db
+        LOG_PATH: /data/configdb/mongol.log
+    image: gwilom/mogcord-mongol
+    container_name: mongol0
+    ports: 
+      - "27018:27017"
     volumes:
       - mongol_db0:/data/db
       - mongol_config0:/data/configdb
