@@ -1,3 +1,4 @@
+use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -11,6 +12,7 @@ pub struct Message
 {
     pub id: String,
     pub value: String,
+    #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub timestamp: DateTime<Utc>,
     pub owner: User,
     pub chat: Chat,
