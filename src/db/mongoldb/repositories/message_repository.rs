@@ -316,6 +316,15 @@ impl MessageRepository for MongolDB
                             "lang": "js"
                         }
                     },
+                    "bucket_id": doc! {
+                        "$function": doc! {
+                            "body": "function(x) { return x ? x.toString().slice(6, -2) : \"\"; }",
+                            "args": [
+                                "$bucket_id"
+                            ],
+                            "lang": "js"
+                        }
+                    },
                     "chat.id": doc! {
                         "$function": doc! {
                             "body": "function(x) { return x.toString().slice(6, -2); }",
@@ -382,7 +391,7 @@ impl MessageRepository for MongolDB
                                 }
                             }
                         ]
-                    }
+                    },
                 }
             },
             doc! {
