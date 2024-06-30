@@ -23,7 +23,6 @@ services:
       args:
         DB_PATH: /data/db
         LOG_PATH: /data/configdb/mongod0.log
-        REP_NAME: rs0
     image: gwilom/mogcord-mongol
     container_name: mongol0
     ports: 
