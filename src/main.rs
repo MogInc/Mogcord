@@ -4,7 +4,7 @@ use uuid::Uuid;
 use std::{env, sync::Arc};
 
 use axum::{http::{Method, StatusCode, Uri}, middleware, response::{IntoResponse, Response}, routing::Router, Json};
-use mogcord::{api::{chat::routes_chat, user::routes_user}, db::mongoldb::MongolDB, model::{chat::ChatRepository, message::MessageRepository, misc::{log_request, AppState, ServerError}, user::UserRepository}};
+use mogcord::{api::{chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, model::{chat::ChatRepository, message::MessageRepository, misc::{log_request, AppState, ServerError}, user::UserRepository}};
 use tokio::net::TcpListener;
 
 #[tokio::main]
@@ -32,7 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let api_routes = Router::new()
         .merge(routes_user(state.clone()))
-        .merge(routes_chat(state.clone()));
+        .merge(routes_chat(state.clone()))
+        .merge(routes_message(state.clone()));
 
 
     let app: Router = Router::new()

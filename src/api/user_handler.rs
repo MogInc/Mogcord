@@ -8,8 +8,8 @@ use crate::model::user::User;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/user", post(post_user))
-    .route("/user/:id", get(get_user))
+    .route("/user", post(create_user))
+    .route("/user/:user_id", get(get_user))
     .route("/users", get(get_users))
     .with_state(state)
 }
@@ -52,7 +52,7 @@ struct CreateUserRequest
     user_mail: String,
 }
 
-async fn post_user(
+async fn create_user(
     State(state): State<Arc<AppState>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>
 ) -> impl IntoResponse

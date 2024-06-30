@@ -1,2 +1,3 @@
-pub mod user;
-pub mod chat;
+pub mod user_handler;
+pub mod chat_handler;
+pub mod message_handler;
