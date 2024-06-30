@@ -126,6 +126,7 @@ impl MessageRepository for MongolDB
                 },
             },
             //sort on date from new to old
+            //sorting is in general expensive, no clue how expensive this is gonna get
             doc!
             {
                 "$sort":
@@ -133,12 +134,11 @@ impl MessageRepository for MongolDB
                     "timestamp": -1
                 }
             },
-            //early skip since i assume it's cheaper
+            //early skip + limit since i assume it's cheaper
             doc!
             {
                 "$skip": pagination.get_skip_size() as i32
             },
-            //limit output
             doc! 
             {
                 "$limit": pagination.page_size as i32
@@ -165,6 +165,7 @@ impl MessageRepository for MongolDB
                     "as": "owner"
                 }
             },
+            //should only have 1 chat
             doc!
             {
                 "$unwind": 
@@ -172,6 +173,7 @@ impl MessageRepository for MongolDB
                     "path": "$chat"
                 }
             },
+            //should only have 1 owner
             doc!
             {
                 "$unwind": 
@@ -201,7 +203,7 @@ impl MessageRepository for MongolDB
                     "as": "chat.users"
                 }
             },
-            //converts from UUID to string
+            //converts from special ids to string
             doc!
             {
                 "$addFields":
@@ -248,8 +250,6 @@ impl MessageRepository for MongolDB
             {
                 Ok(document) => 
                 {
-                    println!("{:?}", document);
-
                     let message: Message = from_document(document)
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
