@@ -1,28 +1,46 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post, Router}, Json};
+use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::model::{appstate::AppState, user::UserError};
+use crate::{dto::UserDTO, model::misc::{AppState, Pagination, ServerError}};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/user/:id", get(get_user))
     .route("/user", post(post_user))
+    .route("/user/:id", get(get_user))
+    .route("/users", get(get_users))
     .with_state(state)
 }
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    Path(uuid): Path<String>) 
-    -> impl IntoResponse
+    Path(user_id): Path<String>,
+) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&uuid).await 
+    match repo_user.get_user_by_id(&user_id).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Err(e) => Err(e),
+    }
+}
+
+
+async fn get_users(
+    State(state): State<Arc<AppState>>,
+    pagination: Option<Query<Pagination>>,
+) -> impl IntoResponse
+{
+    let repo_user = &state.repo_user;
+
+    let pagination = Pagination::new(pagination);
+
+    match repo_user.get_users(pagination).await 
+    {
+        Ok(users) => Ok(Json(UserDTO::vec_to_dto(users))),
         Err(e) => Err(e),
     }
 }
@@ -36,8 +54,8 @@ struct CreateUserRequest
 
 async fn post_user(
     State(state): State<Arc<AppState>>, 
-    extract::Json(payload): extract::Json<CreateUserRequest>) 
-    -> impl IntoResponse
+    extract::Json(payload): extract::Json<CreateUserRequest>
+) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
 
@@ -45,12 +63,12 @@ async fn post_user(
 
     if repo_user.does_user_exist_by_mail(&user.mail).await?
     {
-        return Err(UserError::MailAlreadyInUse);
+        return Err(ServerError::MailAlreadyInUse);
     }
 
     match repo_user.create_user(user).await 
     {
-        Ok(user) => Ok(Json(user)),
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }

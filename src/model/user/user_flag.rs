@@ -2,26 +2,6 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
-pub enum UserFlagParseError 
-{
-    InvalidFormat,
-    InvalidDate,
-}
-
-impl fmt::Display for UserFlagParseError 
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
-    {
-        match *self 
-        {
-            UserFlagParseError::InvalidFormat => write!(f, "Invalid format"),
-            UserFlagParseError::InvalidDate => write!(f, "Invalid date"),
-        }
-    }
-}
-
-impl std::error::Error for UserFlagParseError {}
 
 #[derive(Debug, PartialEq)]
 pub enum UserFlag 
@@ -81,6 +61,28 @@ impl FromStr for UserFlag
         }
     }
 }
+
+
+#[derive(Debug, PartialEq)]
+pub enum UserFlagParseError 
+{
+    InvalidFormat,
+    InvalidDate,
+}
+
+impl fmt::Display for UserFlagParseError 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+    {
+        match *self 
+        {
+            UserFlagParseError::InvalidFormat => write!(f, "Invalid format"),
+            UserFlagParseError::InvalidDate => write!(f, "Invalid date"),
+        }
+    }
+}
+
+impl std::error::Error for UserFlagParseError {}
 
 #[cfg(test)]
 mod tests 

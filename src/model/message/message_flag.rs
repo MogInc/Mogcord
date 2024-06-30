@@ -1,29 +1,11 @@
 use std::{fmt, str::FromStr};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 
-#[derive(Debug, PartialEq)]
-pub enum MessageFlagParseError 
-{
-    InvalidFormat,
-    InvalidDate,
-}
 
-impl fmt::Display for MessageFlagParseError 
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
-    {
-        match *self 
-        {
-            MessageFlagParseError::InvalidFormat => write!(f, "Invalid format"),
-            MessageFlagParseError::InvalidDate => write!(f, "Invalid date"),
-        }
-    }
-}
 
-impl std::error::Error for MessageFlagParseError {}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Display, PartialEq, Serialize, Deserialize)]
 pub enum MessageFlag
 {
     None,
@@ -74,13 +56,34 @@ impl FromStr for MessageFlag
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum MessageFlagParseError 
+{
+    InvalidFormat,
+    InvalidDate,
+}
+
+impl fmt::Display for MessageFlagParseError 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+    {
+        match *self 
+        {
+            MessageFlagParseError::InvalidFormat => write!(f, "Invalid format"),
+            MessageFlagParseError::InvalidDate => write!(f, "Invalid date"),
+        }
+    }
+}
+
+impl std::error::Error for MessageFlagParseError {}
+
 #[cfg(test)]
 mod tests
 {
     use std::str::FromStr;
     use chrono::Utc;
 
-    use crate::model::chat::{MessageFlag, MessageFlagParseError};
+    use crate::model::message::{MessageFlag, MessageFlagParseError};
 
     macro_rules! from_str_base_tests_valid
     {

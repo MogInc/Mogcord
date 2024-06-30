@@ -1,3 +1,6 @@
+#.env file
+.env
+
 #rust target
 /target
 

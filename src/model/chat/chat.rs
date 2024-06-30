@@ -1,88 +1,122 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::user::User;
-use super::{ChatError, MessageFlag};
+use crate::model::{message::Message, misc::ServerError, user::User};
+use super::chat_type::{ChatType, ChatTypeRequirements};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum ChatType
-{
-    Private,
-    Group,
-    Server,
-}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Chat
 {
-    pub uuid: String,
+    pub id: String,
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owners: Vec<User>,
-    pub members: Option<Vec<User>>,
-    pub buckets: Option<Vec<Bucket>>,
+    pub users: Option<Vec<User>>,
 }
 
 impl Chat
 {
     pub fn new(
         name: Option<String>, 
-        r#type: ChatType, 
+        r#type: ChatType,
         owners: Vec<User>,
-        members: Option<Vec<User>>) 
-        -> Result<Self, ChatError>
+        users: Option<Vec<User>>
+    ) -> Result<Self, ServerError>
     {
 
-        if !Self::is_owner_size_allowed(&r#type, owners.len())
+        let users_sanitized: Option<Vec<User>> = users.map(|users| {
+            users.into_iter().filter(|x| !owners.contains(x)).collect()
+        });
+        
+        let requirements = ChatTypeRequirements::new(
+            owners.len(), 
+            name.as_ref().is_some_and(|x| !x.trim().is_empty()), 
+            users_sanitized.as_ref().is_some_and(|x| x.len() > 0)
+        );
+
+        if let Err(err) = r#type.is_chat_meeting_requirements(requirements)
         {
-            return Err(ChatError::InvalidOwnerCount);
+            return Err(err);
         }
 
-        let members: Option<Vec<User>> = members.map(|members| {
-            members.into_iter().filter(|x| !owners.contains(x)).collect()
-        });
-
-        Ok(Self{
-            uuid: Uuid::new_v4().to_string(),
-            name: name,
-            r#type: r#type,
-            owners: owners,
-            members: members,
-            buckets: None,
-        })
-    }
-
-    pub fn is_owner_size_allowed(r#type: &ChatType, owner_count: usize) -> bool
-    {
-        let max_owner_count: usize = match r#type
+        let name_sanitized = match name
         {
-            ChatType::Private => 2,
-            ChatType::Server | ChatType::Group => 1,
+            Some(name) => Some(name.trim().to_owned()),
+            None => None,
         };
 
-        return max_owner_count == owner_count;
+        let users_sanitized = match users_sanitized
+        {
+            Some(users) if users.is_empty() => None,
+            _ => users_sanitized
+        };
+
+        Ok(Self{
+            id: Uuid::now_v7().to_string(),
+            name: name_sanitized,
+            r#type: r#type,
+            owners: owners,
+            users: users_sanitized,
+        })
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+
+impl Chat
+{
+    pub fn is_user_part_of_chat(&self, user_id: &String) -> bool
+    {
+        match self.r#type
+        {
+            ChatType::Private => self.owners.iter().any(|owner| &owner.id == user_id),
+            ChatType::Group => self.owners.iter().any(|owner| &owner.id == user_id) 
+                || self.users.as_ref().map_or(false, |users|{
+                    users.iter().any(|user| &user.id == user_id)
+                }),
+            _ => true,
+        }
+    }
+}
+
+
+//doubt i need this in model
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Bucket
 {
-    pub uuid: String,
+    pub id: String,
     pub chat: Chat,
-    pub date: DateTime<Utc>,
+    pub date: NaiveDate,
     pub messages: Option<Vec<Message>>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Message
+impl Bucket
 {
-    pub uuid: String,
-    pub value: String,
-    pub owner: User,
-    pub chat: Chat,
-    pub bucket: Bucket,
-    //we actually gonna delete stuff?
-    //(:sins:)
-    pub flag: MessageFlag,
+    pub fn new(chat: &Chat, date: &DateTime<Utc>) -> Self
+    {
+        Self
+        {
+            id: Uuid::now_v7().to_string(),
+            chat: chat.clone(),
+            date: date.date_naive(),   
+            messages: None,
+        }
+    }
+}
+
+impl Bucket
+{
+    pub fn add_message(&mut self, message: Message)
+    {
+        if self.messages.is_none() 
+        {
+            self.messages = Some(Vec::new());
+        }
+
+        if let Some(messages) = &mut self.messages 
+        {
+            messages.push(message);
+        }
+    }
 }
