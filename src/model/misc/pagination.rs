@@ -16,7 +16,7 @@ impl Pagination {
     {
         Self 
         {
-            page: page.min(Self::MIN_PAGE_NR),
+            page: page.max(Self::MIN_PAGE_NR),
             page_size: per_page.min(Self::MAX_PER_PAGE),
         }
     }
