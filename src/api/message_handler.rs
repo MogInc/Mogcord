@@ -33,6 +33,7 @@ async fn get_messages(
 struct CreateMessageRequest
 {
     value: String,
+    //gonna get replaced with cookie
     owner_id: String,
 }
 async fn create_message(
@@ -71,6 +72,7 @@ async fn create_message(
 struct UpdateMessageRequest
 {
     value: String,
+    //gonna get replaced with cookie
     owner_id: String,
 }
 async fn update_message(
@@ -83,24 +85,11 @@ async fn update_message(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let chat: Chat = repo_chat
-        .get_chat_by_id(&chat_id)
-        .await?;
+    //TODO
+    //Retrieve message
+    //retrieve chat
+    //validate 
+    //change message
+    //return changed message
 
-    if !chat.is_user_part_of_chat(&payload.owner_id)
-    {
-        return Err(ServerError::UserNotPartOfThisChat);
-    }
-
-    let owner: User = repo_user
-        .get_user_by_id(&payload.owner_id)
-        .await?;
-
-    let message = Message::new(payload.value, owner, chat);
-
-    match repo_message.create_message(message).await
-    {
-        Ok(message) => Ok(Json(MessageDTO::obj_to_dto(message))),
-        Err(e) => Err(e),
-    }
 }
