@@ -94,7 +94,7 @@ async fn update_message(
 
     if !message.is_user_allowed_to_edit_message(&payload.owner_id)
     {
-        return Err(ServerError::ChatNotPartThisMessage);
+        return Err(ServerError::UserNotPartThisMessage);
     }
 
     message.update_value(payload.value);
