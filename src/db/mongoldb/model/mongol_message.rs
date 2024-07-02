@@ -1,5 +1,6 @@
 use std::time::SystemTime;
 
+use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
@@ -24,15 +25,16 @@ impl TryFrom<&Message> for MongolMessage
     type Error = MongolError;
 
     fn try_from(value: &Message) -> Result<Self, Self::Error>
-    {
+    {     
         let message_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
-
+        
         let owner_id = mongol_helper::convert_domain_id_to_mongol(&value.owner.id)?;
-
+        
         let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.chat.id)?;
 
         let bucket_id_option = value.bucket_id
             .as_ref()
+            .filter(|bucket_id| !bucket_id.is_empty())
             .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
             .transpose()?;
 
@@ -50,5 +52,13 @@ impl TryFrom<&Message> for MongolMessage
                 flag: value.flag.clone(),
             }
         )
+    }
+}
+
+impl From<MessageFlag> for Bson 
+{
+    fn from(message_flag: MessageFlag) -> Bson 
+    {
+        Bson::String(message_flag.to_string())
     }
 }

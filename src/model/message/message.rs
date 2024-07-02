@@ -41,3 +41,28 @@ impl Message {
         }
     }
 }
+
+impl Message
+{
+    pub fn update_value(&mut self, value: String)
+    {
+        if self.value == value
+        {
+            return;
+        }
+
+        self.value = value;
+        self.flag = MessageFlag::Edited { date: Utc::now() };
+    }
+
+    pub fn is_chat_part_of_message(&self, chat_id: &String) -> bool
+    {
+        return self.chat.id == *chat_id;
+    }
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &String) -> bool
+    {
+        //can add more checks since servers can have users with rights etc.
+        //(will never be implemented)
+        return self.owner.id == *user_id;
+    }
+}

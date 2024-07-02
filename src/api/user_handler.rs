@@ -8,8 +8,8 @@ use crate::model::user::User;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/user", post(post_user))
-    .route("/user/:id", get(get_user))
+    .route("/user", post(create_user))
+    .route("/user/:user_id", get(get_user))
     .route("/users", get(get_users))
     .with_state(state)
 }
@@ -19,6 +19,8 @@ async fn get_user(
     Path(user_id): Path<String>,
 ) -> impl IntoResponse
 {
+    //TODO: Add AA
+
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&user_id).await 
@@ -34,6 +36,8 @@ async fn get_users(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
+    //TODO: Add AA
+
     let repo_user = &state.repo_user;
 
     let pagination = Pagination::new(pagination);
@@ -52,7 +56,7 @@ struct CreateUserRequest
     user_mail: String,
 }
 
-async fn post_user(
+async fn create_user(
     State(state): State<Arc<AppState>>, 
     extract::Json(payload): extract::Json<CreateUserRequest>
 ) -> impl IntoResponse

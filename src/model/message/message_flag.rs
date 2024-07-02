@@ -1,16 +1,59 @@
 use std::{fmt, str::FromStr};
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use strum_macros::Display;
+use serde::{de::{self, Visitor}, Deserialize, Serialize};
 
 
 
-#[derive(Clone, Debug, Display, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum MessageFlag
 {
     None,
     Edited { date: DateTime<Utc> },
     Deleted { date: DateTime<Utc> },
+}
+
+impl fmt::Display for MessageFlag 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        match self
+        {
+            MessageFlag::Edited { date } => write!(f, "edited|{}", date),
+            MessageFlag::Deleted { date } => write!(f, "deleted|{}", date),
+            _ => write!(f, "{self:?}")
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for MessageFlag
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: serde::Deserializer<'de> 
+    {
+        struct MessageFlagVisitor;
+
+        impl<'de> Visitor<'de> for MessageFlagVisitor
+        {
+            type Value = MessageFlag;
+        
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
+            {
+                return formatter.write_str("data");
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+                where E: serde::de::Error, 
+            {
+                println!("{}", v);
+
+                return MessageFlag::from_str(v)
+                    .map_err(|_| de::Error::unknown_field(v, FIELDS));
+            }
+        }
+
+        const FIELDS: &[&str] = &["none", "edited", "deleted"];
+        return deserializer.deserialize_identifier(MessageFlagVisitor);
+    }
 }
 
 impl FromStr for MessageFlag 

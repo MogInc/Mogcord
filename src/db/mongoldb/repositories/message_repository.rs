@@ -262,4 +262,164 @@ impl MessageRepository for MongolDB
 
         return Ok(messages);
     }
+
+    async fn update_message(&self, message: Message) -> Result<Message, ServerError>
+    {
+        let db_message = MongolMessage::try_from(&message)
+        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+    
+        let filter = doc! 
+        {
+            "_id": db_message._id,
+        };
+
+        let update = doc! 
+        {
+            "$set":
+            {
+                "value": db_message.value,
+                "flag": db_message.flag,
+            }
+        };
+
+        match self.messages().update_one(filter, update).await
+        {
+            Ok(_) => Ok(message),
+            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+        }
+    }
+
+    async fn get_message(&self, message_id: &String) -> Result<Message, ServerError>
+    {
+
+        let message_id_local = mongol_helper::convert_domain_id_to_mongol(&message_id)
+            .map_err(|_| ServerError::MessageNotFound)?;
+        
+        let pipelines = vec![
+            //filter to only given chat
+            doc! 
+            {
+                "$match":
+                {
+                    "_id": message_id_local
+                },
+            },
+            //join with chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "chats",
+                    "localField": "chat_id",
+                    "foreignField": "_id",
+                    "as": "chat"
+                }
+            },
+            //join with owner of message
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "owner_id",
+                    "foreignField": "_id",
+                    "as": "owner"
+                }
+            },
+            //should only have 1 chat
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$chat"
+                }
+            },
+            //should only have 1 owner
+            doc!
+            {
+                "$unwind": 
+                {
+                    "path": "$owner"
+                }
+            },
+            //join with owners of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.owner_ids",
+                    "foreignField": "_id",
+                    "as": "chat.owners"
+                }
+            },
+            //join with users of chat
+            doc! 
+            {
+                "$lookup": 
+                {
+                    "from": "users",
+                    "localField": "chat.user_ids",
+                    "foreignField": "_id",
+                    "as": "chat.users"
+                }
+            },
+            //converts from special ids to string
+            doc!
+            {
+                "$addFields":
+                {
+                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
+                    "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
+                    "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
+                }
+            },
+            //hide unneeded fields
+            doc! 
+            {
+                "$unset": 
+                [
+                    "_id",
+                    "owner_id",
+                    "chat_id",
+                    "chat._id",
+                    "chat.owner_ids",
+                    "chat.user_ids",
+                    "chat.bucket_ids",
+                    "chat.owners._id",
+                    "chat.users._id",
+                    "owner._id"
+                ]
+            },
+        ];
+
+
+        let mut cursor = self
+            .messages()
+            .aggregate(pipelines)
+            .await
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+
+
+        let document_option = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+        match document_option
+        {
+            Some(document) => 
+            {
+                let message: Message = from_document(document)
+                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+                return Ok(message);
+            },
+            None => Err(ServerError::MessageNotFound),
+        }
+    }
 }
