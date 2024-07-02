@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
+use serde::{de::{self, Visitor}, Deserialize};
 use std::fmt;
 
 
@@ -12,6 +13,50 @@ pub enum UserFlag
     Banned { date: DateTime<Utc> },
     Admin,
     Owner,
+}
+
+impl fmt::Display for UserFlag 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        match self
+        {
+            UserFlag::Banned { date } => write!(f, "banned|{}", date),
+            UserFlag::Deleted { date } => write!(f, "deleted|{}", date),
+            _ => write!(f, "{self:?}")
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for UserFlag
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: serde::Deserializer<'de> 
+    {
+        struct UserFlagVisitor;
+
+        impl<'de> Visitor<'de> for UserFlagVisitor
+        {
+            type Value = UserFlag;
+        
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
+            {
+                return formatter.write_str("data");
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+                where E: serde::de::Error, 
+            {
+                println!("{}", v);
+
+                return UserFlag::from_str(v)
+                    .map_err(|_| de::Error::unknown_field(v, FIELDS));
+            }
+        }
+
+        const FIELDS: &[&str] = &["none", "disabled", "deleted", "banned", "admin", "owner"];
+        return deserializer.deserialize_identifier(UserFlagVisitor);
+    }
 }
 
 impl FromStr for UserFlag 
