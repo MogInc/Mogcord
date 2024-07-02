@@ -48,8 +48,10 @@ impl Message
     {
         return self.chat.id == *chat_id;
     }
-    pub fn is_user_part_of_message(&self, user_id: &String) -> bool
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &String) -> bool
     {
+        //can add more checks since servers can have users with rights etc.
+        //(will never be implemented)
         return self.owner.id == *user_id;
     }
 }

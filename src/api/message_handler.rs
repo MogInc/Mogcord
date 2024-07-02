@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
+use tokio::sync::oneshot::error;
 
 use crate::{dto::MessageDTO, model::{chat::Chat, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
 
@@ -33,7 +34,7 @@ async fn get_messages(
 struct CreateMessageRequest
 {
     value: String,
-    //gonna get replaced with cookie
+    //TODO: replace with cookie or any form of other AA
     owner_id: String,
 }
 async fn create_message(
@@ -72,7 +73,7 @@ async fn create_message(
 struct UpdateMessageRequest
 {
     value: String,
-    //gonna get replaced with cookie
+    //TODO: replace with cookie or any form of other AA
     owner_id: String,
 }
 async fn update_message(
@@ -82,14 +83,27 @@ async fn update_message(
 ) -> impl IntoResponse
 {
     let repo_message = &state.repo_message;
-    let repo_chat = &state.repo_chat;
-    let repo_user = &state.repo_user;
 
     //TODO
     //Retrieve message
-    //retrieve chat
+    //retrieve chat -> is in message
     //validate 
     //change message
     //return changed message
 
+    let message = repo_message
+        .get_message(&message_id)
+        .await?;
+
+    if !message.is_chat_part_of_message(&chat_id)
+    {
+        return Err(ServerError::ChatNotPartThisMessage);
+    }
+
+    if !message.is_user_allowed_to_edit_message(&payload.owner_id)
+    {
+        return Err(ServerError::ChatNotPartThisMessage);
+    }
+
+    return Ok(Json(MessageDTO::obj_to_dto(message)));
 }
