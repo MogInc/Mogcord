@@ -26,6 +26,8 @@ pub enum ServerError
 
 	//message
 	MessageNotFound,
+	ChatNotPartThisMessage,
+	UserNotPartThisMessage,
 
 	//db
 	FailedRead(String),
@@ -72,6 +74,8 @@ impl ServerError
 			| Self::ChatNotFound
 			| Self::MessageNotFound
 			| Self::ChatAlreadyExists
+			| Self::ChatNotPartThisMessage
+			| Self::UserNotPartThisMessage
 			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
