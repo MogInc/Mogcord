@@ -84,7 +84,7 @@ async fn update_message(
 {
     let repo_message = &state.repo_message;
 
-    let message = repo_message
+    let mut message = repo_message
         .get_message(&message_id)
         .await?;
 
@@ -97,6 +97,8 @@ async fn update_message(
     {
         return Err(ServerError::ChatNotPartThisMessage);
     }
+
+    message.update_value(payload.value);
 
     match repo_message.update_message(message).await
     {

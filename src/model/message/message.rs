@@ -44,6 +44,11 @@ impl Message {
 
 impl Message
 {
+    pub fn update_value(&mut self, value: String)
+    {
+        self.value = value;
+    }
+
     pub fn is_chat_part_of_message(&self, chat_id: &String) -> bool
     {
         return self.chat.id == *chat_id;
