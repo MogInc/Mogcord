@@ -105,5 +105,9 @@ async fn update_message(
         return Err(ServerError::ChatNotPartThisMessage);
     }
 
-    return Ok(Json(MessageDTO::obj_to_dto(message)));
+    match repo_message.update_message(message).await
+    {
+        Ok(message) =>  Ok(Json(MessageDTO::obj_to_dto(message))),
+        Err(err) => Err(err),
+    }
 }
