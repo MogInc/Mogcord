@@ -33,16 +33,6 @@ impl User
             mail
         }
     }
-
-    pub fn new_old(name: String, mail: String) -> Self
-    {
-        User
-        {
-            id: Uuid::new_v4().to_string(),
-            name,
-            mail
-        }
-    }
 }
 
 #[cfg(test)]
