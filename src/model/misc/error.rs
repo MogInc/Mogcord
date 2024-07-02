@@ -24,6 +24,8 @@ pub enum ServerError
 	InvalidChatRequirements,
 	UserNotPartOfThisChat,
 
+	//message
+	MessageNotFound,
 
 	//db
 	FailedRead(String),
@@ -65,10 +67,11 @@ impl ServerError
 		match self 
         {
             Self::MailAlreadyInUse 
-            | Self::UserNotFound
-			| Self::ChatAlreadyExists
-			| Self::ChatNotFound
 			| Self::InvalidOwnerCount
+            | Self::UserNotFound
+			| Self::ChatNotFound
+			| Self::MessageNotFound
+			| Self::ChatAlreadyExists
 			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
