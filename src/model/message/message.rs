@@ -41,3 +41,15 @@ impl Message {
         }
     }
 }
+
+impl Message
+{
+    pub fn is_chat_part_of_message(&self, chat_id: &String) -> bool
+    {
+        return self.chat.id == *chat_id;
+    }
+    pub fn is_user_part_of_message(&self, user_id: &String) -> bool
+    {
+        return self.owner.id == *user_id;
+    }
+}
