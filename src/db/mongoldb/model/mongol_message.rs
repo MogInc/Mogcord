@@ -34,6 +34,7 @@ impl TryFrom<&Message> for MongolMessage
 
         let bucket_id_option = value.bucket_id
             .as_ref()
+            .filter(|bucket_id| !bucket_id.is_empty())
             .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
             .transpose()?;
 
