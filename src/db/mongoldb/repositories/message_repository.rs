@@ -263,6 +263,11 @@ impl MessageRepository for MongolDB
         return Ok(messages);
     }
 
+    async fn update_message(&self, message: Message) -> Result<Message, ServerError>
+    {
+        Ok(message)
+    }
+
     async fn get_message(&self, message_id: &String) -> Result<Message, ServerError>
     {
 
