@@ -1,4 +1,3 @@
-use serde::Serialize;
 use strum_macros::Display;
 
 #[derive(Display)]

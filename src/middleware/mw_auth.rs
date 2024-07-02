@@ -74,7 +74,6 @@ fn parse_token(token: String) -> Result<String, ServerError>
 {
     //TODO: add jwt
 
-
     //random user for now
     Ok("320497a2-ad95-45ff-b1ef-86fca159bfd5".to_string())
 }
