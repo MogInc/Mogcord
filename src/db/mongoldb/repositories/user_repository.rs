@@ -7,7 +7,7 @@ use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB,
 #[async_trait]
 impl UserRepository for MongolDB
 {
-    async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, ServerError>
+    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
         let user_id_local: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
@@ -19,7 +19,7 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn does_user_exist_by_mail(&self, user_mail: &String) -> Result<bool, ServerError>
+    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
     {
         match self.users().find_one(doc! { "mail" : user_mail }).await
         {
@@ -52,7 +52,7 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn get_user_by_id(&self, user_id: &String) -> Result<User, ServerError>
+    async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
         let user_id_local: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;

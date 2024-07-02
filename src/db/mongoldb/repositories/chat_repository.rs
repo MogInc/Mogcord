@@ -19,7 +19,7 @@ impl ChatRepository for MongolDB
         }
     }
 
-    async fn get_chat_by_id(&self, chat_id: &String) -> Result<Chat, ServerError>
+    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;

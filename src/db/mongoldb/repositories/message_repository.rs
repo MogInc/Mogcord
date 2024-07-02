@@ -109,7 +109,7 @@ impl MessageRepository for MongolDB
         }
     }
 
-    async fn get_messages(&self, chat_id: &String, pagination: Pagination) 
+    async fn get_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
 
@@ -289,7 +289,7 @@ impl MessageRepository for MongolDB
         }
     }
 
-    async fn get_message(&self, message_id: &String) -> Result<Message, ServerError>
+    async fn get_message(&self, message_id: &str) -> Result<Message, ServerError>
     {
 
         let message_id_local = mongol_helper::convert_domain_id_to_mongol(&message_id)
