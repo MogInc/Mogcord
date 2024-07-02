@@ -36,6 +36,13 @@ pub enum ServerError
 	FailedDelete(String),
 	TransactionError(String),
 
+	//auth
+	AuthCtxNotInRequest,
+	AuthCookieNotFound,
+	InvalidAuthCookie,
+	SessionCookieNotFound,
+	DeviceIdCookieNotFound,
+
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
@@ -55,7 +62,9 @@ impl IntoResponse for ServerError
     {
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
-		response.extensions_mut().insert(self);
+		response
+			.extensions_mut()
+			.insert(self);
 
 		response
     }
@@ -81,7 +90,13 @@ impl ServerError
 			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
-            
+
+			Self::AuthCtxNotInRequest
+			| Self::AuthCookieNotFound
+			| Self::InvalidAuthCookie
+			| Self::SessionCookieNotFound
+			| Self::DeviceIdCookieNotFound => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
 			| Self::FailedUpdate(_)
@@ -104,4 +119,5 @@ pub enum ClientError
 {
 	INVALID_PARAMS,
 	SERVICE_ERROR,
+	NO_AUTH,
 }

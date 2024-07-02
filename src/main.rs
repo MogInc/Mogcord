@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use tower_cookies::CookieManagerLayer;
 use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
@@ -39,6 +40,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let app: Router = Router::new()
         .nest("/api", api_routes)
         .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::from_fn_with_state(state.clone(), mw::mw_ctx_resolver))
+        .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 
 

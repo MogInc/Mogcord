@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, model::misc::{AppState, Pagination, ServerError}};
+use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Pagination, ServerError}};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -15,11 +15,14 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 }
 
 async fn get_user(
+    ctx: Ctx,
     State(state): State<Arc<AppState>>,
     Path(user_id): Path<String>,
 ) -> impl IntoResponse
 {
     //TODO: Add AA
+    println!("{ctx:?}");
+
 
     let repo_user = &state.repo_user;
 
