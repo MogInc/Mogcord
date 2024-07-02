@@ -21,7 +21,6 @@ async fn get_user(
 ) -> impl IntoResponse
 {
     //TODO: Add AA
-    println!("{ctx:?}");
 
 
     let repo_user = &state.repo_user;
