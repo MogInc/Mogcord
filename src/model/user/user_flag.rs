@@ -47,8 +47,6 @@ impl<'de> Deserialize<'de> for UserFlag
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                println!("{}", v);
-
                 return UserFlag::from_str(v)
                     .map_err(|_| de::Error::unknown_field(v, FIELDS));
             }

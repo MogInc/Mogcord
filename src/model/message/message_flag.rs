@@ -44,8 +44,6 @@ impl<'de> Deserialize<'de> for MessageFlag
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                println!("{}", v);
-
                 return MessageFlag::from_str(v)
                     .map_err(|_| de::Error::unknown_field(v, FIELDS));
             }
