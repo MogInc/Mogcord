@@ -19,6 +19,8 @@ async fn get_user(
     Path(user_id): Path<String>,
 ) -> impl IntoResponse
 {
+    //TODO: Add AA
+
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&user_id).await 
@@ -34,6 +36,8 @@ async fn get_users(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
+    //TODO: Add AA
+
     let repo_user = &state.repo_user;
 
     let pagination = Pagination::new(pagination);

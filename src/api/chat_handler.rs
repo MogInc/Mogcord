@@ -17,6 +17,8 @@ async fn get_chat(
     Path(chat_id): Path<String>
 ) -> impl IntoResponse
 {
+    //TODO: Add AA
+
     let repo_chat = &state.repo_chat;
 
     match repo_chat.get_chat_by_id(&chat_id).await 
