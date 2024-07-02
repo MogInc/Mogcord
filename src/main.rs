@@ -3,7 +3,7 @@ use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
-use mogcord::{api::{chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, user::UserRepository}};
+use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::{self as mw, main_response_mapper}, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, user::UserRepository}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -29,9 +29,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     });
 
     let api_routes = Router::new()
-        .merge(routes_user(state.clone()))
-        .merge(routes_chat(state.clone()))
-        .merge(routes_message(state.clone()));
+    .merge(routes_chat(state.clone()))
+    .merge(routes_message(state.clone()))
+    .merge(routes_user(state.clone()))
+    .route_layer(middleware::from_fn(mw::mw_require_auth))
+    .merge(routes_auth(state.clone()));
 
 
     let app: Router = Router::new()
