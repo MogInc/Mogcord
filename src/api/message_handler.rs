@@ -84,13 +84,6 @@ async fn update_message(
 {
     let repo_message = &state.repo_message;
 
-    //TODO
-    //Retrieve message
-    //retrieve chat -> is in message
-    //validate 
-    //change message
-    //return changed message
-
     let message = repo_message
         .get_message(&message_id)
         .await?;
