@@ -1,16 +1,23 @@
 use std::{fmt, str::FromStr};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use strum_macros::Display;
 
 
 
-#[derive(Clone, Debug, Display, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum MessageFlag
 {
     None,
     Edited { date: DateTime<Utc> },
     Deleted { date: DateTime<Utc> },
+}
+
+impl fmt::Display for MessageFlag 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        write!(f, "{self:?}")
+    }
 }
 
 impl FromStr for MessageFlag 

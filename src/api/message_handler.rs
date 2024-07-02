@@ -86,7 +86,7 @@ async fn update_message(
     let mut message = repo_message
         .get_message(&message_id)
         .await?;
-
+    
     if !message.is_chat_part_of_message(&chat_id)
     {
         return Err(ServerError::ChatNotPartThisMessage);
