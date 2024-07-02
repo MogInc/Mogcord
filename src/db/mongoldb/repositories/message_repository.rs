@@ -265,7 +265,28 @@ impl MessageRepository for MongolDB
 
     async fn update_message(&self, message: Message) -> Result<Message, ServerError>
     {
-        Ok(message)
+        let db_message = MongolMessage::try_from(&message)
+        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+    
+        let filter = doc! 
+        {
+            "_id": db_message._id,
+        };
+
+        let update = doc! 
+        {
+            "$set":
+            {
+                "value": db_message.value,
+                "flag": db_message.flag,
+            }
+        };
+
+        match self.messages().update_one(filter, update).await
+        {
+            Ok(_) => Ok(message),
+            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+        }
     }
 
     async fn get_message(&self, message_id: &String) -> Result<Message, ServerError>
