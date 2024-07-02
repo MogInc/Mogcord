@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
-use tokio::sync::oneshot::error;
 
 use crate::{dto::MessageDTO, model::{chat::Chat, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
 
