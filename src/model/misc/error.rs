@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::middleware::AuthCookieNames;
+use crate::middleware::cookies::AuthCookieNames;
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
