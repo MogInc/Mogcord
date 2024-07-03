@@ -70,6 +70,21 @@ impl UserRepository for MongolDB
         }
     }
 
+    async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
+    {
+        let user_option: Option<MongolUser> = self
+            .users()
+            .find_one(doc! { "mail": mail })
+            .await
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+        
+        match user_option 
+        {
+            Some(user) => Ok(User::from(&user)),
+            None => Err(ServerError::UserNotFound),
+        }
+    }
+
     async fn get_users_by_ids(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
     {
         let mut user_ids_local : Vec<Uuid> = Vec::new();
