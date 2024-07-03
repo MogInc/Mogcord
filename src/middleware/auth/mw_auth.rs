@@ -1,7 +1,7 @@
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::{Cookie, Cookies};
 
-use crate::{middleware::AuthCookieNames, model::misc::ServerError};
+use crate::{middleware::cookies::AuthCookieNames, model::misc::ServerError};
 
 use super::{jwt, Ctx};
 
