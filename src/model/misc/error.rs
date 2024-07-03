@@ -43,6 +43,9 @@ pub enum ServerError
 	AuthCookieNotFound(AuthCookieNames),
 	AuthCookieInvalid(AuthCookieNames),
 
+	//jwt
+	FailedCreatingToken,
+
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
@@ -95,6 +98,8 @@ impl ServerError
 			| Self::AuthCookieNotFound(_)
 			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
+			Self::FailedCreatingToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
 			| Self::FailedUpdate(_)
