@@ -45,6 +45,9 @@ pub enum ServerError
 
 	//jwt
 	FailedCreatingToken,
+	JWTKeyNotSet,
+	JWTTokenInvalid,
+	JWTTokenExpired,
 
 	//fallback
 	NotImplemented,
