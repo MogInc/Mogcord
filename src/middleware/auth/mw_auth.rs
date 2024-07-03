@@ -3,7 +3,7 @@ use tower_cookies::{Cookie, Cookies};
 
 use crate::{middleware::AuthCookieNames, model::misc::ServerError};
 
-use super::Ctx;
+use super::{jwt, Ctx};
 
 
 pub async fn mw_require_auth(
@@ -36,7 +36,7 @@ pub async fn mw_ctx_resolver(
 
 	let result_ctx = match auth_token
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_TOKEN))
-		.and_then(parse_token)
+		.and_then(|val| parse_token(val.as_str()))
 	{
 		Ok(user_id) => Ok(Ctx::new(user_id)),
 		Err(e) => Err(e),
@@ -70,10 +70,9 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 	}
 }
 
-fn parse_token(token: String) -> Result<String, ServerError>
+fn parse_token(token: &str) -> Result<String, ServerError>
 {
-    //TODO: add jwt
+	let claims = jwt::extract_token(token)?;
 
-    //random user for now
-    Ok("320497a2-ad95-45ff-b1ef-86fca159bfd5".to_string())
+    return Ok(claims.sub());
 }
