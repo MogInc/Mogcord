@@ -1,3 +1,5 @@
+pub mod cookies;
+
 mod logging;
 mod auth;
 
