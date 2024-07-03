@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
+use axum::{extract::{Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
 use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Pagination, ServerError}};
@@ -15,8 +15,8 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 }
 
 async fn get_user(
-    ctx: Ctx,
     State(state): State<Arc<AppState>>,
+    ctx: Ctx,
     Path(user_id): Path<String>,
 ) -> impl IntoResponse
 {
@@ -60,7 +60,7 @@ struct CreateUserRequest
 
 async fn create_user(
     State(state): State<Arc<AppState>>, 
-    extract::Json(payload): extract::Json<CreateUserRequest>
+    Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
