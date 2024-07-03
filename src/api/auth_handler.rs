@@ -22,7 +22,7 @@ async fn test(cookies: Cookies) -> impl IntoResponse
     {
         Ok(token) => 
         {
-            let cookiebuilder = cookies::create_base_cookie(auth_cookie_name.to_string(), token, jwt::JWT_TTL_MINS);
+            let cookiebuilder = cookies::create_base_cookie(auth_cookie_name.to_string(), token, cookies::JWT_COOKIE_TTL_MINS);
 
             cookies.add(cookiebuilder);
 

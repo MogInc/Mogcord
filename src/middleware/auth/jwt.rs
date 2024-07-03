@@ -5,7 +5,7 @@ use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, 
 use serde::{Deserialize, Serialize};
 use crate::model::{misc::ServerError, user::User};
 
-pub const JWT_TTL_MINS: i64 = 10;
+const JWT_TTL_MINS: i64 = 10;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
