@@ -51,7 +51,7 @@ async fn create_chat(
 
     if !payload.r#type.is_owner_size_allowed(payload.owner_ids.len())
     {
-        return Err(ServerError::InvalidOwnerCount);
+        return Err(ServerError::OwnerCountInvalid);
     }
 
     let owners = repo_user

@@ -52,7 +52,7 @@ async fn create_message(
 
     if !chat.is_user_part_of_chat(&payload.owner_id)
     {
-        return Err(ServerError::UserNotPartOfThisChat);
+        return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
     let owner: User = repo_user

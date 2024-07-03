@@ -6,6 +6,8 @@ use axum::{
 };
 use serde::Serialize;
 
+use crate::middleware::AuthCookieNames;
+
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum ServerError 
@@ -17,12 +19,12 @@ pub enum ServerError
 	//chat
 	ChatNotFound,
 	ChatAlreadyExists,
-	InvalidOwnerCount,
-	InvalidOwnersCount { expected: usize, found: usize },
-	InvalidNameRequirement { expected: bool, found: bool },
-	InvalidUsersRequirement { expected: bool, found: bool },
-	InvalidChatRequirements,
-	UserNotPartOfThisChat,
+	OwnerCountInvalid,
+	OwnersCountInvalid { expected: usize, found: usize },
+	NameRequirementInvalid { expected: bool, found: bool },
+	UsersRequirementInvalid { expected: bool, found: bool },
+	ChatRequirementsInvalid,
+	ChatDoesNotContainThisUser,
 
 	//message
 	MessageNotFound,
@@ -38,10 +40,8 @@ pub enum ServerError
 
 	//auth
 	AuthCtxNotInRequest,
-	AuthCookieNotFound,
-	InvalidAuthCookie,
-	SessionCookieNotFound,
-	DeviceIdCookieNotFound,
+	AuthCookieNotFound(AuthCookieNames),
+	AuthCookieInvalid(AuthCookieNames),
 
 	//fallback
 	NotImplemented,
@@ -78,24 +78,22 @@ impl ServerError
 		match self 
         {
             Self::MailAlreadyInUse 
-			| Self::InvalidOwnerCount
+			| Self::OwnerCountInvalid
             | Self::UserNotFound
 			| Self::ChatNotFound
 			| Self::MessageNotFound
 			| Self::ChatAlreadyExists
 			| Self::ChatNotPartThisMessage
 			| Self::UserNotPartThisMessage
-			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
-			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
 
 			Self::AuthCtxNotInRequest
-			| Self::AuthCookieNotFound
-			| Self::InvalidAuthCookie
-			| Self::SessionCookieNotFound
-			| Self::DeviceIdCookieNotFound => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::AuthCookieNotFound(_)
+			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
