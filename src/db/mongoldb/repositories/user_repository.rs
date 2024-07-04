@@ -28,6 +28,15 @@ impl UserRepository for MongolDB
         }
     }
 
+    async fn does_username_exist(&self, username: &str) -> Result<bool, ServerError>
+    {
+        match self.users().find_one(doc! { "username" : username }).await
+        {
+            Ok(option) => Ok(option.is_some()),
+            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+        }
+    }
+
     async fn create_user(&self, user: User) -> Result<User, ServerError>
     {
         let db_user: MongolUser = MongolUser::try_from(&user)
