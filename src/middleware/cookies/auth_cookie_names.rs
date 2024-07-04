@@ -6,7 +6,7 @@ use strum_macros::Display;
 pub enum AuthCookieNames
 {
     AUTH_TOKEN,
-    SESSION_TOKEN,
+    AUTH_REFRESH,
     DEVICE_ID,
 }
 
@@ -16,8 +16,8 @@ impl AuthCookieNames
     {
         match self 
         {
-            AuthCookieNames::AUTH_TOKEN => "AUTH_TOKEN",
-            AuthCookieNames::SESSION_TOKEN => "SESSION_TOKEN",
+            AuthCookieNames::AUTH_TOKEN => "ACCES_TOKEN",
+            AuthCookieNames::AUTH_REFRESH => "SESSION_TOKEN",
             AuthCookieNames::DEVICE_ID => "DEVICE_ID",
         }
     }
