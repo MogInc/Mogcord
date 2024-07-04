@@ -38,9 +38,21 @@ async fn login(
         Ok(token) => 
         {
             //TODO: add that to DB
-            let cookie_auth = cookies::create_cookie(AuthCookieNames::AUTH_TOKEN.into(), token, cookies::COOKIE_ACCES_TOKEN_TTL_MIN);
-            let cookie_refresh = cookies::create_cookie(AuthCookieNames::AUTH_REFRESH.into(), refresh_token_creator::create_refresh_token(), cookies::COOKIE_REFRESH_TOKEN_TTL_MIN);
-            let cookie_device_id = cookies::create_cookie(AuthCookieNames::DEVICE_ID.into(), Uuid::now_v7().to_string(), cookies::COOKIE_DEVICE_ID_TTL_MIN);
+            let cookie_auth = cookies::create_cookie(
+                AuthCookieNames::AUTH_TOKEN.into(), 
+                token, 
+                cookies::COOKIE_ACCES_TOKEN_TTL_MIN
+            );
+            let cookie_refresh = cookies::create_cookie(
+                AuthCookieNames::AUTH_REFRESH.into(), 
+                refresh_token_creator::create_refresh_token(), 
+                cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
+            );
+            let cookie_device_id = cookies::create_cookie(
+                AuthCookieNames::DEVICE_ID.into(), 
+                Uuid::now_v7().to_string(), 
+                cookies::COOKIE_DEVICE_ID_TTL_MIN
+            );
             
             cookies.add(cookie_auth);
             cookies.add(cookie_refresh);
