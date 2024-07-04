@@ -8,7 +8,7 @@ use super::MongolError;
 pub struct MongolUser
 {
     pub _id: Uuid,
-    pub name: String,
+    pub username: String,
     pub mail: String,
 }
 
@@ -24,7 +24,7 @@ impl TryFrom<&User> for MongolUser
             Self
             {
                 _id: user_id,
-                name: value.name.clone(),
+                username: value.username.clone(),
                 mail: value.mail.clone(),
             }
         )
@@ -54,6 +54,6 @@ impl From<&MongolUser> for User
 {
     fn from(value: &MongolUser) -> Self 
     {
-        User::convert(value._id.to_string(), value.name.clone(), value.mail.clone())
+        User::convert(value._id.to_string(), value.username.clone(), value.mail.clone())
     }
 }

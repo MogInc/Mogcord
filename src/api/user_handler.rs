@@ -1,17 +1,26 @@
 use std::sync::Arc;
-use axum::{extract::{Path, Query, State}, response::IntoResponse, routing::{get, post, Router}, Json};
+use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
 use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Pagination, ServerError}};
 use crate::model::user::User;
+use crate::middleware as mw;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
-    Router::new()
+    let routes_with_middleware = Router::new()
         .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw::mw_require_auth));
+
+    let routes_without_middleware = Router::new()
         .route("/user", post(create_user))
-        .with_state(state)
+        .with_state(state);
+
+    return Router::new()
+        .merge(routes_with_middleware)
+        .merge(routes_without_middleware);
 }
 
 async fn get_user(
@@ -54,8 +63,8 @@ async fn get_users(
 #[derive(Deserialize)]
 struct CreateUserRequest
 {
-    user_name: String,
-    user_mail: String,
+    username: String,
+    mail: String,
 }
 
 async fn create_user(
@@ -65,7 +74,7 @@ async fn create_user(
 {
     let repo_user = &state.repo_user;
 
-    let user = User::new(payload.user_name, payload.user_mail);
+    let user = User::new(payload.username, payload.mail);
 
     if repo_user.does_user_exist_by_mail(&user.mail).await?
     {

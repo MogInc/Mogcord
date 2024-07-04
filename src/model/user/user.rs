@@ -1,4 +1,3 @@
-
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
@@ -8,28 +7,28 @@ use uuid::Uuid;
 pub struct User
 {
     pub id: String,
-    pub name: String,
+    pub username: String,
     pub mail: String,
 }
 
 impl User
 {
-    pub fn convert(id: String, name: String, mail: String) -> Self
+    pub fn convert(id: String, username: String, mail: String) -> Self
     {
         User
         {
             id,
-            name,
+            username,
             mail
         }
     }
 
-    pub fn new(name: String, mail: String) -> Self
+    pub fn new(username: String, mail: String) -> Self
     {
         User
         {
             id: Uuid::now_v7().to_string(),
-            name,
+            username,
             mail
         }
     }
@@ -46,26 +45,26 @@ mod tests
     fn test_convert_user_is_valid() 
     {
         let id: String = String::from("12345678");
-        let name: String = String::from("Gwilom");
+        let username: String = String::from("Gwilom");
         let mail: String = String::from("ElGoblino@example.com");
 
-        let user: User = User::convert(id.clone(), name.clone(), mail.clone());
+        let user: User = User::convert(id.clone(), username.clone(), mail.clone());
 
         assert_eq!(id, user.id);
-        assert_eq!(name, user.name);
+        assert_eq!(username, user.username);
         assert_eq!(mail, user.mail);
     }
 
     #[test]
     fn test_new_user_is_valid() 
     {
-        let name: String = String::from("Gwilom");
+        let username: String = String::from("Gwilom");
         let mail: String = String::from("ElGoblino@example.com");
 
-        let user: User = User::new(name.clone(), mail.clone());
+        let user: User = User::new(username.clone(), mail.clone());
 
         assert!(Uuid::parse_str(&user.id).is_ok());
-        assert_eq!(name, user.name);
+        assert_eq!(username, user.username);
         assert_eq!(mail, user.mail);
     }
 }
