@@ -3,8 +3,9 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
+use uuid::Uuid;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, Ctx}, model::misc::AppState};
+use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, refresh_token_creator, Ctx}, model::misc::AppState};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -32,15 +33,22 @@ async fn login(
         .get_user_by_mail(&payload.mail)
         .await?;
 
-    let auth_cookie_name: &str = AuthCookieNames::AUTH_TOKEN.into();
+    let acces_token_name: &str = AuthCookieNames::AUTH_TOKEN.into();
+    let refresh_token_name: &str = AuthCookieNames::AUTH_REFRESH.into();
+    let device_id_name: &str = AuthCookieNames::DEVICE_ID.into();
 
     match jwt::create_token(&user)
     {
         Ok(token) => 
         {
-            let cookie_auth = cookies::create_cookie(auth_cookie_name.to_string(), token, cookies::JWT_COOKIE_TTL_MINS);
-
+            //TODO: add that to DB
+            let cookie_auth = cookies::create_cookie(acces_token_name.to_string(), token, cookies::COOKIE_ACCES_TOKEN_TTL_MIN);
+            let cookie_refresh = cookies::create_cookie(refresh_token_name.to_string(), refresh_token_creator::create_refresh_token(), cookies::COOKIE_REFRESH_TOKEN_TTL_MIN);
+            let cookie_device_id = cookies::create_cookie(device_id_name.to_string(), Uuid::now_v7().to_string(), cookies::COOKIE_DEVICE_ID_TTL_MIN);
+            
             cookies.add(cookie_auth);
+            cookies.add(cookie_refresh);
+            cookies.add(cookie_device_id);
 
             return Ok(());
         },
@@ -48,7 +56,7 @@ async fn login(
     }
 }
 
-async fn refresh_token(cookies: Cookies, ctx: Ctx)
+async fn refresh_token(cookies: Cookies)
 {
     
 }
