@@ -7,9 +7,9 @@ use crate::{dto::ChatDTO, model::{chat::{Chat, ChatType}, misc::{AppState, Serve
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/chat", post(create_chat))
-    .route("/chat/:chat_id", get(get_chat))
-    .with_state(state)
+        .route("/chat", post(create_chat))
+        .route("/chat/:chat_id", get(get_chat))
+        .with_state(state)
 }
 
 async fn get_chat(

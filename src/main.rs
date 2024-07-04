@@ -30,11 +30,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     });
 
     let api_routes = Router::new()
-    .merge(routes_chat(state.clone()))
-    .merge(routes_message(state.clone()))
-    .merge(routes_user(state.clone()))
-    .route_layer(middleware::from_fn(mw::mw_require_auth))
-    .merge(routes_auth(state.clone()));
+        .merge(routes_chat(state.clone()))
+        .merge(routes_message(state.clone()))
+        .merge(routes_user(state.clone()))
+        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .merge(routes_auth(state.clone()));
 
 
     let app: Router = Router::new()

@@ -7,10 +7,10 @@ use crate::{dto::MessageDTO, model::{chat::Chat, message::Message, misc::{AppSta
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/chat/:chat_id/messages", get(get_messages))
-    .route("/chat/:chat_id/message", post(create_message))
-    .route("/chat/:chat_id/message/:message_id", patch(update_message))
-    .with_state(state)
+        .route("/chat/:chat_id/messages", get(get_messages))
+        .route("/chat/:chat_id/message", post(create_message))
+        .route("/chat/:chat_id/message/:message_id", patch(update_message))
+        .with_state(state)
 }
 
 async fn get_messages(

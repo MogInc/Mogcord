@@ -8,10 +8,10 @@ use crate::model::user::User;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     Router::new()
-    .route("/user", post(create_user))
-    .route("/user/:user_id", get(get_user))
-    .route("/users", get(get_users))
-    .with_state(state)
+        .route("/user/:user_id", get(get_user))
+        .route("/users", get(get_users))
+        .route("/user", post(create_user))
+        .with_state(state)
 }
 
 async fn get_user(
