@@ -9,10 +9,10 @@ use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, refresh_token_cr
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
-    Router::new()
+    return Router::new()
         .route("/auth/login", post(login))
         .route("/auth/refresh", get(refresh_token))
-        .with_state(state)
+        .with_state(state);
 }
 
 #[derive(Deserialize)]
