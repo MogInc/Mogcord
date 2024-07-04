@@ -1144,6 +1144,7 @@ dependencies = [
  "argon2",
  "assert_matches",
  "axum",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "derive_more",
