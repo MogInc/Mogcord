@@ -5,7 +5,7 @@ use serde::Deserialize;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, Ctx, RefreshTokenCreater}, model::misc::AppState};
+use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, RefreshTokenCreater}, model::misc::AppState};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
