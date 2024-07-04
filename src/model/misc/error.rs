@@ -15,6 +15,7 @@ pub enum ServerError
 	//user
     UserNotFound,
     MailAlreadyInUse,
+    UsernameAlreadyInUse,
 
 	//chat
 	ChatNotFound,
@@ -84,6 +85,7 @@ impl ServerError
 		match self 
         {
             Self::MailAlreadyInUse 
+            | Self::UsernameAlreadyInUse 
 			| Self::OwnerCountInvalid
             | Self::UserNotFound
 			| Self::ChatNotFound

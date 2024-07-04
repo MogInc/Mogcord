@@ -76,6 +76,11 @@ async fn create_user(
 
     let user = User::new(payload.username, payload.mail);
 
+    if repo_user.does_username_exist(&user.username).await?
+    {
+        return Err(ServerError::UsernameAlreadyInUse);
+    }
+
     if repo_user.does_user_exist_by_mail(&user.mail).await?
     {
         return Err(ServerError::MailAlreadyInUse);
