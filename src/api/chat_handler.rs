@@ -1,15 +1,17 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
+use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
 use crate::{dto::ChatDTO, model::{chat::{Chat, ChatType}, misc::{AppState, ServerError}}};
+use crate::middleware as mw;
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
-    Router::new()
+    return Router::new()
         .route("/chat", post(create_chat))
         .route("/chat/:chat_id", get(get_chat))
         .with_state(state)
+        .route_layer(middleware::from_fn(mw::mw_require_auth));
 }
 
 async fn get_chat(
