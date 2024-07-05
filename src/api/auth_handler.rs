@@ -29,6 +29,7 @@ async fn login(
 ) -> impl IntoResponse
 {
     let repo_user = &state.repo_user;
+    let repo_refresh = &state.repo;
 
     let user = repo_user
         .get_user_by_mail(&payload.mail)
@@ -39,6 +40,8 @@ async fn login(
     //either 
     //if user has a device id, token up if exists and use that.
     //say frog it and keep genning new ones
+
+
 
     match jwt::create_token(&user)
     {
