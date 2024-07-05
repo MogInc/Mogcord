@@ -5,7 +5,7 @@ use serde::Deserialize;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt}, model::{misc::AppState, token::RefreshToken}};
+use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt}, model::{misc::{AppState, Hashing}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -19,6 +19,7 @@ pub fn routes_auth(state: Arc<AppState>) -> Router
 struct LoginRequest
 {
     mail: String,
+    password: String,
 }
 
 async fn login(
@@ -32,6 +33,8 @@ async fn login(
     let user = repo_user
         .get_user_by_mail(&payload.mail)
         .await?;
+
+    let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
     match jwt::create_token(&user)
     {

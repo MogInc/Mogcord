@@ -53,6 +53,8 @@ pub enum ServerError
 	//hashing
 	HashingPasswordFailed,
 	VerifyingPasswordFailed,
+	HashingPasswordFailedBlocking,
+	VerifyingPasswordFailedBlocking,
 
 	//fallback
 	NotImplemented,
@@ -109,8 +111,10 @@ impl ServerError
 
 			Self::FailedCreatingToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
 			
-			Self::HashingPasswordFailed => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
-			Self::VerifyingPasswordFailed => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+			Self::HashingPasswordFailed
+			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			Self::VerifyingPasswordFailed
+			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)

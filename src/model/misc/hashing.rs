@@ -28,7 +28,7 @@ impl Hashing
                 .map_err(|_| ServerError::HashingPasswordFailed)
                 .map(|hash| hash.to_string());
             
-        }).await.map_err(|_| ServerError::HashingPasswordFailed)??;
+        }).await.map_err(|_| ServerError::HashingPasswordFailedBlocking)??;
 
         return Ok(text_hashed);
     }
@@ -47,7 +47,7 @@ impl Hashing
 
             argon2.verify_password(clear_text.as_bytes(), &parsed_hash)
                   .map_err(|_| ServerError::VerifyingPasswordFailed)
-        }).await.map_err(|_| ServerError::VerifyingPasswordFailed)??;
+        }).await.map_err(|_| ServerError::VerifyingPasswordFailedBlocking)??;
 
         Ok(())
     }
