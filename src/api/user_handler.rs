@@ -65,6 +65,7 @@ struct CreateUserRequest
 {
     username: String,
     mail: String,
+    password: String,
 }
 
 async fn create_user(

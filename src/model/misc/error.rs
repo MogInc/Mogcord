@@ -50,6 +50,10 @@ pub enum ServerError
 	JWTTokenInvalid,
 	JWTTokenExpired,
 
+	//hashing
+	HashingPasswordFailed,
+	VerifyingPasswordFailed,
+
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
