@@ -36,6 +36,10 @@ async fn login(
 
     let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
+    //either 
+    //if user has a device id, token up if exists and use that.
+    //say frog it and keep genning new ones
+
     match jwt::create_token(&user)
     {
         Ok(token) => 
