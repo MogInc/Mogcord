@@ -1,11 +1,33 @@
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::{alphabet, engine::{general_purpose, GeneralPurpose}, Engine};
 
-pub struct RefreshTokenCreater;
-
-impl RefreshTokenCreater
+pub struct RefreshToken
 {
-    pub fn create_refresh_token() -> String
+    value: String,
+}
+
+impl RefreshToken
+{
+    pub fn new(token: String) -> Self
+    {
+        Self
+        {
+            value: token,
+        }
+    }
+}
+
+impl RefreshToken
+{
+    pub fn value(&self) -> String
+    {
+        return self.value.to_string();
+    }
+}
+
+impl RefreshToken
+{
+    pub fn create_token() -> Self
     {
         let mut random_number = [0u8; 64];
             
@@ -16,6 +38,9 @@ impl RefreshTokenCreater
 
         let refresh_token = CUSTOM_ENGINE.encode(&random_number);
         
-        return refresh_token;
+        return Self
+        {
+            value: refresh_token,
+        };
     }
 }

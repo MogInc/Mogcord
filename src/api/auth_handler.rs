@@ -1,11 +1,11 @@
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 
 use axum::{extract::State, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt, RefreshTokenCreater}, model::misc::{AppState, Hashing, ServerError}};
+use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt}, model::{misc::AppState, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -45,7 +45,7 @@ async fn login(
             );
             let cookie_refresh = cookies::create_cookie(
                 AuthCookieNames::AUTH_REFRESH.into(), 
-                RefreshTokenCreater::create_refresh_token(), 
+                RefreshToken::create_token().value(), 
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
             let cookie_device_id = cookies::create_cookie(
@@ -66,5 +66,5 @@ async fn login(
 
 async fn refresh_token(cookies: Cookies)
 {
-    
+
 }
