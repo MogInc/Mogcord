@@ -1,5 +1,5 @@
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
-use tower_cookies::{Cookie, Cookies};
+use tower_cookies::Cookies;
 
 use crate::{middleware::cookies::{AuthCookieNames, CookieManager}, model::misc::ServerError};
 
