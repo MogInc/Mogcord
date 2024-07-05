@@ -7,6 +7,6 @@ impl RefreshTokenRepository for MongolDB
 {
     async fn get_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
-        
+        Err(ServerError::ChatAlreadyExists)
     }
 }
