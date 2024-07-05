@@ -109,6 +109,9 @@ impl ServerError
 
 			Self::FailedCreatingToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
 			
+			Self::HashingPasswordFailed => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			Self::VerifyingPasswordFailed => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
 			| Self::FailedUpdate(_)
