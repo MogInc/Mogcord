@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Pagination, ServerError}};
+use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Hashing, Pagination, ServerError}};
 use crate::model::user::User;
 use crate::middleware as mw;
 
@@ -75,7 +75,9 @@ async fn create_user(
 {
     let repo_user = &state.repo_user;
 
-    let user = User::new(payload.username, payload.mail);
+    let hashed_password = Hashing::hash_text(&payload.password).await?;
+
+    let user = User::new(payload.username, payload.mail, hashed_password);
 
     if repo_user.does_username_exist(&user.username).await?
     {

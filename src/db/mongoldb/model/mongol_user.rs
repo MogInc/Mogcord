@@ -10,6 +10,7 @@ pub struct MongolUser
     pub _id: Uuid,
     pub username: String,
     pub mail: String,
+    pub hashed_password: String,
 }
 
 impl TryFrom<&User> for MongolUser
@@ -26,6 +27,7 @@ impl TryFrom<&User> for MongolUser
                 _id: user_id,
                 username: value.username.clone(),
                 mail: value.mail.clone(),
+                hashed_password: value.hashed_password.clone(),
             }
         )
     }
@@ -54,6 +56,11 @@ impl From<&MongolUser> for User
 {
     fn from(value: &MongolUser) -> Self 
     {
-        User::convert(value._id.to_string(), value.username.clone(), value.mail.clone())
+        return User::convert(
+            value._id.to_string(),
+            value.username.clone(), 
+            value.mail.clone(),
+            value.hashed_password.clone()
+        );
     }
 }
