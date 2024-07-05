@@ -52,7 +52,7 @@ async fn login(
             );
             let cookie_refresh = CookieManager::create_cookie(
                 AuthCookieNames::AUTH_REFRESH.into(), 
-                RefreshToken::create_token().value(), 
+                RefreshToken::create_token().value, 
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
             let cookie_device_id = CookieManager::create_cookie(
