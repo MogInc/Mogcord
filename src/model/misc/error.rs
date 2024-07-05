@@ -32,6 +32,9 @@ pub enum ServerError
 	ChatNotPartThisMessage,
 	UserNotPartThisMessage,
 
+	//refresh token
+	RefreshTokenNotFound,
+
 	//db
 	FailedRead(String),
 	FailedInsert(String),
