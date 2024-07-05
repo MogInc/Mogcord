@@ -1,27 +1,22 @@
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::{alphabet, engine::{general_purpose, GeneralPurpose}, Engine};
+use uuid::Uuid;
 
 pub struct RefreshToken
 {
-    value: String,
+    pub value: String,
+    pub device_id: String,
 }
 
 impl RefreshToken
 {
-    pub fn new(token: String) -> Self
+    pub fn new(token: String, device_id: String) -> Self
     {
         Self
         {
             value: token,
+            device_id: device_id,
         }
-    }
-}
-
-impl RefreshToken
-{
-    pub fn value(&self) -> String
-    {
-        return self.value.to_string();
     }
 }
 
@@ -41,6 +36,7 @@ impl RefreshToken
         return Self
         {
             value: refresh_token,
+            device_id: Uuid::now_v7().to_string(),
         };
     }
 }
