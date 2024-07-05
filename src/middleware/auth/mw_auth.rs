@@ -1,7 +1,7 @@
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::{Cookie, Cookies};
 
-use crate::{middleware::cookies::AuthCookieNames, model::misc::ServerError};
+use crate::{middleware::cookies::{AuthCookieNames, CookieManager}, model::misc::ServerError};
 
 use super::{jwt, Ctx};
 
@@ -29,9 +29,7 @@ pub async fn mw_ctx_resolver(
 
     let auth_cookie_name = AuthCookieNames::AUTH_TOKEN.into();
 
-	let auth_token = cookies
-        .get(auth_cookie_name)
-        .map(|c| c.value().to_string());
+	let auth_token = CookieManager::get_cookie(&cookies, auth_cookie_name);
 
 
 	let result_ctx = match auth_token
@@ -45,7 +43,7 @@ pub async fn mw_ctx_resolver(
 
 	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_TOKEN)))
 	{
-		cookies.remove(Cookie::from(auth_cookie_name))
+		CookieManager::remove_cookie(&cookies, auth_cookie_name);
 	}
 
 	req

@@ -5,7 +5,7 @@ use serde::Deserialize;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames}, jwt}, model::{misc::{AppState, Hashing}, token::RefreshToken}};
+use crate::{middleware::{cookies::{self, AuthCookieNames, CookieManager}, jwt}, model::{misc::{AppState, Hashing}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -41,17 +41,17 @@ async fn login(
         Ok(token) => 
         {
             //TODO: add that to DB
-            let cookie_auth = cookies::create_cookie(
+            let cookie_auth = CookieManager::create_cookie(
                 AuthCookieNames::AUTH_TOKEN.into(), 
                 token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
-            let cookie_refresh = cookies::create_cookie(
+            let cookie_refresh = CookieManager::create_cookie(
                 AuthCookieNames::AUTH_REFRESH.into(), 
                 RefreshToken::create_token().value(), 
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
-            let cookie_device_id = cookies::create_cookie(
+            let cookie_device_id = CookieManager::create_cookie(
                 AuthCookieNames::DEVICE_ID.into(), 
                 Uuid::now_v7().to_string(), 
                 cookies::COOKIE_DEVICE_ID_TTL_MIN
