@@ -76,10 +76,7 @@ async fn login(
         CookieManager::set_cookie(&jar, cookie_device_id);
     }
 
-    let create_token_request = CreateTokenRequest
-    {
-        user_id: user.id
-    };
+    let create_token_request = CreateTokenRequest::new(user.id, user.user_flag);
     
     match jwt::create_token(&create_token_request)
     {
@@ -134,10 +131,7 @@ async fn refresh_token(
         return Err(ServerError::RefreshTokenDoesNotMatchDeviceId);
     }
 
-    let create_token_request = CreateTokenRequest
-    {
-        user_id: claims.sub()
-    };
+    let create_token_request = CreateTokenRequest::new(claims.sub, claims.user_flag);
 
     match jwt::create_token(&create_token_request)
     {
