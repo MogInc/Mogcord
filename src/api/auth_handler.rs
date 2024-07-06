@@ -38,7 +38,7 @@ async fn login(
     let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
     //either 
-    //1: if user has a device id, token up if exists and use that.
+    //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
     let refresh_token_option = CookieManager::get_cookie(&cookies,AuthCookieNames::AUTH_REFRESH.into());
