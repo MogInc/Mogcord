@@ -62,9 +62,11 @@ async fn get_users(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    if ctx.user_flag() != UserFlag::Admin
+
+    match ctx.user_flag()
     {
-        return Err(ServerError::IncorrectPermissions);
+        UserFlag::Admin | UserFlag::Owner => (),
+        _ => return Err(ServerError::IncorrectPermissions),
     }
 
     let repo_user = &state.repo_user;
