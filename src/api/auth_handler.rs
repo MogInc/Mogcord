@@ -41,14 +41,13 @@ async fn login(
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
-    let refresh_token_option = CookieManager::get_cookie(&cookies,AuthCookieNames::AUTH_REFRESH.into());
     let device_id_option = CookieManager::get_cookie(&cookies,AuthCookieNames::DEVICE_ID.into());
 
     let mut refresh_token: RefreshToken = RefreshToken::create_token();
     let mut create_new_token = true;
 
 
-    if let (Some(device_id_cookie), Some(_refresh_token_cookie)) = (device_id_option, refresh_token_option)
+    if let Some(device_id_cookie) = device_id_option
     {
         match repo_refresh.get_token_by_device_id(&device_id_cookie).await
         {
@@ -63,15 +62,9 @@ async fn login(
 
     if create_new_token
     {
-        let refresh_token = repo_refresh
+        refresh_token = repo_refresh
             .create_token(refresh_token, &user)
             .await?;
-
-        let cookie_refresh = CookieManager::create_cookie(
-            AuthCookieNames::AUTH_REFRESH.into(), 
-            refresh_token.value, 
-            cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
-        );
 
         let cookie_device_id = CookieManager::create_cookie(
             AuthCookieNames::DEVICE_ID.into(), 
@@ -79,10 +72,9 @@ async fn login(
             cookies::COOKIE_DEVICE_ID_TTL_MIN
         );
 
-        cookies.add(cookie_refresh);
         cookies.add(cookie_device_id);
     }
-
+    
     match jwt::create_token(&user)
     {
         Ok(token) => 
@@ -92,8 +84,15 @@ async fn login(
                 token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
-
+            
+            let cookie_refresh = CookieManager::create_cookie(
+                AuthCookieNames::AUTH_REFRESH.into(), 
+                refresh_token.value,
+                cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
+            );
+            
             cookies.add(cookie_auth);
+            cookies.add(cookie_refresh);
 
             return Ok(());
         },
