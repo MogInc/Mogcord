@@ -63,10 +63,9 @@ async fn get_users(
 ) -> impl IntoResponse
 {
 
-    match ctx.user_flag()
+    if !ctx.user_flag().is_admin_or_owner()
     {
-        UserFlag::Admin | UserFlag::Owner => (),
-        _ => return Err(ServerError::IncorrectPermissions),
+        return Err(ServerError::IncorrectPermissions);
     }
 
     let repo_user = &state.repo_user;

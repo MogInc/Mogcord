@@ -15,6 +15,27 @@ pub enum UserFlag
     Owner,
 }
 
+impl UserFlag
+{
+    pub fn is_admin_or_owner(&self) -> bool
+    {
+        match &self
+        {
+            Self::Admin | Self::Owner => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_yeeted(&self) -> bool
+    {
+        match &self
+        {
+            Self::None | Self::Admin | Self::Owner => false,
+            _ => true,
+        }
+    }
+}
+
 impl fmt::Display for UserFlag 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
