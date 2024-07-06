@@ -92,12 +92,12 @@ async fn update_message(
     
     if !message.is_chat_part_of_message(&chat_id)
     {
-        return Err(ServerError::ChatNotPartThisMessage);
+        return Err(ServerError::MessageDoesNotContainThisChat);
     }
 
     if !message.is_user_allowed_to_edit_message(&payload.owner_id)
     {
-        return Err(ServerError::UserNotPartThisMessage);
+        return Err(ServerError::MessageDoesNotContainThisUser);
     }
 
     message.update_value(payload.value);

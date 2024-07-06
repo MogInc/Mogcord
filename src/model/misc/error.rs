@@ -29,8 +29,8 @@ pub enum ServerError
 
 	//message
 	MessageNotFound,
-	ChatNotPartThisMessage,
-	UserNotPartThisMessage,
+	MessageDoesNotContainThisChat,
+	MessageDoesNotContainThisUser,
 
 	//refresh token
 	RefreshTokenNotFound,
@@ -101,8 +101,8 @@ impl ServerError
 			| Self::ChatNotFound
 			| Self::MessageNotFound
 			| Self::ChatAlreadyExists
-			| Self::ChatNotPartThisMessage
-			| Self::UserNotPartThisMessage
+			| Self::MessageDoesNotContainThisChat
+			| Self::MessageDoesNotContainThisUser
 			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
