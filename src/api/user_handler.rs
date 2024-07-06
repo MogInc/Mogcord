@@ -9,7 +9,8 @@ use crate::middleware as mw;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     let routes_with_middleware = Router::new()
-        .route("/user", get(get_user))
+        .route("/user", get(get_current_user))
+        .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(mw::mw_require_auth))
@@ -24,7 +25,23 @@ pub fn routes_user(state: Arc<AppState>) -> Router
         .merge(routes_without_middleware);
 }
 
+
 async fn get_user(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+    Path(user_id): Path<String>
+) -> impl IntoResponse
+{
+    let repo_user = &state.repo_user;
+
+    match repo_user.get_user_by_id(&user_id).await 
+    {
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Err(e) => Err(e),
+    }
+}
+
+async fn get_current_user(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse
@@ -39,7 +56,6 @@ async fn get_user(
         Err(e) => Err(e),
     }
 }
-
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
