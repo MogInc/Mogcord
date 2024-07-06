@@ -43,7 +43,7 @@ async fn login(
 
     let device_id_option = CookieManager::get_cookie(&cookies,AuthCookieNames::DEVICE_ID.into());
 
-    let mut refresh_token: RefreshToken;
+    let refresh_token: RefreshToken;
 
     if let Some(device_id) = device_id_option
     {
