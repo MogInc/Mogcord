@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::MessageDTO, model::{chat::Chat, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
+use crate::{dto::MessageDTO, model::{message::Message, misc::{AppState, Pagination, ServerError}}};
 use crate::middleware as mw;
 
 pub fn routes_message(state: Arc<AppState>) -> Router
