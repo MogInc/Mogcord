@@ -27,6 +27,13 @@ impl Claims
     }
 }
 
+#[derive(PartialEq)]
+pub enum TokenStatus
+{
+    AllowExpired,
+    DisallowExpired,
+}
+
 pub fn create_token(user: &User) -> Result<String, ServerError>
 {
     let claims = Claims
@@ -48,12 +55,19 @@ pub fn create_token(user: &User) -> Result<String, ServerError>
     Ok(token)
 }
 
-pub fn extract_token(token: &str) -> Result<Claims, ServerError>
+pub fn extract_token(token: &str, token_status: TokenStatus) -> Result<Claims, ServerError>
 {
     let jwt_key = env::var("JWT_KEY")
         .map_err(|_| ServerError::JWTKeyNotSet)?;
 
-    match decode::<Claims>(token,&DecodingKey::from_secret(jwt_key.as_ref()), &Validation::default())
+    let mut validation = Validation::default();
+    
+    if token_status == TokenStatus::AllowExpired
+    {
+        validation.validate_exp = false;
+    }
+
+    match decode::<Claims>(token,&DecodingKey::from_secret(jwt_key.as_ref()), &validation)
     {
         Ok(token_data) => Ok(token_data.claims),
         Err(err) => {

@@ -3,7 +3,7 @@ use tower_cookies::Cookies;
 
 use crate::{middleware::cookies::{AuthCookieNames, CookieManager}, model::misc::ServerError};
 
-use super::{jwt, Ctx};
+use super::{jwt::{self, TokenStatus}, Ctx};
 
 
 pub async fn mw_require_auth(
@@ -70,7 +70,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 
 fn parse_token(token: &str) -> Result<String, ServerError>
 {
-	let claims = jwt::extract_token(token)?;
+	let claims = jwt::extract_token(token, TokenStatus::DisallowExpired)?;
 
     return Ok(claims.sub());
 }
