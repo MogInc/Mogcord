@@ -1,13 +1,15 @@
 use axum::{http::{Method, Uri}, response::{IntoResponse, Response}, Json};
 use serde_json::json;
+use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::Ctx, model::misc::{log_request, ServerError}};
+use crate::{middleware::{cookies::{AuthCookieNames, CookieManager}, Ctx}, model::misc::{log_request, RequestLogLinePersonal, ServerError}};
 
 pub async fn main_response_mapper(
 	uri: Uri,
 	ctx: Option<Ctx>,
 	req_method: Method,
+	jar: Cookies,
 	res: Response,
 ) -> Response 
 {
@@ -34,7 +36,13 @@ pub async fn main_response_mapper(
 			});
     
     let client_error = client_status_error.unzip().1;
-    log_request(req_id, ctx, req_method, uri, service_error, client_error).await;
+
+	let device_id = CookieManager::get_cookie(&jar, AuthCookieNames::DEVICE_ID.into());
+
+	let user_info = RequestLogLinePersonal::new(
+		ctx.map(|x| x.user_id()), device_id);
+
+    log_request(req_id, user_info, req_method, uri, service_error, client_error).await;
 
 	println!();
 	error_response.unwrap_or(res)

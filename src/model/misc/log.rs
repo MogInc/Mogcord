@@ -4,13 +4,11 @@ use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use crate::middleware::Ctx;
-
 use super::error::{ClientError, ServerError};
 
 pub async fn log_request(
 	req_id: Uuid,
-	ctx: Option<Ctx>,
+	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&ServerError>,
@@ -29,7 +27,7 @@ pub async fn log_request(
 		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
-		user_id: ctx.map(|x| x.user_id()),
+		user_info: user_info,
 
 		req_path: uri.to_string(),
 		req_method: req_method.to_string(),
@@ -44,6 +42,26 @@ pub async fn log_request(
     //TODO add saving to db or file
 }
 
+#[derive(Serialize)]
+pub struct RequestLogLinePersonal
+{
+	user_id: Option<String>,
+	device_id: Option<String>,
+}
+
+impl RequestLogLinePersonal
+{
+	pub fn new(user_id: Option<String>, device_id: Option<String>) -> Self
+	{
+		Self
+		{
+			user_id: user_id,
+			device_id: device_id,
+		}
+	}
+}
+
+
 #[skip_serializing_none]
 #[derive(Serialize)]
 struct RequestLogLine 
@@ -51,8 +69,8 @@ struct RequestLogLine
 	req_id: String,      
 	timestamp: String,
 	
-	//requesting user
-	user_id: Option<String>,
+	//requesting user info
+	user_info: RequestLogLinePersonal,
 
 	// -- http request attributes.
 	req_path: String,

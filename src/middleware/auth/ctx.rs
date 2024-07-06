@@ -1,6 +1,6 @@
 
 #[derive(Clone, Debug)]
-pub struct Ctx 
+pub struct Ctx
 {
 	user_id: String,
 }
