@@ -8,7 +8,7 @@ use super::MongolError;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRefreshToken
 {
-    pub token_value: String,
+    pub value: String,
     pub device_id: Uuid,
     pub owner_id: Uuid,
 }
@@ -24,7 +24,7 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
         Ok(
             Self
             {
-                token_value: value.value.clone(),
+                value: value.value.clone(),
                 device_id: device_id,
                 owner_id: owner_id,
             }

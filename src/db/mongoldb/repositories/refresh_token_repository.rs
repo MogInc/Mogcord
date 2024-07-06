@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document};
 use futures_util::StreamExt;
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, map_mongo_collection_keys, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
@@ -58,7 +58,7 @@ impl RefreshTokenRepository for MongolDB
                 "$addFields":
                 {
                     "device_id": convert_mongo_key_to_string!("$device_id", "uuid"),
-                    "owner": map_mongo_collection_keys!("$owner", "id", "uuid"),
+                    "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
                 }
             },
             //hide fields
@@ -90,7 +90,7 @@ impl RefreshTokenRepository for MongolDB
 
                 return Ok(refresh_token);
             },
-            None => Err(ServerError::ChatNotFound), 
+            None => Err(ServerError::RefreshTokenNotFound), 
         }
     }
 }
