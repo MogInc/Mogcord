@@ -26,14 +26,16 @@ pub async fn mw_ctx_resolver(
     next: Next
 ) -> Result<Response, ServerError> 
 {
+	println!("IM HERE FOR SOME REASON");
 
-    let auth_cookie_name = AuthCookieNames::AUTH_TOKEN.into();
+
+    let auth_cookie_name = AuthCookieNames::AUTH_ACCES.into();
 
 	let auth_token = CookieManager::get_cookie(&cookies, auth_cookie_name);
 
 
 	let result_ctx = match auth_token
-        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_TOKEN))
+        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))
 		.and_then(|val| parse_token(val.as_str()))
 	{
 		Ok(user_id) => Ok(Ctx::new(user_id)),
@@ -41,7 +43,7 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_TOKEN)))
+	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES)))
 	{
 		CookieManager::remove_cookie(&cookies, auth_cookie_name);
 	}

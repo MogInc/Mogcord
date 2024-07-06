@@ -5,7 +5,7 @@ use strum_macros::Display;
 #[allow(non_camel_case_types)]
 pub enum AuthCookieNames
 {
-    AUTH_TOKEN,
+    AUTH_ACCES,
     AUTH_REFRESH,
     DEVICE_ID,
 }
@@ -16,7 +16,7 @@ impl AuthCookieNames
     {
         match self 
         {
-            AuthCookieNames::AUTH_TOKEN => "ACCES_TOKEN",
+            AuthCookieNames::AUTH_ACCES => "ACCES_TOKEN",
             AuthCookieNames::AUTH_REFRESH => "SESSION_TOKEN",
             AuthCookieNames::DEVICE_ID => "DEVICE_ID",
         }
