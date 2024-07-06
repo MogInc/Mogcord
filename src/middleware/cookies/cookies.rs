@@ -18,15 +18,20 @@ impl CookieManager
     return cookie;
     }
 
-    pub fn get_cookie(cookies: &Cookies, name: &str) -> Option<String>
+    pub fn get_cookie(jar: &Cookies, name: &str) -> Option<String>
     {
-        return cookies
+        return jar
             .get(name)
             .map(|c| c.value().to_string());
     }
 
-    pub fn remove_cookie(cookies: &Cookies, name: &'static str)
+    pub fn remove_cookie(jar: &Cookies, name: &'static str)
     {
-        cookies.remove(Cookie::from(name))
+        let cookie = Cookie::build(name).path("/").build();
+
+        jar.remove(cookie);
+
+        let test = Cookie::from(name);
+        println!("{:?}", test);
     }
 }
