@@ -8,6 +8,7 @@ use crate::model::user::User;
 #[derive(Deserialize)]
 pub struct RefreshToken
 {
+    //TODO: refresh token flag
     pub value: String,
     pub device_id: String,
     pub owner: User,
