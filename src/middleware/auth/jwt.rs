@@ -22,15 +22,15 @@ pub enum TokenStatus
     DisallowExpired,
 }
 
-pub struct CreateTokenRequest
+pub struct CreateTokenRequest<'a>
 {
-    user_id: String,
-    user_flag: UserFlag,
+    user_id: &'a String,
+    user_flag: &'a UserFlag,
 }
 
-impl CreateTokenRequest
+impl<'a> CreateTokenRequest<'a>
 {
-    pub fn new(user_id: String, user_flag: UserFlag) -> Self
+    pub fn new(user_id: &'a String, user_flag: &'a UserFlag) -> Self
     {
         Self
         {
