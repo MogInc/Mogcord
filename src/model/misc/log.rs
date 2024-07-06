@@ -4,10 +4,13 @@ use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
+use crate::middleware::Ctx;
+
 use super::error::{ClientError, ServerError};
 
 pub async fn log_request(
 	req_id: Uuid,
+	ctx: Option<Ctx>,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&ServerError>,
@@ -26,6 +29,8 @@ pub async fn log_request(
 		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
+		user_id: ctx.map(|x| x.user_id()),
+
 		req_path: uri.to_string(),
 		req_method: req_method.to_string(),
 
@@ -41,9 +46,13 @@ pub async fn log_request(
 
 #[skip_serializing_none]
 #[derive(Serialize)]
-struct RequestLogLine {
+struct RequestLogLine 
+{
 	req_id: String,      
 	timestamp: String,
+	
+	//requesting user
+	user_id: Option<String>,
 
 	// -- http request attributes.
 	req_path: String,

@@ -27,7 +27,7 @@ async fn get_messages(
     let repo_chat = &state.repo_chat;
 
     let pagination = Pagination::new(pagination);
-    let current_user_id = ctx.user_id();
+    let current_user_id = ctx.user_id_ref();
 
     let chat = repo_chat
         .get_chat_by_id(&chat_id)
@@ -61,7 +61,7 @@ async fn create_message(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let current_user_id = ctx.user_id();
+    let current_user_id = ctx.user_id_ref();
 
     let chat = repo_chat
         .get_chat_by_id(&chat_id)
@@ -99,7 +99,7 @@ async fn update_message(
 {
     let repo_message = &state.repo_message;
 
-    let current_user_id = ctx.user_id();
+    let current_user_id = ctx.user_id_ref();
     
     let mut message = repo_message
         .get_message(&message_id)

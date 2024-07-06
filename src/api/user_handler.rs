@@ -28,7 +28,6 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    ctx: Ctx,
     Path(user_id): Path<String>
 ) -> impl IntoResponse
 {
@@ -46,7 +45,7 @@ async fn get_current_user(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let current_user_id = ctx.user_id();
+    let current_user_id = ctx.user_id_ref();
 
     let repo_user = &state.repo_user;
 

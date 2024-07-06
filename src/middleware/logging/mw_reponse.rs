@@ -2,12 +2,13 @@ use axum::{http::{Method, Uri}, response::{IntoResponse, Response}, Json};
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::model::misc::{log_request, ServerError};
+use crate::{middleware::Ctx, model::misc::{log_request, ServerError}};
 
 pub async fn main_response_mapper(
 	uri: Uri,
+	ctx: Option<Ctx>,
 	req_method: Method,
-	res: Response
+	res: Response,
 ) -> Response 
 {
 	let req_id = Uuid::now_v7();
@@ -33,7 +34,7 @@ pub async fn main_response_mapper(
 			});
     
     let client_error = client_status_error.unzip().1;
-    log_request(req_id, req_method, uri, service_error, client_error).await;
+    log_request(req_id, ctx, req_method, uri, service_error, client_error).await;
 
 	println!();
 	error_response.unwrap_or(res)
