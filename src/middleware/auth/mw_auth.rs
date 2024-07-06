@@ -12,7 +12,7 @@ pub async fn mw_require_auth(
     next: Next
 ) -> Result<Response, ServerError>
 {
-    println!("AUTH MIDDLEWARE");
+    println!("AUTH MIDDLEWARE: ");
 
     ctx?;
 
@@ -26,8 +26,7 @@ pub async fn mw_ctx_resolver(
     next: Next
 ) -> Result<Response, ServerError> 
 {
-	println!("IM HERE FOR SOME REASON");
-
+	println!("MTX RESOLVER: ");
 
     let auth_cookie_name = AuthCookieNames::AUTH_ACCES.into();
 
@@ -43,7 +42,7 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES)))
+	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::JWTTokenExpired))
 	{
 		CookieManager::remove_cookie(&cookies, auth_cookie_name);
 	}
