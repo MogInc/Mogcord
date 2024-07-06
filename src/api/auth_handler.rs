@@ -43,46 +43,55 @@ async fn login(
 
     let device_id_option = CookieManager::get_cookie(&cookies,AuthCookieNames::DEVICE_ID.into());
 
-    let refresh_token: RefreshToken;
+    let mut refresh_token: RefreshToken = RefreshToken::create_token();
+    let mut create_new_token = false;
+
 
     if let Some(device_id) = device_id_option
     {
         match repo_refresh.get_token_by_device_id(&device_id).await
         {
             Ok(token) => refresh_token = token,
-            Err(_) => refresh_token = RefreshToken::create_token(),
+            Err(_) => create_new_token = true,
         }
     }
     else 
     {
-        refresh_token = RefreshToken::create_token();
+        create_new_token = true;
     }
 
+    if create_new_token
+    {
+        let refresh_token = repo_refresh
+            .create_token(refresh_token)
+            .await?;
+
+        let cookie_refresh = CookieManager::create_cookie(
+            AuthCookieNames::AUTH_REFRESH.into(), 
+            refresh_token.value, 
+            cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
+        );
+        let cookie_device_id = CookieManager::create_cookie(
+            AuthCookieNames::DEVICE_ID.into(), 
+            refresh_token.device_id, 
+            cookies::COOKIE_DEVICE_ID_TTL_MIN
+        );
+        
+        cookies.add(cookie_refresh);
+        cookies.add(cookie_device_id);
+    }
 
     match jwt::create_token(&user)
     {
         Ok(token) => 
         {
-            //TODO: add that to DB
             let cookie_auth = CookieManager::create_cookie(
                 AuthCookieNames::AUTH_TOKEN.into(), 
                 token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
-            let cookie_refresh = CookieManager::create_cookie(
-                AuthCookieNames::AUTH_REFRESH.into(), 
-                refresh_token.value, 
-                cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
-            );
-            let cookie_device_id = CookieManager::create_cookie(
-                AuthCookieNames::DEVICE_ID.into(), 
-                refresh_token.device_id, 
-                cookies::COOKIE_DEVICE_ID_TTL_MIN
-            );
-            
+
             cookies.add(cookie_auth);
-            cookies.add(cookie_refresh);
-            cookies.add(cookie_device_id);
 
             return Ok(());
         },
