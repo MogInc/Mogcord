@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, middleware::Ctx, model::{misc::{AppState, Hashing, Pagination, ServerError}, user::UserFlag}};
+use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Hashing, Pagination, ServerError}};
 use crate::model::user::User;
 use crate::middleware as mw;
 
