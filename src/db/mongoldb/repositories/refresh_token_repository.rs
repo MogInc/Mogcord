@@ -1,5 +1,5 @@
 use axum::async_trait;
-use bson::{doc, Uuid};
+use bson::doc;
 
 use crate::{db::mongoldb::{mongol_helper, MongolDB}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}}};
 
@@ -8,7 +8,7 @@ impl RefreshTokenRepository for MongolDB
 {
     async fn get_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
-        let device_id_local: Uuid = mongol_helper::convert_domain_id_to_mongol(&device_id)
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)
             .map_err(|_| ServerError::RefreshTokenNotFound)?;
 
         let token_option = self

@@ -48,7 +48,7 @@ async fn create_message(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let chat: Chat = repo_chat
+    let chat = repo_chat
         .get_chat_by_id(&chat_id)
         .await?;
 
@@ -57,7 +57,7 @@ async fn create_message(
         return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
-    let owner: User = repo_user
+    let owner = repo_user
         .get_user_by_id(&payload.owner_id)
         .await?;
 

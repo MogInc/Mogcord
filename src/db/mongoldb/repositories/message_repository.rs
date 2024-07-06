@@ -35,7 +35,7 @@ impl MessageRepository for MongolDB
             "date": date,
         };
 
-        let bucket_option: Option<MongolBucket> = self
+        let bucket_option = self
             .buckets()
             .find_one(bucket_filter.clone())
             .await

@@ -19,7 +19,7 @@ impl MongolDB
 {
     pub async fn init(connection_string: &str) -> Result<Self, Box<dyn std::error::Error>>
     {
-        let mut client_options: ClientOptions = ClientOptions::parse(connection_string).await?;
+        let mut client_options = ClientOptions::parse(connection_string).await?;
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
@@ -33,9 +33,9 @@ impl MongolDB
             },
         ]);
     
-        let client: Client = Client::with_options(client_options)?;
+        let client = Client::with_options(client_options)?;
 
-        let db: mongodb::Database = client.database("db_mogcord");
+        let db = client.database("db_mogcord");
         
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");

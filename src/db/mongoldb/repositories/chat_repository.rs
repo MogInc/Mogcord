@@ -1,6 +1,6 @@
 use axum::async_trait;
 use futures_util::StreamExt;
-use mongodb::{bson::{doc, from_document, Document}, Cursor};
+use mongodb::bson::{doc, from_document};
 
 use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection_keys, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
 
@@ -9,7 +9,7 @@ impl ChatRepository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, ServerError>
     {
-        let db_chat: MongolChat = MongolChat::try_from(&chat)
+        let db_chat = MongolChat::try_from(&chat)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
         match self.chats().insert_one(&db_chat).await
@@ -72,13 +72,13 @@ impl ChatRepository for MongolDB
             },
         ];
 
-        let mut cursor: Cursor<Document> = self
+        let mut cursor = self
             .chats()
             .aggregate(pipelines)
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
     
-        let document_option: Option<Document> = cursor
+        let document_option = cursor
             .next()
             .await
             .transpose()
@@ -89,7 +89,7 @@ impl ChatRepository for MongolDB
         {
             Some(document) => 
             {
-                let chat : Chat = from_document(document)
+                let chat = from_document(document)
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
                 return Ok(chat);
@@ -123,7 +123,7 @@ impl ChatRepository for MongolDB
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
 
 
-        let document_option: Option<Document> = cursor
+        let document_option = cursor
             .next()
             .await
             .transpose()
