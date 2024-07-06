@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Hashing, Pagination, ServerError}};
+use crate::{dto::UserDTO, middleware::Ctx, model::{misc::{AppState, Hashing, Pagination, ServerError}, user::UserFlag}};
 use crate::model::user::User;
 use crate::middleware as mw;
 
@@ -58,10 +58,14 @@ async fn get_current_user(
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
+    ctx: Ctx,
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    //TODO: Add AA
+    if ctx.user_flag() != UserFlag::Admin
+    {
+        return Err(ServerError::IncorrectPermissions);
+    }
 
     let repo_user = &state.repo_user;
 

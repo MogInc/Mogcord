@@ -60,6 +60,9 @@ pub enum ServerError
 	HashingPasswordFailedBlocking,
 	VerifyingPasswordFailedBlocking,
 
+	//permissions
+	IncorrectPermissions,
+
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
@@ -128,6 +131,9 @@ impl ServerError
 			| Self::FailedDelete(_)
 			| Self::TransactionError(_)
 			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
+
+
+			Self::IncorrectPermissions => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,
