@@ -41,13 +41,14 @@ async fn login(
     //if user has a device id, token up if exists and use that.
     //say frog it and keep genning new ones
 
+    let refresh_token_option = CookieManager::get_cookie(&cookies,AuthCookieNames::AUTH_REFRESH.into());
     let device_id_option = CookieManager::get_cookie(&cookies,AuthCookieNames::DEVICE_ID.into());
 
     let mut refresh_token: RefreshToken = RefreshToken::create_token();
     let mut create_new_token = false;
 
 
-    if let Some(device_id) = device_id_option
+    if let (Some(device_id), Some(_refresh_token)) = (device_id_option, refresh_token_option)
     {
         match repo_refresh.get_token_by_device_id(&device_id).await
         {

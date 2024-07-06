@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{db::mongoldb::mongol_helper, model::{token::RefreshToken, user::User}};
 
-use super::{MongolError, MongolUser};
+use super::MongolError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRefreshToken
 {
     pub token_value: String,
     pub device_id: Uuid,
-    pub owner: MongolUser,
+    pub owner: Uuid,
 }
 
 impl TryFrom<(&RefreshToken, &User)> for MongolRefreshToken
@@ -20,13 +20,13 @@ impl TryFrom<(&RefreshToken, &User)> for MongolRefreshToken
     fn try_from(value: (&RefreshToken, &User)) -> Result<Self, Self::Error> 
     {
         let device_id = mongol_helper::convert_domain_id_to_mongol(&value.0.device_id)?;
-        let user = MongolUser::try_from(value.1)?;
+        let user_id = mongol_helper::convert_domain_id_to_mongol(&value.1.id)?;
         Ok(
             Self
             {
                 token_value: value.0.value.clone(),
                 device_id,
-                owner: user,
+                owner: user_id,
             }
         )
     }
