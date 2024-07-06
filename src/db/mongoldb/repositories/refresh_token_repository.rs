@@ -1,14 +1,14 @@
 use axum::async_trait;
 use bson::doc;
 
-use crate::{db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}}};
+use crate::{db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}, user::User}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
 {
-    async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, ServerError>
+    async fn create_token(&self, token: RefreshToken, owner: &User) -> Result<RefreshToken, ServerError>
     {
-        let db_token = MongolRefreshToken::try_from(&token)
+        let db_token = MongolRefreshToken::try_from((&token, owner))
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
         
         match self.refresh_tokens().insert_one(&db_token).await

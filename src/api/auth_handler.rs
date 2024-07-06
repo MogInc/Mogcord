@@ -63,7 +63,7 @@ async fn login(
     if create_new_token
     {
         let refresh_token = repo_refresh
-            .create_token(refresh_token)
+            .create_token(refresh_token, &user)
             .await?;
 
         let cookie_refresh = CookieManager::create_cookie(
@@ -76,7 +76,7 @@ async fn login(
             refresh_token.device_id, 
             cookies::COOKIE_DEVICE_ID_TTL_MIN
         );
-        
+
         cookies.add(cookie_refresh);
         cookies.add(cookie_device_id);
     }
