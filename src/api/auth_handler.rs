@@ -71,7 +71,7 @@ async fn login(
             cookies::COOKIE_DEVICE_ID_TTL_MIN
         );
 
-        jar.add(cookie_device_id);
+        CookieManager::set_cookie(&jar, cookie_device_id);
     }
 
     let create_token_request = CreateTokenRequest
@@ -94,9 +94,9 @@ async fn login(
                 refresh_token.value,
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
-            
-            jar.add(cookie_auth);
-            jar.add(cookie_refresh);
+
+            CookieManager::set_cookie(&jar, cookie_auth);
+            CookieManager::set_cookie(&jar, cookie_refresh);
 
             return Ok(());
         },
@@ -147,7 +147,7 @@ async fn refresh_token(
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
             
-            jar.add(cookie_auth);
+            CookieManager::set_cookie(&jar, cookie_auth);
 
             return Ok(());
         },

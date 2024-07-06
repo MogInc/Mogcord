@@ -25,6 +25,11 @@ impl CookieManager
             .map(|c| c.value().to_string());
     }
 
+    pub fn set_cookie(jar: &Cookies, cookie: Cookie<'static>) 
+    {
+        jar.add(cookie);
+    }
+
     pub fn remove_cookie(jar: &Cookies, name: &'static str)
     {
         let cookie = Cookie::build(name).path("/").build();
