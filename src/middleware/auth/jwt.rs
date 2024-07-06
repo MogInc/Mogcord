@@ -44,7 +44,7 @@ pub fn create_token(request: &CreateTokenRequest) -> Result<String, ServerError>
     let claims = Claims
     {
         sub: request.user_id.clone(),
-        exp: (Utc::now() + Duration::seconds(5)).timestamp() as usize,
+        exp: (Utc::now() + Duration::minutes(JWT_TTL_MINS)).timestamp() as usize,
     };
     
     let jwt_key = env::var("JWT_KEY")
