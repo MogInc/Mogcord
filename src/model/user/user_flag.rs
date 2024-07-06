@@ -1,10 +1,10 @@
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
-use serde::{de::{self, Visitor}, Deserialize};
+use serde::{de::{self, Visitor}, Deserialize, Serialize};
 use std::fmt;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum UserFlag 
 {
     None,

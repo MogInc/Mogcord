@@ -1,6 +1,6 @@
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::mongol_helper, model::user::User};
+use crate::{db::mongoldb::mongol_helper, model::user::{User, UserFlag}};
 
 use super::MongolError;
 
@@ -11,6 +11,7 @@ pub struct MongolUser
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
+    pub user_flag: UserFlag,
 }
 
 impl TryFrom<&User> for MongolUser
@@ -28,6 +29,7 @@ impl TryFrom<&User> for MongolUser
                 username: value.username.clone(),
                 mail: value.mail.clone(),
                 hashed_password: value.hashed_password.clone(),
+                user_flag: value.user_flag.clone(),
             }
         )
     }
@@ -60,7 +62,8 @@ impl From<&MongolUser> for User
             value._id.to_string(),
             value.username.clone(), 
             value.mail.clone(),
-            value.hashed_password.clone()
+            value.hashed_password.clone(),
+            value.user_flag.clone(),
         );
     }
 }
