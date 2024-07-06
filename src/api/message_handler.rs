@@ -89,17 +89,18 @@ async fn create_message(
 struct UpdateMessageRequest
 {
     value: String,
-    //TODO: replace with cookie or any form of other AA
-    owner_id: String,
 }
 async fn update_message(
     State(state, ): State<Arc<AppState>>,
     Path((chat_id, message_id)): Path<(String, String)>,
+    ctx: Ctx,
     extract::Json(payload): extract::Json<UpdateMessageRequest>,
 ) -> impl IntoResponse
 {
     let repo_message = &state.repo_message;
 
+    let current_user_id = ctx.user_id();
+    
     let mut message = repo_message
         .get_message(&message_id)
         .await?;
@@ -109,7 +110,7 @@ async fn update_message(
         return Err(ServerError::MessageDoesNotContainThisChat);
     }
 
-    if !message.is_user_allowed_to_edit_message(&payload.owner_id)
+    if !message.is_user_allowed_to_edit_message(&current_user_id)
     {
         return Err(ServerError::MessageDoesNotContainThisUser);
     }
