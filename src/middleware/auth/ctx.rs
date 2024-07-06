@@ -18,7 +18,12 @@ impl Ctx
 
 impl Ctx 
 {
-	pub fn user_id(&self) -> &String 
+	pub fn user_id(self) -> String 
+    {
+		self.user_id
+	}
+
+	pub fn user_id_ref(&self) -> &String 
     {
 		&self.user_id
 	}
