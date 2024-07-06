@@ -4,7 +4,7 @@ use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
-use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::{self as mw, main_response_mapper}, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
+use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -41,7 +41,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let app: Router = Router::new()
         .nest("/api", api_routes)
         .layer(middleware::map_response(main_response_mapper))
-        .layer(middleware::from_fn(mw::mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 
@@ -55,8 +54,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
 
     axum::serve(listener, app.into_make_service())
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     Ok(())
 }

@@ -12,7 +12,8 @@ pub fn routes_user(state: Arc<AppState>) -> Router
         .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw::mw_require_auth));
+        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
 
     let routes_without_middleware = Router::new()
         .route("/user", post(create_user))
