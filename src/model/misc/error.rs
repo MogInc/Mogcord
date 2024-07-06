@@ -34,6 +34,7 @@ pub enum ServerError
 
 	//refresh token
 	RefreshTokenNotFound,
+	RefreshTokenDoesNotMatchDeviceId,
 
 	//db
 	FailedRead(String),
@@ -108,7 +109,9 @@ impl ServerError
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
 
-			Self::AuthCtxNotInRequest
+			Self::RefreshTokenNotFound
+			| Self::RefreshTokenDoesNotMatchDeviceId
+			| Self::AuthCtxNotInRequest
 			| Self::AuthCookieNotFound(_)
 			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 

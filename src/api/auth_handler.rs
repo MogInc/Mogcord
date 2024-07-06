@@ -129,7 +129,7 @@ async fn refresh_token(
 
     if refresh_token.value != refresh_token_cookie
     {
-        return Err(ServerError::AuthCookieInvalid(AuthCookieNames::AUTH_REFRESH));
+        return Err(ServerError::RefreshTokenDoesNotMatchDeviceId);
     }
 
     let create_token_request = CreateTokenRequest
