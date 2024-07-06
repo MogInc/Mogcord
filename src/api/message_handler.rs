@@ -1,16 +1,19 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, Query, State}, response::IntoResponse, routing::{get, patch, post}, Json, Router};
+use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::MessageDTO, model::{chat::Chat, message::Message, misc::{AppState, Pagination, ServerError}, user::User}};
+use crate::{dto::MessageDTO, model::{message::Message, misc::{AppState, Pagination, ServerError}}};
+use crate::middleware as mw;
 
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
-    Router::new()
-    .route("/chat/:chat_id/messages", get(get_messages))
-    .route("/chat/:chat_id/message", post(create_message))
-    .route("/chat/:chat_id/message/:message_id", patch(update_message))
-    .with_state(state)
+    return Router::new()
+        .route("/chat/:chat_id/messages", get(get_messages))
+        .route("/chat/:chat_id/message", post(create_message))
+        .route("/chat/:chat_id/message/:message_id", patch(update_message))
+        .with_state(state)
+        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
 }
 
 async fn get_messages(
@@ -46,16 +49,16 @@ async fn create_message(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let chat: Chat = repo_chat
+    let chat = repo_chat
         .get_chat_by_id(&chat_id)
         .await?;
 
     if !chat.is_user_part_of_chat(&payload.owner_id)
     {
-        return Err(ServerError::UserNotPartOfThisChat);
+        return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
-    let owner: User = repo_user
+    let owner = repo_user
         .get_user_by_id(&payload.owner_id)
         .await?;
 

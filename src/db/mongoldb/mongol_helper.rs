@@ -33,8 +33,8 @@ impl MongolHelper for NaiveDate
     }
 }
 
-pub fn convert_domain_id_to_mongol(id: &String)
+pub fn convert_domain_id_to_mongol(id: &str)
  -> Result<Uuid, MongolError>
 {
-    Uuid::parse_str(id).map_err(|_| MongolError::InvalidID{ id: id.clone() })
+    Uuid::parse_str(id).map_err(|_| MongolError::InvalidID{ id: id.to_string() })
 }

@@ -1,11 +1,10 @@
 use dotenv::dotenv;
-use serde_json::json;
-use uuid::Uuid;
+use tower_cookies::CookieManagerLayer;
 use std::{env, sync::Arc};
 
-use axum::{http::{Method, StatusCode, Uri}, middleware, response::{IntoResponse, Response}, routing::Router, Json};
-use mogcord::{api::{chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, model::{chat::ChatRepository, message::MessageRepository, misc::{log_request, AppState, ServerError}, user::UserRepository}};
+use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
+use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -23,22 +22,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let repo_user = Arc::clone(&db) as Arc<dyn UserRepository>;
     let repo_chat =  Arc::clone(&db) as Arc<dyn ChatRepository>;
     let repo_message = Arc::clone(&db) as Arc<dyn MessageRepository>;
+    let repo_refresh_token = Arc::clone(&db) as Arc<dyn RefreshTokenRepository>;
 
     let state: Arc<AppState> = Arc::new(AppState {
         repo_chat,
         repo_user,
         repo_message,
+        repo_refresh_token,
     });
 
     let api_routes = Router::new()
-        .merge(routes_user(state.clone()))
         .merge(routes_chat(state.clone()))
-        .merge(routes_message(state.clone()));
+        .merge(routes_message(state.clone()))
+        .merge(routes_user(state.clone()))
+        .merge(routes_auth(state.clone()));
 
 
     let app: Router = Router::new()
         .nest("/api", api_routes)
         .layer(middleware::map_response(main_response_mapper))
+        .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 
 
@@ -51,8 +54,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
 
     axum::serve(listener, app.into_make_service())
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     Ok(())
 }
@@ -60,39 +63,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 async fn page_not_found() -> impl IntoResponse 
 {
     (StatusCode::NOT_FOUND, "404 Page Not Found")
-}
-
-async fn main_response_mapper(
-	uri: Uri,
-	req_method: Method,
-	res: Response
-) -> Response 
-{
-	let req_id = Uuid::now_v7();
-
-	let service_error = res
-        .extensions()
-        .get::<ServerError>();
-	let client_status_error = service_error
-        .map(|se| se.client_status_and_error());
-
-	let error_response =
-		client_status_error
-			.as_ref()
-			.map(|(status_code, client_error)| {
-				let client_error_body = json!({
-					"error": {
-                        "req_id": req_id.to_string(),
-						"type": client_error.as_ref(),
-					}
-				});
-        
-				(*status_code, Json(client_error_body)).into_response()
-			});
-    
-    let client_error = client_status_error.unzip().1;
-    log_request(req_id, req_method, uri, service_error, client_error).await;
-
-	println!();
-	error_response.unwrap_or(res)
 }

@@ -6,6 +6,8 @@ use axum::{
 };
 use serde::Serialize;
 
+use crate::middleware::cookies::AuthCookieNames;
+
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum ServerError 
@@ -13,21 +15,26 @@ pub enum ServerError
 	//user
     UserNotFound,
     MailAlreadyInUse,
+    UsernameAlreadyInUse,
 
 	//chat
 	ChatNotFound,
 	ChatAlreadyExists,
-	InvalidOwnerCount,
-	InvalidOwnersCount { expected: usize, found: usize },
-	InvalidNameRequirement { expected: bool, found: bool },
-	InvalidUsersRequirement { expected: bool, found: bool },
-	InvalidChatRequirements,
-	UserNotPartOfThisChat,
+	OwnerCountInvalid,
+	OwnersCountInvalid { expected: usize, found: usize },
+	NameRequirementInvalid { expected: bool, found: bool },
+	UsersRequirementInvalid { expected: bool, found: bool },
+	ChatRequirementsInvalid,
+	ChatDoesNotContainThisUser,
 
 	//message
 	MessageNotFound,
 	ChatNotPartThisMessage,
 	UserNotPartThisMessage,
+
+	//refresh token
+	RefreshTokenNotFound,
+	RefreshTokenDoesNotMatchDeviceId,
 
 	//db
 	FailedRead(String),
@@ -35,6 +42,23 @@ pub enum ServerError
 	FailedUpdate(String),
 	FailedDelete(String),
 	TransactionError(String),
+
+	//auth
+	AuthCtxNotInRequest,
+	AuthCookieNotFound(AuthCookieNames),
+	AuthCookieInvalid(AuthCookieNames),
+
+	//jwt
+	FailedCreatingToken,
+	JWTKeyNotSet,
+	JWTTokenInvalid,
+	JWTTokenExpired,
+
+	//hashing
+	HashingPasswordFailed,
+	VerifyingPasswordFailed,
+	HashingPasswordFailedBlocking,
+	VerifyingPasswordFailedBlocking,
 
 	//fallback
 	NotImplemented,
@@ -55,7 +79,9 @@ impl IntoResponse for ServerError
     {
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
-		response.extensions_mut().insert(self);
+		response
+			.extensions_mut()
+			.insert(self);
 
 		response
     }
@@ -69,19 +95,33 @@ impl ServerError
 		match self 
         {
             Self::MailAlreadyInUse 
-			| Self::InvalidOwnerCount
+            | Self::UsernameAlreadyInUse 
+			| Self::OwnerCountInvalid
             | Self::UserNotFound
 			| Self::ChatNotFound
 			| Self::MessageNotFound
 			| Self::ChatAlreadyExists
 			| Self::ChatNotPartThisMessage
 			| Self::UserNotPartThisMessage
-			| Self::InvalidChatRequirements => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
-			Self::UserNotPartOfThisChat => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
-            
+
+			Self::RefreshTokenNotFound
+			| Self::RefreshTokenDoesNotMatchDeviceId
+			| Self::AuthCtxNotInRequest
+			| Self::AuthCookieNotFound(_)
+			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+
+			Self::FailedCreatingToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			
+			Self::HashingPasswordFailed
+			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			Self::VerifyingPasswordFailed
+			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
 			| Self::FailedUpdate(_)
@@ -104,4 +144,5 @@ pub enum ClientError
 {
 	INVALID_PARAMS,
 	SERVICE_ERROR,
+	NO_AUTH,
 }

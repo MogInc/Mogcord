@@ -7,9 +7,9 @@ use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB,
 #[async_trait]
 impl UserRepository for MongolDB
 {
-    async fn does_user_exist_by_id(&self, user_id: &String) -> Result<bool, ServerError>
+    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
-        let user_id_local: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
         match self.users().find_one(doc! { "_id" : user_id_local }).await
@@ -19,7 +19,7 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn does_user_exist_by_mail(&self, user_mail: &String) -> Result<bool, ServerError>
+    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
     {
         match self.users().find_one(doc! { "mail" : user_mail }).await
         {
@@ -28,9 +28,18 @@ impl UserRepository for MongolDB
         }
     }
 
+    async fn does_username_exist(&self, username: &str) -> Result<bool, ServerError>
+    {
+        match self.users().find_one(doc! { "username" : username }).await
+        {
+            Ok(option) => Ok(option.is_some()),
+            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+        }
+    }
+
     async fn create_user(&self, user: User) -> Result<User, ServerError>
     {
-        let db_user: MongolUser = MongolUser::try_from(&user)
+        let db_user = MongolUser::try_from(&user)
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
         
         match self.users().insert_one(&db_user).await
@@ -52,14 +61,29 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn get_user_by_id(&self, user_id: &String) -> Result<User, ServerError>
+    async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
-        let user_id_local: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        let user_option: Option<MongolUser> = self
+        let user_option = self
             .users()
             .find_one(doc! { "_id": user_id_local })
+            .await
+            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+        
+        match user_option 
+        {
+            Some(user) => Ok(User::from(&user)),
+            None => Err(ServerError::UserNotFound),
+        }
+    }
+
+    async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
+    {
+        let user_option = self
+            .users()
+            .find_one(doc! { "mail": mail })
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
         

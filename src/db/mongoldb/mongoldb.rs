@@ -2,7 +2,7 @@ use std::time::Duration;
 use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};
 
 use crate::db::mongoldb::model::MongolUser;
-use super::{MongolBucket, MongolChat, MongolMessage};
+use super::{MongolBucket, MongolChat, MongolMessage, MongolRefreshToken};
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
@@ -12,13 +12,14 @@ pub struct MongolDB
     chats: Collection<MongolChat>,
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
+    refreshtokens: Collection<MongolRefreshToken>,
 }
 
 impl MongolDB
 {
     pub async fn init(connection_string: &str) -> Result<Self, Box<dyn std::error::Error>>
     {
-        let mut client_options: ClientOptions = ClientOptions::parse(connection_string).await?;
+        let mut client_options = ClientOptions::parse(connection_string).await?;
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
@@ -32,14 +33,15 @@ impl MongolDB
             },
         ]);
     
-        let client: Client = Client::with_options(client_options)?;
+        let client = Client::with_options(client_options)?;
 
-        let db: mongodb::Database = client.database("db_mogcord");
+        let db = client.database("db_mogcord");
         
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChat> = db.collection("chats");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
         let messages: Collection<MongolMessage> = db.collection("messages");
+        let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
 
         Ok(Self 
             { 
@@ -47,7 +49,8 @@ impl MongolDB
                 users : users,
                 chats: chats,
                 buckets: buckets,
-                messages: messages
+                messages: messages,
+                refreshtokens: refreshtokens
             }
         )
     }
@@ -78,5 +81,10 @@ impl MongolDB
     pub fn messages(&self) -> &Collection<MongolMessage> 
     {
         &self.messages
+    }
+
+    pub fn refresh_tokens(&self) -> &Collection<MongolRefreshToken> 
+    {
+        &self.refreshtokens
     }
 }

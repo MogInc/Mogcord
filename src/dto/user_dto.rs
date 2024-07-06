@@ -6,7 +6,7 @@ use crate::model::user::User;
 pub struct UserDTO
 {
     pub id: String,
-    pub name: String,
+    pub username: String,
     pub mail: String,
 }
 
@@ -17,7 +17,7 @@ impl UserDTO
         Self
         {
             id: user.id,
-            name: user.name,
+            username: user.username,
             mail: user.mail,
         }
     }

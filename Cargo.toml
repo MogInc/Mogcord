@@ -9,17 +9,21 @@ edition = "2021"
 assert_matches = "1.5"
 
 [dependencies]
+argon2 = "0.5.3"
 axum = { version = "0.7", features = ["macros"] }
+base64 = "0.22.1"
 bson = { version = "2.11.0", features = ["chrono-0_4"] }
 chrono = { version = "0.4", features = ["serde"] }
 derive_more = "^0.99"
 dotenv = "0.15.0"
 futures-util = "0.3"
+jsonwebtoken = "9.2.0"
 mongodb = { version = "3.0.0", features = ["zlib-compression", "zstd-compression", "snappy-compression"] }
 serde = {version = "^1", features = ["derive"]}
 serde_json = "1.0"
 serde_with = "3"
 strum_macros = "0.25"
 tokio = { version = "1.0", features = ["full"] }
+tower-cookies = "0.10"
 tower-http = { version = "0.5", features = ["fs"]}
 uuid = { version = "1.9.1", features = ["v7"]}
