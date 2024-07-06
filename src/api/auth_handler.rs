@@ -30,6 +30,8 @@ async fn login(
     let repo_user = &state.repo_user;
     let repo_refresh = &state.repo_refresh_token;
 
+    //TODO: add user ban checks
+
     let user = repo_user
         .get_user_by_mail(&payload.mail)
         .await?;

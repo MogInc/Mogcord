@@ -93,6 +93,7 @@ async fn create_user(
 
     let user = User::new(payload.username, payload.mail, hashed_password);
 
+    //TODO: add user ban checks
     //TODO: mail verification (never)
 
     if repo_user.does_username_exist(&user.username).await?
