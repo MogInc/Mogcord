@@ -29,7 +29,7 @@ impl TryFrom<&User> for MongolUser
                 username: value.username.clone(),
                 mail: value.mail.clone(),
                 hashed_password: value.hashed_password.clone(),
-                user_flag: value.user_flag.clone(),
+                user_flag: value.flag.clone(),
             }
         )
     }

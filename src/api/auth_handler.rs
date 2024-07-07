@@ -77,7 +77,7 @@ async fn login(
     }
     
     let user = refresh_token.owner;
-    let create_token_request = CreateTokenRequest::new(&user.id, &user.user_flag);
+    let create_token_request = CreateTokenRequest::new(&user.id, &user.flag);
     
     match jwt::create_token(&create_token_request)
     {
@@ -127,7 +127,7 @@ async fn refresh_token(
         .get_token_by_device_id(&device_id_cookie)
         .await?;
 
-    if refresh_token.owner.user_flag.is_yeeted()
+    if refresh_token.owner.flag.is_yeeted()
     {
         CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_ACCES.into());
         CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_REFRESH.into());
@@ -139,7 +139,7 @@ async fn refresh_token(
         return Err(ServerError::RefreshTokenDoesNotMatchDeviceId);
     }
 
-    let create_token_request = CreateTokenRequest::new(&claims.sub, &refresh_token.owner.user_flag);
+    let create_token_request = CreateTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
 
     match jwt::create_token(&create_token_request)
     {

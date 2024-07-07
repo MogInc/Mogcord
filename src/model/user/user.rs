@@ -12,7 +12,7 @@ pub struct User
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
-    pub user_flag: UserFlag,
+    pub flag: UserFlag,
 }
 
 impl User
@@ -25,7 +25,7 @@ impl User
             username: username,
             mail: mail,
             hashed_password: hashed_password,
-            user_flag: user_flag,
+            flag: user_flag,
         }
     }
 
@@ -37,7 +37,7 @@ impl User
             username: username,
             mail: mail,
             hashed_password: hashed_password,
-            user_flag: UserFlag::None,
+            flag: UserFlag::None,
         }
     }
 }
@@ -64,7 +64,7 @@ mod tests
         assert_eq!(username, user.username);
         assert_eq!(mail, user.mail);
         assert_eq!(hashed_password, user.hashed_password);
-        assert_eq!(user_flag, user.user_flag);
+        assert_eq!(user_flag, user.flag);
     }
 
     #[test]
@@ -80,6 +80,6 @@ mod tests
         assert_eq!(username, user.username);
         assert_eq!(mail, user.mail);
         assert_eq!(hashed_password, user.hashed_password);
-        assert_eq!(UserFlag::None, user.user_flag);
+        assert_eq!(UserFlag::None, user.flag);
     }
 }
