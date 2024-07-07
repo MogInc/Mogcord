@@ -1,9 +1,14 @@
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::{alphabet, engine::{general_purpose, GeneralPurpose}, Engine};
+use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::model::user::User;
+
+use super::RefreshTokenFlag;
+
+const REFRESH_TOKEN_TTL_IN_DAYS: i64 = 365;
 
 #[derive(Deserialize)]
 pub struct RefreshToken
@@ -11,20 +16,9 @@ pub struct RefreshToken
     //TODO: refresh token flag
     pub value: String,
     pub device_id: String,
+    pub expiration_date: DateTime<Utc>,
+    pub flag: RefreshTokenFlag,
     pub owner: User,
-}
-
-impl RefreshToken
-{
-    pub fn new(token: String, device_id: String, owner: User) -> Self
-    {
-        Self
-        {
-            value: token,
-            device_id: device_id,
-            owner: owner,
-        }
-    }
 }
 
 impl RefreshToken
@@ -44,6 +38,8 @@ impl RefreshToken
         {
             value: refresh_token,
             device_id: Uuid::now_v7().to_string(),
+            expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
+            flag: RefreshTokenFlag::None,
             owner: owner,
         };
     }
