@@ -13,7 +13,6 @@ const REFRESH_TOKEN_TTL_IN_DAYS: i64 = 365;
 #[derive(Deserialize)]
 pub struct RefreshToken
 {
-    //TODO: refresh token flag
     pub value: String,
     pub device_id: String,
     pub expiration_date: DateTime<Utc>,

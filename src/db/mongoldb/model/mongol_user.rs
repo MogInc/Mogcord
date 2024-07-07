@@ -11,7 +11,7 @@ pub struct MongolUser
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
-    pub user_flag: UserFlag,
+    pub flag: UserFlag,
 }
 
 impl TryFrom<&User> for MongolUser
@@ -29,7 +29,7 @@ impl TryFrom<&User> for MongolUser
                 username: value.username.clone(),
                 mail: value.mail.clone(),
                 hashed_password: value.hashed_password.clone(),
-                user_flag: value.flag.clone(),
+                flag: value.flag.clone(),
             }
         )
     }
@@ -63,7 +63,7 @@ impl From<&MongolUser> for User
             value.username.clone(), 
             value.mail.clone(),
             value.hashed_password.clone(),
-            value.user_flag.clone(),
+            value.flag.clone(),
         );
     }
 }
