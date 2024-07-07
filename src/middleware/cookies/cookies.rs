@@ -1,42 +1,37 @@
 use tower_cookies::{cookie::{time::{Duration, OffsetDateTime}, SameSite}, Cookie, Cookies};
 
-pub struct CookieManager;
-
-impl CookieManager
+pub trait Cookie2
 {
+    fn create_cookie(&self, name: &str, value: String, ttl_in_mins: i64);
+    fn get_cookie(&self, name: &str) -> Option<String>;
+    fn remove_cookie(&self, name: &str);
+}
 
-    pub fn create_cookie<'a>(name: &'a str, value: String, ttl_in_mins: i64) -> Cookie<'a>
+
+impl Cookie2 for Cookies
+{
+    fn create_cookie(&self, name: &str, value: String, ttl_in_mins: i64) 
     {
-        let cookie = Cookie::build((name, value))
+        let cookie = Cookie::build((name.to_string(), value))
             .path("/")
             .http_only(true)
             .secure(true)
             .same_site(SameSite::Lax)
             .expires(OffsetDateTime::now_utc() + Duration::minutes(ttl_in_mins))
             .build();
-    
-    return cookie;
+
+        self.add(cookie);
     }
 
-    pub fn get_cookie(jar: &Cookies, name: &str) -> Option<String>
-    {
-        return jar
+    fn get_cookie(&self, name: &str) -> Option<String> {
+        return self
             .get(name)
             .map(|c| c.value().to_string());
     }
 
-    pub fn set_cookie(jar: &Cookies, cookie: Cookie<'static>) 
-    {
-        jar.add(cookie);
-    }
+    fn remove_cookie(&self, name: &str) {
+        let cookie = Cookie::build(name.to_string()).path("/").build();
 
-    pub fn remove_cookie(jar: &Cookies, name: &'static str)
-    {
-        let cookie = Cookie::build(name).path("/").build();
-
-        jar.remove(cookie);
-
-        let test = Cookie::from(name);
-        println!("{:?}", test);
+        self.remove(cookie);
     }
 }
