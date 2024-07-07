@@ -56,8 +56,11 @@ async fn login(
         {
             Ok(token) => 
             {
-                refresh_token = token;
-                create_new_token = false;
+                if token.owner.id == refresh_token.owner.id
+                {    
+                    refresh_token = token;
+                    create_new_token = false;
+                }
             },
             _ => (),
         }

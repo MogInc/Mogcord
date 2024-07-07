@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::middleware::cookies::AuthCookieNames;
+use crate::{middleware::cookies::AuthCookieNames, model::user::UserFlag};
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
@@ -62,7 +62,7 @@ pub enum ServerError
 
 	//permissions
 	UserIsNotAdminOrOwner,
-	IncorrectPermissions,
+	IncorrectUserPermissions(UserFlag),
 
 	//fallback
 	NotImplemented,
@@ -135,7 +135,7 @@ impl ServerError
 
 
 			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectPermissions => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::IncorrectUserPermissions(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,

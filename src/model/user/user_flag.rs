@@ -33,7 +33,7 @@ impl UserFlag
         match &self
         {
             Self::None | Self::Admin | Self::Owner => Ok(()),
-            _ => Err(ServerError::IncorrectPermissions),
+            _ => Err(ServerError::IncorrectUserPermissions(self.clone())),
         }
     }
 }
