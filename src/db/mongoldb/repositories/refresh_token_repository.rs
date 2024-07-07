@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document};
 use futures_util::StreamExt;
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}, user::UserFlag}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
@@ -19,7 +19,7 @@ impl RefreshTokenRepository for MongolDB
         }
     }
 
-    async fn get_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
+    async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
         let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)
             .map_err(|_| ServerError::RefreshTokenNotFound)?;
@@ -30,7 +30,13 @@ impl RefreshTokenRepository for MongolDB
             {
                 "$match":
                 {
-                    "device_id": device_id_local
+                    "device_id": device_id_local,
+                    "$or":
+                    [
+                        {"flag": format!("{}", UserFlag::None)},
+                        {"flag": format!("{}", UserFlag::Admin)},
+                        {"flag": format!("{}", UserFlag::Owner)},
+                    ]
                 }
             },
             //join with owners

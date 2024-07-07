@@ -50,7 +50,7 @@ async fn login(
 
     if let Some(device_id_cookie) = device_id_cookie_option
     {
-        match repo_refresh.get_token_by_device_id(&device_id_cookie).await
+        match repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
         {
             Ok(token) => 
             {
@@ -124,7 +124,7 @@ async fn refresh_token(
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::DEVICE_ID))?;
 
     let refresh_token = repo_refresh
-        .get_token_by_device_id(&device_id_cookie)
+        .get_valid_token_by_device_id(&device_id_cookie)
         .await?;
 
     if refresh_token.owner.flag.is_yeeted()
