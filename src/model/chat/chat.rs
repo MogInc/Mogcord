@@ -108,7 +108,7 @@ impl Bucket
 
 impl Bucket
 {
-    pub fn add_message(&mut self, message: Message) -> Message
+    pub fn add_message(&mut self, message: Message)
     {
         if self.messages.is_none() 
         {
@@ -117,9 +117,7 @@ impl Bucket
 
         if let Some(messages) = &mut self.messages 
         {
-            messages.push(message.clone());
+            messages.push(message);
         }
-
-        return message;
     }
 }

@@ -66,7 +66,7 @@ impl MessageRepository for MongolDB
             {
                 let mut bucket = Bucket::new(&message.chat, &message.timestamp);
                 
-                message = bucket.add_message(message);
+                bucket.add_message(message.clone());
 
                 let db_bucket = MongolBucket::try_from(&bucket)
                     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
