@@ -1,5 +1,6 @@
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::{alphabet, engine::{general_purpose, GeneralPurpose}, Engine};
+use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
@@ -15,6 +16,7 @@ pub struct RefreshToken
 {
     pub value: String,
     pub device_id: String,
+    #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub expiration_date: DateTime<Utc>,
     pub flag: RefreshTokenFlag,
     pub owner: User,
