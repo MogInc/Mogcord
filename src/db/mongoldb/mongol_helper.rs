@@ -13,11 +13,7 @@ impl MongolHelper for DateTime<Utc>
     fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         let date = self.date_naive();
-        bson::DateTime::builder()
-            .year(date.year())
-            .month(date.month() as u8)
-            .day(date.day() as u8)
-            .build()
+        return MongolHelper::convert_to_bson_datetime(&date);
     }
 }
 
@@ -25,16 +21,16 @@ impl MongolHelper for NaiveDate
 {
     fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
-        bson::DateTime::builder()
+        return bson::DateTime::builder()
             .year(self.year())
             .month(self.month() as u8)
             .day(self.day() as u8)
-            .build()
+            .build();
     }
 }
 
 pub fn convert_domain_id_to_mongol(id: &str)
  -> Result<Uuid, MongolError>
 {
-    Uuid::parse_str(id).map_err(|_| MongolError::InvalidID{ id: id.to_string() })
+    return Uuid::parse_str(id).map_err(|_| MongolError::InvalidID{ id: id.to_string() });
 }
