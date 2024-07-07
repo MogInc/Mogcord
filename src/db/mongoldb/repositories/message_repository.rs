@@ -26,7 +26,7 @@ impl MessageRepository for MongolDB
 
         let date = message
             .timestamp
-            .convert_to_bson_datetime()
+            .convert_to_bson_date()
             .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
         let bucket_filter = doc!

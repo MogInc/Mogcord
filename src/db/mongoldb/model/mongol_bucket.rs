@@ -28,7 +28,7 @@ impl TryFrom<&Bucket> for MongolBucket
 
         let bucket_date = value
             .date
-            .convert_to_bson_datetime()
+            .convert_to_bson_date()
             .map_err(|_| MongolError::FailedDateParsing)?;
 
         let bucket_message_ids = value
