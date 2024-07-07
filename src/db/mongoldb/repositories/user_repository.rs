@@ -28,7 +28,7 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn does_username_exist(&self, username: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
     {
         match self.users().find_one(doc! { "username" : username }).await
         {

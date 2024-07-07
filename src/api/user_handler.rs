@@ -105,7 +105,7 @@ async fn create_user(
     //TODO: add user ban checks
     //TODO: mail verification (never)
 
-    if repo_user.does_username_exist(&user.username).await?
+    if repo_user.does_user_exist_by_username(&user.username).await?
     {
         return Err(ServerError::UsernameAlreadyInUse);
     }
