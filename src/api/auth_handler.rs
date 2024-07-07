@@ -4,7 +4,7 @@ use axum::{extract::State, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames, CookieManager}, jwt::{self, CreateTokenRequest, TokenStatus}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{cookies::{self, AuthCookieNames, Cookie2}, jwt::{self, CreateTokenRequest, TokenStatus}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -44,7 +44,7 @@ async fn login(
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
-    let device_id_cookie_option = CookieManager::get_cookie(&jar,AuthCookieNames::DEVICE_ID.into());
+    let device_id_cookie_option = jar.get_cookie(AuthCookieNames::DEVICE_ID.into());
 
     let mut refresh_token = RefreshToken::create_token(user);
     let mut create_new_token = true;
@@ -72,13 +72,11 @@ async fn login(
             .create_token(refresh_token)
             .await?;
 
-        let cookie_device_id = CookieManager::create_cookie(
+        jar.create_cookie(
             AuthCookieNames::DEVICE_ID.into(), 
             refresh_token.device_id, 
             cookies::COOKIE_DEVICE_ID_TTL_MIN
         );
-
-        CookieManager::set_cookie(&jar, cookie_device_id);
     }
     
     let user = refresh_token.owner;
@@ -88,20 +86,17 @@ async fn login(
     {
         Ok(token) => 
         {
-            let cookie_auth = CookieManager::create_cookie(
+            jar.create_cookie(
                 AuthCookieNames::AUTH_ACCES.into(), 
                 token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
             
-            let cookie_refresh = CookieManager::create_cookie(
+            jar.create_cookie(
                 AuthCookieNames::AUTH_REFRESH.into(), 
                 refresh_token.value,
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
-
-            CookieManager::set_cookie(&jar, cookie_auth);
-            CookieManager::set_cookie(&jar, cookie_refresh);
 
             return Ok(());
         },
@@ -117,15 +112,15 @@ async fn refresh_token(
 {
     let repo_refresh = &state.repo_refresh_token;
 
-    let acces_token_cookie = CookieManager::get_cookie(&jar, AuthCookieNames::AUTH_ACCES.into())
+    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.into())
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))?;
 
     let claims = jwt::extract_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
    
-    let refresh_token_cookie = CookieManager::get_cookie(&jar, AuthCookieNames::AUTH_REFRESH.into())
+    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.into())
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_REFRESH))?;
 
-    let device_id_cookie = CookieManager::get_cookie(&jar, AuthCookieNames::DEVICE_ID.into())
+    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.into())
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::DEVICE_ID))?;
 
     let refresh_token = repo_refresh
@@ -134,8 +129,8 @@ async fn refresh_token(
 
     if let Err(err) = refresh_token.owner.flag.is_allowed_on_platform()
     {
-        CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_ACCES.into());
-        CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_REFRESH.into());
+        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.into());
+        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.into());
         return Err(err);
     }
 
@@ -150,14 +145,12 @@ async fn refresh_token(
     {
         Ok(token) => 
         {
-            let cookie_auth = CookieManager::create_cookie(
+            jar.create_cookie(
                 AuthCookieNames::AUTH_ACCES.into(), 
                 token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
             
-            CookieManager::set_cookie(&jar, cookie_auth);
-
             return Ok(());
         },
         Err(err) => Err(err),

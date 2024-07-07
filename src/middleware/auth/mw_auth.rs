@@ -1,7 +1,7 @@
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::Cookies;
 
-use crate::{middleware::cookies::{AuthCookieNames, CookieManager}, model::misc::ServerError};
+use crate::{middleware::cookies::{AuthCookieNames, Cookie2}, model::misc::ServerError};
 
 use super::{jwt::{self, Claims, TokenStatus}, Ctx};
 
@@ -21,7 +21,7 @@ pub async fn mw_require_auth(
 
 
 pub async fn mw_ctx_resolver(
-    cookies: Cookies, 
+    jar: Cookies, 
     mut req: Request<Body>, 
     next: Next
 ) -> Result<Response, ServerError> 
@@ -30,7 +30,7 @@ pub async fn mw_ctx_resolver(
 
     let auth_cookie_name = AuthCookieNames::AUTH_ACCES.into();
 
-	let auth_token = CookieManager::get_cookie(&cookies, auth_cookie_name);
+	let auth_token = jar.get_cookie(auth_cookie_name);
 
 
 	let result_ctx = match auth_token
@@ -44,7 +44,7 @@ pub async fn mw_ctx_resolver(
 
 	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::JWTTokenExpired))
 	{
-		CookieManager::remove_cookie(&cookies, auth_cookie_name);
+		jar.remove_cookie(auth_cookie_name);
 	}
 
 	req
