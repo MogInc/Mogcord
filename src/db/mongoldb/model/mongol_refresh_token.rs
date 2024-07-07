@@ -1,7 +1,7 @@
-use bson::Uuid;
+use bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::mongol_helper, model::token::RefreshToken};
+use crate::{db::mongoldb::{mongol_helper, MongolHelper}, model::token::{RefreshToken, RefreshTokenFlag}};
 
 use super::MongolError;
 
@@ -10,6 +10,8 @@ pub struct MongolRefreshToken
 {
     pub value: String,
     pub device_id: Uuid,
+    pub expiration_date: DateTime,
+    pub flag: RefreshTokenFlag,
     pub owner_id: Uuid,
 }
 
@@ -21,11 +23,19 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
     {
         let device_id = mongol_helper::convert_domain_id_to_mongol(&value.device_id)?;
         let owner_id = mongol_helper::convert_domain_id_to_mongol(&value.owner.id)?;
+
+        let expiration_date = value
+            .expiration_date
+            .convert_to_bson_datetime()
+            .map_err(|_| MongolError::FailedDateParsing)?;
+
         Ok(
             Self
             {
                 value: value.value.clone(),
                 device_id: device_id,
+                expiration_date: expiration_date,
+                flag: value.flag.clone(),
                 owner_id: owner_id,
             }
         )
