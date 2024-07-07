@@ -2,7 +2,7 @@ use tower_cookies::{cookie::{time::{Duration, OffsetDateTime}, SameSite}, Cookie
 
 pub trait Cookie2
 {
-    fn create_cookie(&self, name: &'static str, value: String, ttl_in_mins: i64);
+    fn create_cookie(&self, name: &str, value: &str, ttl_in_mins: i64);
     fn get_cookie(&self, name: &str) -> Option<String>;
     fn remove_cookie(&self, name: &'static str);
 }
@@ -10,9 +10,9 @@ pub trait Cookie2
 
 impl Cookie2 for Cookies
 {
-    fn create_cookie(&self, name: &'static str, value: String, ttl_in_mins: i64) 
+    fn create_cookie(&self, name: &str, value: &str, ttl_in_mins: i64) 
     {
-        let cookie = Cookie::build((name, value))
+        let cookie = Cookie::build((name.to_string(), value.to_string()))
             .path("/")
             .http_only(true)
             .secure(true)
