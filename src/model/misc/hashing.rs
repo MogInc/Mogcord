@@ -52,7 +52,7 @@ impl Hashing
         Ok(())
     }
 
-    fn give_argon_settings<'a>() -> Argon2<'a>
+    fn give_argon_settings<'schema>() -> Argon2<'schema>
     {
         return Argon2::default();
     }
