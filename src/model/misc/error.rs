@@ -61,6 +61,7 @@ pub enum ServerError
 	VerifyingPasswordFailedBlocking,
 
 	//permissions
+	UserIsNotAdminOrOwner,
 	IncorrectPermissions,
 
 	//fallback

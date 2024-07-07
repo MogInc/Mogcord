@@ -3,6 +3,8 @@ use chrono::{DateTime, Utc};
 use serde::{de::{self, Visitor}, Deserialize, Serialize};
 use std::fmt;
 
+use crate::model::misc::ServerError;
+
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum UserFlag 
@@ -17,21 +19,21 @@ pub enum UserFlag
 
 impl UserFlag
 {
-    pub fn is_admin_or_owner(&self) -> bool
+    pub fn is_admin_or_owner(&self) -> Result<(), ServerError>
     {
         match &self
         {
-            Self::Admin | Self::Owner => true,
-            _ => false,
+            Self::Admin | Self::Owner => Ok(()),
+            _ => Err(ServerError::UserIsNotAdminOrOwner),
         }
     }
 
-    pub fn is_yeeted(&self) -> bool
+    pub fn is_allowed_on_platform(&self) -> Result<(), ServerError>
     {
         match &self
         {
-            Self::None | Self::Admin | Self::Owner => false,
-            _ => true,
+            Self::None | Self::Admin | Self::Owner => Ok(()),
+            _ => Err(ServerError::IncorrectPermissions),
         }
     }
 }
