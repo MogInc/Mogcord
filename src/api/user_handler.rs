@@ -28,9 +28,14 @@ pub fn routes_user(state: Arc<AppState>) -> Router
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
+    ctx: Ctx,
     Path(user_id): Path<String>
 ) -> impl IntoResponse
 {
+    let _ = ctx
+        .user_flag_ref()
+        .is_admin_or_owner()?;
+    
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&user_id).await 
@@ -63,10 +68,9 @@ async fn get_users(
 ) -> impl IntoResponse
 {
 
-    if !ctx.user_flag().is_admin_or_owner()
-    {
-        return Err(ServerError::IncorrectPermissions);
-    }
+    let _ = ctx
+        .user_flag_ref()
+        .is_admin_or_owner()?;
 
     let repo_user = &state.repo_user;
 

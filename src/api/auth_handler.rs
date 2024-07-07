@@ -36,6 +36,10 @@ async fn login(
         .get_user_by_mail(&payload.mail)
         .await?;
 
+    let _ = user
+        .flag
+        .is_allowed_on_platform()?;
+
     let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
     //either 
@@ -127,11 +131,11 @@ async fn refresh_token(
         .get_valid_token_by_device_id(&device_id_cookie)
         .await?;
 
-    if refresh_token.owner.flag.is_yeeted()
+    if let Err(err) = refresh_token.owner.flag.is_allowed_on_platform()
     {
         CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_ACCES.into());
         CookieManager::remove_cookie(&jar, AuthCookieNames::AUTH_REFRESH.into());
-        return Err(ServerError::IncorrectPermissions);
+        return Err(err);
     }
 
     if refresh_token.value != refresh_token_cookie
