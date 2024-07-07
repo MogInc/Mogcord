@@ -46,7 +46,7 @@ async fn login(
 
     let device_id_cookie_option = CookieManager::get_cookie(&jar,AuthCookieNames::DEVICE_ID.into());
 
-    let mut refresh_token: RefreshToken = RefreshToken::create_token(user);
+    let mut refresh_token = RefreshToken::create_token(user);
     let mut create_new_token = true;
 
 
