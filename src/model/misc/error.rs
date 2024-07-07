@@ -134,7 +134,8 @@ impl ServerError
 			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
 
 
-			Self::IncorrectPermissions => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			Self::UserIsNotAdminOrOwner
+			| Self::IncorrectPermissions => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,
