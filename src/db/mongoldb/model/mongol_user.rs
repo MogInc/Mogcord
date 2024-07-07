@@ -1,3 +1,4 @@
+use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 use crate::{db::mongoldb::mongol_helper, model::user::{User, UserFlag}};
@@ -65,5 +66,15 @@ impl From<&MongolUser> for User
             value.hashed_password.clone(),
             value.flag.clone(),
         );
+    }
+}
+
+impl From<UserFlag> for Bson 
+{
+    fn from(user_flag: UserFlag) -> Bson 
+    {
+        
+
+        Bson::String(user_flag.to_string())
     }
 }

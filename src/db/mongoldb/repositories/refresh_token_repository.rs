@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime};
 use futures_util::StreamExt;
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenRepository}, user::UserFlag}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
@@ -32,12 +32,7 @@ impl RefreshTokenRepository for MongolDB
                 {
                     "device_id": device_id_local,
                     "expiration_date": { "$gte": DateTime::now() },
-                    "$or":
-                    [
-                        {"flag": format!("{}", UserFlag::None)},
-                        {"flag": format!("{}", UserFlag::Admin)},
-                        {"flag": format!("{}", UserFlag::Owner)},
-                    ]
+                    "flag": RefreshTokenFlag::None,
                 }
             },
             //join with owners
@@ -71,7 +66,7 @@ impl RefreshTokenRepository for MongolDB
             //hide fields
             doc! 
             {
-                "$unset": ["_id", "owner_ids", "user_ids", "owners._id"]
+                "$unset": ["_id", "owner_id", "owner._id"]
             },
         ];
 

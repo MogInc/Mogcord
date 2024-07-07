@@ -1,4 +1,4 @@
-use bson::{DateTime, Uuid};
+use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
 use crate::{db::mongoldb::{mongol_helper, MongolHelper}, model::token::{RefreshToken, RefreshTokenFlag}};
@@ -39,5 +39,13 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
                 owner_id: owner_id,
             }
         )
+    }
+}
+
+impl From<RefreshTokenFlag> for Bson 
+{
+    fn from(token_flag: RefreshTokenFlag) -> Bson 
+    {
+        Bson::String(token_flag.to_string())
     }
 }
