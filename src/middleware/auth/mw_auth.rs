@@ -56,7 +56,7 @@ pub async fn mw_ctx_resolver(
 	let acces_token_options = jar.get_cookie(cookie_names_acces_token.as_str());
 
 
-	let result_ctx = match acces_token_options
+	let ctx_result = match acces_token_options
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))
 		.and_then(|val| parse_token(val.as_str()))
 	{
@@ -65,14 +65,14 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AccesTokenExpired))
+	if ctx_result.is_err() && !matches!(ctx_result, Err(ServerError::AccesTokenExpired))
 	{
 		jar.remove_cookie(cookie_names_acces_token.as_str());
 	}
 
 	req
         .extensions_mut()
-        .insert(result_ctx);
+        .insert(ctx_result);
 
 	Ok(next.run(req).await)
 }
@@ -92,9 +92,9 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 	}
 }
 
-fn parse_token(token: &str) -> Result<Claims, ServerError>
+fn parse_token(acces_token: &str) -> Result<Claims, ServerError>
 {
-	let claims = jwt::extract_acces_token(token, TokenStatus::DisallowExpired)?;
+	let claims = jwt::extract_acces_token(acces_token, TokenStatus::DisallowExpired)?;
 
     Ok(claims)
 }
