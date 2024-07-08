@@ -74,7 +74,7 @@ async fn login(
 
         jar.create_cookie(
             AuthCookieNames::DEVICE_ID.into(), 
-            &refresh_token.device_id, 
+            refresh_token.device_id, 
             cookies::COOKIE_DEVICE_ID_TTL_MIN
         );
     }
@@ -88,13 +88,13 @@ async fn login(
         {
             jar.create_cookie(
                 AuthCookieNames::AUTH_ACCES.into(), 
-                &token, 
+                token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
             
             jar.create_cookie(
                 AuthCookieNames::AUTH_REFRESH.into(), 
-                &refresh_token.value,
+                refresh_token.value,
                 cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
             );
 
@@ -147,7 +147,7 @@ async fn refresh_token(
         {
             jar.create_cookie(
                 AuthCookieNames::AUTH_ACCES.into(), 
-                &token, 
+                token, 
                 cookies::COOKIE_ACCES_TOKEN_TTL_MIN
             );
             
