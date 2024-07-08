@@ -8,34 +8,36 @@ use crate::middleware as mw;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
-    let routes_with_middleware = Router::new()
+    let routes_with_regular_middleware = Router::new()
         .route("/user", get(get_current_user))
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
+        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+
+    let routes_with_admin_middleware = Router::new()
         .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_require_management_auth))
         .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+
 
     let routes_without_middleware = Router::new()
         .route("/user", post(create_user))
         .with_state(state);
 
     return Router::new()
-        .merge(routes_with_middleware)
+        .merge(routes_with_regular_middleware)
+        .merge(routes_with_admin_middleware)
         .merge(routes_without_middleware);
 }
 
 
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    ctx: Ctx,
     Path(user_id): Path<String>
 ) -> impl IntoResponse
-{
-    let _ = ctx
-        .user_flag_ref()
-        .is_admin_or_owner()?;
-    
+{   
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&user_id).await 
@@ -63,15 +65,9 @@ async fn get_current_user(
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
-    ctx: Ctx,
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-
-    let _ = ctx
-        .user_flag_ref()
-        .is_admin_or_owner()?;
-
     let repo_user = &state.repo_user;
 
     let pagination = Pagination::new(pagination);
