@@ -36,9 +36,10 @@ async fn login(
         .get_user_by_mail(&payload.mail)
         .await?;
 
-    let _ = user
-        .flag
-        .is_allowed_on_platform()?;
+    if !user.flag.is_allowed_on_platform()
+    {
+        return Err(ServerError::IncorrectUserPermissions(user.flag.clone()));
+    }
 
     let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
@@ -129,11 +130,11 @@ async fn refresh_token(
         .get_valid_token_by_device_id(&device_id_cookie)
         .await?;
 
-    if let Err(err) = refresh_token.owner.flag.is_allowed_on_platform()
+    if !refresh_token.owner.flag.is_allowed_on_platform()
     {
         jar.remove_cookie(AuthCookieNames::AUTH_ACCES.into());
         jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.into());
-        return Err(err);
+        return Err(ServerError::IncorrectUserPermissions(refresh_token.owner.flag.clone()));
     }
 
     if refresh_token.value != refresh_token_cookie
