@@ -4,7 +4,7 @@ use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
-use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
+use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::logging::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 

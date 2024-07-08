@@ -4,7 +4,7 @@ use axum::{extract::State, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames, Cookie2}, jwt::{self, CreateTokenRequest, TokenStatus}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{auth::{self, jwt::{self, CreateTokenRequest, TokenStatus}}, cookies::{self, AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -30,7 +30,7 @@ async fn login(
     let repo_user = &state.repo_user;
     let repo_refresh = &state.repo_refresh_token;
 
-    let device_id_cookie_name : &str = AuthCookieNames::DEVICE_ID.into();
+    let device_id_cookie_name = AuthCookieNames::DEVICE_ID;
 
     let user = repo_user
         .get_user_by_mail(&payload.mail)
@@ -47,10 +47,10 @@ async fn login(
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
-    let device_id_cookie_option = jar.get_cookie(device_id_cookie_name);
+    let device_id_cookie_option = jar.get_cookie(device_id_cookie_name.as_str());
 
     let mut refresh_token = RefreshToken::create_token(user);
-    let mut create_new_token = true;
+    let mut create_new_refresh_token = true;
 
 
     if let Some(device_id_cookie) = device_id_cookie_option
@@ -62,23 +62,23 @@ async fn login(
                 if token.owner.id == refresh_token.owner.id
                 {    
                     refresh_token = token;
-                    create_new_token = false;
+                    create_new_refresh_token = false;
                 }
             },
             _ => (),
         }
     }
 
-    if create_new_token
+    if create_new_refresh_token
     {
         refresh_token = repo_refresh
             .create_token(refresh_token)
             .await?;
 
         jar.create_cookie(
-            device_id_cookie_name, 
+            device_id_cookie_name.as_str(), 
             refresh_token.device_id, 
-            cookies::COOKIE_DEVICE_ID_TTL_MIN
+            device_id_cookie_name.ttl_in_mins(),
         );
     }
     
@@ -89,16 +89,21 @@ async fn login(
     {
         Ok(token) => 
         {
+            let acces_token_cookie_name = AuthCookieNames::AUTH_ACCES;
+            let refresh_token_cookie_name = AuthCookieNames::AUTH_REFRESH;
+
             jar.create_cookie(
-                AuthCookieNames::AUTH_ACCES.into(), 
+                acces_token_cookie_name.as_str(), 
                 token, 
-                cookies::COOKIE_ACCES_TOKEN_TTL_MIN
+                acces_token_cookie_name.ttl_in_mins(), 
             );
             
+            //refresh token value always gets rewritten
+            //not gonna assume its there when trying to login
             jar.create_cookie(
-                AuthCookieNames::AUTH_REFRESH.into(), 
+                refresh_token_cookie_name.as_str(),
                 refresh_token.value,
-                cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
+                refresh_token_cookie_name.ttl_in_mins(),
             );
 
             return Ok(());
@@ -148,10 +153,12 @@ async fn refresh_token(
     {
         Ok(token) => 
         {
+            let acces_token_cookie_name = AuthCookieNames::AUTH_ACCES;
+
             jar.create_cookie(
-                AuthCookieNames::AUTH_ACCES.into(), 
+                acces_token_cookie_name.as_str(), 
                 token, 
-                cookies::COOKIE_ACCES_TOKEN_TTL_MIN
+                acces_token_cookie_name.ttl_in_mins(),
             );
             
             return Ok(());
