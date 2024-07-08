@@ -25,7 +25,7 @@ impl UserFlag
         }
     }
 
-    pub fn is_allowed_on_platform(&self) -> bool
+    pub fn is_allowed_on_mogcord(&self) -> bool
     {
         match &self
         {

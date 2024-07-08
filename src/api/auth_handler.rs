@@ -36,7 +36,7 @@ async fn login(
         .get_user_by_mail(&payload.mail)
         .await?;
 
-    if !user.flag.is_allowed_on_platform()
+    if !user.flag.is_allowed_on_mogcord()
     {
         return Err(ServerError::IncorrectUserPermissions(user.flag.clone()));
     }
@@ -130,7 +130,7 @@ async fn refresh_token(
         .get_valid_token_by_device_id(&device_id_cookie)
         .await?;
 
-    if !refresh_token.owner.flag.is_allowed_on_platform()
+    if !refresh_token.owner.flag.is_allowed_on_mogcord()
     {
         jar.remove_cookie(AuthCookieNames::AUTH_ACCES.into());
         jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.into());
