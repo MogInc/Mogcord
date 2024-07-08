@@ -4,7 +4,7 @@ use axum::{extract::State, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{auth::{self, jwt::{self, CreateTokenRequest, TokenStatus}}, cookies::{self, AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{auth::jwt::{self, CreateTokenRequest, TokenStatus}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
