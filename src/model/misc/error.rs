@@ -49,10 +49,10 @@ pub enum ServerError
 	AuthCookieInvalid(AuthCookieNames),
 
 	//jwt
-	FailedCreatingToken,
-	JWTKeyNotSet,
-	JWTTokenInvalid,
-	JWTTokenExpired,
+	FailedCreatingAccesToken,
+	AccesTokenKeyNotSet,
+	AccesTokenInvalid,
+	AccesTokenExpired,
 
 	//hashing
 	HashingPasswordFailed,
@@ -119,7 +119,7 @@ impl ServerError
 			| Self::AuthCookieNotFound(_)
 			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
-			Self::FailedCreatingToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
 			
 			Self::HashingPasswordFailed
 			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),

@@ -12,7 +12,7 @@ Add a .env file in project root.
 
 ```bash
 #key for encoding jwt tokens
-JWT_KEY=
+ACCES_TOKEN_KEY=
 ```
 
 
