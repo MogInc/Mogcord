@@ -41,7 +41,8 @@ impl<'de> Deserialize<'de> for ChatType
         }
 
         const FIELDS: &[&str] = &["private", "group", "server"];
-        return deserializer.deserialize_identifier(ChatTypeVisitor);
+        
+        deserializer.deserialize_identifier(ChatTypeVisitor)
     }
 
 

@@ -3,28 +3,16 @@ use std::env;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use crate::model::misc::ServerError;
+use crate::model::{misc::ServerError, user::UserFlag};
 
 const JWT_TTL_MINS: i64 = 10;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
 {
-    sub: String,
-    exp: usize,
-}
-
-impl Claims
-{
-    pub fn sub(self) -> String
-    {
-        return self.sub;
-    }
-
-    pub fn exp(self) -> usize
-    {
-        return self.exp;
-    }
+    pub sub: String,
+    pub user_flag: UserFlag,
+    pub exp: usize,
 }
 
 #[derive(PartialEq)]
@@ -34,9 +22,22 @@ pub enum TokenStatus
     DisallowExpired,
 }
 
-pub struct CreateTokenRequest
+pub struct CreateTokenRequest<'user_info>
 {
-    pub user_id: String
+    user_id: &'user_info String,
+    user_flag: &'user_info UserFlag,
+}
+
+impl<'user_info> CreateTokenRequest<'user_info>
+{
+    pub fn new(user_id: &'user_info String, user_flag: &'user_info UserFlag) -> Self
+    {
+        Self
+        {
+            user_id: user_id,
+            user_flag: user_flag,
+        }
+    }
 }
 
 pub fn create_token(request: &CreateTokenRequest) -> Result<String, ServerError>
@@ -44,6 +45,7 @@ pub fn create_token(request: &CreateTokenRequest) -> Result<String, ServerError>
     let claims = Claims
     {
         sub: request.user_id.clone(),
+        user_flag: request.user_flag.clone(),
         exp: (Utc::now() + Duration::minutes(JWT_TTL_MINS)).timestamp() as usize,
     };
     

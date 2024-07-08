@@ -26,7 +26,7 @@ impl MessageRepository for MongolDB
 
         let date = message
             .timestamp
-            .convert_to_bson_datetime()
+            .convert_to_bson_date()
             .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
         let bucket_filter = doc!
@@ -242,6 +242,10 @@ impl MessageRepository for MongolDB
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
 
+        //what would be faster
+        //1: reallocating vecs when capacity is reached
+        //2: having a count or length and setting a capacity 
+
         let mut messages: Vec<Message> = Vec::new();
 
         while let Some(result) = cursor.next().await
@@ -259,8 +263,7 @@ impl MessageRepository for MongolDB
             };
         }
 
-
-        return Ok(messages);
+        Ok(messages)
     }
 
     async fn update_message(&self, message: Message) -> Result<Message, ServerError>

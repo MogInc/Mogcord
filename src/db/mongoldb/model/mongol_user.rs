@@ -1,6 +1,7 @@
+use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::mongol_helper, model::user::User};
+use crate::{db::mongoldb::mongol_helper, model::user::{User, UserFlag}};
 
 use super::MongolError;
 
@@ -11,6 +12,7 @@ pub struct MongolUser
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
+    pub flag: UserFlag,
 }
 
 impl TryFrom<&User> for MongolUser
@@ -28,6 +30,7 @@ impl TryFrom<&User> for MongolUser
                 username: value.username.clone(),
                 mail: value.mail.clone(),
                 hashed_password: value.hashed_password.clone(),
+                flag: value.flag.clone(),
             }
         )
     }
@@ -56,11 +59,22 @@ impl From<&MongolUser> for User
 {
     fn from(value: &MongolUser) -> Self 
     {
-        return User::convert(
+        User::convert(
             value._id.to_string(),
             value.username.clone(), 
             value.mail.clone(),
-            value.hashed_password.clone()
-        );
+            value.hashed_password.clone(),
+            value.flag.clone(),
+        )
+    }
+}
+
+impl From<UserFlag> for Bson 
+{
+    fn from(user_flag: UserFlag) -> Bson 
+    {
+        
+
+        Bson::String(user_flag.to_string())
     }
 }

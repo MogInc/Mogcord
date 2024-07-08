@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         .merge(routes_chat(state.clone()))
         .merge(routes_message(state.clone()))
         .merge(routes_user(state.clone()))
-        .merge(routes_auth(state.clone()));
+        .merge(routes_auth(state));
 
 
     let app: Router = Router::new()

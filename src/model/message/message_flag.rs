@@ -50,7 +50,8 @@ impl<'de> Deserialize<'de> for MessageFlag
         }
 
         const FIELDS: &[&str] = &["none", "edited", "deleted"];
-        return deserializer.deserialize_identifier(MessageFlagVisitor);
+        
+        deserializer.deserialize_identifier(MessageFlagVisitor)
     }
 }
 

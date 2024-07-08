@@ -23,9 +23,9 @@ impl Pagination {
 
     pub fn new(page : Option<Query<Pagination>>) -> Self
     {
-        return page
-        .map(|Query(pagination)| Self::new_valid(pagination.page, pagination.page_size))
-        .unwrap_or_default();
+        page
+            .map(|Query(pagination)| Self::new_valid(pagination.page, pagination.page_size))
+            .unwrap_or_default()
     }
 }
 
@@ -33,7 +33,7 @@ impl Pagination
 {
     pub fn get_skip_size(&self) -> usize
     {
-        return (self.page - 1) * self.page_size;
+        (self.page - 1) * self.page_size
     }
 }
 

@@ -8,31 +8,36 @@ use crate::middleware as mw;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
-    let routes_with_middleware = Router::new()
+    let routes_with_regular_middleware = Router::new()
+        .route("/user", get(get_current_user))
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
+        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+
+    let routes_with_admin_middleware = Router::new()
         .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_require_management_auth))
         .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+
 
     let routes_without_middleware = Router::new()
         .route("/user", post(create_user))
         .with_state(state);
 
     return Router::new()
-        .merge(routes_with_middleware)
+        .merge(routes_with_regular_middleware)
+        .merge(routes_with_admin_middleware)
         .merge(routes_without_middleware);
 }
 
+
 async fn get_user(
     State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-    Path(user_id): Path<String>,
+    Path(user_id): Path<String>
 ) -> impl IntoResponse
-{
-    //TODO: Add AA
-    println!("{ctx:?}");
-
+{   
     let repo_user = &state.repo_user;
 
     match repo_user.get_user_by_id(&user_id).await 
@@ -42,14 +47,27 @@ async fn get_user(
     }
 }
 
+async fn get_current_user(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+) -> impl IntoResponse
+{
+    let current_user_id = ctx.user_id_ref();
+
+    let repo_user = &state.repo_user;
+
+    match repo_user.get_user_by_id(&current_user_id).await 
+    {
+        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Err(e) => Err(e),
+    }
+}
 
 async fn get_users(
     State(state): State<Arc<AppState>>,
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    //TODO: Add AA
-
     let repo_user = &state.repo_user;
 
     let pagination = Pagination::new(pagination);
@@ -80,7 +98,10 @@ async fn create_user(
 
     let user = User::new(payload.username, payload.mail, hashed_password);
 
-    if repo_user.does_username_exist(&user.username).await?
+    //TODO: add user ban checks
+    //TODO: mail verification (never)
+
+    if repo_user.does_user_exist_by_username(&user.username).await?
     {
         return Err(ServerError::UsernameAlreadyInUse);
     }

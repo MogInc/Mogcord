@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::middleware::cookies::AuthCookieNames;
+use crate::{middleware::cookies::AuthCookieNames, model::user::UserFlag};
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
@@ -29,8 +29,8 @@ pub enum ServerError
 
 	//message
 	MessageNotFound,
-	ChatNotPartThisMessage,
-	UserNotPartThisMessage,
+	MessageDoesNotContainThisChat,
+	MessageDoesNotContainThisUser,
 
 	//refresh token
 	RefreshTokenNotFound,
@@ -59,6 +59,10 @@ pub enum ServerError
 	VerifyingPasswordFailed,
 	HashingPasswordFailedBlocking,
 	VerifyingPasswordFailedBlocking,
+
+	//permissions
+	UserIsNotAdminOrOwner,
+	IncorrectUserPermissions(UserFlag),
 
 	//fallback
 	NotImplemented,
@@ -101,8 +105,8 @@ impl ServerError
 			| Self::ChatNotFound
 			| Self::MessageNotFound
 			| Self::ChatAlreadyExists
-			| Self::ChatNotPartThisMessage
-			| Self::UserNotPartThisMessage
+			| Self::MessageDoesNotContainThisChat
+			| Self::MessageDoesNotContainThisUser
 			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
@@ -128,6 +132,10 @@ impl ServerError
 			| Self::FailedDelete(_)
 			| Self::TransactionError(_)
 			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
+
+
+			Self::UserIsNotAdminOrOwner
+			| Self::IncorrectUserPermissions(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,

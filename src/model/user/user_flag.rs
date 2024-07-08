@@ -1,10 +1,9 @@
 use std::str::FromStr;
 use chrono::{DateTime, Utc};
-use serde::{de::{self, Visitor}, Deserialize};
+use serde::{de::{self, Visitor}, Deserialize, Serialize};
 use std::fmt;
 
-
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum UserFlag 
 {
     None,
@@ -13,6 +12,27 @@ pub enum UserFlag
     Banned { date: DateTime<Utc> },
     Admin,
     Owner,
+}
+
+impl UserFlag
+{
+    pub fn is_admin_or_owner(&self) -> bool
+    {
+        match &self
+        {
+            Self::Admin | Self::Owner => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_allowed_on_mogcord(&self) -> bool
+    {
+        match &self
+        {
+            Self::None | Self::Admin | Self::Owner => true,
+            _ => false,
+        }
+    }
 }
 
 impl fmt::Display for UserFlag 
@@ -53,7 +73,8 @@ impl<'de> Deserialize<'de> for UserFlag
         }
 
         const FIELDS: &[&str] = &["none", "disabled", "deleted", "banned", "admin", "owner"];
-        return deserializer.deserialize_identifier(UserFlagVisitor);
+        
+        deserializer.deserialize_identifier(UserFlagVisitor)
     }
 }
 
