@@ -6,15 +6,38 @@ use crate::{middleware::cookies::{AuthCookieNames, Cookie2}, model::misc::Server
 use super::{jwt::{self, Claims, TokenStatus}, Ctx};
 
 
-pub async fn mw_require_auth(
+pub async fn mw_require_regular_auth(
     ctx: Result<Ctx, ServerError>,
     req: Request<Body>, 
     next: Next
 ) -> Result<Response, ServerError>
 {
-    println!("AUTH MIDDLEWARE: ");
+    println!("AUTH MIDDLEWARE (REG): ");
 
     ctx?;
+
+    return Ok(next.run(req).await);
+}
+
+pub async fn mw_require_management_auth(
+    ctx: Result<Ctx, ServerError>,
+    req: Request<Body>, 
+    next: Next
+) -> Result<Response, ServerError>
+{
+    println!("AUTH MIDDLEWARE (MNG): ");
+
+	match ctx
+	{
+		Ok(ctx) => 
+		{
+			if !ctx.user_flag_ref().is_admin_or_owner()
+			{
+				return Err(ServerError::UserIsNotAdminOrOwner);
+			}
+		},
+		Err(err) => return Err(err),
+	}
 
     return Ok(next.run(req).await);
 }
