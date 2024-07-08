@@ -30,7 +30,7 @@ impl Hashing
             
         }).await.map_err(|_| ServerError::HashingPasswordFailedBlocking)??;
 
-        return Ok(text_hashed);
+        Ok(text_hashed)
     }
 
     pub async fn verify_hash(clear_text: &str, hash: &str) -> Result<(), ServerError>
@@ -54,6 +54,6 @@ impl Hashing
 
     fn give_argon_settings<'schema>() -> Argon2<'schema>
     {
-        return Argon2::default();
+        Argon2::default()
     }
 }

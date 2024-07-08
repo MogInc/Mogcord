@@ -16,7 +16,7 @@ pub async fn mw_require_regular_auth(
 
     ctx?;
 
-    return Ok(next.run(req).await);
+    Ok(next.run(req).await)
 }
 
 pub async fn mw_require_management_auth(
@@ -39,7 +39,7 @@ pub async fn mw_require_management_auth(
 		Err(err) => return Err(err),
 	}
 
-    return Ok(next.run(req).await);
+    Ok(next.run(req).await)
 }
 
 
@@ -96,5 +96,5 @@ fn parse_token(token: &str) -> Result<Claims, ServerError>
 {
 	let claims = jwt::extract_token(token, TokenStatus::DisallowExpired)?;
 
-    return Ok(claims);
+    Ok(claims)
 }

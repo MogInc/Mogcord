@@ -58,7 +58,8 @@ impl<'de> Deserialize<'de> for RefreshTokenFlag
         }
 
         const FIELDS: &[&str] = &["none", "revoked"];
-        return deserializer.deserialize_identifier(RefreshTokenFlagVisitor);
+        
+        deserializer.deserialize_identifier(RefreshTokenFlagVisitor)
     }
 }
 

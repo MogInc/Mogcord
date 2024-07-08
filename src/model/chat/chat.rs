@@ -53,14 +53,16 @@ impl Chat
             _ => users_sanitized
         };
 
-        Ok(Self
-        {
-            id: Uuid::now_v7().to_string(),
-            name: name_sanitized,
-            r#type: r#type,
-            owners: owners,
-            users: users_sanitized,
-        })
+        Ok(
+            Self
+            {
+                id: Uuid::now_v7().to_string(),
+                name: name_sanitized,
+                r#type: r#type,
+                owners: owners,
+                users: users_sanitized,
+            }
+        )
     }
 }
 

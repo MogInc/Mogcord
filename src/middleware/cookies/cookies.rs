@@ -23,13 +23,15 @@ impl Cookie2 for Cookies
         self.add(cookie);
     }
 
-    fn get_cookie(&self, name: &str) -> Option<String> {
-        return self
+    fn get_cookie(&self, name: &str) -> Option<String> 
+    {
+        self
             .get(name)
-            .map(|c| c.value().to_string());
+            .map(|c| c.value().to_string())
     }
 
-    fn remove_cookie(&self, name: &'static str) {
+    fn remove_cookie(&self, name: &'static str) 
+    {
         let cookie = Cookie::build(name).path("/").build();
 
         self.remove(cookie);

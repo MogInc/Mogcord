@@ -73,7 +73,8 @@ impl<'de> Deserialize<'de> for UserFlag
         }
 
         const FIELDS: &[&str] = &["none", "disabled", "deleted", "banned", "admin", "owner"];
-        return deserializer.deserialize_identifier(UserFlagVisitor);
+        
+        deserializer.deserialize_identifier(UserFlagVisitor)
     }
 }
 

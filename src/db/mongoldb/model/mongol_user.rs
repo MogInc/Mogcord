@@ -59,13 +59,13 @@ impl From<&MongolUser> for User
 {
     fn from(value: &MongolUser) -> Self 
     {
-        return User::convert(
+        User::convert(
             value._id.to_string(),
             value.username.clone(), 
             value.mail.clone(),
             value.hashed_password.clone(),
             value.flag.clone(),
-        );
+        )
     }
 }
 
