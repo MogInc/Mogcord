@@ -51,12 +51,12 @@ pub async fn mw_ctx_resolver(
 {
 	println!("MTX RESOLVER: ");
 
-    let auth_cookie_name = AuthCookieNames::AUTH_ACCES.into();
+    let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
 
-	let auth_token = jar.get_cookie(auth_cookie_name);
+	let acces_token_options = jar.get_cookie(cookie_names_acces_token.as_str());
 
 
-	let result_ctx = match auth_token
+	let result_ctx = match acces_token_options
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))
 		.and_then(|val| parse_token(val.as_str()))
 	{
@@ -65,9 +65,9 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::JWTTokenExpired))
+	if result_ctx.is_err() && !matches!(result_ctx, Err(ServerError::AccesTokenExpired))
 	{
-		jar.remove_cookie(auth_cookie_name);
+		jar.remove_cookie(cookie_names_acces_token.as_str());
 	}
 
 	req
@@ -94,7 +94,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 
 fn parse_token(token: &str) -> Result<Claims, ServerError>
 {
-	let claims = jwt::extract_token(token, TokenStatus::DisallowExpired)?;
+	let claims = jwt::extract_acces_token(token, TokenStatus::DisallowExpired)?;
 
     Ok(claims)
 }
