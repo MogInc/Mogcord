@@ -11,7 +11,7 @@ pub fn routes_chat(state: Arc<AppState>) -> Router
         .route("/chat", post(create_chat))
         .route("/chat/:chat_id", get(get_chat))
         .with_state(state)
-        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
         .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
 }
 

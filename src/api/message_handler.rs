@@ -12,7 +12,7 @@ pub fn routes_message(state: Arc<AppState>) -> Router
         .route("/chat/:chat_id/message", post(create_message))
         .route("/chat/:chat_id/message/:message_id", patch(update_message))
         .with_state(state)
-        .route_layer(middleware::from_fn(mw::mw_require_auth))
+        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
         .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
 }
 
