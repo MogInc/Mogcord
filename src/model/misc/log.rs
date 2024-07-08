@@ -17,8 +17,8 @@ pub async fn log_request(
 
     let timestamp = chrono::Utc::now();
 
-	let error_type = service_error.map(|se| se.to_string());
-	let error_data = serde_json::to_value(service_error)
+	let error_type_option = service_error.map(|se| se.to_string());
+	let error_data_option = serde_json::to_value(service_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(|v| v.take()));
 
@@ -33,8 +33,8 @@ pub async fn log_request(
 		req_method: req_method.to_string(),
 
 		client_error_type: client_error.map(|e| e.as_ref().to_string()),
-		error_type,
-		error_data,
+		error_type: error_type_option,
+		error_data: error_data_option,
 	};
 
 	println!("   ->> log_request: \n{}", json!(log_line));
