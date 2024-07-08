@@ -8,7 +8,7 @@ use crate::model::user::User;
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     let routes_with_regular_middleware = Router::new()
-        .route("/user", get(get_current_user))
+        .route("/user", get(get_ctx_user))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
@@ -46,16 +46,16 @@ async fn get_user(
     }
 }
 
-async fn get_current_user(
+async fn get_ctx_user(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let current_user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
 
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&current_user_id).await 
+    match repo_user.get_user_by_id(&ctx_user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),

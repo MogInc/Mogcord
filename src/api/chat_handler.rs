@@ -26,9 +26,9 @@ async fn get_chat(
         .get_chat_by_id(&chat_id)
         .await?;
 
-    let user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
     
-    match chat.is_user_part_of_chat(user_id)
+    match chat.is_user_part_of_chat(ctx_user_id)
     {
         true => Ok(Json(ChatDTO::obj_to_dto(chat))),
         false => Err(ServerError::ChatDoesNotContainThisUser),
