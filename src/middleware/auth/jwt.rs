@@ -5,7 +5,7 @@ use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, 
 use serde::{Deserialize, Serialize};
 use crate::model::{misc::ServerError, user::UserFlag};
 
-const JWT_TTL_MINS: i64 = 10;
+use super::ACCES_TOKEN_TTL_MIN;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
@@ -22,13 +22,13 @@ pub enum TokenStatus
     DisallowExpired,
 }
 
-pub struct CreateTokenRequest<'user_info>
+pub struct CreateAccesTokenRequest<'user_info>
 {
     user_id: &'user_info String,
     user_flag: &'user_info UserFlag,
 }
 
-impl<'user_info> CreateTokenRequest<'user_info>
+impl<'user_info> CreateAccesTokenRequest<'user_info>
 {
     pub fn new(user_id: &'user_info String, user_flag: &'user_info UserFlag) -> Self
     {
@@ -40,49 +40,49 @@ impl<'user_info> CreateTokenRequest<'user_info>
     }
 }
 
-pub fn create_token(request: &CreateTokenRequest) -> Result<String, ServerError>
+pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, ServerError>
 {
     let claims = Claims
     {
         sub: request.user_id.clone(),
         user_flag: request.user_flag.clone(),
-        exp: (Utc::now() + Duration::minutes(JWT_TTL_MINS)).timestamp() as usize,
+        exp: (Utc::now() + Duration::minutes(ACCES_TOKEN_TTL_MIN)).timestamp() as usize,
     };
     
-    let jwt_key = env::var("JWT_KEY")
-        .map_err(|_| ServerError::JWTKeyNotSet)?;
+    let acces_token_key = env::var("ACCES_TOKEN_KEY")
+        .map_err(|_| ServerError::AccesTokenKeyNotSet)?;
 
-    let token = encode(
+    let acces_token = encode(
         &Header::default(), 
         &claims, 
-        &EncodingKey::from_secret(jwt_key.as_ref())
-    ).map_err(|_| ServerError::FailedCreatingToken)?;
+        &EncodingKey::from_secret(acces_token_key.as_ref())
+    ).map_err(|_| ServerError::FailedCreatingAccesToken)?;
 
 
-    Ok(token)
+    Ok(acces_token)
 }
 
-pub fn extract_token(token: &str, token_status: TokenStatus) -> Result<Claims, ServerError>
+pub fn extract_acces_token(token: &str, acces_token_status: TokenStatus) -> Result<Claims, ServerError>
 {
-    let jwt_key = env::var("JWT_KEY")
-        .map_err(|_| ServerError::JWTKeyNotSet)?;
+    let acces_token_key = env::var("ACCES_TOKEN_KEY")
+        .map_err(|_| ServerError::AccesTokenKeyNotSet)?;
 
     let mut validation = Validation::default();
     
-    if token_status == TokenStatus::AllowExpired
+    if acces_token_status == TokenStatus::AllowExpired
     {
         validation.validate_exp = false;
     }
     
-    match decode::<Claims>(token,&DecodingKey::from_secret(jwt_key.as_ref()), &validation)
+    match decode::<Claims>(token,&DecodingKey::from_secret(acces_token_key.as_ref()), &validation)
     {
-        Ok(token_data) => Ok(token_data.claims),
+        Ok(acces_token_data) => Ok(acces_token_data.claims),
         Err(err) => 
         {
             match *err.kind()
             {
-                ErrorKind::ExpiredSignature => Err(ServerError::JWTTokenExpired),
-                _ => Err(ServerError::JWTTokenInvalid),
+                ErrorKind::ExpiredSignature => Err(ServerError::AccesTokenExpired),
+                _ => Err(ServerError::AccesTokenInvalid),
             }
         },
     }

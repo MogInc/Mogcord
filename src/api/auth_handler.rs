@@ -4,7 +4,7 @@ use axum::{extract::State, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{cookies::{self, AuthCookieNames, Cookie2}, jwt::{self, CreateTokenRequest, TokenStatus}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{auth::jwt::{self, CreateAccesTokenRequest, TokenStatus}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -30,7 +30,7 @@ async fn login(
     let repo_user = &state.repo_user;
     let repo_refresh = &state.repo_refresh_token;
 
-    let device_id_cookie_name : &str = AuthCookieNames::DEVICE_ID.into();
+    let cookie_names_device_id = AuthCookieNames::DEVICE_ID;
 
     let user = repo_user
         .get_user_by_mail(&payload.mail)
@@ -47,10 +47,10 @@ async fn login(
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
-    let device_id_cookie_option = jar.get_cookie(device_id_cookie_name);
+    let device_id_cookie_option = jar.get_cookie(cookie_names_device_id.as_str());
 
     let mut refresh_token = RefreshToken::create_token(user);
-    let mut create_new_token = true;
+    let mut create_new_refresh_token = true;
 
 
     if let Some(device_id_cookie) = device_id_cookie_option
@@ -62,43 +62,48 @@ async fn login(
                 if token.owner.id == refresh_token.owner.id
                 {    
                     refresh_token = token;
-                    create_new_token = false;
+                    create_new_refresh_token = false;
                 }
             },
             _ => (),
         }
     }
 
-    if create_new_token
+    if create_new_refresh_token
     {
         refresh_token = repo_refresh
             .create_token(refresh_token)
             .await?;
 
         jar.create_cookie(
-            device_id_cookie_name, 
+            cookie_names_device_id.as_str(), 
             refresh_token.device_id, 
-            cookies::COOKIE_DEVICE_ID_TTL_MIN
+            cookie_names_device_id.ttl_in_mins(),
         );
     }
     
     let user = refresh_token.owner;
-    let create_token_request = CreateTokenRequest::new(&user.id, &user.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&user.id, &user.flag);
     
-    match jwt::create_token(&create_token_request)
+    match jwt::create_acces_token(&create_token_request)
     {
-        Ok(token) => 
+        Ok(acces_token) => 
         {
+            let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
+            let cookie_names_refresh_token = AuthCookieNames::AUTH_REFRESH;
+
             jar.create_cookie(
-                AuthCookieNames::AUTH_ACCES.into(), 
-                token, 
-                cookies::COOKIE_ACCES_TOKEN_TTL_MIN
+                cookie_names_acces_token.as_str(), 
+                acces_token, 
+                cookie_names_acces_token.ttl_in_mins(), 
             );
             
+            //refresh token value always gets rewritten
+            //not gonna assume its there when trying to login
             jar.create_cookie(
-                AuthCookieNames::AUTH_REFRESH.into(), 
+                cookie_names_refresh_token.as_str(),
                 refresh_token.value,
-                cookies::COOKIE_REFRESH_TOKEN_TTL_MIN
+                cookie_names_refresh_token.ttl_in_mins(),
             );
 
             return Ok(());
@@ -118,7 +123,7 @@ async fn refresh_token(
     let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.into())
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))?;
 
-    let claims = jwt::extract_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
+    let claims = jwt::extract_acces_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
    
     let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.into())
         .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_REFRESH))?;
@@ -142,16 +147,18 @@ async fn refresh_token(
         return Err(ServerError::RefreshTokenDoesNotMatchDeviceId);
     }
 
-    let create_token_request = CreateTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
 
-    match jwt::create_token(&create_token_request)
+    match jwt::create_acces_token(&create_token_request)
     {
         Ok(token) => 
         {
+            let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
+
             jar.create_cookie(
-                AuthCookieNames::AUTH_ACCES.into(), 
+                cookie_names_acces_token.as_str(), 
                 token, 
-                cookies::COOKIE_ACCES_TOKEN_TTL_MIN
+                cookie_names_acces_token.ttl_in_mins(),
             );
             
             return Ok(());

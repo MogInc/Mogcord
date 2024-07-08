@@ -3,7 +3,7 @@ use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{cookies::{AuthCookieNames, Cookie2}, Ctx}, model::misc::{log_request, RequestLogLinePersonal, ServerError}};
+use crate::{middleware::{auth::Ctx, cookies::{AuthCookieNames, Cookie2}}, model::misc::{log_request, RequestLogLinePersonal, ServerError}};
 
 pub async fn main_response_mapper(
 	uri: Uri,
@@ -35,14 +35,14 @@ pub async fn main_response_mapper(
 				(*status_code, Json(client_error_body)).into_response()
 			});
     
-    let client_error = client_status_error.unzip().1;
+    let client_error_option = client_status_error.unzip().1;
 
-	let device_id = jar.get_cookie(AuthCookieNames::DEVICE_ID.into());
+	let device_id_option = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str());
 
 	let user_info = RequestLogLinePersonal::new(
-		ctx.map(|x| x.user_id()), device_id);
+		ctx.map(|x| x.user_id()), device_id_option);
 
-    log_request(req_id, user_info, req_method, uri, service_error, client_error).await;
+    log_request(req_id, user_info, req_method, uri, service_error, client_error_option).await;
 
 	println!();
 	error_response.unwrap_or(res)

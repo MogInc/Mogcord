@@ -2,8 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::MessageDTO, middleware::Ctx, model::{message::Message, misc::{AppState, Pagination, ServerError}}};
-use crate::middleware as mw;
+use crate::{dto::MessageDTO, middleware::auth::{self, Ctx}, model::{message::Message, misc::{AppState, Pagination, ServerError}}};
 
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
@@ -12,8 +11,8 @@ pub fn routes_message(state: Arc<AppState>) -> Router
         .route("/chat/:chat_id/message", post(create_message))
         .route("/chat/:chat_id/message/:message_id", patch(update_message))
         .with_state(state)
-        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
 }
 
 async fn get_messages(
@@ -61,19 +60,19 @@ async fn create_message(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let current_user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
 
     let chat = repo_chat
         .get_chat_by_id(&chat_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(&current_user_id)
+    if !chat.is_user_part_of_chat(&ctx_user_id)
     {
         return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
     let owner = repo_user
-        .get_user_by_id(&current_user_id)
+        .get_user_by_id(&ctx_user_id)
         .await?;
 
     let message = Message::new(payload.value, owner, chat);
@@ -99,7 +98,7 @@ async fn update_message(
 {
     let repo_message = &state.repo_message;
 
-    let current_user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
     
     let mut message = repo_message
         .get_message(&message_id)
@@ -110,7 +109,7 @@ async fn update_message(
         return Err(ServerError::MessageDoesNotContainThisChat);
     }
 
-    if !message.is_user_allowed_to_edit_message(&current_user_id)
+    if !message.is_user_allowed_to_edit_message(&ctx_user_id)
     {
         return Err(ServerError::MessageDoesNotContainThisUser);
     }

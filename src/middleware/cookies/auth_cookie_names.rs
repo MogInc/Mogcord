@@ -10,15 +10,25 @@ pub enum AuthCookieNames
     DEVICE_ID,
 }
 
-impl AuthCookieNames 
+impl AuthCookieNames
 {
-    fn as_str(&self) -> &'static str 
+    pub fn as_str(&self) -> &'static str 
     {
         match self 
         {
             AuthCookieNames::AUTH_ACCES => "ACCES_TOKEN",
             AuthCookieNames::AUTH_REFRESH => "SESSION_TOKEN",
             AuthCookieNames::DEVICE_ID => "DEVICE_ID",
+        }
+    }
+
+    pub fn ttl_in_mins(&self) -> i64
+    {
+        match self 
+        {
+            AuthCookieNames::AUTH_ACCES => 60 * 24 * 31,
+            AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
+            AuthCookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }
     }
 }

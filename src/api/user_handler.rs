@@ -2,24 +2,23 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, middleware::Ctx, model::misc::{AppState, Hashing, Pagination, ServerError}};
+use crate::{dto::UserDTO, middleware::auth::{self, Ctx}, model::misc::{AppState, Hashing, Pagination, ServerError}};
 use crate::model::user::User;
-use crate::middleware as mw;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
 {
     let routes_with_regular_middleware = Router::new()
-        .route("/user", get(get_current_user))
+        .route("/user", get(get_ctx_user))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
 
     let routes_with_admin_middleware = Router::new()
         .route("/user/:user_id", get(get_user))
         .route("/users", get(get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw::mw_require_management_auth))
-        .route_layer(middleware::from_fn(mw::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_require_management_auth))
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
 
 
     let routes_without_middleware = Router::new()
@@ -47,16 +46,16 @@ async fn get_user(
     }
 }
 
-async fn get_current_user(
+async fn get_ctx_user(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let current_user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
 
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&current_user_id).await 
+    match repo_user.get_user_by_id(&ctx_user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
