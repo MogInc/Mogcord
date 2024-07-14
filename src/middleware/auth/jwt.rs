@@ -50,7 +50,7 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, S
     };
     
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| ServerError::AccesTokenKeyNotSet)?;
+        .map_err(|_| ServerError::AccesTokenHashKeyNotSet)?;
 
     let acces_token = encode(
         &Header::default(), 
@@ -65,7 +65,7 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, S
 pub fn extract_acces_token(token: &str, acces_token_status: TokenStatus) -> Result<Claims, ServerError>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| ServerError::AccesTokenKeyNotSet)?;
+        .map_err(|_| ServerError::AccesTokenHashKeyNotSet)?;
 
     let mut validation = Validation::default();
     

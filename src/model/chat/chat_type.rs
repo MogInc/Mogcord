@@ -98,7 +98,7 @@ impl ChatType
 
         if valid_requirements.owners_count != requirements.owners_count 
         {
-            return Err(ServerError::OwnersCountInvalid 
+            return Err(ServerError::InternalOwnersCountInvalid 
             {
                 expected: valid_requirements.owners_count,
                 found: requirements.owners_count,
@@ -107,7 +107,7 @@ impl ChatType
 
         if valid_requirements.has_name != requirements.has_name 
         {
-            return Err(ServerError::NameRequirementInvalid 
+            return Err(ServerError::InternalNameRequirementInvalid 
             {
                 expected: valid_requirements.has_name,
                 found: requirements.has_name,
@@ -116,7 +116,7 @@ impl ChatType
 
         if valid_requirements.has_users != requirements.has_users 
         {
-            return Err(ServerError::UsersRequirementInvalid 
+            return Err(ServerError::InternalUsersRequirementInvalid 
             {
                 expected: valid_requirements.has_users,
                 found: requirements.has_users,

@@ -21,20 +21,19 @@ pub enum ServerError
 	ChatNotFound,
 	ChatAlreadyExists,
 	OwnerCountInvalid,
-	OwnersCountInvalid { expected: usize, found: usize },
-	NameRequirementInvalid { expected: bool, found: bool },
-	UsersRequirementInvalid { expected: bool, found: bool },
 	ChatRequirementsInvalid,
 	ChatDoesNotContainThisUser,
+	InternalOwnersCountInvalid { expected: usize, found: usize },
+	InternalNameRequirementInvalid { expected: bool, found: bool },
+	InternalUsersRequirementInvalid { expected: bool, found: bool },
 
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
 	MessageDoesNotContainThisUser,
 
-	//refresh token
-	RefreshTokenNotFound,
-	RefreshTokenDoesNotMatchDeviceId,
+	//relation
+	FriendshipAlreadyExists,
 
 	//db
 	FailedRead(String),
@@ -48,9 +47,13 @@ pub enum ServerError
 	AuthCookieNotFound(AuthCookieNames),
 	AuthCookieInvalid(AuthCookieNames),
 
-	//jwt
+	//auth - refresh token
+	RefreshTokenNotFound,
+	RefreshTokenDoesNotMatchDeviceId,
+
+	//auth - acces token
 	FailedCreatingAccesToken,
-	AccesTokenKeyNotSet,
+	AccesTokenHashKeyNotSet,
 	AccesTokenInvalid,
 	AccesTokenExpired,
 
@@ -98,45 +101,64 @@ impl ServerError
         #[allow(unreachable_patterns)]
 		match self 
         {
-            Self::MailAlreadyInUse 
+			//user
+            Self::UserNotFound 
             | Self::UsernameAlreadyInUse 
-			| Self::OwnerCountInvalid
-            | Self::UserNotFound
-			| Self::ChatNotFound
-			| Self::MessageNotFound
-			| Self::ChatAlreadyExists
-			| Self::MessageDoesNotContainThisChat
-			| Self::MessageDoesNotContainThisUser
-			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+            | Self::MailAlreadyInUse => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
+
+			//chat
+			Self::ChatNotFound
+			| Self::ChatAlreadyExists
+			| Self::OwnerCountInvalid
+			| Self::ChatRequirementsInvalid => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
-			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
 
-			Self::RefreshTokenNotFound
+			//relation
+			Self::FriendshipAlreadyExists => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+
+
+			//message
+			Self::MessageNotFound
+			| Self::MessageDoesNotContainThisChat
+			| Self::MessageDoesNotContainThisUser => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+
+
+			//auth
+			Self::AccesTokenInvalid
+			| Self::AccesTokenExpired
+			| Self::RefreshTokenNotFound
 			| Self::RefreshTokenDoesNotMatchDeviceId
 			| Self::AuthCtxNotInRequest
 			| Self::AuthCookieNotFound(_)
 			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
-
 			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
-			
-			Self::HashingPasswordFailed
-			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
-			Self::VerifyingPasswordFailed
-			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+	
 
+			//db
 			Self::FailedRead(_)
 			| Self::FailedInsert(_)
 			| Self::FailedUpdate(_)
 			| Self::FailedDelete(_)
 			| Self::TransactionError(_)
 			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
+			
+
+			//hashing
+			Self::HashingPasswordFailed
+			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			Self::VerifyingPasswordFailed
+			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 
+			//permissions
 			Self::UserIsNotAdminOrOwner
 			| Self::IncorrectUserPermissions(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
+
+			//fallback
+			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,
 				ClientError::SERVICE_ERROR,
