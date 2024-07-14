@@ -42,44 +42,39 @@ impl MessageRepository for MongolDB
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
 
-        let bucket_current : MongolBucket;
-
-        match bucket_option
+        let bucket_current = if let Some(bucket) = bucket_option
         {
-            Some(bucket) =>
+            let bucket_update = doc! 
             {
-                let bucket_update = doc! 
-                {
-                    "$push": { "message_ids": db_message._id }
-                };
+                "$push": { "message_ids": db_message._id }
+            };
 
-                self
-                    .buckets()
-                    .update_one(bucket_filter, bucket_update)
-                    .session(&mut session)
-                    .await
-                    .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
+            self
+                .buckets()
+                .update_one(bucket_filter, bucket_update)
+                .session(&mut session)
+                .await
+                .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
 
-                bucket_current = bucket;
-            },
-            None =>
-            {
-                let mut bucket = Bucket::new(&message.chat, &message.timestamp);
+            bucket
+        }
+        else
+        {
+            let mut bucket = Bucket::new(&message.chat, &message.timestamp);
                 
-                bucket.add_message(message.clone());
+            bucket.add_message(message.clone());
 
-                let db_bucket = MongolBucket::try_from(&bucket)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            let db_bucket = MongolBucket::try_from(&bucket)
+                .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-                self
-                    .buckets()
-                    .insert_one(&db_bucket)
-                    .session(&mut session)
-                    .await
-                    .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
+            self
+                .buckets()
+                .insert_one(&db_bucket)
+                .session(&mut session)
+                .await
+                .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
 
-                bucket_current = db_bucket;
-            },
+            db_bucket
         };
 
         db_message.bucket_id = Some(bucket_current._id);
