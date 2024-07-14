@@ -34,6 +34,8 @@ pub enum ServerError
 
 	//relation
 	FriendshipAlreadyExists,
+	UserYoureAddingNotFound,
+	UserYoureAddingCantBeSelf,
 
 	//db
 	FailedRead(String),
@@ -116,7 +118,9 @@ impl ServerError
 
 
 			//relation
-			Self::FriendshipAlreadyExists => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			Self::UserYoureAddingNotFound
+			| Self::UserYoureAddingCantBeSelf
+			| Self::FriendshipAlreadyExists => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 
 			//message
