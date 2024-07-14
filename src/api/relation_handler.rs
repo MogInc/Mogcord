@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{extract::{self, State}, middleware, response::IntoResponse, routing::post, Json, Router};
+use axum::{extract::State, middleware, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 
 use crate::{middleware::auth::{self, Ctx}, model::misc::{AppState, ServerError}};
