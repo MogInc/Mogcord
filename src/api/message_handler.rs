@@ -7,15 +7,15 @@ use crate::{dto::MessageDTO, middleware::auth::{self, Ctx}, model::{message::Mes
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
     return Router::new()
-        .route("/chat/:chat_id/messages", get(get_messages))
-        .route("/chat/:chat_id/message", post(create_message))
-        .route("/chat/:chat_id/message/:message_id", patch(update_message))
+        .route("/chat/:chat_id/messages", get(get_messages_for_authenticated))
+        .route("/chat/:chat_id/message", post(create_message_for_authenticated))
+        .route("/chat/:chat_id/message/:message_id", patch(update_message_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
 }
 
-async fn get_messages(
+async fn get_messages_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path(chat_id): Path<String>,
     ctx: Ctx,
@@ -49,7 +49,7 @@ struct CreateMessageRequest
 {
     value: String,
 }
-async fn create_message(
+async fn create_message_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path(chat_id): Path<String>,
     ctx: Ctx,
@@ -89,7 +89,7 @@ struct UpdateMessageRequest
 {
     value: String,
 }
-async fn update_message(
+async fn update_message_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path((chat_id, message_id)): Path<(String, String)>,
     ctx: Ctx,
