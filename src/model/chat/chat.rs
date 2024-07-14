@@ -10,9 +10,11 @@ use super::chat_type::{ChatType, ChatTypeRequirements};
 pub struct Chat
 {
     pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owners: Vec<User>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub users: Option<Vec<User>>,
 }
 

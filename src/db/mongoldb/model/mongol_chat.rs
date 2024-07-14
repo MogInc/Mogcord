@@ -8,9 +8,11 @@ use super::MongolError;
 pub struct MongolChat
 {
     pub _id : Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owner_ids: Vec<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user_ids: Option<Vec<Uuid>>,
 }
 

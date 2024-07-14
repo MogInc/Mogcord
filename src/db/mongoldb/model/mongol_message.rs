@@ -16,6 +16,7 @@ pub struct MongolMessage
     pub timestamp: DateTime,
     pub owner_id: Uuid,
     pub chat_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub bucket_id: Option<Uuid>,
     pub flag: MessageFlag
 }
@@ -34,7 +35,6 @@ impl TryFrom<&Message> for MongolMessage
 
         let bucket_id_option = value.bucket_id
             .as_ref()
-            .filter(|bucket_id| !bucket_id.is_empty())
             .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
             .transpose()?;
 
