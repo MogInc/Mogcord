@@ -93,22 +93,23 @@ async fn create_user(
 {
     let repo_user = &state.repo_user;
 
-    let hashed_password = Hashing::hash_text(&payload.password).await?;
-
-    let user = User::new(payload.username, payload.mail, hashed_password);
-
     //TODO: add user ban checks
     //TODO: mail verification (never)
 
-    if repo_user.does_user_exist_by_username(&user.username).await?
+    if repo_user.does_user_exist_by_username(&payload.username).await?
     {
         return Err(ServerError::UsernameAlreadyInUse);
     }
 
-    if repo_user.does_user_exist_by_mail(&user.mail).await?
+    if repo_user.does_user_exist_by_mail(&payload.mail).await?
     {
         return Err(ServerError::MailAlreadyInUse);
     }
+
+    let hashed_password = Hashing::hash_text(&payload.password).await?;
+
+    let user = User::new(payload.username, payload.mail, hashed_password);
+
 
     match repo_user.create_user(user).await 
     {
