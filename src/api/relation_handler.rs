@@ -30,6 +30,19 @@ async fn add_friend_for_authenticated(
     Json(payload): Json<RelationRequest>,
 ) -> impl IntoResponse
 {
-    
-    todo!()
+    let repo_relation = &state.repo_relation;
+
+    let ctx_user_id = ctx.user_id_ref();
+    let other_user_id = &payload.user_id;
+
+    if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
+    {
+        return Err(ServerError::FriendshipAlreadyExists);
+    }
+
+    match repo_relation.add_friend(&ctx_user_id, &other_user_id).await
+    {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err),
+    }
 }

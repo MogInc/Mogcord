@@ -90,4 +90,9 @@ impl MongolDB
     {
         &self.refreshtokens
     }
+
+    pub fn relations(&self) -> &Collection<MongolRelation> 
+    {
+        &self.relations
+    }
 }
