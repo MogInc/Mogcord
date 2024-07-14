@@ -8,10 +8,10 @@ use crate::{middleware::{auth::jwt::{self, CreateAccesTokenRequest, TokenStatus}
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
-    return Router::new()
+    Router::new()
         .route("/auth/login", post(login_for_everyone))
         .route("/auth/refresh", post(refresh_token_for_everyone))
-        .with_state(state);
+        .with_state(state)
 }
 
 #[derive(Deserialize)]

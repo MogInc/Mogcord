@@ -6,13 +6,13 @@ use crate::{dto::MessageDTO, middleware::auth::{self, Ctx}, model::{message::Mes
 
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
-    return Router::new()
+    Router::new()
         .route("/chat/:chat_id/messages", get(get_messages_for_authenticated))
         .route("/chat/:chat_id/message", post(create_message_for_authenticated))
         .route("/chat/:chat_id/message/:message_id", patch(update_message_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
 }
 
 async fn get_messages_for_authenticated(

@@ -25,10 +25,10 @@ pub fn routes_user(state: Arc<AppState>) -> Router
         .route("/user", post(create_user_for_everyone))
         .with_state(state);
 
-    return Router::new()
+    Router::new()
         .merge(routes_with_regular_middleware)
         .merge(routes_with_admin_middleware)
-        .merge(routes_without_middleware);
+        .merge(routes_without_middleware)
 }
 
 

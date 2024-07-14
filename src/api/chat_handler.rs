@@ -6,12 +6,12 @@ use crate::{dto::ChatDTO, middleware::auth::{self, Ctx}, model::{chat::{Chat, Ch
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
-    return Router::new()
+    Router::new()
         .route("/chat", post(create_chat_for_authenticated))
         .route("/chat/:chat_id", get(get_chat_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
 }
 
 async fn get_chat_for_authenticated(
