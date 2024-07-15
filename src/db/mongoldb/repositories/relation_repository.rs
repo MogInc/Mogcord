@@ -74,14 +74,15 @@ impl RelationRepository for MongolDB
             .await
             .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
-        let filter_current_user = doc! { "user_id" : current_user_id_local };
-        let filter_other_user = doc! { "user_id" : other_user_id_local };
 
+        let filter_current_user = doc! { "user_id" : current_user_id_local };
         let update_current_user = doc! 
         {
             "$push": { "pending_outgoing_friend_ids": other_user_id_local }
         };
+        
 
+        let filter_other_user = doc! { "user_id" : other_user_id_local };
         let update_other_user = doc! 
         {
             "$push": { "pending_incoming_friend_ids": current_user_id_local }
@@ -141,8 +142,6 @@ impl RelationRepository for MongolDB
 
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
-        let filter_other_user = doc! { "user_id" : other_user_id_local };
-
         let update_current_user = doc! 
         {
             "$push": { "blocked_ids": other_user_id_local },
@@ -150,7 +149,9 @@ impl RelationRepository for MongolDB
             "$pull": { "pending_incoming_friend_ids": other_user_id_local },
             "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
         };
-
+        
+        
+        let filter_other_user = doc! { "user_id" : other_user_id_local };
         let update_other_user = doc! 
         {
             "$pull": { "friend_ids": current_user_id_local },
