@@ -90,24 +90,33 @@ impl RelationRepository for MongolDB
         let _ = add_relation(self, current_user_id_local).await;
         let _ = add_relation(self, other_user_id_local).await;
 
-        let _  = self
+        self
             .relations()
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
-            .await;
+            .await
+            .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
 
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
         {
             Ok(_) => 
             {
-                let _ = session
+                session
                     .commit_transaction()
                     .await
-                    .map_err(|err| ServerError::TransactionError(err.to_string()));
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
                 Ok(())
             },
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+            Err(err) => 
+            {
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+                Err(ServerError::FailedRead(err.to_string()))
+            }
         }
     }
 
@@ -119,20 +128,66 @@ impl RelationRepository for MongolDB
         let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        let filter = doc! { "user_id" : current_user_id_local };
+        let mut session = self
+            .client()
+            .start_session()
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
-        let update = doc! 
+        session
+            .start_transaction()
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+
+        let filter_current_user = doc! { "user_id" : current_user_id_local };
+        let filter_other_user = doc! { "user_id" : other_user_id_local };
+
+        let update_current_user = doc! 
         {
             "$push": { "blocked_ids": other_user_id_local },
             "$pull": { "friend_ids": other_user_id_local },
+            "$pull": { "pending_incoming_friend_ids": other_user_id_local },
+            "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
+        };
+
+        let update_other_user = doc! 
+        {
+            "$pull": { "friend_ids": current_user_id_local },
+            "$pull": { "pending_incoming_friend_ids": current_user_id_local },
+            "$pull": { "pending_outgoing_friend_ids": current_user_id_local },
         };
 
         let _ = add_relation(self, current_user_id_local).await;
+        let _ = add_relation(self, other_user_id_local).await;
 
-        match self.relations().update_one(filter, update).await
+        self
+            .relations()
+            .update_one(filter_other_user, update_other_user)
+            .session(&mut session)
+            .await
+            .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
+
+        match self.relations().update_one(filter_current_user, update_current_user).await
         {
-            Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+            Ok(_) => 
+            {
+                session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+                Ok(())
+            },
+            Err(err) => 
+            {
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+                
+                Err(ServerError::FailedRead(err.to_string()))
+            }
         }
     }
 
