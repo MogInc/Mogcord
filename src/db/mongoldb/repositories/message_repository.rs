@@ -1,8 +1,6 @@
 use axum::async_trait;
-use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
-use crate::model::message::MessageFlag;
 use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
 use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
 use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
@@ -422,21 +420,4 @@ impl MessageRepository for MongolDB
             None => Err(ServerError::MessageNotFound),
         }
     }
-}
-
-fn wrap_valid_message_filter(filter: Document) -> Document
-{
-    doc!
-    {
-        "$and":
-        [
-            filter,
-            { "flag": valid_message_filter() },
-        ]
-    }
-}
-
-fn valid_message_filter() -> Document
-{
-    doc! { "$in": [MessageFlag::None, MessageFlag::Edited { date: todo!() }] }
 }

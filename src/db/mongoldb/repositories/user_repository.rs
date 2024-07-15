@@ -3,37 +3,31 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserFlag, UserRepository}}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserRepository}}};
 
 #[async_trait]
 impl UserRepository for MongolDB
 {
-    async fn does_valid_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
         let filter = doc! { "_id" : user_id_local };
 
-        let filter = wrap_valid_user_filter(filter);
-
         does_user_exist(self, filter).await
     }
 
-    async fn does_valid_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
     {
         let filter = doc! { "mail" : user_mail };
 
-        let filter = wrap_valid_user_filter(filter);
-
         does_user_exist(self, filter).await
     }
 
-    async fn does_valid_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
     {
         let filter = doc! { "username" : username };
-
-        let filter = wrap_valid_user_filter(filter);
 
         does_user_exist(self, filter).await
     }
@@ -62,28 +56,24 @@ impl UserRepository for MongolDB
         }
     }
 
-    async fn get_valid_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
+    async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
         let filter = doc! { "_id": user_id_local };
 
-        let filter = wrap_valid_user_filter(filter);
-
         get_user(self, filter).await
     }
 
-    async fn get_valid_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
+    async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
     {
         let filter = doc! { "mail": mail };
 
-        let filter = wrap_valid_user_filter(filter);
-
         get_user(self, filter).await
     }
 
-    async fn get_valid_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
+    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
     {
         let mut user_ids_local : Vec<Uuid> = Vec::new();
 
@@ -101,7 +91,6 @@ impl UserRepository for MongolDB
                 "$match": 
                 { 
                     "_id": { "$in": user_ids_local },
-                    "flag": valid_user_filter(),
                 } 
             },
             //rename fields
@@ -196,23 +185,6 @@ impl UserRepository for MongolDB
     
         Ok(users)
     }
-}
-
-fn wrap_valid_user_filter(filter: Document) -> Document
-{
-    doc!
-    {
-        "$and":
-        [
-            filter,
-            { "flag": valid_user_filter() },
-        ]
-    }
-}
-
-fn valid_user_filter() -> Document
-{
-    doc! { "$in": [UserFlag::None, UserFlag::Admin, UserFlag::Owner] }
 }
 
 async fn does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, ServerError>

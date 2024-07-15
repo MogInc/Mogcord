@@ -72,7 +72,7 @@ async fn create_message_for_authenticated(
     }
 
     let owner = repo_user
-        .get_valid_user_by_id(&ctx_user_id)
+        .get_user_by_id(&ctx_user_id)
         .await?;
 
     let message = Message::new(payload.value, owner, chat);

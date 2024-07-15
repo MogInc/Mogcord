@@ -33,7 +33,7 @@ async fn login_for_everyone(
     let cookie_names_device_id = AuthCookieNames::DEVICE_ID;
 
     let user = repo_user
-        .get_valid_user_by_mail(&payload.mail)
+        .get_user_by_mail(&payload.mail)
         .await?;
 
     if !user.flag.is_allowed_on_mogcord()
