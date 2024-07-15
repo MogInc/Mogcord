@@ -103,6 +103,11 @@ impl RelationRepository for MongolDB
         }
     }
 
+    async fn confirm_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
+    {
+        todo!();
+    }
+
     async fn remove_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
         let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)
