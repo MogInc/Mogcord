@@ -85,6 +85,11 @@ async fn confirm_friend_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
+    if !repo_relation.does_incoming_friendship_exist(&ctx_user_id, &other_user_id).await?
+    {
+        return Err(ServerError::IncomingFriendRequestNotFound);
+    }
+
     if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
     {
         return Err(ServerError::UserIsAlreadyFriend);

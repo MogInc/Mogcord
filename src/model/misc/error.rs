@@ -39,6 +39,7 @@ pub enum ServerError
 	UserYoureAddingHasYouBlocked,
 	UserYoureAddingNotFound,
 	UserYoureAddingCantBeSelf,
+	IncomingFriendRequestNotFound,
 
 	//db
 	FailedRead(String),
@@ -125,7 +126,8 @@ impl ServerError
 			| Self::UserYoureAddingCantBeSelf
 			| Self::UserYoureAddingIsBlocked
 			| Self::UserIsAlreadyFriend 
-			| Self::UserIsAlreadyBlocked => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::UserIsAlreadyBlocked
+			| Self::IncomingFriendRequestNotFound => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 
 			//message
