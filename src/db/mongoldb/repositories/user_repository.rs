@@ -1,4 +1,5 @@
 use axum::async_trait;
+use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
@@ -12,29 +13,23 @@ impl UserRepository for MongolDB
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        match self.users().find_one(doc! { "_id" : user_id_local }).await
-        {
-            Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
-        }
+        let filter = doc! { "_id" : user_id_local };
+
+        does_user_exist(self, filter).await
     }
 
     async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
     {
-        match self.users().find_one(doc! { "mail" : user_mail }).await
-        {
-            Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
-        }
+        let filter = doc! { "mail" : user_mail };
+
+        does_user_exist(self, filter).await
     }
 
     async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
     {
-        match self.users().find_one(doc! { "username" : username }).await
-        {
-            Ok(option) => Ok(option.is_some()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
-        }
+        let filter = doc! { "username" : username };
+
+        does_user_exist(self, filter).await
     }
 
     async fn create_user(&self, user: User) -> Result<User, ServerError>
@@ -66,32 +61,16 @@ impl UserRepository for MongolDB
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        let user_option = self
-            .users()
-            .find_one(doc! { "_id": user_id_local })
-            .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
-        
-        match user_option 
-        {
-            Some(user) => Ok(User::from(&user)),
-            None => Err(ServerError::UserNotFound),
-        }
+        let filter = doc! { "_id": user_id_local };
+
+        get_user(self, filter).await
     }
 
     async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
     {
-        let user_option = self
-            .users()
-            .find_one(doc! { "mail": mail })
-            .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
-        
-        match user_option 
-        {
-            Some(user) => Ok(User::from(&user)),
-            None => Err(ServerError::UserNotFound),
-        }
+        let filter = doc! { "mail": mail };
+
+        get_user(self, filter).await
     }
 
     async fn get_users_by_ids(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
@@ -205,5 +184,29 @@ impl UserRepository for MongolDB
         }
     
         Ok(users)
+    }
+}
+
+async fn does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, ServerError>
+{
+    match repo.users().find_one(filter).await
+    {
+        Ok(option) => Ok(option.is_some()),
+        Err(err) => Err(ServerError::FailedRead(err.to_string()))
+    }
+}
+
+async fn get_user(repo: &MongolDB, filter: Document) -> Result<User, ServerError>
+{
+    let user_option = repo
+        .users()
+        .find_one(filter)
+        .await
+        .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+
+    match user_option 
+    {
+        Some(user) => Ok(User::from(&user)),
+        None => Err(ServerError::UserNotFound),
     }
 }
