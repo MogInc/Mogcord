@@ -426,5 +426,5 @@ impl MessageRepository for MongolDB
 
 fn internal_valid_message_filter() -> Document
 {
-    doc! { "$in": [MessageFlag::None] }
+    doc! { "$in": [MessageFlag::None, MessageFlag::Edited { date: todo!() }] }
 }
