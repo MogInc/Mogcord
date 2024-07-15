@@ -6,6 +6,8 @@ pub struct MongolRelation
 {
     user_id: Uuid,
     friend_ids: Vec<Uuid>,
+    pending_incoming_friend_ids: Vec<Uuid>,
+    pending_outgoing_friend_ids: Vec<Uuid>,
     blocked_ids: Vec<Uuid>,
 }
 
@@ -20,6 +22,8 @@ impl MongolRelation
         {
             user_id: user_id,
             friend_ids: Vec::new(),
+            pending_incoming_friend_ids: Vec::new(),
+            pending_outgoing_friend_ids: Vec::new(),
             blocked_ids: Vec::new(),
         }
     }
