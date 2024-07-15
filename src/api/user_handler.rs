@@ -39,7 +39,7 @@ async fn get_user_for_admin(
 {   
     let repo_user = &state.repo_user;
 
-    match repo_user.get_user_by_id(&user_id).await 
+    match repo_user.get_valid_user_by_id(&user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
@@ -55,7 +55,7 @@ async fn get_users_for_admin(
 
     let pagination = Pagination::new(pagination);
 
-    match repo_user.get_users(pagination).await 
+    match repo_user.get_all_users(pagination).await 
     {
         Ok(users) => Ok(Json(UserDTO::vec_to_dto(users))),
         Err(e) => Err(e),
@@ -71,7 +71,7 @@ async fn get_ctx_user_for_authenticated(
  
     let ctx_user_id = ctx.user_id_ref();
     
-    match repo_user.get_user_by_id(&ctx_user_id).await 
+    match repo_user.get_valid_user_by_id(&ctx_user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),
@@ -97,12 +97,12 @@ async fn create_user_for_everyone(
     //TODO: add user ban checks
     //TODO: mail verification (never)
 
-    if repo_user.does_user_exist_by_username(&payload.username).await?
+    if repo_user.does_valid_user_exist_by_username(&payload.username).await?
     {
         return Err(ServerError::UsernameAlreadyInUse);
     }
 
-    if repo_user.does_user_exist_by_mail(&payload.mail).await?
+    if repo_user.does_valid_user_exist_by_mail(&payload.mail).await?
     {
         return Err(ServerError::MailAlreadyInUse);
     }

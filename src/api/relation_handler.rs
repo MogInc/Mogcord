@@ -41,7 +41,7 @@ async fn add_friend_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
-    if !repo_user.does_user_exist_by_id(&other_user_id).await?
+    if !repo_user.does_valid_user_exist_by_id(&other_user_id).await?
     {
         return Err(ServerError::UserYoureAddingNotFound);
     }
@@ -80,7 +80,7 @@ async fn add_blocked_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
-    if !repo_user.does_user_exist_by_id(&other_user_id).await?
+    if !repo_user.does_valid_user_exist_by_id(&other_user_id).await?
     {
         return Err(ServerError::UserYoureAddingNotFound);
     }
