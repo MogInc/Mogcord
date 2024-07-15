@@ -37,7 +37,7 @@ async fn get_messages_for_authenticated(
         return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
-    match repo_message.get_messages(&chat_id, pagination).await
+    match repo_message.get_valid_messages(&chat_id, pagination).await
     {
         Ok(messages) => Ok(Json(MessageDTO::vec_to_dto(messages))),
         Err(e) => Err(e),
