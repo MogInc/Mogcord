@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct MongolRelation
 {
     user_id: Uuid,
-    friend_ids: Option<Vec<Uuid>>,
-    blocked_ids: Option<Vec<Uuid>>,
+    friend_ids: Vec<Uuid>,
+    blocked_ids: Vec<Uuid>,
 }
 
 impl MongolRelation
@@ -16,8 +16,8 @@ impl MongolRelation
         Self
         {
             user_id: user_id,
-            friend_ids: None,
-            blocked_ids: None,
+            friend_ids: Vec::new(),
+            blocked_ids: Vec::new(),
         }
     }
 }
