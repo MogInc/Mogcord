@@ -14,8 +14,8 @@ pub fn routes_user(state: Arc<AppState>) -> Router
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
 
     let routes_with_admin_middleware = Router::new()
-        .route("/user/:user_id", get(get_user_for_admin))
-        .route("/users", get(get_users_for_admin))
+        .route("/admin/user/:user_id", get(get_user_for_admin))
+        .route("/admin/users", get(get_users_for_admin))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(auth::mw_require_management_auth))
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
