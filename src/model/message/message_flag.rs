@@ -12,6 +12,18 @@ pub enum MessageFlag
     Deleted { date: DateTime<Utc> },
 }
 
+impl MessageFlag
+{
+    pub fn is_allowed_to_be_editted(&self) -> bool
+    {
+        match &self
+        {
+            Self::None | Self::Edited { .. } => true,
+            _ => false,
+        }
+    }
+}
+
 impl fmt::Display for MessageFlag 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
