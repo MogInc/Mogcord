@@ -1,6 +1,7 @@
 use chrono::{DateTime, Datelike, NaiveDate, Timelike, Utc};
 use mongodb::bson::{self, Uuid};
 
+
 use super::MongolError;
 
 pub trait MongolHelper
@@ -49,6 +50,12 @@ impl MongolHelper for NaiveDate
             .day(self.day() as u8)
             .build()
     }
+}
+
+
+pub trait FromWithoutMetaInfo<T>
+{
+    fn from_without_meta_info(flag: T) -> Self;
 }
 
 pub fn convert_domain_id_to_mongol(id: &str)
