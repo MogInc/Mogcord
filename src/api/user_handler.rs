@@ -55,7 +55,7 @@ async fn get_users_for_admin(
 
     let pagination = Pagination::new(pagination);
 
-    match repo_user.get_all_users(pagination).await 
+    match repo_user.get_users(pagination).await 
     {
         Ok(users) => Ok(Json(UserDTO::vec_to_dto(users))),
         Err(e) => Err(e),

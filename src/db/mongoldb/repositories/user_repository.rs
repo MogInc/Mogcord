@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserRepository}}};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserFlag, UserRepository}}};
 
 #[async_trait]
 impl UserRepository for MongolDB
@@ -15,21 +15,21 @@ impl UserRepository for MongolDB
 
         let filter = doc! { "_id" : user_id_local };
 
-        does_user_exist(self, filter).await
+        internal_does_user_exist(self, filter).await
     }
 
     async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
     {
         let filter = doc! { "mail" : user_mail };
 
-        does_user_exist(self, filter).await
+        internal_does_user_exist(self, filter).await
     }
 
     async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
     {
         let filter = doc! { "username" : username };
 
-        does_user_exist(self, filter).await
+        internal_does_user_exist(self, filter).await
     }
 
     async fn create_user(&self, user: User) -> Result<User, ServerError>
@@ -63,14 +63,14 @@ impl UserRepository for MongolDB
 
         let filter = doc! { "_id": user_id_local };
 
-        get_user(self, filter).await
+        internal_get_user(self, filter).await
     }
 
     async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
     {
         let filter = doc! { "mail": mail };
 
-        get_user(self, filter).await
+        internal_get_user(self, filter).await
     }
 
     async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
@@ -133,7 +133,7 @@ impl UserRepository for MongolDB
         Ok(users)
     }
 
-    async fn get_all_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
+    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
     {
         let pipelines = vec![
             //rename fields
@@ -187,7 +187,7 @@ impl UserRepository for MongolDB
     }
 }
 
-async fn does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, ServerError>
+async fn internal_does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, ServerError>
 {
     match repo.users().find_one(filter).await
     {
@@ -196,7 +196,7 @@ async fn does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, Serv
     }
 }
 
-async fn get_user(repo: &MongolDB, filter: Document) -> Result<User, ServerError>
+async fn internal_get_user(repo: &MongolDB, filter: Document) -> Result<User, ServerError>
 {
     let user_option = repo
         .users()
@@ -209,4 +209,22 @@ async fn get_user(repo: &MongolDB, filter: Document) -> Result<User, ServerError
         Some(user) => Ok(User::from(&user)),
         None => Err(ServerError::UserNotFound),
     }
+}
+
+
+fn _internal_wrap_valid_user_filter(filter: Document) -> Document
+{
+    doc!
+    {
+        "$and":
+        [
+            filter,
+            { "flag": _internal_valid_user_filter() },
+        ]
+    }
+}
+
+fn _internal_valid_user_filter() -> Document
+{
+    doc! { "$in": [UserFlag::None, UserFlag::Admin, UserFlag::Owner] }
 }

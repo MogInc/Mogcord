@@ -15,5 +15,5 @@ pub trait UserRepository: Send + Sync
     async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>;
     async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>;
     async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>;
-    async fn get_all_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>;
+    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>;
 }
