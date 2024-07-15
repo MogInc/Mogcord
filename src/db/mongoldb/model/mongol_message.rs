@@ -81,8 +81,6 @@ impl FromWithoutMetaInfo<&MessageFlag> for Bson
             .split('|')
             .collect();
 
-        println!("ALLOO: {:?}", parts[0]);
-
         Bson::String(parts[0].to_string())
     }
 }
