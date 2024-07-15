@@ -34,6 +34,26 @@ impl RelationRepository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
+    async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, ServerError>
+    {
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)
+            .map_err(|_| ServerError::UserNotFound)?;
+
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)
+            .map_err(|_| ServerError::UserNotFound)?;
+
+        let filter = doc!
+        {
+            "$and":
+            [
+                doc! { "user_id" : current_user_id_local },
+                doc! { "pending_incoming_friend_ids": other_user_id_local }
+            ]
+        };
+
+        does_user_relation_exist(self, filter).await
+    }
+
     async fn does_blocked_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, ServerError>
     {
         let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)
