@@ -2,9 +2,9 @@ use std::time::SystemTime;
 
 use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::mongol_helper, model::message::{Message, MessageFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper, FromWithoutMetaInfo}, model::message::{Message, MessageFlag}};
 
 use super::MongolError;
 
@@ -17,6 +17,7 @@ pub struct MongolMessage
     pub owner_id: Uuid,
     pub chat_id: Uuid,
     pub bucket_id: Option<Uuid>,
+    #[serde(serialize_with = "as_string")]
     pub flag: MessageFlag
 }
 
@@ -59,5 +60,29 @@ impl From<MessageFlag> for Bson
     fn from(message_flag: MessageFlag) -> Bson 
     {
         Bson::String(message_flag.to_string())
+    }
+}
+
+impl FromWithoutMetaInfo<MessageFlag> for Bson
+{
+    fn from_without_meta_info(flag: MessageFlag) -> Self 
+    {
+        Self::from_without_meta_info(&flag)
+    }
+}
+
+impl FromWithoutMetaInfo<&MessageFlag> for Bson
+{
+    fn from_without_meta_info(flag: &MessageFlag) -> Self 
+    {
+        let temp = flag.to_string();
+
+        let parts: Vec<&str> = temp
+            .split('|')
+            .collect();
+
+        println!("ALLOO: {:?}", parts[0]);
+
+        Bson::String(parts[0].to_string())
     }
 }
