@@ -1,7 +1,7 @@
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::mongol_helper, model::user::{User, UserFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::user::{User, UserFlag}};
 
 use super::MongolError;
 
@@ -12,6 +12,7 @@ pub struct MongolUser
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
+    #[serde(serialize_with = "as_string")]
     pub flag: UserFlag,
 }
 
@@ -73,8 +74,6 @@ impl From<UserFlag> for Bson
 {
     fn from(user_flag: UserFlag) -> Bson 
     {
-        
-
         Bson::String(user_flag.to_string())
     }
 }

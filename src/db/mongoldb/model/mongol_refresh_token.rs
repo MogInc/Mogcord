@@ -1,7 +1,7 @@
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::{mongol_helper, MongolHelper}, model::token::{RefreshToken, RefreshTokenFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper, MongolHelper}, model::token::{RefreshToken, RefreshTokenFlag}};
 
 use super::MongolError;
 
@@ -11,6 +11,7 @@ pub struct MongolRefreshToken
     pub value: String,
     pub device_id: Uuid,
     pub expiration_date: DateTime,
+    #[serde(serialize_with = "as_string")]
     pub flag: RefreshTokenFlag,
     pub owner_id: Uuid,
 }
