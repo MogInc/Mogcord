@@ -1,11 +1,23 @@
+use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRelation
 {
-    user_id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    friend_ids: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    blocked_ids: Option<String>,
+    user_id: Uuid,
+    friend_ids: Option<Vec<Uuid>>,
+    blocked_ids: Option<Vec<Uuid>>,
+}
+
+impl MongolRelation
+{
+    pub fn new(user_id: Uuid) -> Self
+    {
+        Self
+        {
+            user_id: user_id,
+            friend_ids: None,
+            blocked_ids: None,
+        }
+    }
 }
