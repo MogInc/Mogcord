@@ -68,12 +68,11 @@ async fn create_chat_for_authenticated(
 
     let users = match payload.user_ids
     {
-        Some(users) => Some(repo_user
+        Some(users) => repo_user
             .get_users_by_ids(users)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?
-        ),
-        None => None,
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?,
+        None => Vec::new(),
     };
 
     let chat = Chat::new(

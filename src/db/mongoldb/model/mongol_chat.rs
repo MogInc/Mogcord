@@ -11,7 +11,7 @@ pub struct MongolChat
     pub name: Option<String>,
     pub r#type: ChatType,
     pub owner_ids: Vec<Uuid>,
-    pub user_ids: Option<Vec<Uuid>>,
+    pub user_ids: Vec<Uuid>,
 }
 
 impl TryFrom<&Chat> for MongolChat
@@ -22,18 +22,17 @@ impl TryFrom<&Chat> for MongolChat
     {
         let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
         
-        let owner_ids = value.owners
+        let owner_ids = value
+            .owners
             .iter()
             .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
             .collect::<Result<_, _>>()?;
 
-        let user_ids = value.users
-            .as_ref()
-            .map(|users| {
-                    users.iter()
-                    .map(|user| mongol_helper::convert_domain_id_to_mongol(&user.id))
-                    .collect::<Result<_, _>>()
-            }).transpose()?;
+        let user_ids = value
+            .users
+            .iter()
+            .map(|user| mongol_helper::convert_domain_id_to_mongol(&user.id))
+            .collect::<Result<_, _>>()?;
 
         Ok(
             Self 
