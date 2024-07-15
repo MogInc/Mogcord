@@ -55,6 +55,7 @@ async fn create_chat_for_authenticated(
     //Naive solution
     //when AA gets added, check if chat is allowed to be made
     //also handle chat queu so that opposing users dont get auto dragged in it
+    //or make it so only chats with friends can be made
 
     if !payload.r#type.is_owner_size_allowed(payload.owner_ids.len())
     {
