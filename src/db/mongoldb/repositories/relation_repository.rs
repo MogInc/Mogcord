@@ -62,18 +62,51 @@ impl RelationRepository for MongolDB
         let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        let filter = doc! { "user_id" : current_user_id_local };
 
-        let update = doc! 
+        let mut session = self
+            .client()
+            .start_session()            
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+        session
+            .start_transaction()
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+        let filter_current_user = doc! { "user_id" : current_user_id_local };
+        let filter_other_user = doc! { "user_id" : other_user_id_local };
+
+        let update_current_user = doc! 
         {
-            "$push": { "friend_ids": other_user_id_local }
+            "$push": { "pending_outgoing_friend_ids": other_user_id_local }
+        };
+
+        let update_other_user = doc! 
+        {
+            "$push": { "pending_incoming_friend_ids": current_user_id_local }
         };
 
         let _ = add_relation(self, current_user_id_local).await;
+        let _ = add_relation(self, other_user_id_local).await;
 
-        match self.relations().update_one(filter, update).await
+        let _  = self
+            .relations()
+            .update_one(filter_other_user, update_other_user)
+            .session(&mut session)
+            .await;
+
+        match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
         {
-            Ok(_) => Ok(()),
+            Ok(_) => 
+            {
+                let _ = session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()));
+
+                Ok(())
+            },
             Err(err) => Err(ServerError::FailedRead(err.to_string()))
         }
     }
