@@ -88,8 +88,8 @@ impl RelationRepository for MongolDB
             "$push": { "pending_incoming_friend_ids": current_user_id_local }
         };
 
-        let _ = add_relation(self, current_user_id_local).await;
-        let _ = add_relation(self, other_user_id_local).await;
+        add_relation(self, current_user_id_local).await?;
+        add_relation(self, other_user_id_local).await?;
 
         self
             .relations()
@@ -149,7 +149,7 @@ impl RelationRepository for MongolDB
             "$pull": { "pending_incoming_friend_ids": other_user_id_local },
             "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
         };
-        
+
         
         let filter_other_user = doc! { "user_id" : other_user_id_local };
         let update_other_user = doc! 
@@ -159,8 +159,8 @@ impl RelationRepository for MongolDB
             "$pull": { "pending_outgoing_friend_ids": current_user_id_local },
         };
 
-        let _ = add_relation(self, current_user_id_local).await;
-        let _ = add_relation(self, other_user_id_local).await;
+        add_relation(self, current_user_id_local).await?;
+        add_relation(self, other_user_id_local).await?;
 
         self
             .relations()
@@ -257,7 +257,11 @@ async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), Serv
     {
         let relation = MongolRelation::new(current_user_id);
 
-        let _ = repo.relations().insert_one(relation).await;
+        repo
+            .relations()
+            .insert_one(relation)
+            .await
+            .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
     }
 
     Ok(())
