@@ -154,6 +154,7 @@ impl RelationRepository for MongolDB
         let update = doc! 
         {
             "$pull": { "friend_ids": other_user_id_local },
+            "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
         };
 
         match self.relations().update_one(filter, update).await
