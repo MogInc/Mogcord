@@ -435,7 +435,13 @@ fn internal_valid_message_filter() -> Document
     let valid_flags_bson : Vec<Regex> = valid_flags
         .iter()
         .map(|flag| {
-            let pattern = format!("^{}", flag.to_string());
+            let temp = flag.to_string();
+
+            let parts: Vec<&str> = temp
+                .split("|")
+                .collect();
+
+            let pattern = format!("^{}", parts[0]);
             Regex { pattern: pattern, options: String::new() }
         }
         )
