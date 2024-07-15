@@ -9,6 +9,7 @@ pub fn routes_relation(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/friends", post(add_friend_for_authenticated))
+        .route("/friends/confirm", post(confirm_friend_for_authenticated))
         .route("/friends", delete(remove_friend_for_authenticated))
         .route("/blocked", post(add_blocked_for_authenticated))
         .route("/blocked", delete(remove_blocked_for_authenticated))
@@ -62,6 +63,35 @@ async fn add_friend_for_authenticated(
         Err(err) => Err(err),
     }
 }
+
+async fn confirm_friend_for_authenticated(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+    Json(payload): Json<RelationRequest>,
+) -> impl IntoResponse
+{
+    let repo_relation = &state.repo_relation;
+
+    let ctx_user_id = ctx.user_id_ref();
+    let other_user_id = &payload.user_id;
+
+    if ctx_user_id == other_user_id
+    {
+        return Err(ServerError::UserYoureAddingCantBeSelf);
+    }
+
+    if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
+    {
+        return Err(ServerError::UserIsAlreadyFriend);
+    }
+
+    match repo_relation.confirm_user_as_friend(&ctx_user_id, &other_user_id).await
+    {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err),
+    }
+}
+
 
 async fn remove_friend_for_authenticated(
     State(state): State<Arc<AppState>>,
