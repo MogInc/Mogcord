@@ -81,6 +81,7 @@ impl MessageRepository for MongolDB
 
         db_message.bucket_id = Some(bucket_current._id);
 
+        //can remove this match and have implicit abort
         match self.messages().insert_one(&db_message).session(&mut session).await
         {
             Ok(_) => 
