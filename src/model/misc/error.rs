@@ -36,6 +36,7 @@ pub enum ServerError
 	UserIsAlreadyFriend,
 	UserIsAlreadyBlocked,
 	UserYoureAddingIsBlocked,
+	UserYoureAddingHasYouBlocked,
 	UserYoureAddingNotFound,
 	UserYoureAddingCantBeSelf,
 
