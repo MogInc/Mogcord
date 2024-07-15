@@ -1,5 +1,6 @@
 use axum::async_trait;
-use crate::{db::mongoldb::MongolDB, model::{misc::ServerError, relation::RelationRepository}};
+use bson::Uuid;
+use crate::{db::mongoldb::{MongolDB, MongolRelation}, model::{misc::ServerError, relation::RelationRepository}};
 use crate::db::mongoldb::mongol_helper;
 use mongodb::bson::doc;
 
@@ -38,19 +39,14 @@ impl RelationRepository for MongolDB
         let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)
             .map_err(|_| ServerError::UserNotFound)?;
 
-        let filter = doc!
-        {
-            "$and":
-            [
-                doc! { "user_id" : current_user_id_local },
-                doc! { "friend_ids" : other_user_id_local },
-            ]
-        };
+        let filter = doc! { "user_id" : current_user_id_local };
 
         let update = doc! 
         {
-            "$push": { "friend_ids": other_user_id_local}
+            "$push": { "friend_ids": other_user_id_local }
         };
+
+        let _ = add_relation(self, current_user_id_local).await;
 
         match self.relations().update_one(filter, update).await
         {
@@ -58,4 +54,24 @@ impl RelationRepository for MongolDB
             Err(err) => Err(ServerError::FailedRead(err.to_string()))
         }
     }
+}
+
+async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), ServerError>
+{
+    let filter = doc! { "user_id" : current_user_id };
+
+    let relation_option = repo
+        .relations()
+        .find_one(filter)
+        .await
+        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+
+    if let None = relation_option
+    {
+        let relation = MongolRelation::new(current_user_id);
+
+        let _ = repo.relations().insert_one(relation).await;
+    }
+
+    Ok(())
 }
