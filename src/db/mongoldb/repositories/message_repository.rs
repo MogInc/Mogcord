@@ -1,9 +1,10 @@
 use axum::async_trait;
+use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
+use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
+use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
-use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
-use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -104,7 +105,7 @@ impl MessageRepository for MongolDB
         }
     }
 
-    async fn get_messages(&self, chat_id: &str, pagination: Pagination) 
+    async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
 
@@ -117,7 +118,8 @@ impl MessageRepository for MongolDB
             {
                 "$match":
                 {
-                    "chat_id": chat_id_local
+                    "chat_id": chat_id_local,
+                    "flag": internal_valid_message_filter(),
                 },
             },
             //sort on date from new to old
@@ -420,4 +422,9 @@ impl MessageRepository for MongolDB
             None => Err(ServerError::MessageNotFound),
         }
     }
+}
+
+fn internal_valid_message_filter() -> Document
+{
+    doc! { "$in": [MessageFlag::None] }
 }
