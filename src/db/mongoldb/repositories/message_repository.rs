@@ -1,5 +1,6 @@
 use axum::async_trait;
-use bson::Document;
+use bson::{Document, Regex};
+use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
@@ -108,7 +109,6 @@ impl MessageRepository for MongolDB
     async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
-
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
         
@@ -426,5 +426,21 @@ impl MessageRepository for MongolDB
 
 fn internal_valid_message_filter() -> Document
 {
-    doc! { "$in": [MessageFlag::None, MessageFlag::Edited { date: todo!() }] }
+    let valid_flags = vec!
+    [ 
+        MessageFlag::None, 
+        MessageFlag::Edited { date: Utc::now() }
+    ];
+
+    let valid_flags_bson : Vec<Regex> = valid_flags
+        .iter()
+        .map(|flag| {
+            let pattern = format!("^{}", flag.to_string());
+
+            Regex { pattern: pattern, options: String::new() }
+        }
+        )
+        .collect();
+
+    doc! { "$in": valid_flags_bson }
 }
