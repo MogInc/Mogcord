@@ -41,9 +41,12 @@ impl fmt::Display for UserFlag
 	{
         match self
         {
-            UserFlag::Banned { date } => write!(f, "banned|{}", date),
-            UserFlag::Deleted { date } => write!(f, "deleted|{}", date),
-            _ => write!(f, "{self:?}")
+            Self::None => write!(f, "none"),
+            Self::Disabled => write!(f, "disabled"),
+            Self::Banned { date } => write!(f, "banned|{}", date),
+            Self::Deleted { date } => write!(f, "deleted|{}", date),
+            Self::Admin => write!(f, "admin"),
+            Self::Owner => write!(f, "owner"),
         }
     }
 }
