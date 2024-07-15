@@ -16,7 +16,6 @@ pub struct MongolMessage
     pub timestamp: DateTime,
     pub owner_id: Uuid,
     pub chat_id: Uuid,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bucket_id: Option<Uuid>,
     pub flag: MessageFlag
 }

@@ -16,7 +16,6 @@ pub struct Message
     pub timestamp: DateTime<Utc>,
     pub owner: User,
     pub chat: Chat,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)

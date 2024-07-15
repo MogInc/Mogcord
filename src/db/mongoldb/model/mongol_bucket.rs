@@ -13,7 +13,6 @@ pub struct MongolBucket
     pub _id: Uuid,
     pub chat_id: Uuid, 
     pub date: DateTime,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub message_ids: Option<Vec<Uuid>>, 
 }
 
