@@ -436,7 +436,6 @@ fn internal_valid_message_filter() -> Document
         .iter()
         .map(|flag| {
             let pattern = format!("^{}", flag.to_string());
-
             Regex { pattern: pattern, options: String::new() }
         }
         )

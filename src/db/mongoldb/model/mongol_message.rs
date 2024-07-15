@@ -4,7 +4,7 @@ use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::{as_string, mongol_helper, FromWithoutMetaInfo}, model::message::{Message, MessageFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::message::{Message, MessageFlag}};
 
 use super::MongolError;
 
@@ -60,27 +60,5 @@ impl From<MessageFlag> for Bson
     fn from(message_flag: MessageFlag) -> Bson 
     {
         Bson::String(message_flag.to_string())
-    }
-}
-
-impl FromWithoutMetaInfo<MessageFlag> for Bson
-{
-    fn from_without_meta_info(flag: MessageFlag) -> Self 
-    {
-        Self::from_without_meta_info(&flag)
-    }
-}
-
-impl FromWithoutMetaInfo<&MessageFlag> for Bson
-{
-    fn from_without_meta_info(flag: &MessageFlag) -> Self 
-    {
-        let temp = flag.to_string();
-
-        let parts: Vec<&str> = temp
-            .split('|')
-            .collect();
-
-        Bson::String(parts[0].to_string())
     }
 }

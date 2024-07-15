@@ -54,12 +54,6 @@ impl MongolHelper for NaiveDate
     }
 }
 
-
-pub trait FromWithoutMetaInfo<T>
-{
-    fn from_without_meta_info(flag: T) -> Self;
-}
-
 pub fn convert_domain_id_to_mongol(id: &str)
  -> Result<Uuid, MongolError>
 {
