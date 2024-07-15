@@ -1,4 +1,5 @@
 use axum::async_trait;
+use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
@@ -420,4 +421,13 @@ impl MessageRepository for MongolDB
             None => Err(ServerError::MessageNotFound),
         }
     }
+}
+
+fn valid_message_filter() -> Document
+{
+    /*
+        None,
+        Edited { date: DateTime<Utc> },
+    */
+    todo!()
 }
