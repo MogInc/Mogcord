@@ -145,18 +145,24 @@ impl RelationRepository for MongolDB
         let update_current_user = doc! 
         {
             "$push": { "blocked_ids": other_user_id_local },
-            "$pull": { "friend_ids": other_user_id_local },
-            "$pull": { "pending_incoming_friend_ids": other_user_id_local },
-            "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
+            "$pull": 
+            { 
+                "friend_ids": other_user_id_local,
+                "pending_incoming_friend_ids": other_user_id_local,
+                "pending_outgoing_friend_ids": other_user_id_local
+            },
         };
 
         
         let filter_other_user = doc! { "user_id" : other_user_id_local };
         let update_other_user = doc! 
         {
-            "$pull": { "friend_ids": current_user_id_local },
-            "$pull": { "pending_incoming_friend_ids": current_user_id_local },
-            "$pull": { "pending_outgoing_friend_ids": current_user_id_local },
+            "$pull": 
+            { 
+                "friend_ids": current_user_id_local,
+                "pending_incoming_friend_ids": current_user_id_local,
+                "pending_outgoing_friend_ids": current_user_id_local
+            },
         };
 
         add_relation(self, current_user_id_local).await?;
@@ -169,7 +175,7 @@ impl RelationRepository for MongolDB
             .await
             .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
 
-        match self.relations().update_one(filter_current_user, update_current_user).await
+        match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
         {
             Ok(_) => 
             {
@@ -209,8 +215,11 @@ impl RelationRepository for MongolDB
 
         let update = doc! 
         {
-            "$pull": { "friend_ids": other_user_id_local },
-            "$pull": { "pending_outgoing_friend_ids": other_user_id_local },
+            "$pull": 
+            { 
+                "friend_ids": other_user_id_local,
+                "pending_outgoing_friend_ids": other_user_id_local,
+            },
         };
 
         match self.relations().update_one(filter, update).await
