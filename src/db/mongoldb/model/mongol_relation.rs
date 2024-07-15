@@ -9,6 +9,9 @@ pub struct MongolRelation
     blocked_ids: Vec<Uuid>,
 }
 
+//todo: add friend count and blocked count when Count gets expensive
+//i assume its the same as n + 1 problem
+
 impl MongolRelation
 {
     pub fn new(user_id: Uuid) -> Self
