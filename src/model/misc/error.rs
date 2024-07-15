@@ -35,6 +35,7 @@ pub enum ServerError
 	//relation
 	UserIsAlreadyFriend,
 	UserIsAlreadyBlocked,
+	UserYoureAddingIsBlocked,
 	UserYoureAddingNotFound,
 	UserYoureAddingCantBeSelf,
 
@@ -121,7 +122,9 @@ impl ServerError
 			//relation
 			Self::UserYoureAddingNotFound
 			| Self::UserYoureAddingCantBeSelf
-			| Self::UserIsAlreadyFriend => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::UserYoureAddingIsBlocked
+			| Self::UserIsAlreadyFriend 
+			| Self::UserIsAlreadyBlocked => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 
 			//message

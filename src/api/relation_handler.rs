@@ -46,6 +46,11 @@ async fn add_friend_for_authenticated(
         return Err(ServerError::UserYoureAddingNotFound);
     }
 
+    if repo_relation.does_blocked_exist(&ctx_user_id, &other_user_id).await?
+    {
+        return Err(ServerError::UserYoureAddingIsBlocked);
+    }
+
     if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
     {
         return Err(ServerError::UserIsAlreadyFriend);
