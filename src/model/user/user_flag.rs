@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use serde::{de::{self, Visitor}, Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Eq, Hash)]
 pub enum UserFlag 
 {
     None,

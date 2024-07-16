@@ -5,7 +5,7 @@ use super::UserFlag;
 
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub struct User
 {
     pub id: String,
