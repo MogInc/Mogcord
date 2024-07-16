@@ -1,8 +1,7 @@
 use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::mongol_helper, model::chat::{Chat, ChatType}};
+use crate::{db::mongoldb::mongol_helper, model::{chat::{Chat, ChatType}, misc::ServerError}};
 
-use super::MongolError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolChat
@@ -16,7 +15,7 @@ pub struct MongolChat
 
 impl TryFrom<&Chat> for MongolChat
 {
-    type Error = MongolError;
+    type Error = ServerError;
 
     fn try_from(value: &Chat) -> Result<Self, Self::Error>
     {

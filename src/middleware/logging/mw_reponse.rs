@@ -37,7 +37,9 @@ pub async fn main_response_mapper(
     
     let client_error_option = client_status_error.unzip().1;
 
-	let device_id_option = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str());
+	let device_id_option = jar
+		.get_cookie(AuthCookieNames::DEVICE_ID.as_str())
+		.ok();
 
 	let user_info = RequestLogLinePersonal::new(
 		ctx.map(|x| x.user_id()), device_id_option);

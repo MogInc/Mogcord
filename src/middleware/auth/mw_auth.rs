@@ -19,7 +19,7 @@ pub async fn mw_require_regular_auth(
     Ok(next.run(req).await)
 }
 
-pub async fn mw_require_management_auth(
+pub async fn mw_require_admin_auth(
     ctx: Result<Ctx, ServerError>,
     req: Request<Body>, 
     next: Next
@@ -53,11 +53,8 @@ pub async fn mw_ctx_resolver(
 
     let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
 
-	let acces_token_options = jar.get_cookie(cookie_names_acces_token.as_str());
-
-
-	let ctx_result = match acces_token_options
-        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))
+	let ctx_result = match jar
+		.get_cookie(cookie_names_acces_token.as_str())
 		.and_then(|val| parse_token(val.as_str()))
 	{
 		Ok(claims) => Ok(Ctx::new(claims.sub, claims.user_flag)),

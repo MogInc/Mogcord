@@ -9,8 +9,7 @@ impl RefreshTokenRepository for MongolDB
 {
     async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, ServerError>
     {
-        let db_token = MongolRefreshToken::try_from(&token)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_token = MongolRefreshToken::try_from(&token)?;
         
         match self.refresh_tokens().insert_one(&db_token).await
         {
@@ -21,8 +20,7 @@ impl RefreshTokenRepository for MongolDB
 
     async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)
-            .map_err(|_| ServerError::RefreshTokenNotFound)?;
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
 
         let pipelines = vec![
             //filter
@@ -93,6 +91,52 @@ impl RefreshTokenRepository for MongolDB
                 return Ok(refresh_token);
             },
             None => Err(ServerError::RefreshTokenNotFound), 
+        }
+    }
+
+    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), ServerError>
+    {
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
+
+        let filter = doc!
+        {
+            "owner_id": user_id_local,
+            "device_id": device_id_local,
+        };
+
+        let update = doc!
+        {
+            "$set": { "flag": RefreshTokenFlag::Revoked }
+        };
+
+        match self.refresh_tokens().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
+        }
+    }
+    async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
+    {
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+
+        let filter = doc!
+        {
+            "owner_id": user_id_local,
+            "flag": valid_refresh_token_filter(),
+            "expiration_date": { "$gte": DateTime::now() },
+        };
+
+        let update = doc!
+        {
+            "$set": { "flag": RefreshTokenFlag::Revoked }
+        };
+
+        match self.refresh_tokens().update_many(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
         }
     }
 }
