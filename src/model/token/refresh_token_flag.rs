@@ -28,7 +28,8 @@ impl fmt::Display for RefreshTokenFlag
 	{
         match self
         {
-            _ => write!(f, "{self:?}")
+            Self::None => write!(f, "none"),
+            Self::Revoked => write!(f, "revoked"),
         }
     }
 }

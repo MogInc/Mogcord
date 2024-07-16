@@ -26,7 +26,7 @@ impl AuthCookieNames
     {
         match self 
         {
-            AuthCookieNames::AUTH_ACCES => 60 * 24 * 31,
+            AuthCookieNames::AUTH_ACCES => 60 * 24 * 365,
             AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
             AuthCookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }

@@ -1,5 +1,5 @@
 use axum::async_trait;
-use bson::{doc, from_document, DateTime};
+use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
 use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
@@ -32,7 +32,7 @@ impl RefreshTokenRepository for MongolDB
                 {
                     "device_id": device_id_local,
                     "expiration_date": { "$gte": DateTime::now() },
-                    "flag": RefreshTokenFlag::None,
+                    "flag": valid_refresh_token_filter(),
                 }
             },
             //join with owners
@@ -95,4 +95,9 @@ impl RefreshTokenRepository for MongolDB
             None => Err(ServerError::RefreshTokenNotFound), 
         }
     }
+}
+
+fn valid_refresh_token_filter() -> Document
+{
+    doc! { "$in": [ RefreshTokenFlag::None ] }
 }

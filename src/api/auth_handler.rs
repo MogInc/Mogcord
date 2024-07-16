@@ -8,10 +8,10 @@ use crate::{middleware::{auth::jwt::{self, CreateAccesTokenRequest, TokenStatus}
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
-    return Router::new()
-        .route("/auth/login", post(login))
-        .route("/auth/refresh", post(refresh_token))
-        .with_state(state);
+    Router::new()
+        .route("/auth/login", post(login_for_everyone))
+        .route("/auth/refresh", post(refresh_token_for_everyone))
+        .with_state(state)
 }
 
 #[derive(Deserialize)]
@@ -21,7 +21,7 @@ struct LoginRequest
     password: String,
 }
 
-async fn login(
+async fn login_for_everyone(
     State(state): State<Arc<AppState>>,
     jar: Cookies, 
     Json(payload): Json<LoginRequest>,
@@ -113,7 +113,7 @@ async fn login(
 }
 
 
-async fn refresh_token(
+async fn refresh_token_for_everyone(
     State(state): State<Arc<AppState>>,
     jar: Cookies
 ) -> impl IntoResponse

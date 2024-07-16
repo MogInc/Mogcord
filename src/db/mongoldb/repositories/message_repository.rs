@@ -1,9 +1,11 @@
 use axum::async_trait;
+use bson::{Document, Regex};
+use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
+use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
+use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
-use crate::db::mongoldb::mongol_helper::{self, MongolHelper};
-use crate::{db::mongoldb::{MongolBucket, MongolDB, MongolMessage}, model::{chat::Bucket, message::{Message, MessageRepository}, misc::{Pagination, ServerError}}};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -42,48 +44,44 @@ impl MessageRepository for MongolDB
             .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
 
-        let bucket_current : MongolBucket;
-
-        match bucket_option
+        let bucket_current = if let Some(bucket) = bucket_option
         {
-            Some(bucket) =>
+            let bucket_update = doc! 
             {
-                let bucket_update = doc! 
-                {
-                    "$push": { "message_ids": db_message._id }
-                };
+                "$push": { "message_ids": db_message._id }
+            };
 
-                self
-                    .buckets()
-                    .update_one(bucket_filter, bucket_update)
-                    .session(&mut session)
-                    .await
-                    .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
+            self
+                .buckets()
+                .update_one(bucket_filter, bucket_update)
+                .session(&mut session)
+                .await
+                .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
 
-                bucket_current = bucket;
-            },
-            None =>
-            {
-                let mut bucket = Bucket::new(&message.chat, &message.timestamp);
+            bucket
+        }
+        else
+        {
+            let mut bucket = Bucket::new(&message.chat, &message.timestamp);
                 
-                bucket.add_message(message.clone());
+            bucket.add_message(message.clone());
 
-                let db_bucket = MongolBucket::try_from(&bucket)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            let db_bucket = MongolBucket::try_from(&bucket)
+                .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-                self
-                    .buckets()
-                    .insert_one(&db_bucket)
-                    .session(&mut session)
-                    .await
-                    .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
+            self
+                .buckets()
+                .insert_one(&db_bucket)
+                .session(&mut session)
+                .await
+                .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
 
-                bucket_current = db_bucket;
-            },
+            db_bucket
         };
 
         db_message.bucket_id = Some(bucket_current._id);
 
+        //can remove this match and have implicit abort
         match self.messages().insert_one(&db_message).session(&mut session).await
         {
             Ok(_) => 
@@ -109,10 +107,9 @@ impl MessageRepository for MongolDB
         }
     }
 
-    async fn get_messages(&self, chat_id: &str, pagination: Pagination) 
+    async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
-
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
             .map_err(|_| ServerError::ChatNotFound)?;
         
@@ -122,7 +119,8 @@ impl MessageRepository for MongolDB
             {
                 "$match":
                 {
-                    "chat_id": chat_id_local
+                    "chat_id": chat_id_local,
+                    "flag": internal_valid_message_filter(),
                 },
             },
             //sort on date from new to old
@@ -425,4 +423,30 @@ impl MessageRepository for MongolDB
             None => Err(ServerError::MessageNotFound),
         }
     }
+}
+
+fn internal_valid_message_filter() -> Document
+{
+    let valid_flags = vec!
+    [ 
+        MessageFlag::None, 
+        MessageFlag::Edited { date: Utc::now() }
+    ];
+
+    let valid_flags_bson : Vec<Regex> = valid_flags
+        .iter()
+        .map(|flag| {
+            let temp = flag.to_string();
+
+            let parts: Vec<&str> = temp
+                .split("|")
+                .collect();
+
+            let pattern = format!("^{}", parts[0]);
+            Regex { pattern: pattern, options: String::new() }
+        }
+        )
+        .collect();
+
+    doc! { "$in": valid_flags_bson }
 }

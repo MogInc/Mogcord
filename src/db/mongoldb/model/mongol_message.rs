@@ -2,9 +2,9 @@ use std::time::SystemTime;
 
 use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::mongol_helper, model::message::{Message, MessageFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::message::{Message, MessageFlag}};
 
 use super::MongolError;
 
@@ -17,6 +17,7 @@ pub struct MongolMessage
     pub owner_id: Uuid,
     pub chat_id: Uuid,
     pub bucket_id: Option<Uuid>,
+    #[serde(serialize_with = "as_string")]
     pub flag: MessageFlag
 }
 
@@ -34,7 +35,6 @@ impl TryFrom<&Message> for MongolMessage
 
         let bucket_id_option = value.bucket_id
             .as_ref()
-            .filter(|bucket_id| !bucket_id.is_empty())
             .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
             .transpose()?;
 

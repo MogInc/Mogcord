@@ -6,15 +6,15 @@ use crate::{dto::ChatDTO, middleware::auth::{self, Ctx}, model::{chat::{Chat, Ch
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
-    return Router::new()
-        .route("/chat", post(create_chat))
-        .route("/chat/:chat_id", get(get_chat))
+    Router::new()
+        .route("/chat", post(create_chat_for_authenticated))
+        .route("/chat/:chat_id", get(get_chat_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
+        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
 }
 
-async fn get_chat(
+async fn get_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(chat_id): Path<String>
@@ -44,7 +44,7 @@ struct CreateChatRequest
     user_ids: Option<Vec<String>>,
 }
 
-async fn create_chat(
+async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     extract::Json(payload): extract::Json<CreateChatRequest>
 ) -> impl IntoResponse
@@ -55,6 +55,7 @@ async fn create_chat(
     //Naive solution
     //when AA gets added, check if chat is allowed to be made
     //also handle chat queu so that opposing users dont get auto dragged in it
+    //or make it so only chats with friends can be made
 
     if !payload.r#type.is_owner_size_allowed(payload.owner_ids.len())
     {
@@ -62,18 +63,17 @@ async fn create_chat(
     }
 
     let owners = repo_user
-        .get_users_by_ids(payload.owner_ids)
+        .get_users_by_id(payload.owner_ids)
         .await
         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
     let users = match payload.user_ids
     {
-        Some(users) => Some(repo_user
-            .get_users_by_ids(users)
+        Some(users) => repo_user
+            .get_users_by_id(users)
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?
-        ),
-        None => None,
+            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?,
+        None => Vec::new(),
     };
 
     let chat = Chat::new(

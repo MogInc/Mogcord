@@ -9,7 +9,7 @@ pub struct ChatDTO
     name: Option<String>,
     r#type: String,
     owner_ids: Vec<String>,
-    user_ids: Option<Vec<String>>,
+    user_ids: Vec<String>,
 }
 
 impl ChatDTO
@@ -22,13 +22,11 @@ impl ChatDTO
             .map(|owner| owner.id)
             .collect();
 
-        let user_ids : Option<Vec<String>> = chat
+        let user_ids : Vec<String> = chat
             .users
-            .map(|users|{
-                users.into_iter()
-                .map(|user| user.id)
-                .collect()
-            });
+            .into_iter()
+            .map(|user| user.id)
+            .collect();
 
         Self
         {

@@ -63,6 +63,6 @@ impl Message
     {
         //can add more checks since servers can have users with rights etc.
         //(will never be implemented)
-        self.owner.id == *user_id
+        self.owner.id == *user_id && self.flag.is_allowed_to_be_editted()
     }
 }

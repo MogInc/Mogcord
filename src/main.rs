@@ -4,7 +4,7 @@ use std::{env, sync::Arc};
 
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
-use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::logging::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, token::RefreshTokenRepository, user::UserRepository}};
+use mogcord::{api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, relation_handler::routes_relation, user_handler::routes_user}, db::mongoldb::MongolDB, middleware::logging::main_response_mapper, model::{chat::ChatRepository, message::MessageRepository, misc::AppState, relation::RelationRepository, token::RefreshTokenRepository, user::UserRepository}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -23,19 +23,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let repo_chat =  Arc::clone(&db) as Arc<dyn ChatRepository>;
     let repo_message = Arc::clone(&db) as Arc<dyn MessageRepository>;
     let repo_refresh_token = Arc::clone(&db) as Arc<dyn RefreshTokenRepository>;
+    let repo_relation = Arc::clone(&db) as Arc<dyn RelationRepository>;
 
-    let state: Arc<AppState> = Arc::new(AppState {
-        repo_chat,
-        repo_user,
-        repo_message,
-        repo_refresh_token,
-    });
+    let state: Arc<AppState> = Arc::new(
+        AppState {
+            repo_chat,
+            repo_user,
+            repo_message,
+            repo_refresh_token,
+            repo_relation,
+        });
 
     let api_routes = Router::new()
         .merge(routes_chat(state.clone()))
         .merge(routes_message(state.clone()))
         .merge(routes_user(state.clone()))
-        .merge(routes_auth(state));
+        .merge(routes_auth(state.clone()))
+        .merge(routes_relation(state));
 
 
     let app: Router = Router::new()

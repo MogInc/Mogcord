@@ -13,7 +13,7 @@ pub struct MongolBucket
     pub _id: Uuid,
     pub chat_id: Uuid, 
     pub date: DateTime,
-    pub message_ids: Option<Vec<Uuid>>, 
+    pub message_ids: Vec<Uuid>, 
 }
 
 impl TryFrom<&Bucket> for MongolBucket
@@ -32,12 +32,10 @@ impl TryFrom<&Bucket> for MongolBucket
             .map_err(|_| MongolError::FailedDateParsing)?;
 
         let bucket_message_ids = value
-            .messages.as_ref()
-            .map(|messages|{
-                messages.into_iter().map(|message|{
-                    mongol_helper::convert_domain_id_to_mongol(&message.id)
-                }).collect::<Result<_, _>>()
-            }).transpose()?;
+            .messages
+            .iter()
+            .map(|message|mongol_helper::convert_domain_id_to_mongol(&message.id))
+            .collect::<Result<_,_>>()?;
 
         Ok(
             Self

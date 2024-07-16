@@ -12,15 +12,27 @@ pub enum MessageFlag
     Deleted { date: DateTime<Utc> },
 }
 
+impl MessageFlag
+{
+    pub fn is_allowed_to_be_editted(&self) -> bool
+    {
+        match &self
+        {
+            Self::None | Self::Edited { .. } => true,
+            _ => false,
+        }
+    }
+}
+
 impl fmt::Display for MessageFlag 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
         match self
         {
-            MessageFlag::Edited { date } => write!(f, "edited|{}", date),
-            MessageFlag::Deleted { date } => write!(f, "deleted|{}", date),
-            _ => write!(f, "{self:?}")
+            Self::None => write!(f, "none"),
+            Self::Edited { date } => write!(f, "edited|{}", date),
+            Self::Deleted { date } => write!(f, "deleted|{}", date),
         }
     }
 }
@@ -180,6 +192,7 @@ mod tests
 
     from_str_base_tests_invalid! 
     {
+        test_from_str_is_empty:("", MessageFlagParseError::InvalidFormat),
         test_from_str_is_invalid:("AAAaaa", MessageFlagParseError::InvalidFormat),
         test_from_str_edited_invalid_format_is_invalid:("edited", MessageFlagParseError::InvalidFormat),
         test_from_str_edited_invalid_separator_is_invalid:("edited+utc_time", MessageFlagParseError::InvalidFormat),
