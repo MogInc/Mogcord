@@ -158,7 +158,7 @@ impl ServerError
 			| Self::FailedDelete(_)
 			| Self::TransactionError(_)
 			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
-			
+			Self::InvalidID(_) => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 
 			//hashing
 			Self::HashingPasswordFailed
