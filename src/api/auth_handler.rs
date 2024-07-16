@@ -47,13 +47,13 @@ async fn login_for_everyone(
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
 
-    let device_id_cookie_option = jar.get_cookie(cookie_names_device_id.as_str());
+    let device_id_cookie_result = jar.get_cookie(cookie_names_device_id.as_str());
 
     let mut refresh_token = RefreshToken::create_token(user);
     let mut create_new_refresh_token = true;
 
 
-    if let Some(device_id_cookie) = device_id_cookie_option
+    if let Ok(device_id_cookie) = device_id_cookie_result
     {
         match repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
         {
@@ -120,16 +120,13 @@ async fn refresh_token_for_everyone(
 {
     let repo_refresh = &state.repo_refresh_token;
 
-    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.into())
-        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_ACCES))?;
+    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.into())?;
 
     let claims = jwt::extract_acces_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
    
-    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.into())
-        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::AUTH_REFRESH))?;
+    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.into())?;
 
-    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.into())
-        .ok_or(ServerError::AuthCookieNotFound(AuthCookieNames::DEVICE_ID))?;
+    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.into())?;
 
     let refresh_token = repo_refresh
         .get_valid_token_by_device_id(&device_id_cookie)

@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::{middleware::cookies::AuthCookieNames, model::user::UserFlag};
+use crate::model::user::UserFlag;
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
@@ -50,8 +50,9 @@ pub enum ServerError
 
 	//auth
 	AuthCtxNotInRequest,
-	AuthCookieNotFound(AuthCookieNames),
-	AuthCookieInvalid(AuthCookieNames),
+
+	//cookies
+	CookieNotFound(String),
 
 	//auth - refresh token
 	RefreshTokenNotFound,
@@ -142,8 +143,7 @@ impl ServerError
 			| Self::RefreshTokenNotFound
 			| Self::RefreshTokenDoesNotMatchDeviceId
 			| Self::AuthCtxNotInRequest
-			| Self::AuthCookieNotFound(_)
-			| Self::AuthCookieInvalid(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::CookieNotFound(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
 	
 
