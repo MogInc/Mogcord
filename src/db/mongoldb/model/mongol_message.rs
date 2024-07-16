@@ -4,9 +4,8 @@ use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::{as_string, mongol_helper}, model::message::{Message, MessageFlag}};
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::{message::{Message, MessageFlag}, misc::ServerError}};
 
-use super::MongolError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolMessage
@@ -23,7 +22,7 @@ pub struct MongolMessage
 
 impl TryFrom<&Message> for MongolMessage
 {
-    type Error = MongolError;
+    type Error = ServerError;
 
     fn try_from(value: &Message) -> Result<Self, Self::Error>
     {     

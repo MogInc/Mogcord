@@ -47,6 +47,10 @@ pub enum ServerError
 	FailedUpdate(String),
 	FailedDelete(String),
 	TransactionError(String),
+    InvalidID(String),
+    FailedUserParsing,
+    FailedChatParsing,
+    FailedDateParsing,
 
 	//auth
 	AuthCtxNotInRequest,

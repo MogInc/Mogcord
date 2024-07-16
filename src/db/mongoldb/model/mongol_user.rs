@@ -1,9 +1,7 @@
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::{as_string, mongol_helper}, model::user::{User, UserFlag}};
-
-use super::MongolError;
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::{misc::ServerError, user::{User, UserFlag}}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolUser
@@ -18,7 +16,7 @@ pub struct MongolUser
 
 impl TryFrom<&User> for MongolUser
 {
-    type Error = MongolError;
+    type Error = ServerError;
 
     fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
@@ -41,7 +39,7 @@ pub struct MongolUserVec(pub Vec<MongolUser>);
 
 impl TryFrom<&Vec<User>> for MongolUserVec 
 {
-    type Error = MongolError;
+    type Error = ServerError;
 
     fn try_from(value: &Vec<User>) -> Result<Self, Self::Error> 
     {
