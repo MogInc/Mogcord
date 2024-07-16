@@ -124,6 +124,8 @@ impl RefreshTokenRepository for MongolDB
         let filter = doc!
         {
             "owner_id": user_id_local,
+            "flag": valid_refresh_token_filter(),
+            "expiration_date": { "$gte": DateTime::now() },
         };
 
         let update = doc!
