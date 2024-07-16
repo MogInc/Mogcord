@@ -95,6 +95,15 @@ impl RefreshTokenRepository for MongolDB
             None => Err(ServerError::RefreshTokenNotFound), 
         }
     }
+
+    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<RefreshToken, ServerError>
+    {
+        todo!()
+    }
+    async fn revoke_all_tokens(&self, user_id: &str) -> Result<RefreshToken, ServerError>
+    {
+        todo!()
+    }
 }
 
 fn valid_refresh_token_filter() -> Document
