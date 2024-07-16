@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::ChatDTO, middleware::auth::{self, Ctx}, model::{chat::{Chat, ChatType}, misc::{AppState, ServerError}}};
+use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::{Chat, ChatType}, misc::{AppState, ServerError}}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -79,8 +79,6 @@ async fn create_chat_for_authenticated(
     let chat = Chat::new(
         payload.name,
         payload.r#type, 
-        owners,
-        users,
     )?;
 
     if repo_chat
