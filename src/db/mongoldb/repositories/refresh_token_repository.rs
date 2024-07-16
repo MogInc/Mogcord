@@ -108,7 +108,7 @@ impl RefreshTokenRepository for MongolDB
 
         let update = doc!
         {
-            "flag": RefreshTokenFlag::Revoked
+            "$set": { "flag": RefreshTokenFlag::Revoked }
         };
 
         match self.refresh_tokens().update_one(filter, update).await
@@ -128,7 +128,7 @@ impl RefreshTokenRepository for MongolDB
 
         let update = doc!
         {
-            "flag": RefreshTokenFlag::Revoked
+            "$set": { "flag": RefreshTokenFlag::Revoked }
         };
 
         match self.refresh_tokens().update_many(filter, update).await
