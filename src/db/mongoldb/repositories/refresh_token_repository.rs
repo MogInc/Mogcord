@@ -9,8 +9,7 @@ impl RefreshTokenRepository for MongolDB
 {
     async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, ServerError>
     {
-        let db_token = MongolRefreshToken::try_from(&token)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_token = MongolRefreshToken::try_from(&token)?;
         
         match self.refresh_tokens().insert_one(&db_token).await
         {
@@ -21,8 +20,7 @@ impl RefreshTokenRepository for MongolDB
 
     async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)
-            .map_err(|_| ServerError::RefreshTokenNotFound)?;
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
 
         let pipelines = vec![
             //filter
@@ -98,6 +96,10 @@ impl RefreshTokenRepository for MongolDB
 
     async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<RefreshToken, ServerError>
     {
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
+
         todo!()
     }
     async fn revoke_all_tokens(&self, user_id: &str) -> Result<RefreshToken, ServerError>
