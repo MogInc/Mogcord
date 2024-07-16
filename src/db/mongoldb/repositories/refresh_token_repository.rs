@@ -119,7 +119,23 @@ impl RefreshTokenRepository for MongolDB
     }
     async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
     {
-        todo!()
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+
+        let filter = doc!
+        {
+            "owner_id": user_id_local,
+        };
+
+        let update = doc!
+        {
+            "flag": RefreshTokenFlag::Revoked
+        };
+
+        match self.refresh_tokens().update_many(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
+        }
     }
 }
 
