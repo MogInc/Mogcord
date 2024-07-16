@@ -2,51 +2,25 @@ use serde::Serialize;
 
 use crate::model::chat::Chat;
 
+use super::{ChatTypeDTO, ObjectToDTO};
+
 #[derive(Serialize)]
 pub struct ChatDTO
 {
     id: String,
     name: Option<String>,
-    r#type: String,
-    owner_ids: Vec<String>,
-    user_ids: Vec<String>,
+    r#type: ChatTypeDTO,
 }
 
-impl ChatDTO
+impl ObjectToDTO<Chat> for ChatDTO 
 {
-    pub fn obj_to_dto(chat: Chat) -> Self
+    fn obj_to_dto(chat: Chat) -> Self
     {
-        let owner_ids : Vec<String> = chat
-            .owners
-            .into_iter()
-            .map(|owner| owner.id)
-            .collect();
-
-        let user_ids : Vec<String> = chat
-            .users
-            .into_iter()
-            .map(|user| user.id)
-            .collect();
-
         Self
         {
             id: chat.id,
             name: chat.name,
-            r#type: chat.r#type.to_string(),
-            owner_ids,
-            user_ids
+            r#type: ChatTypeDTO::obj_to_dto(chat.r#type),
         }
-    }
-    
-    pub fn vec_to_dto(chat: Vec<Chat>) -> Vec<Self>
-    {
-        let mut chat_dto: Vec<Self> = Vec::new();
-
-        for chat_ in chat
-        {
-            chat_dto.push(Self::obj_to_dto(chat_))
-        }
-        
-        return chat_dto;
     }
 }
