@@ -24,9 +24,6 @@ pub enum ServerError
 	ChatRequirementsInvalid,
 	ChatDoesNotContainThisUser,
 	InternalOwnersCountInvalid { expected: usize, found: usize },
-	InternalNameRequirementInvalid { expected: bool, found: bool },
-	InternalUsersRequirementInvalid { expected: bool, found: bool },
-
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
