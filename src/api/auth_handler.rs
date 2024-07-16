@@ -1,17 +1,28 @@
 use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse, routing::post, Json, Router};
+use axum::{extract::State, middleware, response::IntoResponse, routing::post, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{auth::jwt::{self, CreateAccesTokenRequest, TokenStatus}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
-    Router::new()
+    let routes_without_middleware =  Router::new()
         .route("/auth/login", post(login_for_everyone))
         .route("/auth/refresh", post(refresh_token_for_everyone))
-        .with_state(state)
+        .with_state(state.clone());
+
+    let routes_with_regular_middleware =  Router::new()
+        .route("/auth/revoke", post(revoke_token_for_authorized))
+        .route("/auth/revoke/all", post(revoke_all_tokens_for_authorized))
+        .layer(middleware::from_fn(mw::auth::mw_require_regular_auth))
+        .layer(middleware::from_fn(mw::auth::mw_ctx_resolver))
+        .with_state(state);
+
+    Router::new()
+        .merge(routes_with_regular_middleware)
+        .merge(routes_without_middleware)
 }
 
 #[derive(Deserialize)]
@@ -120,13 +131,13 @@ async fn refresh_token_for_everyone(
 {
     let repo_refresh = &state.repo_refresh_token;
 
-    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.into())?;
+    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.as_str())?;
 
     let claims = jwt::extract_acces_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
    
-    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.into())?;
+    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.as_str())?;
 
-    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.into())?;
+    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str())?;
 
     let refresh_token = repo_refresh
         .get_valid_token_by_device_id(&device_id_cookie)
@@ -134,8 +145,8 @@ async fn refresh_token_for_everyone(
 
     if !refresh_token.owner.flag.is_allowed_on_mogcord()
     {
-        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.into());
-        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.into());
+        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
+        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
         return Err(ServerError::IncorrectUserPermissions(refresh_token.owner.flag.clone()));
     }
 
@@ -162,4 +173,39 @@ async fn refresh_token_for_everyone(
         },
         Err(err) => Err(err),
     }
+}
+
+
+async fn revoke_token_for_authorized(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+    jar: Cookies,
+) -> impl IntoResponse
+{
+    let repo_refresh = &state.repo_refresh_token;
+
+    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str())?;
+    let ctx_user_id = &ctx.user_id_ref();
+
+    match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
+    {
+        Ok(_) => 
+        {
+            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
+            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
+
+            Ok(())
+        },
+        Err(err) => Err(err),
+    }
+}
+
+
+async fn revoke_all_tokens_for_authorized(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+) -> impl IntoResponse
+{
+
+
 }
