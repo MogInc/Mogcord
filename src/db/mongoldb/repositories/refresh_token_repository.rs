@@ -111,10 +111,10 @@ impl RefreshTokenRepository for MongolDB
             "flag": RefreshTokenFlag::Revoked
         };
 
-        match self.refresh_token().update_one().await
+        match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(err),
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
         }
     }
     async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
