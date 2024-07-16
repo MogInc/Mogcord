@@ -19,7 +19,7 @@ pub async fn mw_require_regular_auth(
     Ok(next.run(req).await)
 }
 
-pub async fn mw_require_management_auth(
+pub async fn mw_require_admin_auth(
     ctx: Result<Ctx, ServerError>,
     req: Request<Body>, 
     next: Next
