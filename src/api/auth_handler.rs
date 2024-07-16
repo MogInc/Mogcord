@@ -175,7 +175,7 @@ async fn refresh_token_for_everyone(
     }
 }
 
-
+//can see this as a logout
 async fn revoke_token_for_authorized(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
