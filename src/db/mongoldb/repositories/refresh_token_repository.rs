@@ -94,15 +94,30 @@ impl RefreshTokenRepository for MongolDB
         }
     }
 
-    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<RefreshToken, ServerError>
+    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), ServerError>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
 
         let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
 
-        todo!()
+        let filter = doc!
+        {
+            "owner_id": user_id_local,
+            "device_id": device_id_local,
+        };
+
+        let update = doc!
+        {
+            "flag": RefreshTokenFlag::Revoked
+        };
+
+        match self.refresh_token().update_one().await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err),
+        }
     }
-    async fn revoke_all_tokens(&self, user_id: &str) -> Result<RefreshToken, ServerError>
+    async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
     {
         todo!()
     }
