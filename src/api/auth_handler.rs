@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{extract::State, middleware, response::IntoResponse, routing::post, Json, Router};
+use axum::{extract::State, middleware, response::IntoResponse, routing::{delete, post}, Json, Router};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
@@ -14,8 +14,8 @@ pub fn routes_auth(state: Arc<AppState>) -> Router
         .with_state(state.clone());
 
     let routes_with_regular_middleware =  Router::new()
-        .route("/auth/revoke", post(revoke_token_for_authorized))
-        .route("/auth/revoke/all", post(revoke_all_tokens_for_authorized))
+        .route("/auth/revoke", delete(revoke_token_for_authorized))
+        .route("/auth/revoke/all", delete(revoke_all_tokens_for_authorized))
         .layer(middleware::from_fn(mw::auth::mw_require_regular_auth))
         .layer(middleware::from_fn(mw::auth::mw_ctx_resolver))
         .with_state(state);
