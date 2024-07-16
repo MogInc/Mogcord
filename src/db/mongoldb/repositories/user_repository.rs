@@ -10,8 +10,7 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
-            .map_err(|_| ServerError::UserNotFound)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
 
         let filter = doc! { "_id" : user_id_local };
 
@@ -34,8 +33,7 @@ impl UserRepository for MongolDB
 
     async fn create_user(&self, user: User) -> Result<User, ServerError>
     {
-        let db_user = MongolUser::try_from(&user)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_user = MongolUser::try_from(&user)?;
         
         match self.users().insert_one(&db_user).await
         {
@@ -46,8 +44,7 @@ impl UserRepository for MongolDB
 
     async fn create_users(&self, users: Vec<User>) -> Result<(), ServerError>
     {
-        let db_users = MongolUserVec::try_from(&users)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_users = MongolUserVec::try_from(&users)?;
         
         match self.users().insert_many(&db_users.0).await
         {
@@ -58,8 +55,7 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)
-            .map_err(|_| ServerError::UserNotFound)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
 
         let filter = doc! { "_id": user_id_local };
 
@@ -79,8 +75,7 @@ impl UserRepository for MongolDB
 
         for user_id in user_ids
         {
-            let user_id: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)
-                .map_err(|_| ServerError::UserNotFound)?;
+            let user_id: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
 
             user_ids_local.push(user_id);
         }

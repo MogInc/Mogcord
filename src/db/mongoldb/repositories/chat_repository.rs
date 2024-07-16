@@ -9,8 +9,7 @@ impl ChatRepository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, ServerError>
     {
-        let db_chat = MongolChat::try_from(&chat)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_chat = MongolChat::try_from(&chat)?;
 
         match self.chats().insert_one(&db_chat).await
         {
@@ -21,8 +20,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
-            .map_err(|_| ServerError::ChatNotFound)?;
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
 
         let pipelines = vec![
             //filter
@@ -100,8 +98,7 @@ impl ChatRepository for MongolDB
 
     async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
     {
-        let mongol_chat = MongolChat::try_from(chat)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let mongol_chat = MongolChat::try_from(chat)?;
 
         let pipilines = vec![
             doc! 

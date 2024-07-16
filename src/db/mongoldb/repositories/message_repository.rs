@@ -12,8 +12,7 @@ impl MessageRepository for MongolDB
 {
     async fn create_message(&self, mut message: Message) -> Result<Message, ServerError>
     {
-        let mut db_message = MongolMessage::try_from(&message)
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let mut db_message = MongolMessage::try_from(&message)?;
 
         let mut session = self
             .client()
@@ -110,8 +109,7 @@ impl MessageRepository for MongolDB
     async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)
-            .map_err(|_| ServerError::ChatNotFound)?;
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
         
         let pipelines = vec![
             //filter to only given chat
@@ -266,8 +264,7 @@ impl MessageRepository for MongolDB
 
     async fn update_message(&self, message: Message) -> Result<Message, ServerError>
     {
-        let db_message = MongolMessage::try_from(&message)
-        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+        let db_message = MongolMessage::try_from(&message)?;
     
         let filter = doc! 
         {
@@ -293,8 +290,7 @@ impl MessageRepository for MongolDB
     async fn get_message(&self, message_id: &str) -> Result<Message, ServerError>
     {
 
-        let message_id_local = mongol_helper::convert_domain_id_to_mongol(&message_id)
-            .map_err(|_| ServerError::MessageNotFound)?;
+        let message_id_local = mongol_helper::convert_domain_id_to_mongol(&message_id)?;
         
         let pipelines = vec![
             //filter to only given chat
