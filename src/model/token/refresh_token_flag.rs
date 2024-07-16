@@ -7,6 +7,7 @@ use std::fmt;
 pub enum RefreshTokenFlag 
 {
     None,
+    //can add utc date
     Revoked,
 }
 
