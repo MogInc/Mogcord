@@ -206,6 +206,13 @@ async fn revoke_all_tokens_for_authorized(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
+    let repo_refresh = &state.repo_refresh_token;
+    
+    let ctx_user_id = ctx.user_id_ref();
 
-
+    match repo_refresh.revoke_all_tokens(&ctx_user_id).await
+    {
+        Ok(_) => Ok(()),
+        Err(err) => Err(err),
+    }
 }
