@@ -118,6 +118,7 @@ impl RelationRepository for MongolDB
             .await
             .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
 
+        //can remove this match and have implicit abort
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
         {
             Ok(_) => 
@@ -136,7 +137,7 @@ impl RelationRepository for MongolDB
                     .await
                     .map_err(|err| ServerError::TransactionError(err.to_string()))?;
 
-                Err(ServerError::FailedRead(err.to_string()))
+                Err(ServerError::FailedUpdate(err.to_string()))
             }
         }
     }
@@ -194,7 +195,8 @@ impl RelationRepository for MongolDB
             .session(&mut session)
             .await
             .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
-
+       
+       //can remove this match and have implicit abort
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
         {
             Ok(_) => 
@@ -213,14 +215,76 @@ impl RelationRepository for MongolDB
                     .await
                     .map_err(|err| ServerError::TransactionError(err.to_string()))?;
                 
-                Err(ServerError::FailedRead(err.to_string()))
+                Err(ServerError::FailedUpdate(err.to_string()))
             }
         }
     }
 
     async fn confirm_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        todo!();
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)
+        .map_err(|_| ServerError::UserNotFound)?;
+
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)
+            .map_err(|_| ServerError::UserNotFound)?;
+
+
+        let mut session = self
+            .client()
+            .start_session()
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+        session
+            .start_transaction()
+            .await
+            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+        
+        let filter_current_user = doc!{ "user_id": current_user_id_local };
+        let update_current_user = doc! 
+        {
+            "$push": { "friend_ids": other_user_id_local },
+            "$pull": { "pending_incoming_friend_ids": other_user_id_local },
+        };
+        
+        
+        let filter_other_user = doc!{ "user_id": other_user_id_local };
+        let update_other_user = doc! 
+        {
+            "$push": { "friend_ids": current_user_id_local },
+            "$pull": { "pending_outgoing_friend_ids": current_user_id_local },
+        };
+
+
+        self
+            .relations()
+            .update_one(filter_other_user, update_other_user)
+            .session(&mut session)
+            .await
+            .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
+
+        //can remove this match and have implicit abort
+        match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
+        {
+            Ok(_) => 
+            {
+                session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+                Ok(())
+            }
+            Err(err) => 
+            {
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+
+                Err(ServerError::FailedUpdate(err.to_string()))
+            }
+        }
     }
 
     async fn remove_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
@@ -245,7 +309,7 @@ impl RelationRepository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string()))
         }
     }
 
@@ -267,7 +331,7 @@ impl RelationRepository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string()))
+            Err(err) => Err(ServerError::FailedUpdate(err.to_string()))
         }
     }
 }
