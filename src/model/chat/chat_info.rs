@@ -2,7 +2,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{message::Message, misc::ServerError};
+use crate::model::message::Message;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -14,9 +14,7 @@ pub struct ChatInfo
 
 impl ChatInfo
 {
-    pub fn new(
-        name: Option<String>, 
-    ) -> Result<Self, ServerError>
+    pub fn new(name: Option<String>) -> Self
     {
         let name_sanitized = match name
         {
@@ -24,13 +22,11 @@ impl ChatInfo
             None => None,
         };
 
-        Ok(
-            Self
-            {
-                id: Uuid::now_v7().to_string(),
-                name: name_sanitized,
-            }
-        )
+        Self
+        {
+            id: Uuid::now_v7().to_string(),
+            name: name_sanitized,
+        }
     }
 }
 

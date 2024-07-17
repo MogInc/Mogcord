@@ -37,7 +37,7 @@ pub enum Chat
 
 impl Chat
 {
-    pub fn new_private(owners: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
+    pub fn new_private(owners: Vec<User>) -> Result<Self, ServerError> 
     {
         let set: HashSet<User> = owners
             .into_iter()
@@ -46,6 +46,8 @@ impl Chat
         let owners_sanitized: Vec<User> = set
             .into_iter()
             .collect();
+
+        let chat_info = ChatInfo::new(None);
 
         let chat_type = Chat::Private 
         { 
@@ -59,12 +61,14 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn new_group(name: String, owner: User, users: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
+    pub fn new_group(name: String, owner: User, users: Vec<User>) -> Result<Self, ServerError> 
     {
         let users_sanitized: Vec<User> = users
             .into_iter()
             .filter(|user| user.id != owner.id)
             .collect();
+
+        let chat_info = ChatInfo::new(None);
 
         let chat_type = Chat::Group 
         { 
@@ -80,8 +84,10 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn new_server(name: String, owner: User, users: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
+    pub fn new_server(name: String, owner: User, users: Vec<User>) -> Result<Self, ServerError> 
     {
+        let chat_info = ChatInfo::new(Some(String::from("Welcome")));
+
         let chat_type = Chat::Server 
         { 
             id: Uuid::now_v7().to_string(),
