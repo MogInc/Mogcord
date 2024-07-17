@@ -10,8 +10,8 @@ use super::{MongolChatInfo, MongolChatInfoWrapper};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolChatWrapper
 {
-    _id: Uuid,
-    chat: MongolChat,
+    pub _id: Uuid,
+    pub chat: MongolChat,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
