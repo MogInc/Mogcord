@@ -75,7 +75,11 @@ async fn create_message_for_authenticated(
         .get_user_by_id(&ctx_user_id)
         .await?;
 
-    let message = Message::new(payload.value, owner, chat);
+    let chat_info = chat
+        .chat_info()
+        .ok_or(ServerError::AccessingAServerWHenYouWantAChat)?;
+
+    let message = Message::new(payload.value, owner, chat_info);
 
     match repo_message.create_message(message).await
     {
