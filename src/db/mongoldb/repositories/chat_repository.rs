@@ -202,42 +202,38 @@ impl ChatRepository for MongolDB
 
     async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
     {
-        // let mongol_chat = MongolChat::try_from(chat)?;
+        let mongol_chat_wrapper = MongolChatWrapper::try_from(chat)?;
 
-        // let pipilines = vec![
-        //     doc! 
-        //     {
-        //         "$match":
-        //         {
-        //             "type": mongol_chat.r#type,
-        //             "name": mongol_chat.name,
-        //             "owner_ids": mongol_chat.owner_ids,
-        //             "user_ids": mongol_chat.user_ids,
-        //         }
-        //     }
-        // ];
+        let filter = match &mongol_chat_wrapper.chat
+        {
+            MongolChat::Private { owner_ids, .. } => 
+            {
+                doc!
+                {
+                    "chat.Private.owner_ids": owner_ids,
+                }
+            },
+            MongolChat::Group { name, owner_id, user_ids, .. } => 
+            {
+                doc!
+                {
+                    "chat.Group.name": name,
+                    "chat.Group.owner_id": owner_id,
+                    "chat.Group.user_ids": user_ids,
+                }
+            },
+            MongolChat::Server { .. } => 
+            {
+                return Ok(false);
+            },
+        };
 
-        // let mut cursor = self
-        //     .chats()
-        //     .aggregate(pipilines)
-        //     .await
-        //     .map_err(|err| ServerError::FailedRead(err.to_string()))?;
 
-
-        // let document_option = cursor
-        //     .next()
-        //     .await
-        //     .transpose()
-        //     .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
-    
-
-        // match document_option
-        // {
-        //     Some(_) => Ok(true),
-        //     None => Ok(false),
-        // }
-
-        Ok(false)
+        match self.chats().find_one(filter).await
+        {
+            Ok(chat_option) => Ok(chat_option.is_some()),
+            Err(err) => Err(ServerError::FailedRead(err.to_string())),
+        }
     }
 }
 
