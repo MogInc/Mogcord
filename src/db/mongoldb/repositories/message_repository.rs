@@ -5,7 +5,7 @@ use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
 use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
-use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
+use crate::{convert_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -208,8 +208,8 @@ impl MessageRepository for MongolDB
                     "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
                     "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
                     "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "id", "uuid"),
                 }
             },
             //hide unneeded fields
@@ -370,8 +370,8 @@ impl MessageRepository for MongolDB
                     "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
                     "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
                     "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "id", "uuid"),
                 }
             },
             //hide unneeded fields

@@ -24,7 +24,7 @@ macro_rules! convert_mongo_key_to_string
 }
 
 #[macro_export]
-macro_rules! map_mongo_collection_keys 
+macro_rules! map_mongo_collection_keys_to_string 
 {
     ($input_collection:expr, $renamed_id:expr, $id_type:expr) => 
     {
