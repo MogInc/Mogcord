@@ -2,7 +2,7 @@ use std::time::Duration;
 use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};
 
 use crate::db::mongoldb::model::MongolUser;
-use super::{MongolBucket, MongolChat, MongolChatWrapper, MongolMessage, MongolRefreshToken, MongolRelation};
+use super::{MongolBucket, MongolChatWrapper, MongolMessage, MongolRefreshToken, MongolRelation};
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
