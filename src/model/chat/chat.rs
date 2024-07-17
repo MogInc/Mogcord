@@ -95,6 +95,26 @@ impl Chat
 
         Ok(chat_type)
     }
+
+    pub fn chat_info(self) -> Option<ChatInfo>
+    {
+        match self
+        {
+            Chat::Private { chat_info, .. } => Some(chat_info),
+            Chat::Group { chat_info, ..  } => Some(chat_info),
+            Chat::Server { .. } => None,
+        }
+    }
+
+    pub fn chat_infos(self) -> Option<Vec<ChatInfo>>
+    {
+        match self
+        {
+            Chat::Private { .. } => None,
+            Chat::Group { ..  } => None,
+            Chat::Server { chat_infos, .. } => Some(chat_infos),
+        }
+    }
 }
 
 impl Chat
