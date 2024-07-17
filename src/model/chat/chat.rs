@@ -138,7 +138,12 @@ impl Chat
     const GROUP_OWNER_MAX: usize = 1;
     const SERVER_OWNER_MAX: usize = 1;
 
-    pub fn is_owner_size_allowed(&self, owner_count: usize) -> bool
+    pub fn private_owner_size() -> usize
+    {
+        Self::PRIVATE_OWNER_MAX
+    }
+
+    fn is_owner_size_allowed(&self, owner_count: usize) -> bool
     {
         match self
         {
@@ -158,7 +163,7 @@ impl Chat
 
                 if !self.is_owner_size_allowed(user_len)
                 {
-                    return Err(ServerError::InternalOwnersCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
+                    return Err(ServerError::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
                 }
 
                 Ok(())
