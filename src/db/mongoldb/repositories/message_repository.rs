@@ -208,8 +208,8 @@ impl MessageRepository for MongolDB
                     "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
                     "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
                     "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
                 }
             },
             //hide unneeded fields
@@ -370,8 +370,8 @@ impl MessageRepository for MongolDB
                     "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
                     "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
                     "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
                 }
             },
             //hide unneeded fields
