@@ -8,10 +8,19 @@ use super::{vec_to_dto, ChatInfoDTO, ObjectToDTO};
 pub struct ChatDTO
 {
     id: String,
+    r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
-    owners: Vec<String>,
-    users: Vec<String>,
-    chat_info: Vec<ChatInfoDTO>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owner: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owners: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    users: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    chat_info: Option<ChatInfoDTO>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    chat_infos: Option<Vec<ChatInfoDTO>>,
 }
 
 impl ObjectToDTO<Chat> for ChatDTO
@@ -25,10 +34,13 @@ impl ObjectToDTO<Chat> for ChatDTO
                 Self
                 {
                     id, 
+                    r#type: String::from( "Private"),
                     name: None,
-                    owners: owners.into_iter().map(|user| user.id).collect(),
-                    users: Vec::new(),
-                    chat_info: vec![ChatInfoDTO::obj_to_dto(chat_info)],
+                    owner: None,
+                    owners: Some(owners.into_iter().map(|user| user.id).collect()),
+                    users: None,
+                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_infos: None,
                 }
             },
             Chat::Group { id, name, owner, users, chat_info } => 
@@ -36,10 +48,13 @@ impl ObjectToDTO<Chat> for ChatDTO
                 Self
                 {
                     id,
+                    r#type: String::from( "Group"),
                     name: Some(name),
-                    owners: vec![owner.id],
-                    users: users.into_iter().map(|user| user.id).collect(),
-                    chat_info: vec![ChatInfoDTO::obj_to_dto(chat_info)],
+                    owner: Some(owner.id),
+                    owners: None,
+                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_infos: None,
                 }
             },
             Chat::Server { id, name, owner, users, chat_infos } => 
@@ -47,10 +62,13 @@ impl ObjectToDTO<Chat> for ChatDTO
                 Self
                 {
                     id,
+                    r#type: String::from( "Server"),
                     name: Some(name),
-                    owners: vec![owner.id],
-                    users: users.into_iter().map(|user| user.id).collect(),
-                    chat_info: vec_to_dto(chat_infos)
+                    owner: Some(owner.id),
+                    owners: None,
+                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    chat_info: None,
+                    chat_infos: Some(vec_to_dto(chat_infos))
                 }
             },
         }
