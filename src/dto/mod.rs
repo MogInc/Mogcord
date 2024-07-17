@@ -1,12 +1,12 @@
 mod user_dto;
-mod chat_dto;
+mod chat_info_dto;
 mod message_dto;
-mod chat_type_dto;
+mod chat_dto;
 
 pub use user_dto::*;
-pub use chat_dto::*;
+pub use chat_info_dto::*;
 pub use message_dto::*;
-pub use chat_type_dto::*;
+pub use chat_dto::*;
 
 pub trait ObjectToDTO<Input>
 {

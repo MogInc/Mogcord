@@ -1,110 +1,146 @@
-use chrono::{DateTime, NaiveDate, Utc};
+use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 use uuid::Uuid;
 
-use crate::model::{message::Message, misc::ServerError, user::User};
-use super::chat_type::{ChatType, ChatTypeRequirements};
+use crate::model::{misc::ServerError, user::User};
 
+use super::ChatInfo;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Chat
+#[derive(Clone, Display, Debug, Serialize, Deserialize)]
+pub enum Chat
 {
-    pub id: String,
-    pub name: Option<String>,
-    pub r#type: ChatType,
-    pub owners: Vec<User>,
-    pub users: Vec<User>,
+    Private
+    {
+        id: String,
+        owners: Vec<User>,
+        chat_info: ChatInfo,
+    },
+    Group
+    {
+        id: String,
+        name: String,
+        owner: User,
+        users: Vec<User>,
+        chat_info: ChatInfo,
+    },
+    Server
+    {
+        id: String,
+        name: String,
+        owner: User,
+        users: Vec<User>,
+        chat_infos: Vec<ChatInfo>,
+    },
 }
+
 
 impl Chat
 {
-    pub fn new(
-        name: Option<String>, 
-        r#type: ChatType,
-        owners: Vec<User>,
-        users: Vec<User>,
-    ) -> Result<Self, ServerError>
+    pub fn new_private(owners: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
     {
-
-        let users_sanitized: Vec<User> = users
+        let set: HashSet<User> = owners
             .into_iter()
-            .filter(|user| !owners.contains(&user))
             .collect();
-        
-        let requirements = ChatTypeRequirements::new(
-            owners.len(), 
-            name.as_ref().is_some_and(|x| !x.trim().is_empty()), 
-            users_sanitized.len() > 0,
-        );
 
-        if let Err(err) = r#type.is_chat_meeting_requirements(requirements)
-        {
-            return Err(err);
-        }
+        let owners_sanitized: Vec<User> = set
+            .into_iter()
+            .collect();
 
-        let name_sanitized = match name
-        {
-            Some(name) => Some(name.trim().to_owned()),
-            None => None,
+        let chat_type = Chat::Private 
+        { 
+            id: chat_info.id.to_string(),
+            owners: owners_sanitized,
+            chat_info
         };
 
-        Ok(
-            Self
-            {
-                id: Uuid::now_v7().to_string(),
-                name: name_sanitized,
-                r#type: r#type,
-                owners: owners,
-                users: users_sanitized,
-            }
-        )
+        chat_type.is_chat_meeting_requirements()?;
+
+        Ok(chat_type)
+    }
+
+    pub fn new_group(name: String, owner: User, users: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
+    {
+        let users_sanitized: Vec<User> = users
+            .into_iter()
+            .filter(|user| user.id != owner.id)
+            .collect();
+
+        let chat_type = Chat::Group 
+        { 
+            id: chat_info.id.to_string(),
+            name, 
+            owner, 
+            users: users_sanitized,
+            chat_info
+        };
+
+        chat_type.is_chat_meeting_requirements()?;
+
+        Ok(chat_type)
+    }
+
+    pub fn new_server(name: String, owner: User, users: Vec<User>, chat_info: ChatInfo) -> Result<Self, ServerError> 
+    {
+        let chat_type = Chat::Server 
+        { 
+            id: Uuid::now_v7().to_string(),
+            owner, 
+            name, 
+            users,
+            chat_infos: vec![chat_info],
+        };
+
+        chat_type.is_chat_meeting_requirements()?;
+
+        Ok(chat_type)
     }
 }
-
 
 impl Chat
 {
+    const PRIVATE_OWNER_MAX: usize = 2;
+    const GROUP_OWNER_MAX: usize = 1;
+    const SERVER_OWNER_MAX: usize = 1;
+
+    pub fn is_owner_size_allowed(&self, owner_count: usize) -> bool
+    {
+        match self
+        {
+            Chat::Private{..} => owner_count == Self::PRIVATE_OWNER_MAX,
+            Chat::Group{..} => owner_count == Self::GROUP_OWNER_MAX,
+            Chat::Server{..} => owner_count == Self::SERVER_OWNER_MAX,
+        }
+    }
+
+    pub fn is_chat_meeting_requirements(&self) -> Result<(), ServerError> 
+    {
+        match self
+        {
+            Chat::Private{owners,..} => 
+            {
+                let user_len = owners.len();
+
+                if !self.is_owner_size_allowed(user_len)
+                {
+                    return Err(ServerError::InternalOwnersCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
+                }
+
+                Ok(())
+            },
+            Chat::Group{..} => Ok(()),
+            Chat::Server{..} => Ok(()),
+        }
+    }
+
     pub fn is_user_part_of_chat(&self, other_user_id: &String) -> bool
     {
-        match self.r#type
+        match self
         {
-            ChatType::Private => self.owners.iter().any(|owner| &owner.id == other_user_id),
-            ChatType::Group => self.owners.iter().any(|owner| &owner.id == other_user_id) 
-                || self.users.iter().any(|user| &user.id == other_user_id),
+            Chat::Private{owners,..} => owners.iter().any(|owner| &owner.id == other_user_id),
+            Chat::Group{owner, users, ..} => &owner.id == other_user_id
+                || users.iter().any(|user| &user.id == other_user_id),
             _ => true,
         }
-    }
-}
-
-
-//doubt i need this in model
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Bucket
-{
-    pub id: String,
-    pub chat: Chat,
-    pub date: NaiveDate,
-    pub messages: Vec<Message>,
-}
-
-impl Bucket
-{
-    pub fn new(chat: &Chat, date: &DateTime<Utc>) -> Self
-    {
-        Self
-        {
-            id: Uuid::now_v7().to_string(),
-            chat: chat.clone(),
-            date: date.date_naive(),   
-            messages: Vec::new(),
-        }
-    }
-}
-
-impl Bucket
-{
-    pub fn add_message(&mut self, message: Message)
-    {
-        self.messages.push(message);
     }
 }

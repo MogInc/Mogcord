@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::{Chat, ChatType}, misc::{AppState, ServerError}}};
+use crate::{dto::{ChatInfoDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::{ChatInfo, Chat}, misc::{AppState, ServerError}}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -30,7 +30,7 @@ async fn get_chat_for_authenticated(
     
     match chat.is_user_part_of_chat(ctx_user_id)
     {
-        true => Ok(Json(ChatDTO::obj_to_dto(chat))),
+        true => Ok(Json(ChatInfoDTO::obj_to_dto(chat))),
         false => Err(ServerError::ChatDoesNotContainThisUser),
     }
 }
@@ -39,7 +39,7 @@ async fn get_chat_for_authenticated(
 struct CreateChatRequest
 {
     name: Option<String>,
-    r#type: ChatType,
+    r#type: Chat,
     owner_ids: Vec<String>,
     user_ids: Option<Vec<String>>,
 }
@@ -76,7 +76,7 @@ async fn create_chat_for_authenticated(
         None => Vec::new(),
     };
 
-    let chat = Chat::new(
+    let chat = ChatInfo::new(
         payload.name,
         payload.r#type, 
     )?;
@@ -91,7 +91,7 @@ async fn create_chat_for_authenticated(
 
     match repo_chat.create_chat(chat).await 
     {
-        Ok(chat) => Ok(Json(ChatDTO::obj_to_dto(chat))),
+        Ok(chat) => Ok(Json(ChatInfoDTO::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }
