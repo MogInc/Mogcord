@@ -2,14 +2,14 @@ use axum::async_trait;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChatInfo, MongolDB}, map_mongo_collection_keys, model::{chat::{ChatInfo, ChatRepository}, misc::ServerError }};
+use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolDB}, map_mongo_collection_keys, model::{chat::{Chat, ChatInfo, ChatRepository}, misc::ServerError }};
 
 #[async_trait]
 impl ChatRepository for MongolDB
 {
-    async fn create_chat(&self, chat: ChatInfo) -> Result<ChatInfo, ServerError>
+    async fn create_chat(&self, chat: Chat) -> Result<Chat, ServerError>
     {
-        let db_chat = MongolChatInfo::try_from(&chat)?;
+        let db_chat = MongolChat::try_from(&chat)?;
 
         match self.chats().insert_one(&db_chat).await
         {
@@ -18,7 +18,7 @@ impl ChatRepository for MongolDB
         }
     }
 
-    async fn get_chat_by_id(&self, chat_id: &str) -> Result<ChatInfo, ServerError>
+    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
 
@@ -96,9 +96,9 @@ impl ChatRepository for MongolDB
         }
     }
 
-    async fn does_chat_exist(&self, chat: &ChatInfo) -> Result<bool, ServerError>
+    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
     {
-        let mongol_chat = MongolChatInfo::try_from(chat)?;
+        let mongol_chat = MongolChat::try_from(chat)?;
 
         let pipilines = vec![
             doc! 
