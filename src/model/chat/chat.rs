@@ -96,13 +96,22 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn chat_info(self) -> Option<ChatInfo>
+    pub fn chat_info(self, chat_info_id_option: Option<String>) -> Option<ChatInfo>
     {
         match self
         {
             Chat::Private { chat_info, .. } => Some(chat_info),
             Chat::Group { chat_info, ..  } => Some(chat_info),
-            Chat::Server { .. } => None,
+            Chat::Server { chat_infos, .. } => 
+            {
+                let chat_info_id = chat_info_id_option?;
+
+                let position_option = chat_infos
+                    .iter()
+                    .position(|chat_info| chat_info.id == chat_info_id)?;
+
+                Some(chat_infos[position_option].clone())
+            },
         }
     }
 
@@ -111,7 +120,7 @@ impl Chat
         match self
         {
             Chat::Private { .. } => None,
-            Chat::Group { ..  } => None,
+            Chat::Group { .. } => None,
             Chat::Server { chat_infos, .. } => Some(chat_infos),
         }
     }

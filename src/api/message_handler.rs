@@ -76,8 +76,8 @@ async fn create_message_for_authenticated(
         .await?;
 
     let chat_info = chat
-        .chat_info()
-        .ok_or(ServerError::AccessingAServerWHenYouWantAChat)?;
+        .chat_info(Some(chat_info_id))
+        .ok_or(ServerError::ChatInfoNotFound)?;
 
     let message = Message::new(payload.value, owner, chat_info);
 

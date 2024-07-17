@@ -24,8 +24,7 @@ pub enum ServerError
 	ChatRequirementsInvalid,
 	ChatDoesNotContainThisUser,
 	InternalOwnersCountInvalid { expected: usize, found: usize },
-	AccessingAServerWHenYouWantAChat,
-	AccessingAChatWhenYouWantAServer,
+	ChatInfoNotFound,
 
 	//message
 	MessageNotFound,
@@ -123,8 +122,7 @@ impl ServerError
 			| Self::ChatAlreadyExists
 			| Self::OwnerCountInvalid
 			| Self::ChatRequirementsInvalid 
-			| Self::AccessingAChatWhenYouWantAServer
-			| Self::AccessingAServerWHenYouWantAChat => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::ChatInfoNotFound  => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 
