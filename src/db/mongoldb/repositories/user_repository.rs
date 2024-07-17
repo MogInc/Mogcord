@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{convert_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserFlag, UserRepository}}};
+use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserFlag, UserRepository}}};
 
 #[async_trait]
 impl UserRepository for MongolDB
@@ -93,7 +93,7 @@ impl UserRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "id": map_mongo_key_to_string!("$_id", "uuid"),
                 }
             },
             //hide fields
@@ -136,7 +136,7 @@ impl UserRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
+                    "id": map_mongo_key_to_string!("$_id", "uuid"),
                 }
             },
             //hide fields

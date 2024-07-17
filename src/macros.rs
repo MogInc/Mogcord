@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! convert_mongo_key_to_string 
+macro_rules! map_mongo_key_to_string 
 {
     ($id_field:expr, $id_type:expr) => 
     {
@@ -35,7 +35,7 @@ macro_rules! map_mongo_collection_keys_to_string
                 "input": $input_collection,
                 "in": 
                 {
-                    "$mergeObjects": ["$$this", { $renamed_id : convert_mongo_key_to_string!("$$this._id", $id_type) }]
+                    "$mergeObjects": ["$$this", { $renamed_id : map_mongo_key_to_string!("$$this._id", $id_type) }]
                 }
             } 
         }
