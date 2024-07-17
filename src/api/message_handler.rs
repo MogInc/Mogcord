@@ -26,13 +26,13 @@ async fn get_messages_for_authenticated(
     let repo_chat = &state.repo_chat;
 
     let pagination = Pagination::new(pagination);
-    let current_user_id = ctx.user_id_ref();
+    let current_user_id = &ctx.user_id();
 
     let chat = repo_chat
         .get_chat_by_chat_info_id(&chat_info_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(&current_user_id)
+    if !chat.is_user_part_of_chat(current_user_id)
     {
         return Err(ServerError::ChatDoesNotContainThisUser);
     }
@@ -60,7 +60,7 @@ async fn create_message_for_authenticated(
     let repo_chat = &state.repo_chat;
     let repo_user = &state.repo_user;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
 
     let chat = repo_chat
         .get_chat_by_chat_info_id(&chat_info_id)
@@ -102,7 +102,7 @@ async fn update_message_for_authenticated(
 {
     let repo_message = &state.repo_message;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     
     let mut message = repo_message
         .get_message(&message_id)

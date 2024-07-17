@@ -69,9 +69,9 @@ async fn get_ctx_user_for_authenticated(
 {
     let repo_user = &state.repo_user;
  
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     
-    match repo_user.get_user_by_id(&ctx_user_id).await 
+    match repo_user.get_user_by_id(ctx_user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),

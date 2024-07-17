@@ -31,7 +31,7 @@ pub async fn mw_require_admin_auth(
 	{
 		Ok(ctx) => 
 		{
-			if !ctx.user_flag_ref().is_admin_or_owner()
+			if !&ctx.user_flag().is_admin_or_owner()
 			{
 				return Err(ServerError::UserIsNotAdminOrOwner);
 			}
