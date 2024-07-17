@@ -321,7 +321,7 @@ fn get_group_chat_pipeline(filter: Document) -> Vec<Document>
             "$addFields":
             {
                 "Group.id": map_mongo_key_to_string!("$_id", "uuid"),
-                "Group.owner": map_mongo_key_to_string!("$Group.owner._id", "uuid"),
+                "Group.owner.id": map_mongo_key_to_string!("$Group.owner._id", "uuid"),
                 "Group.chat_info.id": map_mongo_key_to_string!("$Group.chat_info._id", "uuid"),
                 "Group.users": map_mongo_collection_keys_to_string!("$Group.users", "_id", "id", "uuid"),
             }
@@ -337,6 +337,7 @@ fn get_server_chat_pipeline(filter: Document) -> Vec<Document>
 {
     vec!
     [
+        filter,
         doc!
         {
             "$project":
@@ -376,7 +377,7 @@ fn get_server_chat_pipeline(filter: Document) -> Vec<Document>
             "$addFields":
             {
                 "Server.id": map_mongo_key_to_string!("$_id", "uuid"),
-                "Server.owner": map_mongo_key_to_string!("$Server.owner._id", "uuid"),
+                "Server.owner.id": map_mongo_key_to_string!("$Server.owner._id", "uuid"),
                 "Server.users": map_mongo_collection_keys_to_string!("$Server.users", "_id", "id", "uuid"),
                 "Server.chat_infos": map_mongo_collection_keys_to_string!("$Server.chat_infos", "_id", "id", "uuid"),
             }
