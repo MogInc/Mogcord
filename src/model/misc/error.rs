@@ -122,7 +122,7 @@ impl ServerError
 			| Self::ChatAlreadyExists
 			| Self::OwnerCountInvalid
 			| Self::ChatRequirementsInvalid 
-			| Self::ChatInfoNotFound  => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::ChatInfoNotFound => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
 			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
 
 
