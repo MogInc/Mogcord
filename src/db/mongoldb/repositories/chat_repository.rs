@@ -23,7 +23,9 @@ impl ChatRepository for MongolDB
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
 
-
+        //TODO: refactor this at some point 
+        //currently doing 2 db calls
+        //see if it can be done in 1
         let filter = doc!
         {
             "_id": chat_id_local
@@ -37,8 +39,6 @@ impl ChatRepository for MongolDB
             .map_err(|err| ServerError::FailedRead(err.to_string()))?
             .ok_or(ServerError::ChatNotFound)?;
 
-
-        //TODO: refactor this at some point 
         let pipelines = match &mongol_chat_wrapper.chat
         {
             MongolChat::Private { .. } => 
@@ -112,6 +112,9 @@ impl ChatRepository for MongolDB
         let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_info_id)?;
 
 
+        //TODO: refactor this at some point 
+        //currently doing 2 db calls
+        //see if it can be done in 1
         let filter = doc!
         {
             "$or":
@@ -129,7 +132,6 @@ impl ChatRepository for MongolDB
             .ok_or(ServerError::ChatNotFound)?;
 
 
-        //TODO: refactor this at some point 
         let pipelines = match &mongol_chat_wrapper.chat
         {
             MongolChat::Private { .. } => 
