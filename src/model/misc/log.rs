@@ -37,7 +37,7 @@ pub async fn log_request(
 		error_data: error_data_option,
 	};
 
-	println!("   ->> log_request: \n{}", json!(log_line));
+	println!("   ->> log_request: \n{:#}", json!(log_line));
 
     //TODO add saving to db or file
 }
