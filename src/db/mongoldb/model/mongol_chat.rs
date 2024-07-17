@@ -5,18 +5,25 @@ use crate::{db::mongoldb::mongol_helper, model::{chat::Chat, misc::ServerError}}
 
 use super::{MongolChatInfo, MongolChatInfoWrapper};
 
+//reason for wrapper
+//else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MongolChatWrapper
+{
+    _id: Uuid,
+    chat: MongolChat,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MongolChat
 {
     Private
     {
-        id: Uuid,
         owner_ids: Vec<Uuid>,
         chat_info: MongolChatInfo 
     },
     Group
     {
-        id: Uuid,
         name: String,
         owner_id: Uuid,
         user_ids: Vec<Uuid>,
@@ -24,7 +31,6 @@ pub enum MongolChat
     },
     Server
     {
-        id: Uuid,
         name: String,
         owner_id: Uuid,
         user_ids: Vec<Uuid>,
@@ -32,7 +38,7 @@ pub enum MongolChat
     },
 }
 
-impl TryFrom<&Chat> for MongolChat
+impl TryFrom<&Chat> for MongolChatWrapper
 {
     type Error = ServerError;
     
@@ -49,12 +55,17 @@ impl TryFrom<&Chat> for MongolChat
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
+                let chat = MongolChat::Private 
+                { 
+                    owner_ids,
+                    chat_info: MongolChatInfo::try_from(chat_info)?,
+                };
+
                 Ok(
-                    Self::Private 
+                    Self 
                     { 
-                        id: db_id,
-                        owner_ids,
-                        chat_info: MongolChatInfo::try_from(chat_info)?,
+                        _id: db_id,
+                        chat
                     }
                 )
             },
@@ -69,14 +80,20 @@ impl TryFrom<&Chat> for MongolChat
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
+
+                let chat = MongolChat::Group
+                {
+                    name: name.to_string(),
+                    owner_id: owner_id,
+                    user_ids: user_ids,
+                    chat_info: MongolChatInfo::try_from(chat_info)?,
+                };
+
                 Ok(
-                    Self::Group
-                    {
-                        id: db_id,
-                        name: name.to_string(),
-                        owner_id: owner_id,
-                        user_ids: user_ids,
-                        chat_info: MongolChatInfo::try_from(chat_info)?,
+                    Self 
+                    { 
+                        _id: db_id,
+                        chat
                     }
                 )
             },
@@ -91,14 +108,20 @@ impl TryFrom<&Chat> for MongolChat
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
+
+                let chat = MongolChat::Server
+                { 
+                    name: name.to_string(),
+                    owner_id: owner_id,
+                    user_ids: user_ids,
+                    chat_infos: MongolChatInfoWrapper::try_from(chat_infos)?.0,
+                };
+
                 Ok(
-                    Self::Server
-                    {
-                        id: db_id,
-                        name: name.to_string(),
-                        owner_id: owner_id,
-                        user_ids: user_ids,
-                        chat_infos: MongolChatInfoWrapper::try_from(chat_infos)?.0,
+                    Self 
+                    { 
+                        _id: db_id,
+                        chat
                     }
                 )
             },

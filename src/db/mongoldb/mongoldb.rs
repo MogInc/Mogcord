@@ -2,14 +2,14 @@ use std::time::Duration;
 use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};
 
 use crate::db::mongoldb::model::MongolUser;
-use super::{MongolBucket, MongolChat, MongolMessage, MongolRefreshToken, MongolRelation};
+use super::{MongolBucket, MongolChat, MongolChatWrapper, MongolMessage, MongolRefreshToken, MongolRelation};
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
 {
     client: Client,
     users: Collection<MongolUser>,
-    chats: Collection<MongolChat>,
+    chats: Collection<MongolChatWrapper>,
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
     refreshtokens: Collection<MongolRefreshToken>,
@@ -39,7 +39,7 @@ impl MongolDB
         let db = client.database("db_mogcord");
         
         let users: Collection<MongolUser> = db.collection("users");
-        let chats: Collection<MongolChat> = db.collection("chats");
+        let chats: Collection<MongolChatWrapper> = db.collection("chats");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
         let messages: Collection<MongolMessage> = db.collection("messages");
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
@@ -71,7 +71,7 @@ impl MongolDB
         &self.users
     }
 
-    pub fn chats(&self) -> &Collection<MongolChat> 
+    pub fn chats(&self) -> &Collection<MongolChatWrapper> 
     {
         &self.chats
     }
