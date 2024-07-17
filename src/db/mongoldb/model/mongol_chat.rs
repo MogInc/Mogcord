@@ -11,7 +11,6 @@ use super::{MongolChatInfo, MongolChatInfoWrapper};
 pub struct MongolChatWrapper
 {
     _id: Uuid,
-    #[serde(flatten)]
     chat: MongolChat,
 }
 
