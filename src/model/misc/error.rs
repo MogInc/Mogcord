@@ -24,6 +24,7 @@ pub enum ServerError
 	ChatDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
+	ChatNotAllowedToBeMade(ServerErrorInfo),
 
 	//message
 	MessageNotFound,
@@ -79,6 +80,12 @@ pub enum ServerError
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum ServerErrorInfo
+{
+	UserIsNotOwner,
 }
 
 impl fmt::Display for ServerError 
