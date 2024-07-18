@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::ChatDTO, middleware::auth::{self, Ctx}, model::{chat::{Chat, ChatType}, misc::{AppState, ServerError}}};
+use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, misc::{AppState, ServerError}}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -26,7 +26,7 @@ async fn get_chat_for_authenticated(
         .get_chat_by_id(&chat_id)
         .await?;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     
     match chat.is_user_part_of_chat(ctx_user_id)
     {
@@ -36,14 +36,25 @@ async fn get_chat_for_authenticated(
 }
 
 #[derive(Deserialize)]
-struct CreateChatRequest
+pub enum CreateChatRequest
 {
-    name: Option<String>,
-    r#type: ChatType,
-    owner_ids: Vec<String>,
-    user_ids: Option<Vec<String>>,
+    Private
+    {
+        owner_ids: Vec<String>,
+    },
+    Group
+    {
+        name: String,
+        owner_id: String,
+        user_ids: Vec<String>,
+    },
+    Server
+    {
+        name: String,
+        owner_id: String,
+        user_ids: Vec<String>,
+    },
 }
-
 async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     extract::Json(payload): extract::Json<CreateChatRequest>
@@ -57,36 +68,56 @@ async fn create_chat_for_authenticated(
     //also handle chat queu so that opposing users dont get auto dragged in it
     //or make it so only chats with friends can be made
 
-    if !payload.r#type.is_owner_size_allowed(payload.owner_ids.len())
+    let chat = match payload
     {
-        return Err(ServerError::OwnerCountInvalid);
-    }
+        CreateChatRequest::Private { owner_ids } => 
+        {
 
-    let owners = repo_user
-        .get_users_by_id(payload.owner_ids)
-        .await
-        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            //reason for this check
+            //prevention that an end user just overloads the db with a large fetch req
+            let req_owner_size = Chat::private_owner_size();
+            let actual_owner_size = owner_ids.len();
 
-    let users = match payload.user_ids
-    {
-        Some(users) => repo_user
-            .get_users_by_id(users)
-            .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?,
-        None => Vec::new(),
+            if actual_owner_size != actual_owner_size
+            {
+                return Err(ServerError::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
+            }
+
+            let owners = repo_user
+                .get_users_by_id(owner_ids)
+                .await?;
+
+            Chat::new_private(owners)?
+        },
+        CreateChatRequest::Group { name, owner_id, user_ids } => 
+        {
+            let owner = repo_user
+                .get_user_by_id(&owner_id)
+                .await?;
+
+            let users = repo_user
+                .get_users_by_id(user_ids)
+                .await?;
+
+            Chat::new_group(name, owner, users)?
+        },
+        CreateChatRequest::Server { name, owner_id, user_ids } => 
+        {
+            let owner = repo_user
+                .get_user_by_id(&owner_id)
+                .await?;
+
+            let users = repo_user
+                .get_users_by_id(user_ids)
+                .await?;
+
+            Chat::new_server(name, owner, users)?
+        },
     };
-
-    let chat = Chat::new(
-        payload.name,
-        payload.r#type, 
-        owners,
-        users,
-    )?;
 
     if repo_chat
         .does_chat_exist(&chat)
-        .await
-        .map_err(|err|  ServerError::UnexpectedError(err.to_string()))?
+        .await?
     {
         return Err(ServerError::ChatAlreadyExists);
     }

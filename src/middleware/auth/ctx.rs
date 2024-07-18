@@ -27,18 +27,9 @@ impl Ctx
 		self.user_id
 	}
 
-	pub fn user_id_ref(&self) -> &String 
-    {
-		&self.user_id
-	}
 
 	pub fn user_flag(self) -> UserFlag
     {
 		self.user_flag
-	}
-
-	pub fn user_flag_ref(&self) -> &UserFlag 
-    {
-		&self.user_flag
 	}
 }

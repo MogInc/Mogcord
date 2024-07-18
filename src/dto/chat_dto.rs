@@ -2,51 +2,75 @@ use serde::Serialize;
 
 use crate::model::chat::Chat;
 
+use super::{vec_to_dto, ChatInfoDTO, ObjectToDTO};
+
 #[derive(Serialize)]
 pub struct ChatDTO
 {
     id: String,
-    name: Option<String>,
     r#type: String,
-    owner_ids: Vec<String>,
-    user_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owner: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owners: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    users: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    chat_info: Option<ChatInfoDTO>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    chat_infos: Option<Vec<ChatInfoDTO>>,
 }
 
-impl ChatDTO
+impl ObjectToDTO<Chat> for ChatDTO
 {
-    pub fn obj_to_dto(chat: Chat) -> Self
+    fn obj_to_dto(model_input: Chat) -> Self 
     {
-        let owner_ids : Vec<String> = chat
-            .owners
-            .into_iter()
-            .map(|owner| owner.id)
-            .collect();
-
-        let user_ids : Vec<String> = chat
-            .users
-            .into_iter()
-            .map(|user| user.id)
-            .collect();
-
-        Self
+        match model_input
         {
-            id: chat.id,
-            name: chat.name,
-            r#type: chat.r#type.to_string(),
-            owner_ids,
-            user_ids
+            Chat::Private { id, owners, chat_info } => 
+            {
+                Self
+                {
+                    id, 
+                    r#type: String::from( "Private"),
+                    name: None,
+                    owner: None,
+                    owners: Some(owners.into_iter().map(|user| user.id).collect()),
+                    users: None,
+                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_infos: None,
+                }
+            },
+            Chat::Group { id, name, owner, users, chat_info } => 
+            {
+                Self
+                {
+                    id,
+                    r#type: String::from( "Group"),
+                    name: Some(name),
+                    owner: Some(owner.id),
+                    owners: None,
+                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_infos: None,
+                }
+            },
+            Chat::Server { id, name, owner, users, chat_infos } => 
+            {
+                Self
+                {
+                    id,
+                    r#type: String::from( "Server"),
+                    name: Some(name),
+                    owner: Some(owner.id),
+                    owners: None,
+                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    chat_info: None,
+                    chat_infos: Some(vec_to_dto(chat_infos))
+                }
+            },
         }
-    }
-    
-    pub fn vec_to_dto(chat: Vec<Chat>) -> Vec<Self>
-    {
-        let mut chat_dto: Vec<Self> = Vec::new();
-
-        for chat_ in chat
-        {
-            chat_dto.push(Self::obj_to_dto(chat_))
-        }
-        
-        return chat_dto;
     }
 }

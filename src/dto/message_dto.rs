@@ -2,6 +2,8 @@ use serde::Serialize;
 
 use crate::model::message::Message;
 
+use super::ObjectToDTO;
+
 #[derive(Serialize)]
 pub struct MessageDTO
 {
@@ -16,9 +18,9 @@ pub struct MessageDTO
     flag: String,
 }
 
-impl MessageDTO
+impl ObjectToDTO<Message> for MessageDTO
 {
-    pub fn obj_to_dto(message: Message) -> Self
+    fn obj_to_dto(message: Message) -> Self
     {
         Self
         {
@@ -30,17 +32,5 @@ impl MessageDTO
             bucket_id: message.bucket_id.map_or(String::from(""), |bucket| bucket),
             flag: message.flag.to_string(),
         }
-    }
-    
-    pub fn vec_to_dto(messages: Vec<Message>) -> Vec<Self>
-    {
-        let mut messages_dto: Vec<Self> = Vec::new();
-
-        for message in messages
-        {
-            messages_dto.push(Self::obj_to_dto(message))
-        }
-        
-        return messages_dto;
     }
 }

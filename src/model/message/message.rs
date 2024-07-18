@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{chat::Chat, user::User};
+use crate::model::{chat::ChatInfo, user::User};
 
 use super::MessageFlag;
 
@@ -15,7 +15,7 @@ pub struct Message
     #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub timestamp: DateTime<Utc>,
     pub owner: User,
-    pub chat: Chat,
+    pub chat: ChatInfo,
     pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)
@@ -26,7 +26,7 @@ impl Message {
     pub fn new(
         value: String, 
         owner: User,
-        chat: Chat
+        chat: ChatInfo
     ) -> Self
     {
         Self

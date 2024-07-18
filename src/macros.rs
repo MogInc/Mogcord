@@ -1,5 +1,10 @@
 #[macro_export]
-macro_rules! convert_mongo_key_to_string 
+/// Maps a mongodb key value (uuid, etc.) to string
+///
+///signature(`$id_name`, `mongo_id_type`),
+///  
+/// `$` prefix means its a mongo field
+macro_rules! map_mongo_key_to_string 
 {
     ($id_field:expr, $id_type:expr) => 
     {
@@ -24,18 +29,27 @@ macro_rules! convert_mongo_key_to_string
 }
 
 #[macro_export]
-macro_rules! map_mongo_collection_keys 
+/// maps over a mongodb collection and maps the key value (uuid, etc.) to string
+/// 
+/// uses [`map_mongo_key_to_string`] to map the individual keys
+/// 
+/// 
+/// signature(`$collection_name`, `current_id_name`, `rename_id_to`, `mongo_id_type`)
+/// 
+/// `$` prefix means its a mongo field
+macro_rules! map_mongo_collection_keys_to_string 
 {
-    ($input_collection:expr, $renamed_id:expr, $id_type:expr) => 
+    
+    ($collection_name:expr, $current_id_name:expr, $rename_id_to:expr, $id_type:expr) => 
     {
-        doc!    
+        doc!
         {
             "$map":
             {
-                "input": $input_collection,
+                "input": $collection_name,
                 "in": 
                 {
-                    "$mergeObjects": ["$$this", { $renamed_id : convert_mongo_key_to_string!("$$this._id", $id_type) }]
+                    "$mergeObjects": ["$$this", { $rename_id_to : map_mongo_key_to_string!(format!("$$this.{}", $current_id_name), $id_type) }]
                 }
             } 
         }

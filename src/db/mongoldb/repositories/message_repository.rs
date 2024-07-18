@@ -5,7 +5,7 @@ use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
 use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
-use crate::{convert_mongo_key_to_string, map_mongo_collection_keys};
+use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
 impl MessageRepository for MongolDB
@@ -204,12 +204,12 @@ impl MessageRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
-                    "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
-                    "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
-                    "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
+                    "id": map_mongo_key_to_string!("$_id", "uuid"),
+                    "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
+                    "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
+                    "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
                 }
             },
             //hide unneeded fields
@@ -366,12 +366,12 @@ impl MessageRepository for MongolDB
             {
                 "$addFields":
                 {
-                    "id": convert_mongo_key_to_string!("$_id", "uuid"),
-                    "bucket_id": convert_mongo_key_to_string!("$bucket_id", "uuid"),
-                    "chat.id": convert_mongo_key_to_string!("$chat._id", "uuid"),
-                    "owner.id": convert_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys!("$chat.owners", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys!("$chat.users", "id", "uuid"),
+                    "id": map_mongo_key_to_string!("$_id", "uuid"),
+                    "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
+                    "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
+                    "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
+                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
                 }
             },
             //hide unneeded fields

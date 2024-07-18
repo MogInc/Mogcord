@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::UserDTO, middleware::auth::{self, Ctx}, model::misc::{AppState, Hashing, Pagination, ServerError}};
+use crate::{dto::{vec_to_dto, ObjectToDTO, UserDTO}, middleware::auth::{self, Ctx}, model::misc::{AppState, Hashing, Pagination, ServerError}};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -57,7 +57,7 @@ async fn get_users_for_admin(
 
     match repo_user.get_users(pagination).await 
     {
-        Ok(users) => Ok(Json(UserDTO::vec_to_dto(users))),
+        Ok(users) => Ok(Json(vec_to_dto::<User, UserDTO>(users))),
         Err(e) => Err(e),
     }
 }
@@ -69,9 +69,9 @@ async fn get_ctx_user_for_authenticated(
 {
     let repo_user = &state.repo_user;
  
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     
-    match repo_user.get_user_by_id(&ctx_user_id).await 
+    match repo_user.get_user_by_id(ctx_user_id).await 
     {
         Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
         Err(e) => Err(e),

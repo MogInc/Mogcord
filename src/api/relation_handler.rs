@@ -34,7 +34,7 @@ async fn add_friend_for_authenticated(
     let repo_relation = &state.repo_relation;
     let repo_user = &state.repo_user;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     let other_user_id = &payload.user_id;
 
     if ctx_user_id == other_user_id
@@ -77,7 +77,7 @@ async fn confirm_friend_for_authenticated(
 {
     let repo_relation = &state.repo_relation;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     let other_user_id = &payload.user_id;
 
     if ctx_user_id == other_user_id
@@ -111,7 +111,7 @@ async fn remove_friend_for_authenticated(
 {
     let repo_relation = &state.repo_relation;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     let other_user_id = &payload.user_id;
 
     if ctx_user_id == other_user_id
@@ -137,7 +137,7 @@ async fn add_blocked_for_authenticated(
     let repo_relation = &state.repo_relation;
     let repo_user = &state.repo_user;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     let other_user_id = &payload.user_id;
 
     if ctx_user_id == other_user_id
@@ -170,7 +170,7 @@ async fn remove_blocked_for_authenticated(
 {
     let repo_relation = &state.repo_relation;
 
-    let ctx_user_id = ctx.user_id_ref();
+    let ctx_user_id = &ctx.user_id();
     let other_user_id = &payload.user_id;
 
     if ctx_user_id == other_user_id
