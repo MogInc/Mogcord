@@ -12,7 +12,7 @@ pub enum AuthCookieNames
 
 impl AuthCookieNames
 {
-    pub fn as_str(&self) -> &'static str 
+    pub fn as_str(&self) -> &str 
     {
         match self 
         {
@@ -30,13 +30,5 @@ impl AuthCookieNames
             AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
             AuthCookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }
-    }
-}
-
-impl From<AuthCookieNames> for &'static str
-{
-    fn from(value: AuthCookieNames) -> Self 
-    {
-        &value.as_str()
     }
 }
