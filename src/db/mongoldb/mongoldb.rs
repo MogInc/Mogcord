@@ -24,15 +24,18 @@ impl MongolDB
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
-        client_options.compressors = Some(vec![
-            Compressor::Snappy,
-            Compressor::Zlib {
-                level: Default::default(),
-            },
-            Compressor::Zstd {
-                level: Default::default(),
-            },
-        ]);
+        client_options.compressors = Some(
+            vec!
+            [
+                Compressor::Snappy,
+                Compressor::Zlib {
+                    level: Default::default(),
+                },
+                Compressor::Zstd {
+                    level: Default::default(),
+                },
+            ]
+        );
     
         let client = Client::with_options(client_options)?;
 

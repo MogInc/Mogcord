@@ -111,7 +111,8 @@ impl MessageRepository for MongolDB
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
         
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             //filter to only given chat
             doc! 
             {

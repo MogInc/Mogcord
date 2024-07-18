@@ -80,7 +80,8 @@ impl UserRepository for MongolDB
             user_ids_local.push(user_id);
         }
 
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             doc! 
             { 
                 "$match": 
@@ -130,7 +131,8 @@ impl UserRepository for MongolDB
 
     async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
     {
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             //rename fields
             doc!
             {

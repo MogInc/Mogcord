@@ -22,7 +22,8 @@ impl RefreshTokenRepository for MongolDB
     {
         let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
 
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             //filter
             doc! 
             {
