@@ -74,7 +74,7 @@ pub enum ServerError
 
 	//permissions
 	UserIsNotAdminOrOwner,
-	IncorrectUserPermissions(UserFlag),
+	IncorrectUserPermissions{ expected_min_grade: UserFlag, found: UserFlag },
 
 	//fallback
 	NotImplemented,
@@ -168,7 +168,7 @@ impl ServerError
 
 			//permissions
 			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectUserPermissions(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 
 			//fallback

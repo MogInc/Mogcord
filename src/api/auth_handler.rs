@@ -4,7 +4,7 @@ use axum::{extract::State, middleware, response::IntoResponse, routing::{delete,
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken, user::UserFlag}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -49,7 +49,12 @@ async fn login_for_everyone(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(ServerError::IncorrectUserPermissions(user.flag.clone()));
+        return Err(ServerError::IncorrectUserPermissions
+            { 
+                expected_min_grade: UserFlag::None, 
+                found: user.flag.clone()
+            }
+        );
     }
 
     let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
@@ -147,7 +152,12 @@ async fn refresh_token_for_everyone(
     {
         jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
         jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
-        return Err(ServerError::IncorrectUserPermissions(refresh_token.owner.flag.clone()));
+        return Err(ServerError::IncorrectUserPermissions
+            { 
+                expected_min_grade: UserFlag::None, 
+                found: refresh_token.owner.flag.clone()
+            }
+        );
     }
 
     if refresh_token.value != refresh_token_cookie
