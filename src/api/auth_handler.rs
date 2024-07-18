@@ -92,7 +92,7 @@ async fn login_for_everyone(
             .await?;
 
         jar.create_cookie(
-            cookie_names_device_id.as_str(), 
+            cookie_names_device_id.to_string(), 
             refresh_token.device_id, 
             cookie_names_device_id.ttl_in_mins(),
         );
@@ -109,7 +109,7 @@ async fn login_for_everyone(
             let cookie_names_refresh_token = AuthCookieNames::AUTH_REFRESH;
 
             jar.create_cookie(
-                cookie_names_acces_token.as_str(), 
+                cookie_names_acces_token.to_string(), 
                 acces_token, 
                 cookie_names_acces_token.ttl_in_mins(), 
             );
@@ -117,7 +117,7 @@ async fn login_for_everyone(
             //refresh token value always gets rewritten
             //not gonna assume its there when trying to login
             jar.create_cookie(
-                cookie_names_refresh_token.as_str(),
+                cookie_names_refresh_token.to_string(),
                 refresh_token.value,
                 cookie_names_refresh_token.ttl_in_mins(),
             );
@@ -150,8 +150,8 @@ async fn refresh_token_for_everyone(
 
     if !refresh_token.owner.flag.is_allowed_on_mogcord()
     {
-        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
-        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
+        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
+        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
         return Err(ServerError::IncorrectUserPermissions
             { 
                 expected_min_grade: UserFlag::None, 
@@ -174,7 +174,7 @@ async fn refresh_token_for_everyone(
             let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
 
             jar.create_cookie(
-                cookie_names_acces_token.as_str(), 
+                cookie_names_acces_token.to_string(), 
                 token, 
                 cookie_names_acces_token.ttl_in_mins(),
             );
@@ -201,8 +201,8 @@ async fn revoke_token_for_authorized(
     {
         Ok(_) => 
         {
-            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
-            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
+            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
+            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
 
             Ok(())
         },

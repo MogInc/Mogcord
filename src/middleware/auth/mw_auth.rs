@@ -64,7 +64,7 @@ pub async fn mw_ctx_resolver(
 
 	if ctx_result.is_err() && !matches!(ctx_result, Err(ServerError::AccesTokenExpired))
 	{
-		jar.remove_cookie(cookie_names_acces_token.as_str());
+		jar.remove_cookie(cookie_names_acces_token.to_string());
 	}
 
 	req
