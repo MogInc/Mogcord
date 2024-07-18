@@ -1,4 +1,4 @@
-use std::{iter, sync::Arc};
+use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
@@ -52,7 +52,6 @@ pub enum CreateChatRequest
     {
         name: String,
         owner_id: String,
-        user_ids: Vec<String>,
     },
 }
 async fn create_chat_for_authenticated(
@@ -116,7 +115,7 @@ async fn create_chat_for_authenticated(
 
             Chat::new_group(name, owner, users)?
         },
-        CreateChatRequest::Server { name, owner_id, user_ids } => 
+        CreateChatRequest::Server { name, owner_id} => 
         {
             //can move this inside new method
             if &owner_id != ctx_user_id
@@ -128,11 +127,7 @@ async fn create_chat_for_authenticated(
                 .get_user_by_id(&owner_id)
                 .await?;
 
-            let users = repo_user
-                .get_users_by_id(user_ids)
-                .await?;
-
-            Chat::new_server(name, owner, users)?
+            Chat::new_server(name, owner, Vec::new())?
         },
     };
 
