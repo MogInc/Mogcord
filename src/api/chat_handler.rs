@@ -1,8 +1,8 @@
-use std::sync::Arc;
+use std::{iter, sync::Arc};
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, misc::{AppState, ServerError}}};
+use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, misc::{AppState, ServerError, ServerErrorInfo}}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -57,6 +57,7 @@ pub enum CreateChatRequest
 }
 async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
+    ctx: Ctx,
     extract::Json(payload): extract::Json<CreateChatRequest>
 ) -> impl IntoResponse
 {
@@ -67,6 +68,8 @@ async fn create_chat_for_authenticated(
     //when AA gets added, check if chat is allowed to be made
     //also handle chat queu so that opposing users dont get auto dragged in it
     //or make it so only chats with friends can be made
+
+    let ctx_user_id = &ctx.user_id();
 
     let chat = match payload
     {
@@ -83,6 +86,12 @@ async fn create_chat_for_authenticated(
                 return Err(ServerError::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
             }
 
+            //can move this inside new method
+            if !owner_ids.contains(ctx_user_id)
+            {
+                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+            }
+
             let owners = repo_user
                 .get_users_by_id(owner_ids)
                 .await?;
@@ -91,6 +100,12 @@ async fn create_chat_for_authenticated(
         },
         CreateChatRequest::Group { name, owner_id, user_ids } => 
         {
+            //can move this inside new method
+            if &owner_id != ctx_user_id
+            {
+                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+            }
+
             let owner = repo_user
                 .get_user_by_id(&owner_id)
                 .await?;
@@ -103,6 +118,12 @@ async fn create_chat_for_authenticated(
         },
         CreateChatRequest::Server { name, owner_id, user_ids } => 
         {
+            //can move this inside new method
+            if &owner_id != ctx_user_id
+            {
+                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+            }
+
             let owner = repo_user
                 .get_user_by_id(&owner_id)
                 .await?;

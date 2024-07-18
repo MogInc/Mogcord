@@ -85,7 +85,7 @@ pub enum ServerError
 #[derive(Debug, Clone, Serialize)]
 pub enum ServerErrorInfo
 {
-	UserIsNotOwner,
+	UserCreatingIsNotOwner,
 }
 
 impl fmt::Display for ServerError 
