@@ -1,13 +1,21 @@
+use std::fmt;
 use serde::Serialize;
-use strum_macros::Display;
 
-#[derive(Display, Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
 pub enum AuthCookieNames
 {
     AUTH_ACCES,
     AUTH_REFRESH,
     DEVICE_ID,
+}
+
+impl fmt::Display for AuthCookieNames 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        write!(f, "{}", self.as_str())
+    }
 }
 
 impl AuthCookieNames
