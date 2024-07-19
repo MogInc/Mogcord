@@ -145,12 +145,7 @@ impl Chat
 
         let chat_info = Info::new(None);
 
-        let private_chat = Private
-        {
-            id: chat_info.id.to_string(),
-            owners: owners_sanitized,
-            chat_info
-        };
+        let private_chat = Private::convert(chat_info.id.to_string(), owners_sanitized, chat_info);
 
         let chat_type = Chat::Private(private_chat);
 
@@ -168,14 +163,7 @@ impl Chat
 
         let chat_info = Info::new(None);
 
-        let group_chat = Group
-        { 
-            id: chat_info.id.to_string(),
-            name, 
-            owner, 
-            users: users_sanitized,
-            chat_info
-        };
+        let group_chat = Group::convert(chat_info.id.to_string(), name, owner, users_sanitized, chat_info);
 
         let chat_type = Chat::Group(group_chat);
 
