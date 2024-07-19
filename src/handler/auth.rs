@@ -5,7 +5,7 @@ use serde::Deserialize;
 use tower_cookies::Cookies;
 
 use crate::model::{error, refresh_token::RefreshToken, user::UserFlag, AppState, Hashing};
-use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::{AuthCookieNames, Manager}};
+use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::Manager};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
@@ -42,7 +42,7 @@ async fn login_for_everyone(
     let repo_user = &state.repo_user;
     let repo_refresh = &state.repo_refresh_token;
 
-    let cookie_names_device_id = AuthCookieNames::DEVICE_ID;
+    let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
     let user = repo_user
         .get_user_by_mail(&payload.mail)
@@ -102,8 +102,8 @@ async fn login_for_everyone(
     {
         Ok(acces_token) => 
         {
-            let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
-            let cookie_names_refresh_token = AuthCookieNames::AUTH_REFRESH;
+            let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
+            let cookie_names_refresh_token = auth::CookieNames::AUTH_REFRESH;
 
             jar.create_cookie(
                 cookie_names_acces_token.to_string(), 
@@ -133,13 +133,13 @@ async fn refresh_token_for_everyone(
 {
     let repo_refresh = &state.repo_refresh_token;
 
-    let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.as_str())?;
+    let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())?;
 
     let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
    
-    let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.as_str())?;
+    let refresh_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_REFRESH.as_str())?;
 
-    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str())?;
+    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
 
     let refresh_token = repo_refresh
         .get_valid_token_by_device_id(&device_id_cookie)
@@ -147,8 +147,8 @@ async fn refresh_token_for_everyone(
 
     if !refresh_token.owner.flag.is_allowed_on_mogcord()
     {
-        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
-        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
+        jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
+        jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
         return Err(error::Server::IncorrectUserPermissions
             { 
                 expected_min_grade: UserFlag::None, 
@@ -168,7 +168,7 @@ async fn refresh_token_for_everyone(
     {
         Ok(token) => 
         {
-            let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
+            let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
 
             jar.create_cookie(
                 cookie_names_acces_token.to_string(), 
@@ -191,15 +191,15 @@ async fn revoke_token_for_authorized(
 {
     let repo_refresh = &state.repo_refresh_token;
 
-    let device_id_cookie = jar.get_cookie(AuthCookieNames::DEVICE_ID.as_str())?;
+    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
     let ctx_user_id = &ctx.user_id();
 
     match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
     {
         Ok(()) => 
         {
-            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
-            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
+            jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
+            jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
 
             Ok(())
         },

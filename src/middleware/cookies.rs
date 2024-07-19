@@ -1,7 +1,3 @@
-mod auth_cookie_names;
-
-pub use auth_cookie_names::*;
-
 use tower_cookies::{cookie::{time::{Duration, OffsetDateTime}, SameSite}, Cookie, Cookies};
 
 use crate::model::error;

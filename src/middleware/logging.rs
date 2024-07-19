@@ -3,7 +3,8 @@ use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{auth::Ctx, cookies::{AuthCookieNames, Manager}}, model::{error, log::{log_request, RequestLogLinePersonal}}};
+use crate::model::{error, log::{log_request, RequestLogLinePersonal}};
+use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
 
 pub async fn main_response_mapper(
 	uri: Uri,
@@ -38,7 +39,7 @@ pub async fn main_response_mapper(
     let client_error_option = client_status_error.unzip().1;
 
 	let device_id_option = jar
-		.get_cookie(AuthCookieNames::DEVICE_ID.as_str())
+		.get_cookie(auth::CookieNames::DEVICE_ID.as_str())
 		.ok();
 
 	let user_info = RequestLogLinePersonal::new(

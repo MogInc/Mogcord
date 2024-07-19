@@ -3,14 +3,14 @@ use serde::Serialize;
 
 #[derive(Serialize, Debug, Clone)]
 #[allow(non_camel_case_types)]
-pub enum AuthCookieNames
+pub enum CookieNames
 {
     AUTH_ACCES,
     AUTH_REFRESH,
     DEVICE_ID,
 }
 
-impl fmt::Display for AuthCookieNames 
+impl fmt::Display for CookieNames 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
@@ -18,16 +18,16 @@ impl fmt::Display for AuthCookieNames
     }
 }
 
-impl AuthCookieNames
+impl CookieNames
 {
     #[must_use]
     pub fn as_str(&self) -> &str 
     {
         match self 
         {
-            AuthCookieNames::AUTH_ACCES => "ACCES_TOKEN",
-            AuthCookieNames::AUTH_REFRESH => "SESSION_TOKEN",
-            AuthCookieNames::DEVICE_ID => "DEVICE_ID",
+            CookieNames::AUTH_ACCES => "ACCES_TOKEN",
+            CookieNames::AUTH_REFRESH => "SESSION_TOKEN",
+            CookieNames::DEVICE_ID => "DEVICE_ID",
         }
     }
 
@@ -36,9 +36,9 @@ impl AuthCookieNames
     {
         match self 
         {
-            AuthCookieNames::AUTH_ACCES
-            | AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
-            AuthCookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
+            CookieNames::AUTH_ACCES
+            | CookieNames::AUTH_REFRESH => 60 * 24 * 365,
+            CookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }
     }
 }

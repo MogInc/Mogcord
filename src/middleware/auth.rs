@@ -1,8 +1,10 @@
 mod jwt;
 mod ctx;
+mod cookie_names;
 
 pub use jwt::*;
 pub use ctx::*;
+pub use cookie_names::*;
 
 pub const ACCES_TOKEN_TTL_MIN: i64 = 10 * 10000;
 pub const REFRESH_TOKEN_TTL_MIN: i64 = 60 * 24 * 365;
@@ -11,7 +13,8 @@ pub const DEVICE_ID_TTL_MIN: i64 = 60 * 24 * 365 * 5;
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::Cookies;
 
-use crate::{middleware::cookies::{AuthCookieNames, Manager}, model::error};
+use crate::model::error;
+use crate::middleware::{auth, cookies::Manager};
 
 
 pub async fn mw_require_regular_auth(
@@ -59,7 +62,7 @@ pub async fn mw_ctx_resolver(
 {
 	println!("MTX RESOLVER: ");
 
-    let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
+    let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
 
 	let ctx_result = match jar
 		.get_cookie(cookie_names_acces_token.as_str())
