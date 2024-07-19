@@ -122,7 +122,7 @@ impl UserRepository for MongolDB
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
-                Err(_) => (),
+                Err(err) => println!("{err}"),
             }
         }
     
@@ -149,12 +149,12 @@ impl UserRepository for MongolDB
             //skip offset
             doc! 
             {
-                "$skip": pagination.get_skip_size() as i32
+                "$skip": i32::try_from(pagination.get_skip_size()).ok().unwrap_or(0)
             },
             //limit output
             doc! 
             {
-                "$limit": pagination.page_size as i32
+                "$limit": i32::try_from(pagination.page_size).ok().unwrap_or(0)
             },
         ];
 
@@ -176,7 +176,7 @@ impl UserRepository for MongolDB
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
-                Err(err) => println!("{}", err),
+                Err(err) => println!("{err}"),
             }
         }
     
