@@ -80,7 +80,7 @@ async fn create_chat_for_authenticated(
             let req_owner_size = Chat::private_owner_size();
             let actual_owner_size = owner_ids.len();
 
-            if actual_owner_size != actual_owner_size
+            if req_owner_size != actual_owner_size
             {
                 return Err(ServerError::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
             }
