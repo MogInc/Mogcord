@@ -102,12 +102,13 @@ impl Chat
         Ok(chat_type)
     }
 
+    #[must_use]
     pub fn chat_info(self, chat_info_id_option: Option<String>) -> Option<ChatInfo>
     {
         match self
         {
-            Chat::Private { chat_info, .. } => Some(chat_info),
-            Chat::Group { chat_info, ..  } => Some(chat_info),
+            Chat::Private { chat_info, .. } 
+             | Chat::Group { chat_info, ..  } => Some(chat_info),
             Chat::Server { chat_infos, .. } => 
             {
                 let chat_info_id = chat_info_id_option?;
@@ -121,12 +122,12 @@ impl Chat
         }
     }
 
+    #[must_use]
     pub fn chat_infos(self) -> Option<Vec<ChatInfo>>
     {
         match self
         {
-            Chat::Private { .. } => None,
-            Chat::Group { .. } => None,
+            Chat::Private { .. } | Chat::Group { .. } => None,
             Chat::Server { chat_infos, .. } => Some(chat_infos),
         }
     }
@@ -138,10 +139,12 @@ impl Chat
     const GROUP_OWNER_MAX: usize = 1;
     const SERVER_OWNER_MAX: usize = 1;
 
+    #[must_use]
     pub fn private_owner_size() -> usize
     {
         Self::PRIVATE_OWNER_MAX
     }
+
 
     fn is_owner_size_allowed(&self, owner_count: usize) -> bool
     {
@@ -168,11 +171,11 @@ impl Chat
 
                 Ok(())
             },
-            Chat::Group{..} => Ok(()),
-            Chat::Server{..} => Ok(()),
+            Chat::Group{..} | Chat::Server{..} => Ok(()),
         }
     }
 
+    #[must_use]
     pub fn is_user_part_of_chat(&self, other_user_id: &String) -> bool
     {
         match self
@@ -180,7 +183,7 @@ impl Chat
             Chat::Private{owners,..} => owners.iter().any(|owner| &owner.id == other_user_id),
             Chat::Group{owner, users, ..} => &owner.id == other_user_id
                 || users.iter().any(|user| &user.id == other_user_id),
-            _ => true,
+            Chat::Server{ .. } => true,
         }
     }
 }
