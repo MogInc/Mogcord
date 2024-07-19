@@ -6,7 +6,7 @@ use super::RefreshToken;
 
 
 #[async_trait]
-pub trait RefreshTokenRepository: Send + Sync 
+pub trait Repository: Send + Sync 
 {
     async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, error::Server>;
     async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, error::Server>;

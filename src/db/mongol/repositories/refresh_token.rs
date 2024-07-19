@@ -2,12 +2,12 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::model::{error, refresh_token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}};
+use crate::model::{error, refresh_token::{self, RefreshToken, RefreshTokenFlag}};
 use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
 use crate::map_mongo_key_to_string;
 
 #[async_trait]
-impl RefreshTokenRepository for MongolDB
+impl refresh_token::Repository for MongolDB
 {
     async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, error::Server>
     {
