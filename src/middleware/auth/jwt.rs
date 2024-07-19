@@ -3,15 +3,16 @@ use std::env;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use crate::model::{misc::ServerError, user::UserFlag};
+use crate::model::{error, user};
 
 use super::ACCES_TOKEN_TTL_MIN;
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
 {
     pub sub: String,
-    pub user_flag: UserFlag,
+    pub user_flag: user::Flag,
     pub exp: usize,
 }
 
@@ -25,13 +26,13 @@ pub enum TokenStatus
 pub struct CreateAccesTokenRequest<'user_info>
 {
     user_id: &'user_info String,
-    user_flag: &'user_info UserFlag,
+    user_flag: &'user_info user::Flag,
 }
 
 impl<'user_info> CreateAccesTokenRequest<'user_info>
 {
     #[must_use]
-    pub fn new(user_id: &'user_info String, user_flag: &'user_info UserFlag) -> Self
+    pub fn new(user_id: &'user_info String, user_flag: &'user_info user::Flag) -> Self
     {
         Self
         {
@@ -41,7 +42,7 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     }
 }
 
-pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, ServerError>
+pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, error::Server>
 {
     let claims = Claims
     {
@@ -53,22 +54,22 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, S
     };
     
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| ServerError::AccesTokenHashKeyNotSet)?;
+        .map_err(|_| error::Server::AccesTokenHashKeyNotSet)?;
 
     let acces_token = encode(
         &Header::default(), 
         &claims, 
         &EncodingKey::from_secret(acces_token_key.as_ref())
-    ).map_err(|_| ServerError::FailedCreatingAccesToken)?;
+    ).map_err(|_| error::Server::FailedCreatingAccesToken)?;
 
 
     Ok(acces_token)
 }
 
-pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, ServerError>
+pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| ServerError::AccesTokenHashKeyNotSet)?;
+        .map_err(|_| error::Server::AccesTokenHashKeyNotSet)?;
 
     let mut validation = Validation::default();
     
@@ -84,8 +85,8 @@ pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Res
         {
             match *err.kind()
             {
-                ErrorKind::ExpiredSignature => Err(ServerError::AccesTokenExpired),
-                _ => Err(ServerError::AccesTokenInvalid),
+                ErrorKind::ExpiredSignature => Err(error::Server::AccesTokenExpired),
+                _ => Err(error::Server::AccesTokenInvalid),
             }
         },
     }

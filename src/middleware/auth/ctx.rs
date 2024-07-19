@@ -1,17 +1,17 @@
-use crate::model::user::UserFlag;
+use crate::model::user;
 
 
 #[derive(Clone, Debug)]
 pub struct Ctx
 {
 	user_id: String,
-	user_flag: UserFlag,
+	user_flag: user::Flag,
 }
 
 impl Ctx 
 {
 	#[must_use]
-	pub fn new(user_id: String, user_flag: UserFlag) -> Self 
+	pub fn new(user_id: String, user_flag: user::Flag) -> Self 
     {
 		Self 
         { 
@@ -30,7 +30,7 @@ impl Ctx
 	}
 
 	#[must_use]
-	pub fn user_flag(self) -> UserFlag
+	pub fn user_flag(self) -> user::Flag
     {
 		self.user_flag
 	}
