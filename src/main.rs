@@ -22,20 +22,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
     
-    let repo_user = Arc::clone(&db) as Arc<dyn UserRepository>;
-    let repo_chat =  Arc::clone(&db) as Arc<dyn ChatRepository>;
-    let repo_message = Arc::clone(&db) as Arc<dyn MessageRepository>;
-    let repo_refresh_token = Arc::clone(&db) as Arc<dyn RefreshTokenRepository>;
-    let repo_relation = Arc::clone(&db) as Arc<dyn RelationRepository>;
+    let user = Arc::clone(&db) as Arc<dyn UserRepository>;
+    let chat =  Arc::clone(&db) as Arc<dyn ChatRepository>;
+    let message = Arc::clone(&db) as Arc<dyn MessageRepository>;
+    let refresh_token = Arc::clone(&db) as Arc<dyn RefreshTokenRepository>;
+    let relation = Arc::clone(&db) as Arc<dyn RelationRepository>;
 
     let state: Arc<AppState> = Arc::new(
-        AppState {
-            repo_chat,
-            repo_user,
-            repo_message,
-            repo_refresh_token,
-            repo_relation,
-        });
+        AppState 
+        {
+            chat,
+            user,
+            message,
+            refresh_token,
+            relation,
+        }
+    );
 
     let api_routes = Router::new()
         .merge(handler::auth::routes(state.clone()))

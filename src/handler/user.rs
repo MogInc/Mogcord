@@ -37,7 +37,7 @@ async fn get_user_for_admin(
     Path(user_id): Path<String>
 ) -> impl IntoResponse
 {   
-    let repo_user = &state.repo_user;
+    let repo_user = &state.user;
 
     match repo_user.get_user_by_id(&user_id).await 
     {
@@ -51,7 +51,7 @@ async fn get_users_for_admin(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.repo_user;
+    let repo_user = &state.user;
 
     let pagination = Pagination::new(pagination);
 
@@ -67,7 +67,7 @@ async fn get_ctx_user_for_authenticated(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.repo_user;
+    let repo_user = &state.user;
  
     let ctx_user_id = &ctx.user_id();
     
@@ -92,7 +92,7 @@ async fn create_user_for_everyone(
     Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse
 {
-    let repo_user = &state.repo_user;
+    let repo_user = &state.user;
 
     //TODO: add user ban checks
     //TODO: mail verification (never)

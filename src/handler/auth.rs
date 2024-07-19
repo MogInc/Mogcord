@@ -39,8 +39,8 @@ async fn login_for_everyone(
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.repo_user;
-    let repo_refresh = &state.repo_refresh_token;
+    let repo_user = &state.user;
+    let repo_refresh = &state.refresh_token;
 
     let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
@@ -131,7 +131,7 @@ async fn refresh_token_for_everyone(
     jar: Cookies
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.repo_refresh_token;
+    let repo_refresh = &state.refresh_token;
 
     let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())?;
 
@@ -189,7 +189,7 @@ async fn revoke_token_for_authorized(
     jar: Cookies,
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.repo_refresh_token;
+    let repo_refresh = &state.refresh_token;
 
     let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
     let ctx_user_id = &ctx.user_id();
@@ -213,7 +213,7 @@ async fn revoke_all_tokens_for_authorized(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.repo_refresh_token;
+    let repo_refresh = &state.refresh_token;
     
     let ctx_user_id = &ctx.user_id();
 

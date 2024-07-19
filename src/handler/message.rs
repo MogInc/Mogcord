@@ -22,8 +22,8 @@ async fn get_messages_for_authenticated(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.repo_message;
-    let repo_chat = &state.repo_chat;
+    let repo_message = &state.message;
+    let repo_chat = &state.chat;
 
     let pagination = Pagination::new(pagination);
     let current_user_id = &ctx.user_id();
@@ -56,9 +56,9 @@ async fn create_message_for_authenticated(
     extract::Json(payload): extract::Json<CreateMessageRequest>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.repo_message;
-    let repo_chat = &state.repo_chat;
-    let repo_user = &state.repo_user;
+    let repo_message = &state.message;
+    let repo_chat = &state.chat;
+    let repo_user = &state.user;
 
     let ctx_user_id = &ctx.user_id();
 
@@ -100,7 +100,7 @@ async fn update_message_for_authenticated(
     extract::Json(payload): extract::Json<UpdateMessageRequest>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.repo_message;
+    let repo_message = &state.message;
 
     let ctx_user_id = &ctx.user_id();
     

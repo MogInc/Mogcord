@@ -20,7 +20,7 @@ async fn get_chat_for_authenticated(
     Path(chat_id): Path<String>
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.repo_chat;
+    let repo_chat = &state.chat;
 
     let chat = repo_chat
         .get_chat_by_id(&chat_id)
@@ -61,8 +61,8 @@ async fn create_chat_for_authenticated(
     extract::Json(payload): extract::Json<CreateChatRequest>
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.repo_chat;
-    let repo_user = &state.repo_user;
+    let repo_chat = &state.chat;
+    let repo_user = &state.user;
 
     //Naive solution
     //when AA gets added, check if chat is allowed to be made
