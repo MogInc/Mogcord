@@ -119,7 +119,7 @@ impl MessageRepository for MongolDB
                 "$match":
                 {
                     "chat_id": chat_id_local,
-                    "flag": internal_valid_message_filter(),
+                    "flag": get_valid_message_filter(),
                 },
             },
             //sort on date from new to old
@@ -422,7 +422,7 @@ impl MessageRepository for MongolDB
     }
 }
 
-fn internal_valid_message_filter() -> Document
+fn get_valid_message_filter() -> Document
 {
     let valid_flags = 
     [
