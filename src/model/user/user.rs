@@ -17,6 +17,7 @@ pub struct User
 
 impl User
 {
+    #[must_use]
     pub fn convert(id: String, username: String, mail: String, hashed_password: String, user_flag: UserFlag) -> Self
     {
         Self
@@ -28,7 +29,7 @@ impl User
             flag: user_flag,
         }
     }
-
+    #[must_use]
     pub fn new(username: String, mail: String, hashed_password: String) -> Self
     {
         Self
