@@ -17,10 +17,10 @@ pub async fn log_request(
 
     let timestamp = chrono::Utc::now();
 
-	let error_type_option = service_error.map(|se| se.to_string());
+	let error_type_option = service_error.map(ServerError::to_string);
 	let error_data_option = serde_json::to_value(service_error)
 		.ok()
-		.and_then(|mut v| v.get_mut("data").map(|v| v.take()));
+		.and_then(|mut v| v.get_mut("data").map(Value::take));
 
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
@@ -51,6 +51,7 @@ pub struct RequestLogLinePersonal
 
 impl RequestLogLinePersonal
 {
+	#[must_use]
 	pub fn new(user_id: Option<String>, device_id: Option<String>) -> Self
 	{
 		Self
