@@ -111,7 +111,7 @@ impl MessageRepository for MongolDB
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
         
-        let pipelines = vec!
+        let mut pipelines = vec!
         [
             //filter to only given chat
             doc! 
@@ -134,103 +134,15 @@ impl MessageRepository for MongolDB
             //early skip + limit since i assume it's cheaper
             doc!
             {
-                "$skip": pagination.get_skip_size() as i32
+                "$skip":  i32::try_from(pagination.get_skip_size()).ok().unwrap_or(0)
             },
             doc! 
             {
-                "$limit": pagination.page_size as i32
-            },
-            //join with chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "chats",
-                    "localField": "chat_id",
-                    "foreignField": "_id",
-                    "as": "chat"
-                }
-            },
-            //join with owner of message
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "owner_id",
-                    "foreignField": "_id",
-                    "as": "owner"
-                }
-            },
-            //should only have 1 chat
-            doc!
-            {
-                "$unwind": 
-                {
-                    "path": "$chat"
-                }
-            },
-            //should only have 1 owner
-            doc!
-            {
-                "$unwind": 
-                {
-                    "path": "$owner"
-                }
-            },
-            //join with owners of chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "chat.owner_ids",
-                    "foreignField": "_id",
-                    "as": "chat.owners"
-                }
-            },
-            //join with users of chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "chat.user_ids",
-                    "foreignField": "_id",
-                    "as": "chat.users"
-                }
-            },
-            //converts from special ids to string
-            doc!
-            {
-                "$addFields":
-                {
-                    "id": map_mongo_key_to_string!("$_id", "uuid"),
-                    "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
-                    "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
-                    "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
-                }
-            },
-            //hide unneeded fields
-            doc! 
-            {
-                "$unset": 
-                [
-                    "_id",
-                    "owner_id",
-                    "chat_id",
-                    "chat._id",
-                    "chat.owner_ids",
-                    "chat.user_ids",
-                    "chat.bucket_ids",
-                    "chat.owners._id",
-                    "chat.users._id",
-                    "owner._id"
-                ]
+                "$limit": i32::try_from(pagination.page_size).ok().unwrap_or(0)
             },
         ];
+
+        pipelines.extend(internal_message_pipeline());
 
 
         let mut cursor = self
@@ -256,7 +168,7 @@ impl MessageRepository for MongolDB
 
                     messages.push(message);
                 },
-                Err(err) => println!("{}", err),
+                Err(err) => println!("{err}"),
             };
         }
 
@@ -293,7 +205,7 @@ impl MessageRepository for MongolDB
 
         let message_id_local = mongol_helper::convert_domain_id_to_mongol(message_id)?;
         
-        let pipelines = vec![
+        let mut pipelines = vec![
             //filter to only given chat
             doc! 
             {
@@ -302,98 +214,9 @@ impl MessageRepository for MongolDB
                     "_id": message_id_local
                 },
             },
-            //join with chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "chats",
-                    "localField": "chat_id",
-                    "foreignField": "_id",
-                    "as": "chat"
-                }
-            },
-            //join with owner of message
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "owner_id",
-                    "foreignField": "_id",
-                    "as": "owner"
-                }
-            },
-            //should only have 1 chat
-            doc!
-            {
-                "$unwind": 
-                {
-                    "path": "$chat"
-                }
-            },
-            //should only have 1 owner
-            doc!
-            {
-                "$unwind": 
-                {
-                    "path": "$owner"
-                }
-            },
-            //join with owners of chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "chat.owner_ids",
-                    "foreignField": "_id",
-                    "as": "chat.owners"
-                }
-            },
-            //join with users of chat
-            doc! 
-            {
-                "$lookup": 
-                {
-                    "from": "users",
-                    "localField": "chat.user_ids",
-                    "foreignField": "_id",
-                    "as": "chat.users"
-                }
-            },
-            //converts from special ids to string
-            doc!
-            {
-                "$addFields":
-                {
-                    "id": map_mongo_key_to_string!("$_id", "uuid"),
-                    "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
-                    "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
-                    "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
-                    "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
-                    "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
-                }
-            },
-            //hide unneeded fields
-            doc! 
-            {
-                "$unset": 
-                [
-                    "_id",
-                    "owner_id",
-                    "chat_id",
-                    "chat._id",
-                    "chat.owner_ids",
-                    "chat.user_ids",
-                    "chat.bucket_ids",
-                    "chat.owners._id",
-                    "chat.users._id",
-                    "owner._id"
-                ]
-            },
         ];
 
+        pipelines.extend(internal_message_pipeline());
 
         let mut cursor = self
             .messages()
@@ -446,4 +269,100 @@ fn internal_valid_message_filter() -> Document
         .collect();
 
     doc! { "$in": valid_flags_bson }
+}
+
+fn internal_message_pipeline() -> [Document; 8]
+{
+    [
+        //join with chat
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "chats",
+                "localField": "chat_id",
+                "foreignField": "_id",
+                "as": "chat"
+            }
+        },
+        //join with owner of message
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "users",
+                "localField": "owner_id",
+                "foreignField": "_id",
+                "as": "owner"
+            }
+        },
+        //should only have 1 chat
+        doc!
+        {
+            "$unwind": 
+            {
+                "path": "$chat"
+            }
+        },
+        //should only have 1 owner
+        doc!
+        {
+            "$unwind": 
+            {
+                "path": "$owner"
+            }
+        },
+        //join with owners of chat
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "users",
+                "localField": "chat.owner_ids",
+                "foreignField": "_id",
+                "as": "chat.owners"
+            }
+        },
+        //join with users of chat
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "users",
+                "localField": "chat.user_ids",
+                "foreignField": "_id",
+                "as": "chat.users"
+            }
+        },
+        //converts from special ids to string
+        doc!
+        {
+            "$addFields":
+            {
+                "id": map_mongo_key_to_string!("$_id", "uuid"),
+                "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
+                "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
+                "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
+                "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+                "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
+            }
+        },
+        //hide unneeded fields
+        doc! 
+        {
+            "$unset": 
+            [
+                "_id",
+                "owner_id",
+                "chat_id",
+                "chat._id",
+                "chat.owner_ids",
+                "chat.user_ids",
+                "chat.bucket_ids",
+                "chat.owners._id",
+                "chat.users._id",
+                "owner._id"
+            ]
+        },
+    ]
 }
