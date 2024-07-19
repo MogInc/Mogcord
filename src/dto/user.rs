@@ -24,3 +24,24 @@ impl ObjectToDTO<User> for UserCreateResponse
         }
     }
 }
+
+#[derive(Serialize)]
+pub struct UserGetResponse
+{
+    pub id: String,
+    pub username: String,
+    pub mail: String,
+}
+
+impl ObjectToDTO<User> for UserGetResponse
+{
+    fn obj_to_dto(user: User) -> Self
+    {
+        Self
+        {
+            id: user.id,
+            username: user.username,
+            mail: user.mail,
+        }
+    }
+}
