@@ -1,7 +1,7 @@
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::{as_string, mongol_helper, MongolHelper}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenFlag}}};
+use crate::{db::mongoldb::{as_string, mongol_helper, MongolHelper}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}}};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct MongolRefreshToken
 
 impl TryFrom<&RefreshToken> for MongolRefreshToken
 {
-    type Error = ServerError;
+    type Error = error::Server;
 
     fn try_from(value: &RefreshToken) -> Result<Self, Self::Error> 
     {
@@ -27,7 +27,7 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
         let expiration_date = value
             .expiration_date
             .convert_to_bson_datetime()
-            .map_err(|_| ServerError::FailedDateParsing)?;
+            .map_err(|_| error::Server::FailedDateParsing)?;
 
         Ok(
             Self

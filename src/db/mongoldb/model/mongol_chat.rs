@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::mongol_helper, model::{chat::Chat, misc::ServerError}};
+use crate::{db::mongoldb::mongol_helper, model::{chat::Chat, error}};
 
 use super::{MongolChatInfo, MongolChatInfoWrapper};
 
@@ -42,7 +42,7 @@ pub enum MongolChat
 
 impl TryFrom<&Chat> for MongolChatWrapper
 {
-    type Error = ServerError;
+    type Error = error::Server;
     
     fn try_from(value: &Chat) -> Result<Self, Self::Error> 
     {

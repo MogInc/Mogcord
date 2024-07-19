@@ -1,7 +1,7 @@
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::{as_string, mongol_helper}, model::{misc::ServerError, user::{User, UserFlag}}};
+use crate::{db::mongoldb::{as_string, mongol_helper}, model::{error, user::{User, UserFlag}}};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
@@ -18,7 +18,7 @@ pub struct MongolUser
 
 impl TryFrom<&User> for MongolUser
 {
-    type Error = ServerError;
+    type Error = error::Server;
 
     fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
@@ -41,7 +41,7 @@ pub struct MongolUserVec(pub Vec<MongolUser>);
 
 impl TryFrom<&Vec<User>> for MongolUserVec 
 {
-    type Error = ServerError;
+    type Error = error::Server;
 
     fn try_from(value: &Vec<User>) -> Result<Self, Self::Error> 
     {

@@ -3,23 +3,25 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolChat, MongolChatWrapper, MongolDB}, map_mongo_collection_keys_to_string, model::{chat::{Chat, ChatRepository}, misc::ServerError }};
+use crate::model::{chat::{Chat, ChatRepository}, error };
+use crate::db::mongoldb::{mongol_helper, MongolChat, MongolChatWrapper, MongolDB};
+use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
 impl ChatRepository for MongolDB
 {
-    async fn create_chat(&self, chat: Chat) -> Result<Chat, ServerError>
+    async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
     {
         let db_chat = MongolChatWrapper::try_from(&chat)?;
 
         match self.chats().insert_one(&db_chat).await
         {
             Ok(_) => Ok(chat),
-            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
         }
     }
 
-    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
+    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
 
@@ -36,8 +38,8 @@ impl ChatRepository for MongolDB
             .chats()
             .find_one(filter)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?
-            .ok_or(ServerError::ChatNotFound)?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            .ok_or(error::Server::ChatNotFound)?;
 
         let pipeline = match &mongol_chat_wrapper.chat
         {
@@ -99,13 +101,13 @@ impl ChatRepository for MongolDB
             .chats()
             .aggregate(pipeline)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
     
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
     
 
         match document_option
@@ -113,16 +115,16 @@ impl ChatRepository for MongolDB
             Some(document) => 
             {
                 let chat = from_document(document)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
                 return Ok(chat);
             },
-            None => Err(ServerError::ChatNotFound), 
+            None => Err(error::Server::ChatNotFound), 
         }
     }
 
 
-    async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, ServerError>
+    async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, error::Server>
     {
         let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(chat_info_id)?;
 
@@ -143,8 +145,8 @@ impl ChatRepository for MongolDB
             .chats()
             .find_one(filter)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?
-            .ok_or(ServerError::ChatNotFound)?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            .ok_or(error::Server::ChatNotFound)?;
 
 
         let pipeline = match &mongol_chat_wrapper.chat
@@ -208,13 +210,13 @@ impl ChatRepository for MongolDB
             .chats()
             .aggregate(pipeline)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
     
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
     
 
         match document_option
@@ -222,16 +224,16 @@ impl ChatRepository for MongolDB
             Some(document) => 
             {
                 let chat = from_document(document)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
                 return Ok(chat);
             },
-            None => Err(ServerError::ChatNotFound), 
+            None => Err(error::Server::ChatNotFound), 
         }
     }
 
 
-    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, ServerError>
+    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>
     {
         let mongol_chat_wrapper = MongolChatWrapper::try_from(chat)?;
 
@@ -263,7 +265,7 @@ impl ChatRepository for MongolDB
         match self.chats().find_one(filter).await
         {
             Ok(chat_option) => Ok(chat_option.is_some()),
-            Err(err) => Err(ServerError::FailedRead(err.to_string())),
+            Err(err) => Err(error::Server::FailedRead(err.to_string())),
         }
     }
 }

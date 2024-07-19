@@ -3,14 +3,14 @@ use bson::{Document, Regex};
 use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
-use crate::model::{chat::Bucket, message::{Message, MessageFlag, MessageRepository}, misc::{Pagination, ServerError}};
+use crate::model::{chat::Bucket, error, message::{Message, MessageFlag, MessageRepository}, pagination::Pagination};
 use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
 impl MessageRepository for MongolDB
 {
-    async fn create_message(&self, mut message: Message) -> Result<Message, ServerError>
+    async fn create_message(&self, mut message: Message) -> Result<Message, error::Server>
     {
         let mut db_message = MongolMessage::try_from(&message)?;
 
@@ -18,17 +18,17 @@ impl MessageRepository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
 
         let date = message
             .timestamp
             .convert_to_bson_date()
-            .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
 
         let bucket_filter = doc!
         {
@@ -40,7 +40,7 @@ impl MessageRepository for MongolDB
             .buckets()
             .find_one(bucket_filter.clone())
             .await
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
 
         let bucket_current = if let Some(bucket) = bucket_option
@@ -55,7 +55,7 @@ impl MessageRepository for MongolDB
                 .update_one(bucket_filter, bucket_update)
                 .session(&mut session)
                 .await
-                .map_err(|err| ServerError::FailedUpdate(err.to_string()))?;
+                .map_err(|err| error::Server::FailedUpdate(err.to_string()))?;
 
             bucket
         }
@@ -66,14 +66,14 @@ impl MessageRepository for MongolDB
             bucket.add_message(message.clone());
 
             let db_bucket = MongolBucket::try_from(&bucket)
-                .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
             self
                 .buckets()
                 .insert_one(&db_bucket)
                 .session(&mut session)
                 .await
-                .map_err(|err| ServerError::FailedInsert(err.to_string()))?;
+                .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
 
             db_bucket
         };
@@ -88,7 +88,7 @@ impl MessageRepository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
 
                 message.bucket_id = Some(bucket_current._id.to_string());
 
@@ -99,15 +99,15 @@ impl MessageRepository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| ServerError::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
 
-                return Err(ServerError::UnexpectedError(err.to_string()));
+                return Err(error::Server::UnexpectedError(err.to_string()));
             },
         }
     }
 
     async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
-        -> Result<Vec<Message>, ServerError>
+        -> Result<Vec<Message>, error::Server>
     {
         let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
         
@@ -149,7 +149,7 @@ impl MessageRepository for MongolDB
             .messages()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
 
         //what would be faster
         //1: reallocating vecs when capacity is reached
@@ -164,7 +164,7 @@ impl MessageRepository for MongolDB
                 Ok(document) => 
                 {
                     let message: Message = from_document(document)
-                        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                        .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
                     messages.push(message);
                 },
@@ -175,7 +175,7 @@ impl MessageRepository for MongolDB
         Ok(messages)
     }
 
-    async fn update_message(&self, message: Message) -> Result<Message, ServerError>
+    async fn update_message(&self, message: Message) -> Result<Message, error::Server>
     {
         let db_message = MongolMessage::try_from(&message)?;
     
@@ -196,11 +196,11 @@ impl MessageRepository for MongolDB
         match self.messages().update_one(filter, update).await
         {
             Ok(_) => Ok(message),
-            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
         }
     }
 
-    async fn get_message(&self, message_id: &str) -> Result<Message, ServerError>
+    async fn get_message(&self, message_id: &str) -> Result<Message, error::Server>
     {
 
         let message_id_local = mongol_helper::convert_domain_id_to_mongol(message_id)?;
@@ -222,25 +222,25 @@ impl MessageRepository for MongolDB
             .messages()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
 
 
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
         match document_option
         {
             Some(document) => 
             {
                 let message: Message = from_document(document)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
                 return Ok(message);
             },
-            None => Err(ServerError::MessageNotFound),
+            None => Err(error::Server::MessageNotFound),
         }
     }
 }

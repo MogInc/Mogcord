@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::db::mongoldb::{mongol_helper, MongolHelper};
 use crate::model::chat::Bucket;
-use crate::model::misc::ServerError;
+use crate::model::error;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -20,7 +20,7 @@ pub struct MongolBucket
 
 impl TryFrom<&Bucket> for MongolBucket
 {
-    type Error = ServerError;
+    type Error = error::Server;
 
     fn try_from(value: &Bucket) -> Result<Self, Self::Error> 
     {
@@ -31,7 +31,7 @@ impl TryFrom<&Bucket> for MongolBucket
         let bucket_date = value
             .date
             .convert_to_bson_date()
-            .map_err(|_| ServerError::FailedDateParsing)?;
+            .map_err(|_| error::Server::FailedDateParsing)?;
 
         let bucket_message_ids = value
             .messages

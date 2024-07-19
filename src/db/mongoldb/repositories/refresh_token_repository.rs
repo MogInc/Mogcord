@@ -2,23 +2,23 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{misc::ServerError, token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
+use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
 {
-    async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, ServerError>
+    async fn create_token(&self, token: RefreshToken) -> Result<RefreshToken, error::Server>
     {
         let db_token = MongolRefreshToken::try_from(&token)?;
         
         match self.refresh_tokens().insert_one(&db_token).await
         {
             Ok(_) => Ok(token),
-            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
         }
     }
 
-    async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
+    async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, error::Server>
     {
         let device_id_local = mongol_helper::convert_domain_id_to_mongol(device_id)?;
 
@@ -73,13 +73,13 @@ impl RefreshTokenRepository for MongolDB
             .refresh_tokens()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
     
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
     
 
         match document_option
@@ -87,15 +87,15 @@ impl RefreshTokenRepository for MongolDB
             Some(document) => 
             {
                 let refresh_token = from_document(document)
-                    .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
                 return Ok(refresh_token);
             },
-            None => Err(ServerError::RefreshTokenNotFound), 
+            None => Err(error::Server::RefreshTokenNotFound), 
         }
     }
 
-    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), ServerError>
+    async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), error::Server>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
@@ -115,10 +115,10 @@ impl RefreshTokenRepository for MongolDB
         match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
         }
     }
-    async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
+    async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), error::Server>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
@@ -137,7 +137,7 @@ impl RefreshTokenRepository for MongolDB
         match self.refresh_tokens().update_many(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
         }
     }
 }
