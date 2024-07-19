@@ -1,7 +1,7 @@
-mod chat_info;
+mod info;
 mod repository;
 
-pub use chat_info::*;
+pub use info::*;
 pub use repository::*;
 
 use std::collections::HashSet;
