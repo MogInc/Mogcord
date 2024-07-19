@@ -5,14 +5,14 @@ use crate::model::user::User;
 use super::ObjectToDTO;
 
 #[derive(Serialize)]
-pub struct UserDTO
+pub struct UserCreateResponse
 {
     pub id: String,
     pub username: String,
     pub mail: String,
 }
 
-impl ObjectToDTO<User> for UserDTO
+impl ObjectToDTO<User> for UserCreateResponse
 {
     fn obj_to_dto(user: User) -> Self
     {

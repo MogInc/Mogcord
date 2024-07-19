@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, ObjectToDTO, UserDTO}, middleware::auth::{self, Ctx}, model::{error, AppState, Hashing, Pagination}};
+use crate::{dto::{vec_to_dto, ObjectToDTO, UserCreateResponse}, middleware::auth::{self, Ctx}, model::{error, AppState, Hashing, Pagination}};
 use crate::model::user::User;
 
 pub fn routes(state: Arc<AppState>) -> Router
@@ -41,7 +41,7 @@ async fn get_user_for_admin(
 
     match repo_user.get_user_by_id(&user_id).await 
     {
-        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Ok(user) => Ok(Json(UserCreateResponse::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }
@@ -57,7 +57,7 @@ async fn get_users_for_admin(
 
     match repo_user.get_users(pagination).await 
     {
-        Ok(users) => Ok(Json(vec_to_dto::<User, UserDTO>(users))),
+        Ok(users) => Ok(Json(vec_to_dto::<User, UserCreateResponse>(users))),
         Err(e) => Err(e),
     }
 }
@@ -73,7 +73,7 @@ async fn get_ctx_user_for_authenticated(
     
     match repo_user.get_user_by_id(ctx_user_id).await 
     {
-        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Ok(user) => Ok(Json(UserCreateResponse::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }
@@ -114,7 +114,7 @@ async fn create_user_for_everyone(
 
     match repo_user.create_user(user).await 
     {
-        Ok(user) => Ok(Json(UserDTO::obj_to_dto(user))),
+        Ok(user) => Ok(Json(UserCreateResponse::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }
