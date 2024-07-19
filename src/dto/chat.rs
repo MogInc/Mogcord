@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::model::chat::Chat;
 
-use super::{vec_to_dto, ChatInfoDTO, ObjectToDTO};
+use super::{ChatInfoDTO, vec_to_dto, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ChatDTO
