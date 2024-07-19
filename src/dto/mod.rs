@@ -13,6 +13,7 @@ pub trait ObjectToDTO<Input>
     fn obj_to_dto(model_input: Input) -> Self;
 }
 
+#[must_use]
 pub fn vec_to_dto<Input, Output>(input_vec: Vec<Input>) -> Vec<Output>
 where 
     Output: ObjectToDTO<Input>
@@ -21,7 +22,7 @@ where
 
     for input in input_vec
     {
-        dtos.push(Output::obj_to_dto(input))
+        dtos.push(Output::obj_to_dto(input));
     }
     
     dtos
