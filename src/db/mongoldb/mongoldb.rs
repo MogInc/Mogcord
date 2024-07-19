@@ -29,10 +29,10 @@ impl MongolDB
             [
                 Compressor::Snappy,
                 Compressor::Zlib {
-                    level: Default::default(),
+                    level: Option::default(),
                 },
                 Compressor::Zstd {
-                    level: Default::default(),
+                    level: Option::default(),
                 },
             ]
         );
@@ -64,36 +64,43 @@ impl MongolDB
 
 impl MongolDB
 {
+    #[must_use]
     pub fn client(&self) -> &Client 
     {
         &self.client
     }
-
+    
+    #[must_use]
     pub fn users(&self) -> &Collection<MongolUser>
     {
         &self.users
     }
-
+    
+    #[must_use]
     pub fn chats(&self) -> &Collection<MongolChatWrapper> 
     {
         &self.chats
     }
-
+    
+    #[must_use]
     pub fn buckets(&self) -> &Collection<MongolBucket> 
     {
         &self.buckets
     }
-
+    
+    #[must_use]
     pub fn messages(&self) -> &Collection<MongolMessage> 
     {
         &self.messages
     }
-
+    
+    #[must_use]
     pub fn refresh_tokens(&self) -> &Collection<MongolRefreshToken> 
     {
         &self.refreshtokens
     }
-
+    
+    #[must_use]
     pub fn relations(&self) -> &Collection<MongolRelation> 
     {
         &self.relations
