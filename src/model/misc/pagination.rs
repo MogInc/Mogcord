@@ -21,6 +21,7 @@ impl Pagination {
         }
     }
 
+    #[must_use]
     pub fn new(page_option : Option<Query<Pagination>>) -> Self
     {
         page_option
@@ -31,6 +32,7 @@ impl Pagination {
 
 impl Pagination
 {
+    #[must_use]
     pub fn get_skip_size(&self) -> usize
     {
         (self.page - 1) * self.page_size
