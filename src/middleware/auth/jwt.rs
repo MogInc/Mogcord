@@ -7,6 +7,7 @@ use crate::model::{error, user::UserFlag};
 
 use super::ACCES_TOKEN_TTL_MIN;
 
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
 {

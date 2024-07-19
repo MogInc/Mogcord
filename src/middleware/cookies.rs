@@ -1,8 +1,12 @@
+mod auth_cookie_names;
+
+pub use auth_cookie_names::*;
+
 use tower_cookies::{cookie::{time::{Duration, OffsetDateTime}, SameSite}, Cookie, Cookies};
 
 use crate::model::error;
 
-pub trait Cookie2
+pub trait Manager
 {
     fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64);
     fn get_cookie(&self, name: &str) -> Result<String, error::Server>;
@@ -10,7 +14,7 @@ pub trait Cookie2
 }
 
 
-impl Cookie2 for Cookies
+impl Manager for Cookies
 {
     fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64) 
     {

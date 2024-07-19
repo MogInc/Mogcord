@@ -3,8 +3,7 @@ use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::model::{error, log::{log_request, RequestLogLinePersonal}};
-use crate::middleware::{auth::Ctx, cookies::{AuthCookieNames, Cookie2}};
+use crate::{middleware::{auth::Ctx, cookies::{AuthCookieNames, Manager}}, model::{error, log::{log_request, RequestLogLinePersonal}}};
 
 pub async fn main_response_mapper(
 	uri: Uri,
