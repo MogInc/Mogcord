@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, {AppState, error}}};
+use crate::{dto::{ChatCreateResponse, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, {AppState, error}}};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
@@ -33,7 +33,7 @@ async fn get_chat_for_authenticated(
         return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
-    Ok(Json(ChatDTO::obj_to_dto(chat)))
+    Ok(Json(ChatCreateResponse::obj_to_dto(chat)))
 }
 
 #[derive(Deserialize)]
@@ -141,7 +141,7 @@ async fn create_chat_for_authenticated(
 
     match repo_chat.create_chat(chat).await 
     {
-        Ok(chat) => Ok(Json(ChatDTO::obj_to_dto(chat))),
+        Ok(chat) => Ok(Json(ChatCreateResponse::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }

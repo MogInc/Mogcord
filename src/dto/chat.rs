@@ -5,7 +5,7 @@ use crate::model::chat::Chat;
 use super::{ChatInfoDTO, vec_to_dto, ObjectToDTO};
 
 #[derive(Serialize)]
-pub struct ChatDTO
+pub struct ChatCreateResponse
 {
     id: String,
     r#type: String,
@@ -23,7 +23,7 @@ pub struct ChatDTO
     chat_infos: Option<Vec<ChatInfoDTO>>,
 }
 
-impl ObjectToDTO<Chat> for ChatDTO
+impl ObjectToDTO<Chat> for ChatCreateResponse
 {
     fn obj_to_dto(model_input: Chat) -> Self 
     {
