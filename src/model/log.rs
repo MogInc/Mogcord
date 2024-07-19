@@ -4,20 +4,20 @@ use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
-use super::error::{ClientError, ServerError};
+use super::error;
 
 pub async fn log_request(
 	req_id: Uuid,
 	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
-	service_error: Option<&ServerError>,
-	client_error: Option<ClientError>,
+	service_error: Option<&error::Server>,
+	client_error: Option<error::Client>,
 ) {
 
     let timestamp = chrono::Utc::now();
 
-	let error_type_option = service_error.map(ServerError::to_string);
+	let error_type_option = service_error.map(error::Server::to_string);
 	let error_data_option = serde_json::to_value(service_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(Value::take));
