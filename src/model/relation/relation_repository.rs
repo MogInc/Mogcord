@@ -1,6 +1,7 @@
 use axum::async_trait;
 
-use crate::model::misc::ServerError;
+use crate::model::error::ServerError;
+
 
 #[async_trait]
 pub trait RelationRepository: Send + Sync

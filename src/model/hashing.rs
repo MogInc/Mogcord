@@ -7,7 +7,7 @@ use argon2::{
 };
 use tokio::task;
 
-use super::ServerError;
+use super::error::ServerError;
 
 pub struct Hashing;
 

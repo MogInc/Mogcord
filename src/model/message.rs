@@ -1,11 +1,17 @@
+mod message_flag;
+mod message_repository;
+
+pub use message_flag::*;
+pub use message_repository::*;
+
 use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Utc};
+use message_flag::MessageFlag;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use super::chat::ChatInfo;
+use super::user::User;
 
-use crate::model::{chat::ChatInfo, user::User};
-
-use super::MessageFlag;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Message

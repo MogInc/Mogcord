@@ -136,7 +136,7 @@ mod tests
     use std::str::FromStr;
     use chrono::Utc;
 
-    use crate::model::message::{MessageFlag, MessageFlagParseError};
+    use crate::model::message::message_flag::{MessageFlag, MessageFlagParseError};
 
     macro_rules! from_str_base_tests_valid
     {

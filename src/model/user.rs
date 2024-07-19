@@ -1,8 +1,11 @@
+mod user_flag;
+mod user_repository;
+
+pub use user_flag::*;
+pub use user_repository::*;
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-
-use super::UserFlag;
-
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]

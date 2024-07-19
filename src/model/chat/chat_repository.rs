@@ -1,7 +1,6 @@
 use axum::async_trait;
 
-use crate::model::misc::ServerError;
-
+use crate::model::error::ServerError;
 use super::Chat;
 
 #[async_trait]

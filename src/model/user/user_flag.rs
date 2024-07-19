@@ -153,7 +153,8 @@ mod tests
     use std::str::FromStr;
     use chrono::Utc;
 
-    use crate::model::user::UserFlagParseError;
+    use crate::model::user::user_flag::UserFlagParseError;
+
     use super::UserFlag;
 
     macro_rules! from_str_base_tests_valid

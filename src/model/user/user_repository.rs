@@ -1,8 +1,8 @@
 use axum::async_trait;
 
-use crate::model::misc::{ServerError, Pagination};
+use crate::model::{error::ServerError, pagination::Pagination};
+use super::User;
 
-use super::user::User;
 
 #[async_trait]
 pub trait UserRepository: Send + Sync 

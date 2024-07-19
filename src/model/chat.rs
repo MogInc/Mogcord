@@ -1,11 +1,16 @@
+mod chat_info;
+mod chat_repository;
+
+pub use chat_info::*;
+pub use chat_repository::*;
+
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 use uuid::Uuid;
 
-use crate::model::{misc::ServerError, user::User};
-
-use super::ChatInfo;
+use crate::model::user::User;
+use super::error::ServerError;
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat

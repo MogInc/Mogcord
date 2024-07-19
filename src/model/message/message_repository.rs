@@ -1,6 +1,6 @@
 use axum::async_trait;
 
-use crate::model::misc::{Pagination, ServerError};
+use crate::model::{error::ServerError, pagination::Pagination};
 
 use super::Message;
 

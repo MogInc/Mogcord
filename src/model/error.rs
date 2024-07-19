@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::model::user::UserFlag;
+use super::user::UserFlag;
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]

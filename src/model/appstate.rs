@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use crate::model::{chat::ChatRepository, message::MessageRepository, relation::RelationRepository, token::RefreshTokenRepository, user::UserRepository};
+use super::{chat::ChatRepository, message::MessageRepository, refresh_token::RefreshTokenRepository, relation::RelationRepository, user::UserRepository};
+
 
 pub struct AppState 
 {
