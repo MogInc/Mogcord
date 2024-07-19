@@ -10,7 +10,7 @@ use strum_macros::Display;
 use uuid::Uuid;
 
 use crate::model::user::User;
-use super::error::ServerError;
+use super::error;
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
@@ -42,7 +42,7 @@ pub enum Chat
 
 impl Chat
 {
-    pub fn new_private(owners: Vec<User>) -> Result<Self, ServerError> 
+    pub fn new_private(owners: Vec<User>) -> Result<Self, error::Server> 
     {
         let set: HashSet<User> = owners
             .into_iter()
@@ -66,7 +66,7 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn new_group(name: String, owner: User, users: Vec<User>) -> Result<Self, ServerError> 
+    pub fn new_group(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
     {
         let users_sanitized: Vec<User> = users
             .into_iter()
@@ -89,7 +89,7 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn new_server(name: String, owner: User, users: Vec<User>) -> Result<Self, ServerError> 
+    pub fn new_server(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
     {
         let chat_info = ChatInfo::new(Some(String::from("Welcome")));
 
@@ -150,7 +150,7 @@ impl Chat
         Self::PRIVATE_OWNER_MAX
     }
 
-    pub fn is_chat_meeting_requirements(&self) -> Result<(), ServerError> 
+    pub fn is_chat_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         match self
         {
@@ -160,7 +160,7 @@ impl Chat
 
                 if !self.internal_is_owner_size_allowed(user_len)
                 {
-                    return Err(ServerError::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
+                    return Err(error::Server::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
                 }
 
                 Ok(())
