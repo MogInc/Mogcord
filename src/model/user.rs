@@ -15,13 +15,13 @@ pub struct User
     pub username: String,
     pub mail: String,
     pub hashed_password: String,
-    pub flag: UserFlag,
+    pub flag: Flag,
 }
 
 impl User
 {
     #[must_use]
-    pub fn convert(id: String, username: String, mail: String, hashed_password: String, user_flag: UserFlag) -> Self
+    pub fn convert(id: String, username: String, mail: String, hashed_password: String, flag: Flag) -> Self
     {
         Self
         {
@@ -29,7 +29,7 @@ impl User
             username,
             mail,
             hashed_password,
-            flag: user_flag,
+            flag,
         }
     }
     #[must_use]
@@ -41,7 +41,7 @@ impl User
             username,
             mail,
             hashed_password,
-            flag: UserFlag::None,
+            flag: Flag::None,
         }
     }
 }
@@ -51,7 +51,7 @@ mod tests
 {
     use uuid::Uuid;
 
-    use crate::model::user::{User, UserFlag};
+    use crate::model::user::{User, Flag};
     
     #[test]
     fn test_convert_user_is_valid() 
@@ -60,7 +60,7 @@ mod tests
         let username = String::from("Gwilom");
         let mail = String::from("ElGoblino@example.com");
         let hashed_password = String::from("fake_hashed_password");
-        let user_flag = UserFlag::None;
+        let user_flag = Flag::None;
 
         let user: User = User::convert(id.clone(), username.clone(), mail.clone(), hashed_password.clone(), user_flag.clone());
 
@@ -84,6 +84,6 @@ mod tests
         assert_eq!(username, user.username);
         assert_eq!(mail, user.mail);
         assert_eq!(hashed_password, user.hashed_password);
-        assert_eq!(UserFlag::None, user.flag);
+        assert_eq!(Flag::None, user.flag);
     }
 }

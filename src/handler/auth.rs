@@ -4,7 +4,7 @@ use axum::{extract::State, middleware, response::IntoResponse, routing::{delete,
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::model::{error, refresh_token::RefreshToken, user::UserFlag, AppState, Hashing};
+use crate::model::{error, refresh_token::RefreshToken, user, AppState, Hashing};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::Manager};
 
 pub fn routes(state: Arc<AppState>) -> Router
@@ -52,7 +52,7 @@ async fn login_for_everyone(
     {
         return Err(error::Server::IncorrectUserPermissions
             { 
-                expected_min_grade: UserFlag::None, 
+                expected_min_grade: user::Flag::None, 
                 found: user.flag.clone()
             }
         );
@@ -151,7 +151,7 @@ async fn refresh_token_for_everyone(
         jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
         return Err(error::Server::IncorrectUserPermissions
             { 
-                expected_min_grade: UserFlag::None, 
+                expected_min_grade: user::Flag::None, 
                 found: refresh_token.owner.flag
             }
         );

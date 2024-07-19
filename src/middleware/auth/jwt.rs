@@ -3,7 +3,7 @@ use std::env;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use crate::model::{error, user::UserFlag};
+use crate::model::{error, user};
 
 use super::ACCES_TOKEN_TTL_MIN;
 
@@ -12,7 +12,7 @@ use super::ACCES_TOKEN_TTL_MIN;
 pub struct Claims
 {
     pub sub: String,
-    pub user_flag: UserFlag,
+    pub user_flag: user::Flag,
     pub exp: usize,
 }
 
@@ -26,13 +26,13 @@ pub enum TokenStatus
 pub struct CreateAccesTokenRequest<'user_info>
 {
     user_id: &'user_info String,
-    user_flag: &'user_info UserFlag,
+    user_flag: &'user_info user::Flag,
 }
 
 impl<'user_info> CreateAccesTokenRequest<'user_info>
 {
     #[must_use]
-    pub fn new(user_id: &'user_info String, user_flag: &'user_info UserFlag) -> Self
+    pub fn new(user_id: &'user_info String, user_flag: &'user_info user::Flag) -> Self
     {
         Self
         {

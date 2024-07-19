@@ -6,7 +6,7 @@ use axum::{
 };
 use serde::Serialize;
 
-use super::user::UserFlag;
+use super::user;
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
@@ -75,7 +75,7 @@ pub enum Server
 
 	//permissions
 	UserIsNotAdminOrOwner,
-	IncorrectUserPermissions{ expected_min_grade: UserFlag, found: UserFlag },
+	IncorrectUserPermissions{ expected_min_grade: user::Flag, found: user::Flag },
 
 	//fallback
 	NotImplemented,

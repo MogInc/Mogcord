@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::model::{error, Pagination, user::{self, User, UserFlag}};
+use crate::model::{error, Pagination, user::{self, User}};
 use crate::db::mongol::{helper, MongolDB, MongolUser, MongolUserVec};
 use crate::map_mongo_key_to_string;
 
@@ -225,5 +225,5 @@ fn _internal_wrap_valid_user_filter(filter: Document) -> Document
 
 fn _internal_valid_user_filter() -> Document
 {
-    doc! { "$in": [UserFlag::None, UserFlag::Admin, UserFlag::Owner] }
+    doc! { "$in": [user::Flag::None, user::Flag::Admin, user::Flag::Owner] }
 }
