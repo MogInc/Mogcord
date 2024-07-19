@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::helper, model::{chat::Chat, error}};
+use crate::{db::mongol::helper, model::{chat::Chat, error}};
 
 use super::{MongolChatInfo, MongolChatInfoWrapper};
 

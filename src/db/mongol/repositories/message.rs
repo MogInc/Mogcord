@@ -4,7 +4,7 @@ use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::model::{chat::Bucket, error, message::{Message, MessageFlag, MessageRepository}, Pagination};
-use crate::db::mongoldb::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
+use crate::db::mongol::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]

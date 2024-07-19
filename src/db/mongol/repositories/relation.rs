@@ -1,7 +1,7 @@
 use axum::async_trait;
 use bson::{Document, Uuid};
-use crate::{db::mongoldb::{MongolDB, MongolRelation}, model::{error, relation::RelationRepository}};
-use crate::db::mongoldb::helper;
+use crate::{db::mongol::{MongolDB, MongolRelation}, model::{error, relation::RelationRepository}};
+use crate::db::mongol::helper;
 use mongodb::bson::doc;
 
 #[async_trait]

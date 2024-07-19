@@ -2,7 +2,7 @@ use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
 
-use crate::db::mongoldb::{helper, MongolHelper};
+use crate::db::mongol::{helper, MongolHelper};
 use crate::model::chat::Bucket;
 use crate::model::error;
 
