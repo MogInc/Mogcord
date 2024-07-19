@@ -3,12 +3,12 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::model::{error, Pagination, user::{User, UserFlag, UserRepository}};
+use crate::model::{error, Pagination, user::{self, User, UserFlag}};
 use crate::db::mongol::{helper, MongolDB, MongolUser, MongolUserVec};
 use crate::map_mongo_key_to_string;
 
 #[async_trait]
-impl UserRepository for MongolDB
+impl user::Repository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, error::Server>
     {

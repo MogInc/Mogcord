@@ -5,7 +5,7 @@ use super::User;
 
 
 #[async_trait]
-pub trait UserRepository: Send + Sync 
+pub trait Repository: Send + Sync 
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, error::Server>;
     async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, error::Server>;
