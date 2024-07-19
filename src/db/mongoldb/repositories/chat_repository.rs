@@ -51,7 +51,7 @@ impl ChatRepository for MongolDB
                     }
                 };
                 
-                get_private_chat_pipeline(filter)
+                internal_private_chat_pipeline(filter)
             },
             MongolChat::Group { .. } => 
             {
@@ -63,7 +63,7 @@ impl ChatRepository for MongolDB
                     }
                 };
                 
-                get_group_chat_pipeline(filter)
+                internal_group_chat_pipeline(filter)
             },
             MongolChat::Server { .. } => 
             {
@@ -75,7 +75,7 @@ impl ChatRepository for MongolDB
                     }
                 };
 
-                get_server_chat_pipeline(filter)
+                internal_server_chat_pipeline(filter)
             },
         };
             
@@ -144,7 +144,7 @@ impl ChatRepository for MongolDB
                     }
                 };
 
-                get_private_chat_pipeline(filter)
+                internal_private_chat_pipeline(filter)
             },
             MongolChat::Group { .. } => 
             {
@@ -156,7 +156,7 @@ impl ChatRepository for MongolDB
                     }
                 };
                 
-                get_group_chat_pipeline(filter)
+                internal_group_chat_pipeline(filter)
             },
             MongolChat::Server { .. } => 
             {
@@ -168,7 +168,7 @@ impl ChatRepository for MongolDB
                     }
                 };
 
-                get_server_chat_pipeline(filter)
+                internal_server_chat_pipeline(filter)
             },
         };
             
@@ -237,7 +237,7 @@ impl ChatRepository for MongolDB
     }
 }
 
-fn get_private_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_private_chat_pipeline(filter: Document) -> Vec<Document>
 {
     vec!
     [
@@ -275,7 +275,7 @@ fn get_private_chat_pipeline(filter: Document) -> Vec<Document>
     ]
 }
 
-fn get_group_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_group_chat_pipeline(filter: Document) -> Vec<Document>
 {
     vec!
     [
@@ -331,7 +331,7 @@ fn get_group_chat_pipeline(filter: Document) -> Vec<Document>
     ]
 }
 
-fn get_server_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_server_chat_pipeline(filter: Document) -> Vec<Document>
 {
     vec!
     [
