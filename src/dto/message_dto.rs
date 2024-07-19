@@ -29,7 +29,7 @@ impl ObjectToDTO<Message> for MessageDTO
             timestamp: message.timestamp.to_rfc3339(),
             owner_id: message.owner.id,
             chat_id: message.chat.id,
-            bucket_id: message.bucket_id.map_or(String::from(""), |bucket| bucket),
+            bucket_id: message.bucket_id.map_or(String::new(), |bucket| bucket),
             flag: message.flag.to_string(),
         }
     }
