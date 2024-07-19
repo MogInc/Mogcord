@@ -21,7 +21,7 @@ impl Hashing
         {
             let salt = SaltString::generate(&mut OsRng);
 
-            let argon2 = Self::give_argon_settings();
+            let argon2 = Self::internal_give_argon_settings();
 
             //no need to return the salt, its stored inside the hash
             return argon2.hash_password(clear_text.as_bytes(), &salt)
@@ -43,7 +43,7 @@ impl Hashing
             let parsed_hash = PasswordHash::new(&hash)
                 .map_err(|_| ServerError::VerifyingPasswordFailed)?;
             
-            let argon2 = Self::give_argon_settings();
+            let argon2 = Self::internal_give_argon_settings();
 
             argon2.verify_password(clear_text.as_bytes(), &parsed_hash)
                   .map_err(|_| ServerError::VerifyingPasswordFailed)
@@ -52,7 +52,7 @@ impl Hashing
         Ok(())
     }
 
-    fn give_argon_settings<'schema>() -> Argon2<'schema>
+    fn internal_give_argon_settings<'schema>() -> Argon2<'schema>
     {
         Argon2::default()
     }

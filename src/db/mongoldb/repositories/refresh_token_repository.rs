@@ -31,7 +31,7 @@ impl RefreshTokenRepository for MongolDB
                 {
                     "device_id": device_id_local,
                     "expiration_date": { "$gte": DateTime::now() },
-                    "flag": valid_refresh_token_filter(),
+                    "flag": internal_valid_refresh_token_filter(),
                 }
             },
             //join with owners
@@ -125,7 +125,7 @@ impl RefreshTokenRepository for MongolDB
         let filter = doc!
         {
             "owner_id": user_id_local,
-            "flag": valid_refresh_token_filter(),
+            "flag": internal_valid_refresh_token_filter(),
             "expiration_date": { "$gte": DateTime::now() },
         };
 
@@ -142,7 +142,7 @@ impl RefreshTokenRepository for MongolDB
     }
 }
 
-fn valid_refresh_token_filter() -> Document
+fn internal_valid_refresh_token_filter() -> Document
 {
     doc! { "$in": [ RefreshTokenFlag::None ] }
 }

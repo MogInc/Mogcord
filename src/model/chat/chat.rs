@@ -145,17 +145,6 @@ impl Chat
         Self::PRIVATE_OWNER_MAX
     }
 
-
-    fn is_owner_size_allowed(&self, owner_count: usize) -> bool
-    {
-        match self
-        {
-            Chat::Private{..} => owner_count == Self::PRIVATE_OWNER_MAX,
-            Chat::Group{..} => owner_count == Self::GROUP_OWNER_MAX,
-            Chat::Server{..} => owner_count == Self::SERVER_OWNER_MAX,
-        }
-    }
-
     pub fn is_chat_meeting_requirements(&self) -> Result<(), ServerError> 
     {
         match self
@@ -164,7 +153,7 @@ impl Chat
             {
                 let user_len = owners.len();
 
-                if !self.is_owner_size_allowed(user_len)
+                if !self.internal_is_owner_size_allowed(user_len)
                 {
                     return Err(ServerError::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: user_len });
                 }
@@ -184,6 +173,16 @@ impl Chat
             Chat::Group{owner, users, ..} => &owner.id == other_user_id
                 || users.iter().any(|user| &user.id == other_user_id),
             Chat::Server{ .. } => true,
+        }
+    }
+
+    fn internal_is_owner_size_allowed(&self, owner_count: usize) -> bool
+    {
+        match self
+        {
+            Chat::Private{..} => owner_count == Self::PRIVATE_OWNER_MAX,
+            Chat::Group{..} => owner_count == Self::GROUP_OWNER_MAX,
+            Chat::Server{..} => owner_count == Self::SERVER_OWNER_MAX,
         }
     }
 }

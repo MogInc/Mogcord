@@ -55,7 +55,7 @@ pub async fn mw_ctx_resolver(
 
 	let ctx_result = match jar
 		.get_cookie(cookie_names_acces_token.as_str())
-		.and_then(|val| parse_token(val.as_str()))
+		.and_then(|val| internal_parse_token(val.as_str()))
 	{
 		Ok(claims) => Ok(Ctx::new(claims.sub, claims.user_flag)),
 		Err(e) => Err(e),
@@ -89,7 +89,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 	}
 }
 
-fn parse_token(acces_token: &str) -> Result<Claims, ServerError>
+fn internal_parse_token(acces_token: &str) -> Result<Claims, ServerError>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 
