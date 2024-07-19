@@ -5,7 +5,7 @@ use crate::model::message::Message;
 use super::ObjectToDTO;
 
 #[derive(Serialize)]
-pub struct MessageDTO
+pub struct MessageCreateResponse
 {
     id: String,
     value: String,
@@ -18,7 +18,7 @@ pub struct MessageDTO
     flag: String,
 }
 
-impl ObjectToDTO<Message> for MessageDTO
+impl ObjectToDTO<Message> for MessageCreateResponse
 {
     fn obj_to_dto(message: Message) -> Self
     {

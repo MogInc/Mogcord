@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, MessageDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{message::Message, {AppState, Pagination, error}}};
+use crate::{dto::{vec_to_dto, MessageCreateResponse, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{message::Message, {AppState, Pagination, error}}};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
@@ -39,7 +39,7 @@ async fn get_messages_for_authenticated(
 
     match repo_message.get_valid_messages(&chat_info_id, pagination).await
     {
-        Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageDTO>(messages))),
+        Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageCreateResponse>(messages))),
         Err(e) => Err(e),
     }
 }
@@ -83,7 +83,7 @@ async fn create_message_for_authenticated(
 
     match repo_message.create_message(message).await
     {
-        Ok(message) => Ok(Json(MessageDTO::obj_to_dto(message))),
+        Ok(message) => Ok(Json(MessageCreateResponse::obj_to_dto(message))),
         Err(e) => Err(e),
     }
 }
@@ -122,7 +122,7 @@ async fn update_message_for_authenticated(
 
     match repo_message.update_message(message).await
     {
-        Ok(message) =>  Ok(Json(MessageDTO::obj_to_dto(message))),
+        Ok(message) =>  Ok(Json(MessageCreateResponse::obj_to_dto(message))),
         Err(err) => Err(err),
     }
 }
