@@ -4,7 +4,7 @@ use chrono::{DateTime, Datelike, NaiveDate, Timelike, Utc};
 use mongodb::bson::{self, Uuid};
 use serde::{Serialize, Serializer};
 
-use crate::model::misc::ServerError;
+use crate::model::error;
 
 
 pub trait MongolHelper
@@ -60,9 +60,9 @@ impl MongolHelper for NaiveDate
 
 pub fn convert_domain_id_to_mongol(
     id: &str
-)-> Result<Uuid, ServerError>
+)-> Result<Uuid, error::Server>
 {
-    Uuid::parse_str(id).map_err(|_| ServerError::InvalidID(id.to_string()))
+    Uuid::parse_str(id).map_err(|_| error::Server::InvalidID(id.to_string()))
 }
 
 pub fn as_string<S, T>(v: &T, s: S) -> Result<S::Ok, S::Error>

@@ -1,16 +1,16 @@
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::Cookies;
 
-use crate::{middleware::cookies::{AuthCookieNames, Cookie2}, model::misc::ServerError};
+use crate::{middleware::cookies::{AuthCookieNames, Cookie2}, model::error};
 
 use super::{jwt::{self, Claims, TokenStatus}, Ctx};
 
 
 pub async fn mw_require_regular_auth(
-    ctx: Result<Ctx, ServerError>,
+    ctx: Result<Ctx, error::Server>,
     req: Request<Body>, 
     next: Next
-) -> Result<Response, ServerError>
+) -> Result<Response, error::Server>
 {
     println!("AUTH MIDDLEWARE (REG): ");
 
@@ -20,10 +20,10 @@ pub async fn mw_require_regular_auth(
 }
 
 pub async fn mw_require_admin_auth(
-    ctx: Result<Ctx, ServerError>,
+    ctx: Result<Ctx, error::Server>,
     req: Request<Body>, 
     next: Next
-) -> Result<Response, ServerError>
+) -> Result<Response, error::Server>
 {
     println!("AUTH MIDDLEWARE (MNG): ");
 
@@ -33,7 +33,7 @@ pub async fn mw_require_admin_auth(
 		{
 			if !&ctx.user_flag().is_admin_or_owner()
 			{
-				return Err(ServerError::UserIsNotAdminOrOwner);
+				return Err(error::Server::UserIsNotAdminOrOwner);
 			}
 		},
 		Err(err) => return Err(err),
@@ -47,7 +47,7 @@ pub async fn mw_ctx_resolver(
     jar: Cookies, 
     mut req: Request<Body>, 
     next: Next
-) -> Result<Response, ServerError> 
+) -> Result<Response, error::Server> 
 {
 	println!("MTX RESOLVER: ");
 
@@ -62,7 +62,7 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if ctx_result.is_err() && !matches!(ctx_result, Err(ServerError::AccesTokenExpired))
+	if ctx_result.is_err() && !matches!(ctx_result, Err(error::Server::AccesTokenExpired))
 	{
 		jar.remove_cookie(cookie_names_acces_token.to_string());
 	}
@@ -78,18 +78,18 @@ pub async fn mw_ctx_resolver(
 #[async_trait]
 impl<S: Send + Sync> FromRequestParts<S> for Ctx
 {
-    type Rejection = ServerError;
+    type Rejection = error::Server;
 
-	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, ServerError> {
+	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, error::Server> {
 		parts
 			.extensions
-			.get::<Result<Ctx, ServerError>>()
-			.ok_or(ServerError::AuthCtxNotInRequest)?
+			.get::<Result<Ctx, error::Server>>()
+			.ok_or(error::Server::AuthCtxNotInRequest)?
 			.clone()
 	}
 }
 
-fn internal_parse_token(acces_token: &str) -> Result<Claims, ServerError>
+fn internal_parse_token(acces_token: &str) -> Result<Claims, error::Server>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 

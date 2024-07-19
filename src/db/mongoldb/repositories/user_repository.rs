@@ -3,12 +3,14 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec}, model::{misc::{Pagination, ServerError}, user::{User, UserFlag, UserRepository}}};
+use crate::model::{error, pagination::Pagination, user::{User, UserFlag, UserRepository}};
+use crate::db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec};
+use crate::map_mongo_key_to_string;
 
 #[async_trait]
 impl UserRepository for MongolDB
 {
-    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, error::Server>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
@@ -17,43 +19,43 @@ impl UserRepository for MongolDB
         internal_does_user_exist(self, filter).await
     }
 
-    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, error::Server>
     {
         let filter = doc! { "mail" : user_mail };
 
         internal_does_user_exist(self, filter).await
     }
 
-    async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, ServerError>
+    async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, error::Server>
     {
         let filter = doc! { "username" : username };
 
         internal_does_user_exist(self, filter).await
     }
 
-    async fn create_user(&self, user: User) -> Result<User, ServerError>
+    async fn create_user(&self, user: User) -> Result<User, error::Server>
     {
         let db_user = MongolUser::try_from(&user)?;
         
         match self.users().insert_one(&db_user).await
         {
             Ok(_) => Ok(user),
-            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
         }
     }
 
-    async fn create_users(&self, users: Vec<User>) -> Result<(), ServerError>
+    async fn create_users(&self, users: Vec<User>) -> Result<(), error::Server>
     {
         let db_users = MongolUserVec::try_from(&users)?;
         
         match self.users().insert_many(&db_users.0).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(ServerError::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
         }
     }
 
-    async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
+    async fn get_user_by_id(&self, user_id: &str) -> Result<User, error::Server>
     {
         let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
@@ -62,14 +64,14 @@ impl UserRepository for MongolDB
         internal_get_user(self, filter).await
     }
 
-    async fn get_user_by_mail(&self, mail: &str) -> Result<User, ServerError>
+    async fn get_user_by_mail(&self, mail: &str) -> Result<User, error::Server>
     {
         let filter = doc! { "mail": mail };
 
         internal_get_user(self, filter).await
     }
 
-    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, ServerError>
+    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server>
     {
         let mut user_ids_local : Vec<Uuid> = Vec::new();
 
@@ -108,7 +110,7 @@ impl UserRepository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
         
         let mut users : Vec<User> = Vec::new();
 
@@ -119,7 +121,7 @@ impl UserRepository for MongolDB
                 Ok(doc) => 
                 {
                     let user: User = from_document(doc)
-                        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                        .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
                 Err(err) => println!("{err}"),
@@ -129,7 +131,7 @@ impl UserRepository for MongolDB
         Ok(users)
     }
 
-    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
+    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, error::Server>
     {
         let pipelines = vec!
         [
@@ -162,7 +164,7 @@ impl UserRepository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
         
         let mut users : Vec<User> = Vec::new();
 
@@ -173,7 +175,7 @@ impl UserRepository for MongolDB
                 Ok(doc) => 
                 {
                     let user: User = from_document(doc)
-                        .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
+                        .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
                 Err(err) => println!("{err}"),
@@ -184,27 +186,27 @@ impl UserRepository for MongolDB
     }
 }
 
-async fn internal_does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, ServerError>
+async fn internal_does_user_exist(repo: &MongolDB, filter: Document) -> Result<bool, error::Server>
 {
     match repo.users().find_one(filter).await
     {
         Ok(option) => Ok(option.is_some()),
-        Err(err) => Err(ServerError::FailedRead(err.to_string()))
+        Err(err) => Err(error::Server::FailedRead(err.to_string()))
     }
 }
 
-async fn internal_get_user(repo: &MongolDB, filter: Document) -> Result<User, ServerError>
+async fn internal_get_user(repo: &MongolDB, filter: Document) -> Result<User, error::Server>
 {
     let user_option = repo
         .users()
         .find_one(filter)
         .await
-        .map_err(|err| ServerError::FailedRead(err.to_string()))?;
+        .map_err(|err| error::Server::FailedRead(err.to_string()))?;
 
     match user_option 
     {
         Some(user) => Ok(User::from(&user)),
-        None => Err(ServerError::UserNotFound),
+        None => Err(error::Server::UserNotFound),
     }
 }
 

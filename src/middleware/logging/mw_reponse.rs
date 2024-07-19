@@ -3,7 +3,8 @@ use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::{middleware::{auth::Ctx, cookies::{AuthCookieNames, Cookie2}}, model::{log_request, RequestLogLinePersonal, ServerError}};
+use crate::model::{error, log::{log_request, RequestLogLinePersonal}};
+use crate::middleware::{auth::Ctx, cookies::{AuthCookieNames, Cookie2}};
 
 pub async fn main_response_mapper(
 	uri: Uri,
@@ -17,9 +18,9 @@ pub async fn main_response_mapper(
 
 	let service_error = res
         .extensions()
-        .get::<ServerError>();
+        .get::<error::Server>();
 	let client_status_error = service_error
-        .map(ServerError::client_status_and_error);
+        .map(error::Server::client_status_and_error);
 
 	let error_response =
 		client_status_error
