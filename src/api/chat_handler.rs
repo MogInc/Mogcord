@@ -28,11 +28,12 @@ async fn get_chat_for_authenticated(
 
     let ctx_user_id = &ctx.user_id();
     
-    match chat.is_user_part_of_chat(ctx_user_id)
+    if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        true => Ok(Json(ChatDTO::obj_to_dto(chat))),
-        false => Err(ServerError::ChatDoesNotContainThisUser),
+        return Err(ServerError::ChatDoesNotContainThisUser);
     }
+
+    Ok(Json(ChatDTO::obj_to_dto(chat)))
 }
 
 #[derive(Deserialize)]
