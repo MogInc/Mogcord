@@ -84,8 +84,8 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Group
                 {
                     name: name.to_string(),
-                    owner_id: owner_id,
-                    user_ids: user_ids,
+                    owner_id,
+                    user_ids,
                     chat_info: MongolChatInfo::try_from(chat_info)?,
                 };
 
@@ -112,8 +112,8 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Server
                 { 
                     name: name.to_string(),
-                    owner_id: owner_id,
-                    user_ids: user_ids,
+                    owner_id,
+                    user_ids,
                     chat_infos: MongolChatInfoWrapper::try_from(chat_infos)?.0,
                 };
 

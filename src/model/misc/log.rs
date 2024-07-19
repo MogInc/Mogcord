@@ -27,7 +27,7 @@ pub async fn log_request(
 		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
-		user_info: user_info,
+		user_info,
 
 		req_path: uri.to_string(),
 		req_method: req_method.to_string(),
@@ -55,8 +55,8 @@ impl RequestLogLinePersonal
 	{
 		Self
 		{
-			user_id: user_id,
-			device_id: device_id,
+			user_id,
+			device_id,
 		}
 	}
 }

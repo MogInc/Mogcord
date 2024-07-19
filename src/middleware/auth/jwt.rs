@@ -34,8 +34,8 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     {
         Self
         {
-            user_id: user_id,
-            user_flag: user_flag,
+            user_id,
+            user_flag,
         }
     }
 }

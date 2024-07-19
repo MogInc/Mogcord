@@ -21,10 +21,10 @@ impl User
     {
         Self
         {
-            id: id,
-            username: username,
-            mail: mail,
-            hashed_password: hashed_password,
+            id,
+            username,
+            mail,
+            hashed_password,
             flag: user_flag,
         }
     }
@@ -34,9 +34,9 @@ impl User
         Self
         {
             id: Uuid::now_v7().to_string(),
-            username: username,
-            mail: mail,
-            hashed_password: hashed_password,
+            username,
+            mail,
+            hashed_password,
             flag: UserFlag::None,
         }
     }

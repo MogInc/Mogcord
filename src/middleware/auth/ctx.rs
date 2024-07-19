@@ -14,8 +14,8 @@ impl Ctx
     {
 		Self 
         { 
-            user_id: user_id,
-			user_flag: user_flag,
+            user_id,
+			user_flag,
         }
 	}
 }

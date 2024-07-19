@@ -32,10 +32,10 @@ impl Message {
         Self
         {
             id: Uuid::now_v7().to_string(),
-            value: value,
+            value,
             timestamp: Utc::now(),
-            owner: owner,
-            chat: chat,
+            owner,
+            chat,
             bucket_id: None,
             flag: MessageFlag::None
         }

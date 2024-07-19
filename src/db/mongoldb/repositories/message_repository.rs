@@ -440,7 +440,7 @@ fn internal_valid_message_filter() -> Document
                 .collect();
 
             let pattern = format!("^{}", parts[0]);
-            Regex { pattern: pattern, options: String::new() }
+            Regex { pattern, options: String::new() }
         }
         )
         .collect();

@@ -50,13 +50,13 @@ impl MongolDB
 
         Ok(Self 
             { 
-                client: client,
-                users : users,
-                chats: chats,
-                buckets: buckets,
-                messages: messages,
-                refreshtokens: refreshtokens,
-                relations: relations,
+                client,
+                users,
+                chats,
+                buckets,
+                messages,
+                refreshtokens,
+                relations,
             }
         )
     }

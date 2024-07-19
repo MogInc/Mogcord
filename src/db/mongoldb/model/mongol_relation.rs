@@ -20,7 +20,7 @@ impl MongolRelation
     {
         Self
         {
-            user_id: user_id,
+            user_id,
             friend_ids: Vec::new(),
             pending_incoming_friend_ids: Vec::new(),
             pending_outgoing_friend_ids: Vec::new(),

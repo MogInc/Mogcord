@@ -41,7 +41,7 @@ impl RefreshToken
             device_id: Uuid::now_v7().to_string(),
             expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
             flag: RefreshTokenFlag::None,
-            owner: owner,
+            owner,
         }
     }
 }
