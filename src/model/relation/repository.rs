@@ -4,7 +4,7 @@ use crate::model::error;
 
 
 #[async_trait]
-pub trait RelationRepository: Send + Sync
+pub trait Repository: Send + Sync
 {
     async fn does_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;
     async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;

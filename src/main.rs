@@ -4,7 +4,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{chat, message, AppState, relation::RelationRepository, refresh_token, user::UserRepository};
+use mogcord::model::{chat, message, AppState, relation, refresh_token, user::UserRepository};
 use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let chat =  Arc::clone(&db) as Arc<dyn chat::Repository>;
     let message = Arc::clone(&db) as Arc<dyn message::Repository>;
     let refresh_token = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
-    let relation = Arc::clone(&db) as Arc<dyn RelationRepository>;
+    let relation = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
     let state: Arc<AppState> = Arc::new(
         AppState 
