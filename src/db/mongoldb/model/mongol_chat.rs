@@ -8,6 +8,8 @@ use super::{MongolChatInfo, MongolChatInfoWrapper};
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolChatWrapper
 {
     pub _id: Uuid,

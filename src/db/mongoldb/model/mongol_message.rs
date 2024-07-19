@@ -8,6 +8,8 @@ use crate::{db::mongoldb::{as_string, mongol_helper}, model::{message::{Message,
 
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolMessage
 {
     pub _id : Uuid,

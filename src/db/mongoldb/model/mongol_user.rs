@@ -4,6 +4,8 @@ use serde::{Serialize, Deserialize};
 use crate::{db::mongoldb::{as_string, mongol_helper}, model::{misc::ServerError, user::{User, UserFlag}}};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolUser
 {
     pub _id: Uuid,
