@@ -5,14 +5,14 @@ use serde::{de::{self, Visitor}, Deserialize, Serialize};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
-pub enum MessageFlag
+pub enum Flag
 {
     None,
     Edited { date: DateTime<Utc> },
     Deleted { date: DateTime<Utc> },
 }
 
-impl MessageFlag
+impl Flag
 {
     #[must_use]
     pub fn is_allowed_to_be_editted(&self) -> bool
@@ -21,7 +21,7 @@ impl MessageFlag
     }
 }
 
-impl fmt::Display for MessageFlag 
+impl fmt::Display for Flag 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
@@ -34,7 +34,7 @@ impl fmt::Display for MessageFlag
     }
 }
 
-impl<'de> Deserialize<'de> for MessageFlag
+impl<'de> Deserialize<'de> for Flag
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: serde::Deserializer<'de> 
@@ -43,7 +43,7 @@ impl<'de> Deserialize<'de> for MessageFlag
 
         impl<'de> Visitor<'de> for MessageFlagVisitor
         {
-            type Value = MessageFlag;
+            type Value = Flag;
         
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
             {
@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for MessageFlag
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                MessageFlag::from_str(v)
+                Flag::from_str(v)
                     .map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
@@ -64,11 +64,11 @@ impl<'de> Deserialize<'de> for MessageFlag
     }
 }
 
-impl FromStr for MessageFlag 
+impl FromStr for Flag 
 {
     type Err = MessageFlagParseError;
 
-    fn from_str(input: &str) -> Result<MessageFlag, Self::Err> 
+    fn from_str(input: &str) -> Result<Flag, Self::Err> 
     {
         let parts: Vec<&str> = input
                                 .splitn(2,'|')
@@ -77,13 +77,13 @@ impl FromStr for MessageFlag
 
         match parts[0].to_lowercase().as_str() 
         {
-            "none" => Ok(MessageFlag::None),
+            "none" => Ok(Flag::None),
             "edited" => 
             {
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()
-                        .map(|date| MessageFlag::Edited{ date })
+                        .map(|date| Flag::Edited{ date })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
                 } 
                 else 
@@ -96,7 +96,7 @@ impl FromStr for MessageFlag
                 if parts.len() == 2 
                 {
                     parts[1].parse::<DateTime<Utc>>()
-                        .map(|date| MessageFlag::Deleted{ date })
+                        .map(|date| Flag::Deleted{ date })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
                 } 
                 else 
@@ -136,7 +136,7 @@ mod tests
     use std::str::FromStr;
     use chrono::Utc;
 
-    use crate::model::message::flag::{MessageFlag, MessageFlagParseError};
+    use crate::model::message::flag::{Flag, MessageFlagParseError};
 
     macro_rules! from_str_base_tests_valid
     {
@@ -147,7 +147,7 @@ mod tests
             fn $name() 
             {
                 let (input, expected) = $value;
-                let result = MessageFlag::from_str(input).unwrap();
+                let result = Flag::from_str(input).unwrap();
                 assert_eq!(result, expected);
             }
         )*
@@ -156,21 +156,21 @@ mod tests
     
     from_str_base_tests_valid! 
     {
-        test_from_str_none_all_lowercase_is_valid: ("none", MessageFlag::None),
-        test_from_str_none_all_lowercase_with_whitespace_is_valid: (" none ", MessageFlag::None),
-        test_from_str_none_all_lowercase_with_lf_is_valid: ("\nnone\n", MessageFlag::None),
-        test_from_str_none_all_lowercase_with_cr_is_valid: ("\rnone\r", MessageFlag::None),
-        test_from_str_none_all_lowercase_with_crlf_is_valid: ("\r\nnone\r\n", MessageFlag::None),
-        test_from_str_none_all_uppercase_is_valid: ("NONE", MessageFlag::None),
-        test_from_str_none_all_uppercase_with_whitespace_is_valid: (" NONE ", MessageFlag::None),
-        test_from_str_none_all_uppercase_with_lf_is_valid: ("\nNONE\n", MessageFlag::None),
-        test_from_str_none_all_uppercase_with_cr_is_valid: ("\rNONE\r", MessageFlag::None),
-        test_from_str_none_all_uppercase_with_crlf_is_valid: ("\r\nNONE\r\n", MessageFlag::None),
-        test_from_str_none_variant_casing_is_valid: ("nONe", MessageFlag::None),
-        test_from_str_none_variant_casing_with_whitespace_is_valid: (" nONe ", MessageFlag::None),
-        test_from_str_none_variant_casing_with_lf_is_valid: ("\nnONe\n", MessageFlag::None),
-        test_from_str_none_variant_casing_with_cr_is_valid: ("\rnONe\r", MessageFlag::None),
-        test_from_str_none_variant_casing_with_crlf_is_valid: ("\r\nnONe\r\n", MessageFlag::None),
+        test_from_str_none_all_lowercase_is_valid: ("none", Flag::None),
+        test_from_str_none_all_lowercase_with_whitespace_is_valid: (" none ", Flag::None),
+        test_from_str_none_all_lowercase_with_lf_is_valid: ("\nnone\n", Flag::None),
+        test_from_str_none_all_lowercase_with_cr_is_valid: ("\rnone\r", Flag::None),
+        test_from_str_none_all_lowercase_with_crlf_is_valid: ("\r\nnone\r\n", Flag::None),
+        test_from_str_none_all_uppercase_is_valid: ("NONE", Flag::None),
+        test_from_str_none_all_uppercase_with_whitespace_is_valid: (" NONE ", Flag::None),
+        test_from_str_none_all_uppercase_with_lf_is_valid: ("\nNONE\n", Flag::None),
+        test_from_str_none_all_uppercase_with_cr_is_valid: ("\rNONE\r", Flag::None),
+        test_from_str_none_all_uppercase_with_crlf_is_valid: ("\r\nNONE\r\n", Flag::None),
+        test_from_str_none_variant_casing_is_valid: ("nONe", Flag::None),
+        test_from_str_none_variant_casing_with_whitespace_is_valid: (" nONe ", Flag::None),
+        test_from_str_none_variant_casing_with_lf_is_valid: ("\nnONe\n", Flag::None),
+        test_from_str_none_variant_casing_with_cr_is_valid: ("\rnONe\r", Flag::None),
+        test_from_str_none_variant_casing_with_crlf_is_valid: ("\r\nnONe\r\n", Flag::None),
     }
 
     macro_rules! from_str_base_tests_invalid
@@ -182,7 +182,7 @@ mod tests
             fn $name() 
             {
                 let (input, expected) = $value;
-                let result = MessageFlag::from_str(input).unwrap_err();
+                let result = Flag::from_str(input).unwrap_err();
                 assert_eq!(result, expected);
             }
         )*
@@ -216,7 +216,7 @@ mod tests
                 let mut enum_value = input.to_owned();
                 enum_value.push_str(&utc_string);
         
-                let result = MessageFlag::from_str(&enum_value).unwrap();
+                let result = Flag::from_str(&enum_value).unwrap();
         
                 assert_eq!(result, expected);
             }
@@ -229,152 +229,152 @@ mod tests
         test_from_str_edited_all_lowercase_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("edited|", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("edited|", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_lowercase_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" edited | ", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            (" edited | ", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_lowercase_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\nedited\n|\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\nedited\n|\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_lowercase_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\redited\r|\r", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\redited\r|\r", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_lowercase_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\nedited\r\n|\r\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\r\nedited\r\n|\r\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_uppercase_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("EDITED|", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("EDITED|", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_uppercase_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" EDITED | ", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            (" EDITED | ", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_uppercase_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rEDITED\n|\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\rEDITED\n|\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_uppercase_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rEDITED\r|\r", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\rEDITED\r|\r", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_all_uppercase_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\nEDITED\r\n|\r\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\r\nEDITED\r\n|\r\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_variant_casing_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("ediTED|", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("ediTED|", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_variant_casing_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" ediTED | ", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            (" ediTED | ", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_variant_casing_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rediTED\n|\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\rediTED\n|\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_variant_casing_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rediTED\r|\r", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\rediTED\r|\r", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_edited_variant_casing_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\nediTED\r\n|\r\n", fixed_utc, MessageFlag::Edited { date: fixed_utc })
+            ("\r\nediTED\r\n|\r\n", fixed_utc, Flag::Edited { date: fixed_utc })
         },
         test_from_str_deleted_all_lowercase_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("deleted|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("deleted|", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_lowercase_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" deleted | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            (" deleted | ", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_lowercase_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\ndeleted\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\ndeleted\n|\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_lowercase_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rdeleted\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\rdeleted\r|\r", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_lowercase_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\ndeleted\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\r\ndeleted\r\n|\r\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_uppercase_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("DELETED|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("DELETED|", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_uppercase_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" DELETED | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            (" DELETED | ", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_uppercase_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rDELETED\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\rDELETED\n|\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_uppercase_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rDELETED\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\rDELETED\r|\r", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_all_uppercase_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\nDELETED\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\r\nDELETED\r\n|\r\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_variant_casing_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("deLEted|", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("deLEted|", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_variant_casing_with_whitespace_is_valid: 
         {
             let fixed_utc = Utc::now();
-            (" deLEted | ", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            (" deLEted | ", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_variant_casing_with_lf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rdeLEted\n|\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\rdeLEted\n|\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_variant_casing_with_cr_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\rdeLEted\r|\r", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\rdeLEted\r|\r", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
         test_from_str_deleted_variant_casing_with_crlf_is_valid: 
         {
             let fixed_utc = Utc::now();
-            ("\r\ndeLEted\r\n|\r\n", fixed_utc, MessageFlag::Deleted { date: fixed_utc })
+            ("\r\ndeLEted\r\n|\r\n", fixed_utc, Flag::Deleted { date: fixed_utc })
         },
     }
 }

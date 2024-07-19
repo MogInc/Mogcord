@@ -4,7 +4,7 @@ use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{chat::Bucket, error, message::{self, Message, MessageFlag}, Pagination};
+use crate::model::{chat::Bucket, error, message::{self, Message}, Pagination};
 use crate::db::mongol::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
@@ -250,8 +250,8 @@ fn internal_valid_message_filter() -> Document
 {
     let valid_flags = 
     [
-        MessageFlag::None, 
-        MessageFlag::Edited { date: Utc::now() }
+        message::Flag::None, 
+        message::Flag::Edited { date: Utc::now() }
     ];
 
     let valid_flags_bson : Vec<Regex> = valid_flags

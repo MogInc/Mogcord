@@ -3,7 +3,7 @@ use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{message::{Message, MessageFlag}, error};
+use crate::model::{message::{self, Message}, error};
 use crate::db::mongol::{as_string, helper};
 
 
@@ -19,7 +19,7 @@ pub struct MongolMessage
     pub chat_id: Uuid,
     pub bucket_id: Option<Uuid>,
     #[serde(serialize_with = "as_string")]
-    pub flag: MessageFlag
+    pub flag: message::Flag
 }
 
 impl TryFrom<&Message> for MongolMessage
@@ -56,9 +56,9 @@ impl TryFrom<&Message> for MongolMessage
     }
 }
 
-impl From<MessageFlag> for Bson 
+impl From<message::Flag> for Bson 
 {
-    fn from(message_flag: MessageFlag) -> Bson 
+    fn from(message_flag: message::Flag) -> Bson 
     {
         Bson::String(message_flag.to_string())
     }

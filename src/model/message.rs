@@ -8,6 +8,7 @@ use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
 use super::chat;
 use super::user::User;
 
@@ -24,7 +25,7 @@ pub struct Message
     pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)
-    pub flag: MessageFlag,
+    pub flag: Flag,
 }
 
 impl Message {
@@ -43,7 +44,7 @@ impl Message {
             owner,
             chat,
             bucket_id: None,
-            flag: MessageFlag::None
+            flag: Flag::None
         }
     }
 }
@@ -58,7 +59,7 @@ impl Message
         }
 
         self.value = value;
-        self.flag = MessageFlag::Edited { date: Utc::now() };
+        self.flag = Flag::Edited { date: Utc::now() };
     }
 
     #[must_use]
