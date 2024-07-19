@@ -20,6 +20,20 @@ pub struct Private
     pub chat_info: Info,
 }
 
+impl Private
+{
+    #[must_use]
+    pub fn new(owners: Vec<User>, chat_info: Info) -> Self
+    {
+        Self
+        {
+            id: Uuid::now_v7().to_string(),
+            owners,
+            chat_info,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group
 {
@@ -29,6 +43,22 @@ pub struct Group
     pub users: Vec<User>,
     pub chat_info: Info,
 }
+
+impl Group
+{
+    #[must_use]
+    pub fn new(name: String, owner: User, users: Vec<User>, chat_info: Info) -> Self
+    {
+        Self
+        {
+            id: Uuid::now_v7().to_string(),
+            name,
+            owner,
+            users,
+            chat_info,
+        }
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server
 {
@@ -37,6 +67,22 @@ pub struct Server
     pub owner: User,
     pub users: Vec<User>,
     pub chat_infos: Vec<Info>,
+}
+
+impl Server
+{
+    #[must_use]
+    pub fn new(name: String, owner: User, chat_info: Info) -> Self
+    {
+        Self
+        {
+            id: Uuid::now_v7().to_string(),
+            name,
+            owner,
+            users: Vec::new(),
+            chat_infos: vec![chat_info],
+        }
+    }
 }
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
@@ -101,18 +147,11 @@ impl Chat
         Ok(chat_type)
     }
 
-    pub fn new_server(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
+    pub fn new_server(name: String, owner: User) -> Result<Self, error::Server> 
     {
         let chat_info = Info::new(Some(String::from("Welcome")));
 
-        let server_chat = Server
-        { 
-            id: Uuid::now_v7().to_string(),
-            owner, 
-            name, 
-            users,
-            chat_infos: vec![chat_info],
-        };
+        let server_chat = Server::new(name, owner, chat_info);
 
         let chat_type = Chat::Server(server_chat);
 

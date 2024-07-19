@@ -128,7 +128,7 @@ async fn create_chat_for_authenticated(
                 .get_user_by_id(&owner_id)
                 .await?;
 
-            Chat::new_server(name, owner, Vec::new())?
+            Chat::new_server(name, owner)?
         },
     };
 
