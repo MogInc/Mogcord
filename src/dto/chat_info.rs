@@ -5,13 +5,13 @@ use crate::model::chat::ChatInfo;
 use super::ObjectToDTO;
 
 #[derive(Serialize)]
-pub struct ChatInfoDTO
+pub struct ChatInfoCreateResponse
 {
     id: String,
     name: Option<String>,
 }
 
-impl ObjectToDTO<ChatInfo> for ChatInfoDTO 
+impl ObjectToDTO<ChatInfo> for ChatInfoCreateResponse 
 {
     fn obj_to_dto(chat: ChatInfo) -> Self
     {

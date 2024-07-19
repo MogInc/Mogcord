@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::model::chat::Chat;
 
-use super::{ChatInfoDTO, vec_to_dto, ObjectToDTO};
+use super::{ChatInfoCreateResponse, vec_to_dto, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ChatCreateResponse
@@ -18,9 +18,9 @@ pub struct ChatCreateResponse
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    chat_info: Option<ChatInfoDTO>,
+    chat_info: Option<ChatInfoCreateResponse>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    chat_infos: Option<Vec<ChatInfoDTO>>,
+    chat_infos: Option<Vec<ChatInfoCreateResponse>>,
 }
 
 impl ObjectToDTO<Chat> for ChatCreateResponse
@@ -39,7 +39,7 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                     owner: None,
                     owners: Some(owners.into_iter().map(|user| user.id).collect()),
                     users: None,
-                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(chat_info)),
                     chat_infos: None,
                 }
             },
@@ -53,7 +53,7 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                     owner: Some(owner.id),
                     owners: None,
                     users: Some(users.into_iter().map(|user| user.id).collect()),
-                    chat_info: Some(ChatInfoDTO::obj_to_dto(chat_info)),
+                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(chat_info)),
                     chat_infos: None,
                 }
             },
