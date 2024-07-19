@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::{map_mongo_key_to_string, db::mongoldb::{mongol_helper, MongolDB, MongolRefreshToken}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
+use crate::{map_mongo_key_to_string, db::mongoldb::{helper, MongolDB, MongolRefreshToken}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag, RefreshTokenRepository}}};
 
 #[async_trait]
 impl RefreshTokenRepository for MongolDB
@@ -20,7 +20,7 @@ impl RefreshTokenRepository for MongolDB
 
     async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, error::Server>
     {
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(device_id)?;
+        let device_id_local = helper::convert_domain_id_to_mongol(device_id)?;
 
         let pipelines = vec!
         [
@@ -97,9 +97,9 @@ impl RefreshTokenRepository for MongolDB
 
     async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), error::Server>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
 
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(device_id)?;
+        let device_id_local = helper::convert_domain_id_to_mongol(device_id)?;
 
         let filter = doc!
         {
@@ -120,7 +120,7 @@ impl RefreshTokenRepository for MongolDB
     }
     async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), error::Server>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc!
         {

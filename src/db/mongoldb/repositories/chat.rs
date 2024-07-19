@@ -4,7 +4,7 @@ use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
 use crate::model::{chat::{Chat, ChatRepository}, error };
-use crate::db::mongoldb::{mongol_helper, MongolChat, MongolChatWrapper, MongolDB};
+use crate::db::mongoldb::{helper, MongolChat, MongolChatWrapper, MongolDB};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
@@ -23,7 +23,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
+        let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
 
         //TODO: refactor this at some point 
         //currently doing 2 db calls
@@ -126,7 +126,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, error::Server>
     {
-        let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(chat_info_id)?;
+        let chat_info_id_local = helper::convert_domain_id_to_mongol(chat_info_id)?;
 
 
         //TODO: refactor this at some point 

@@ -1,7 +1,7 @@
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::{as_string, mongol_helper}, model::{error, user::{User, UserFlag}}};
+use crate::{db::mongoldb::{as_string, helper}, model::{error, user::{User, UserFlag}}};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
@@ -22,7 +22,7 @@ impl TryFrom<&User> for MongolUser
 
     fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
-        let user_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
+        let user_id = helper::convert_domain_id_to_mongol(&value.id)?;
 
         Ok(
             Self

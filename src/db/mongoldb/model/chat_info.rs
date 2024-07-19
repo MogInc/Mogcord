@@ -1,6 +1,6 @@
 use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::mongol_helper, model::{chat::{ChatInfo, Chat}, error}};
+use crate::{db::mongoldb::helper, model::{chat::{ChatInfo, Chat}, error}};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,7 +18,7 @@ impl TryFrom<&ChatInfo> for MongolChatInfo
 
     fn try_from(value: &ChatInfo) -> Result<Self, Self::Error>
     {
-        let chat_id = mongol_helper::convert_domain_id_to_mongol(&value.id)?;
+        let chat_id = helper::convert_domain_id_to_mongol(&value.id)?;
 
         Ok(
             Self 

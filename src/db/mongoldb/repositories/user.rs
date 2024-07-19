@@ -4,7 +4,7 @@ use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
 use crate::model::{error, Pagination, user::{User, UserFlag, UserRepository}};
-use crate::db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec};
+use crate::db::mongoldb::{helper, MongolDB, MongolUser, MongolUserVec};
 use crate::map_mongo_key_to_string;
 
 #[async_trait]
@@ -12,7 +12,7 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, error::Server>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id" : user_id_local };
 
@@ -57,7 +57,7 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &str) -> Result<User, error::Server>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id": user_id_local };
 
@@ -77,7 +77,7 @@ impl UserRepository for MongolDB
 
         for user_id in user_ids
         {
-            let user_id: Uuid = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+            let user_id: Uuid = helper::convert_domain_id_to_mongol(&user_id)?;
 
             user_ids_local.push(user_id);
         }

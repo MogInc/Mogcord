@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::mongol_helper, model::{chat::Chat, error}};
+use crate::{db::mongoldb::helper, model::{chat::Chat, error}};
 
 use super::{MongolChatInfo, MongolChatInfoWrapper};
 
@@ -50,11 +50,11 @@ impl TryFrom<&Chat> for MongolChatWrapper
         {
             Chat::Private { id, owners, chat_info } => 
             {
-                let db_id = mongol_helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(id)?;
 
                 let owner_ids = owners
                     .iter()
-                    .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
+                    .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
                 let chat = MongolChat::Private 
@@ -73,13 +73,13 @@ impl TryFrom<&Chat> for MongolChatWrapper
             },
             Chat::Group { id, name, owner, users, chat_info } => 
             {
-                let db_id = mongol_helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(id)?;
 
-                let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
+                let owner_id = helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
                     .iter()
-                    .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
+                    .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
 
@@ -101,13 +101,13 @@ impl TryFrom<&Chat> for MongolChatWrapper
             },
             Chat::Server { id, name, owner, users, chat_infos } => 
             {
-                let db_id = mongol_helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(id)?;
 
-                let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
+                let owner_id = helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
                     .iter()
-                    .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
+                    .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
 

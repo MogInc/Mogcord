@@ -1,9 +1,9 @@
 mod model;
 mod repositories;
-mod mongol_helper;
+mod helper;
 
 pub use model::*;
-pub use mongol_helper::*;
+pub use helper::*;
 
 use std::time::Duration;
 use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};

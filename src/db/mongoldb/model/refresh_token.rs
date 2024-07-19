@@ -1,7 +1,7 @@
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongoldb::{as_string, mongol_helper, MongolHelper}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}}};
+use crate::{db::mongoldb::{as_string, helper, MongolHelper}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}}};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,8 +21,8 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
 
     fn try_from(value: &RefreshToken) -> Result<Self, Self::Error> 
     {
-        let device_id = mongol_helper::convert_domain_id_to_mongol(&value.device_id)?;
-        let owner_id = mongol_helper::convert_domain_id_to_mongol(&value.owner.id)?;
+        let device_id = helper::convert_domain_id_to_mongol(&value.device_id)?;
+        let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
 
         let expiration_date = value
             .expiration_date

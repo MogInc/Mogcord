@@ -4,7 +4,7 @@ use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 use crate::model::{chat::Bucket, error, message::{Message, MessageFlag, MessageRepository}, Pagination};
-use crate::db::mongoldb::{mongol_helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
+use crate::db::mongoldb::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
@@ -109,7 +109,7 @@ impl MessageRepository for MongolDB
     async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, error::Server>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
+        let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
         
         let mut pipelines = vec!
         [
@@ -203,7 +203,7 @@ impl MessageRepository for MongolDB
     async fn get_message(&self, message_id: &str) -> Result<Message, error::Server>
     {
 
-        let message_id_local = mongol_helper::convert_domain_id_to_mongol(message_id)?;
+        let message_id_local = helper::convert_domain_id_to_mongol(message_id)?;
         
         let mut pipelines = vec![
             //filter to only given chat
