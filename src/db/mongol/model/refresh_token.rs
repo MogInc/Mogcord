@@ -1,7 +1,7 @@
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}};
+use crate::model::{error, refresh_token::{self, RefreshToken}};
 use crate::db::mongol::{as_string, helper, MongolHelper};
 
 
@@ -12,7 +12,7 @@ pub struct MongolRefreshToken
     pub device_id: Uuid,
     pub expiration_date: DateTime,
     #[serde(serialize_with = "as_string")]
-    pub flag: RefreshTokenFlag,
+    pub flag: refresh_token::Flag,
     pub owner_id: Uuid,
 }
 
@@ -43,9 +43,9 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
     }
 }
 
-impl From<RefreshTokenFlag> for Bson 
+impl From<refresh_token::Flag> for Bson 
 {
-    fn from(token_flag: RefreshTokenFlag) -> Bson 
+    fn from(token_flag: refresh_token::Flag) -> Bson 
     {
         Bson::String(token_flag.to_string())
     }

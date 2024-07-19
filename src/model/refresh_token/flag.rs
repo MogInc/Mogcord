@@ -4,14 +4,14 @@ use std::fmt;
 
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
-pub enum RefreshTokenFlag 
+pub enum Flag 
 {
     None,
     //can add utc date
     Revoked,
 }
 
-impl RefreshTokenFlag
+impl Flag
 {
     #[must_use]
     pub fn is_yeeted(&self) -> bool
@@ -24,7 +24,7 @@ impl RefreshTokenFlag
     }
 }
 
-impl fmt::Display for RefreshTokenFlag 
+impl fmt::Display for Flag 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
@@ -36,7 +36,7 @@ impl fmt::Display for RefreshTokenFlag
     }
 }
 
-impl<'de> Deserialize<'de> for RefreshTokenFlag
+impl<'de> Deserialize<'de> for Flag
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: serde::Deserializer<'de> 
@@ -45,7 +45,7 @@ impl<'de> Deserialize<'de> for RefreshTokenFlag
 
         impl<'de> Visitor<'de> for RefreshTokenFlagVisitor
         {
-            type Value = RefreshTokenFlag;
+            type Value = Flag;
         
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
             {
@@ -55,7 +55,7 @@ impl<'de> Deserialize<'de> for RefreshTokenFlag
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                RefreshTokenFlag::from_str(v)
+                Flag::from_str(v)
                     .map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
@@ -66,16 +66,16 @@ impl<'de> Deserialize<'de> for RefreshTokenFlag
     }
 }
 
-impl FromStr for RefreshTokenFlag 
+impl FromStr for Flag 
 {
     type Err = RefreshTokenFlagParseError;
 
-    fn from_str(input: &str) -> Result<RefreshTokenFlag, Self::Err> 
+    fn from_str(input: &str) -> Result<Flag, Self::Err> 
     {
         match input.to_lowercase().as_str() 
         {
-            "none" => Ok(RefreshTokenFlag::None),
-            "revoked" => Ok(RefreshTokenFlag::Revoked),
+            "none" => Ok(Flag::None),
+            "revoked" => Ok(Flag::Revoked),
             _ => Err(RefreshTokenFlagParseError::InvalidFormat),
         }
     }

@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::model::{error, refresh_token::{self, RefreshToken, RefreshTokenFlag}};
+use crate::model::{error, refresh_token::{self, RefreshToken}};
 use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
 use crate::map_mongo_key_to_string;
 
@@ -111,7 +111,7 @@ impl refresh_token::Repository for MongolDB
 
         let update = doc!
         {
-            "$set": { "flag": RefreshTokenFlag::Revoked }
+            "$set": { "flag": refresh_token::Flag::Revoked }
         };
 
         match self.refresh_tokens().update_one(filter, update).await
@@ -133,7 +133,7 @@ impl refresh_token::Repository for MongolDB
 
         let update = doc!
         {
-            "$set": { "flag": RefreshTokenFlag::Revoked }
+            "$set": { "flag": refresh_token::Flag::Revoked }
         };
 
         match self.refresh_tokens().update_many(filter, update).await
@@ -146,5 +146,5 @@ impl refresh_token::Repository for MongolDB
 
 fn internal_valid_refresh_token_filter() -> Document
 {
-    doc! { "$in": [ RefreshTokenFlag::None ] }
+    doc! { "$in": [ refresh_token::Flag::None ] }
 }

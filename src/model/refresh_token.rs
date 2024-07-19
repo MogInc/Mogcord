@@ -23,7 +23,7 @@ pub struct RefreshToken
     pub device_id: String,
     #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub expiration_date: DateTime<Utc>,
-    pub flag: RefreshTokenFlag,
+    pub flag: Flag,
     pub owner: User,
 }
 
@@ -47,7 +47,7 @@ impl RefreshToken
             value: refresh_token,
             device_id: Uuid::now_v7().to_string(),
             expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
-            flag: RefreshTokenFlag::None,
+            flag: Flag::None,
             owner,
         }
     }
