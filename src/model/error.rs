@@ -10,7 +10,7 @@ use super::user::UserFlag;
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
-pub enum ServerError 
+pub enum Server 
 {
 	//user
     UserNotFound,
@@ -24,7 +24,7 @@ pub enum ServerError
 	ChatDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
-	ChatNotAllowedToBeMade(ServerErrorInfo),
+	ChatNotAllowedToBeMade(ExtraInfo),
 
 	//message
 	MessageNotFound,
@@ -83,12 +83,12 @@ pub enum ServerError
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub enum ServerErrorInfo
+pub enum ExtraInfo
 {
 	UserCreatingIsNotOwner,
 }
 
-impl fmt::Display for ServerError 
+impl fmt::Display for Server 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
@@ -96,7 +96,7 @@ impl fmt::Display for ServerError
     }
 }
 
-impl IntoResponse for ServerError 
+impl IntoResponse for Server 
 {
     fn into_response(self) -> Response 
     {
@@ -110,11 +110,11 @@ impl IntoResponse for ServerError
     }
 }
 
-impl ServerError 
+impl Server 
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) 
+	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
     {
         #[allow(unreachable_patterns)]
 		match self 
@@ -122,7 +122,7 @@ impl ServerError
 			//user
             Self::UserNotFound 
             | Self::UsernameAlreadyInUse 
-            | Self::MailAlreadyInUse => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+            | Self::MailAlreadyInUse => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
 
 
 			//chat
@@ -130,8 +130,8 @@ impl ServerError
 			| Self::ChatAlreadyExists
 			| Self::OwnerCountInvalid {..}
 			| Self::ChatRequirementsInvalid 
-			| Self::ChatInfoNotFound => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
-			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+			| Self::ChatInfoNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
+			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
 
 
 			//relation
@@ -140,13 +140,13 @@ impl ServerError
 			| Self::UserYoureAddingIsBlocked
 			| Self::UserIsAlreadyFriend 
 			| Self::UserIsAlreadyBlocked
-			| Self::IncomingFriendRequestNotFound => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::IncomingFriendRequestNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
 
 
 			//message
 			Self::MessageNotFound
 			| Self::MessageDoesNotContainThisChat
-			| Self::MessageDoesNotContainThisUser => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::MessageDoesNotContainThisUser => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
 
 
 			//auth
@@ -155,8 +155,8 @@ impl ServerError
 			| Self::RefreshTokenNotFound
 			| Self::RefreshTokenDoesNotMatchDeviceId
 			| Self::AuthCtxNotInRequest
-			| Self::CookieNotFound(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
-			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			| Self::CookieNotFound(_) => (StatusCode::FORBIDDEN, Client::NO_AUTH),
+			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
 	
 
 			//db
@@ -165,26 +165,26 @@ impl ServerError
 			| Self::FailedUpdate(_)
 			| Self::FailedDelete(_)
 			| Self::TransactionError(_)
-			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, ClientError::SERVICE_ERROR),
-			Self::InvalidID(_) => (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS),
+			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, Client::SERVICE_ERROR),
+			Self::InvalidID(_) => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
 
 			//hashing
 			Self::HashingPasswordFailed
-			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, ClientError::SERVICE_ERROR),
+			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
 			Self::VerifyingPasswordFailed
-			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, ClientError::INVALID_PARAMS),
+			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
 
 
 			//permissions
 			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, Client::NO_AUTH),
 
 
 			//fallback
-			Self::NotImplemented => (StatusCode::BAD_GATEWAY, ClientError::SERVICE_ERROR),
+			Self::NotImplemented => (StatusCode::BAD_GATEWAY, Client::SERVICE_ERROR),
 			_ => (
 				StatusCode::INTERNAL_SERVER_ERROR,
-				ClientError::SERVICE_ERROR,
+				Client::SERVICE_ERROR,
 			),
 		}
 	}
@@ -193,7 +193,7 @@ impl ServerError
 
 #[derive(Debug, strum_macros::AsRefStr)]
 #[allow(non_camel_case_types)]
-pub enum ClientError
+pub enum Client
 {
 	INVALID_PARAMS,
 	SERVICE_ERROR,
