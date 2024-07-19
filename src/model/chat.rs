@@ -19,7 +19,7 @@ pub enum Chat
     {
         id: String,
         owners: Vec<User>,
-        chat_info: ChatInfo,
+        chat_info: Info,
     },
     Group
     {
@@ -27,7 +27,7 @@ pub enum Chat
         name: String,
         owner: User,
         users: Vec<User>,
-        chat_info: ChatInfo,
+        chat_info: Info,
     },
     Server
     {
@@ -35,7 +35,7 @@ pub enum Chat
         name: String,
         owner: User,
         users: Vec<User>,
-        chat_infos: Vec<ChatInfo>,
+        chat_infos: Vec<Info>,
     },
 }
 
@@ -52,7 +52,7 @@ impl Chat
             .into_iter()
             .collect();
 
-        let chat_info = ChatInfo::new(None);
+        let chat_info = Info::new(None);
 
         let chat_type = Chat::Private 
         { 
@@ -73,7 +73,7 @@ impl Chat
             .filter(|user| user.id != owner.id)
             .collect();
 
-        let chat_info = ChatInfo::new(None);
+        let chat_info = Info::new(None);
 
         let chat_type = Chat::Group 
         { 
@@ -91,7 +91,7 @@ impl Chat
 
     pub fn new_server(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
     {
-        let chat_info = ChatInfo::new(Some(String::from("Welcome")));
+        let chat_info = Info::new(Some(String::from("Welcome")));
 
         let chat_type = Chat::Server 
         { 
@@ -108,7 +108,7 @@ impl Chat
     }
 
     #[must_use]
-    pub fn chat_info(self, chat_info_id_option: Option<String>) -> Option<ChatInfo>
+    pub fn chat_info(self, chat_info_id_option: Option<String>) -> Option<Info>
     {
         match self
         {
@@ -128,7 +128,7 @@ impl Chat
     }
 
     #[must_use]
-    pub fn chat_infos(self) -> Option<Vec<ChatInfo>>
+    pub fn chat_infos(self) -> Option<Vec<Info>>
     {
         match self
         {

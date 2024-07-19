@@ -1,6 +1,6 @@
 use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
-use crate::{db::mongoldb::helper, model::{chat::{ChatInfo, Chat}, error}};
+use crate::{db::mongoldb::helper, model::{chat::{self, Chat}, error}};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -12,11 +12,11 @@ pub struct MongolChatInfo
     pub name: Option<String>,
 }
 
-impl TryFrom<&ChatInfo> for MongolChatInfo
+impl TryFrom<&chat::Info> for MongolChatInfo
 {
     type Error = error::Server;
 
-    fn try_from(value: &ChatInfo) -> Result<Self, Self::Error>
+    fn try_from(value: &chat::Info) -> Result<Self, Self::Error>
     {
         let chat_id = helper::convert_domain_id_to_mongol(&value.id)?;
 
@@ -32,11 +32,11 @@ impl TryFrom<&ChatInfo> for MongolChatInfo
 
 pub struct MongolChatInfoWrapper(pub Vec<MongolChatInfo>);
 
-impl TryFrom<&Vec<ChatInfo>> for MongolChatInfoWrapper
+impl TryFrom<&Vec<chat::Info>> for MongolChatInfoWrapper
 {
     type Error = error::Server;
 
-    fn try_from(value: &Vec<ChatInfo>) -> Result<Self, Self::Error>
+    fn try_from(value: &Vec<chat::Info>) -> Result<Self, Self::Error>
     {
         let mut chat_info_vec = Vec::new();
 

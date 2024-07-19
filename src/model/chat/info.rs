@@ -6,13 +6,13 @@ use crate::model::message::Message;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ChatInfo
+pub struct Info
 {
     pub id: String,
     pub name: Option<String>,
 }
 
-impl ChatInfo
+impl Info
 {
     #[must_use]
     pub fn new(name: Option<String>) -> Self
@@ -33,7 +33,7 @@ impl ChatInfo
 pub struct Bucket
 {
     pub id: String,
-    pub chat: ChatInfo,
+    pub chat: Info,
     pub date: NaiveDate,
     pub messages: Vec<Message>,
 }
@@ -41,7 +41,7 @@ pub struct Bucket
 impl Bucket
 {
     #[must_use]
-    pub fn new(chat: &ChatInfo, date: &DateTime<Utc>) -> Self
+    pub fn new(chat: &Info, date: &DateTime<Utc>) -> Self
     {
         Self
         {

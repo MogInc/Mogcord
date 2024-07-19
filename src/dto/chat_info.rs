@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::chat::ChatInfo;
+use crate::model::chat;
 
 use super::ObjectToDTO;
 
@@ -11,9 +11,9 @@ pub struct ChatInfoCreateResponse
     name: Option<String>,
 }
 
-impl ObjectToDTO<ChatInfo> for ChatInfoCreateResponse 
+impl ObjectToDTO<chat::Info> for ChatInfoCreateResponse 
 {
-    fn obj_to_dto(chat: ChatInfo) -> Self
+    fn obj_to_dto(chat: chat::Info) -> Self
     {
         Self
         {
@@ -30,9 +30,9 @@ pub struct ChatInfoGetResponse
     name: Option<String>,
 }
 
-impl ObjectToDTO<ChatInfo> for ChatInfoGetResponse 
+impl ObjectToDTO<chat::Info> for ChatInfoGetResponse 
 {
-    fn obj_to_dto(chat: ChatInfo) -> Self
+    fn obj_to_dto(chat: chat::Info) -> Self
     {
         Self
         {
