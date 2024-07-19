@@ -5,7 +5,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 use mogcord::model::{chat::ChatRepository, message::MessageRepository, AppState, relation::RelationRepository, refresh_token::RefreshTokenRepository, user::UserRepository};
-use mogcord::api::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, relation_handler::routes_relation, user_handler::routes_user};
+use mogcord::handler::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, relation_handler::routes_relation, user_handler::routes_user};
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
 
