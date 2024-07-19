@@ -14,13 +14,10 @@ pub enum MessageFlag
 
 impl MessageFlag
 {
+    #[must_use]
     pub fn is_allowed_to_be_editted(&self) -> bool
     {
-        match &self
-        {
-            Self::None | Self::Edited { .. } => true,
-            _ => false,
-        }
+        matches!(self, Self::None | Self::Edited { .. })
     }
 }
 
@@ -31,8 +28,8 @@ impl fmt::Display for MessageFlag
         match self
         {
             Self::None => write!(f, "none"),
-            Self::Edited { date } => write!(f, "edited|{}", date),
-            Self::Deleted { date } => write!(f, "deleted|{}", date),
+            Self::Edited { date } => write!(f, "edited|{date}"),
+            Self::Deleted { date } => write!(f, "deleted|{date}"),
         }
     }
 }
@@ -75,7 +72,7 @@ impl FromStr for MessageFlag
     {
         let parts: Vec<&str> = input
                                 .splitn(2,'|')
-                                .map(|x| x.trim())
+                                .map(str::trim)
                                 .collect();
 
         match parts[0].to_lowercase().as_str() 
@@ -88,7 +85,8 @@ impl FromStr for MessageFlag
                     parts[1].parse::<DateTime<Utc>>()
                         .map(|date| MessageFlag::Edited{ date })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
-                } else 
+                } 
+                else 
                 {
                     Err(MessageFlagParseError::InvalidFormat)
                 }
@@ -100,7 +98,8 @@ impl FromStr for MessageFlag
                     parts[1].parse::<DateTime<Utc>>()
                         .map(|date| MessageFlag::Deleted{ date })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
-                } else 
+                } 
+                else 
                 {
                     Err(MessageFlagParseError::InvalidFormat)
                 }
