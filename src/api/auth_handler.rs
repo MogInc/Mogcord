@@ -57,7 +57,7 @@ async fn login_for_everyone(
         );
     }
 
-    let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
+    Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
     //either 
     //1: if user has a device id, db lookup for token and use that if it exists.
@@ -122,7 +122,7 @@ async fn login_for_everyone(
                 cookie_names_refresh_token.ttl_in_mins(),
             );
 
-            return Ok(());
+            Ok(())
         },
         Err(err) => Err(err),
     }
@@ -179,7 +179,7 @@ async fn refresh_token_for_everyone(
                 cookie_names_acces_token.ttl_in_mins(),
             );
             
-            return Ok(());
+            Ok(())
         },
         Err(err) => Err(err),
     }

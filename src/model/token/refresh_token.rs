@@ -33,7 +33,7 @@ impl RefreshToken
         
         const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
 
-        let refresh_token = CUSTOM_ENGINE.encode(&random_number);
+        let refresh_token = CUSTOM_ENGINE.encode(random_number);
         
         Self
         {

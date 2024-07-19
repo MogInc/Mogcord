@@ -43,7 +43,7 @@ impl TryFrom<&Vec<ChatInfo>> for MongolChatInfoWrapper
             chat_info_vec.push(MongolChatInfo::try_from(chat_info)?);
         }
 
-        Ok(MongolChatInfoWrapper{0: chat_info_vec})
+        Ok(MongolChatInfoWrapper(chat_info_vec))
     }
 }
 

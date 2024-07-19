@@ -10,7 +10,7 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id" : user_id_local };
 
@@ -55,7 +55,7 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id": user_id_local };
 

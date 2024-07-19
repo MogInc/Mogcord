@@ -64,14 +64,14 @@ impl<'de> Deserialize<'de> for UserFlag
         
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
             {
-                return formatter.write_str("data");
+                formatter.write_str("data")
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                return UserFlag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS));
+                UserFlag::from_str(v)
+                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 

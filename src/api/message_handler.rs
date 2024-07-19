@@ -66,13 +66,13 @@ async fn create_message_for_authenticated(
         .get_chat_by_chat_info_id(&chat_info_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(&ctx_user_id)
+    if !chat.is_user_part_of_chat(ctx_user_id)
     {
         return Err(ServerError::ChatDoesNotContainThisUser);
     }
 
     let owner = repo_user
-        .get_user_by_id(&ctx_user_id)
+        .get_user_by_id(ctx_user_id)
         .await?;
 
     let chat_info = chat
@@ -113,7 +113,7 @@ async fn update_message_for_authenticated(
         return Err(ServerError::MessageDoesNotContainThisChat);
     }
 
-    if !message.is_user_allowed_to_edit_message(&ctx_user_id)
+    if !message.is_user_allowed_to_edit_message(ctx_user_id)
     {
         return Err(ServerError::MessageDoesNotContainThisUser);
     }

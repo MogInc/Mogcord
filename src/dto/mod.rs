@@ -24,5 +24,5 @@ where
         dtos.push(Output::obj_to_dto(input))
     }
     
-    return dtos;
+    dtos
 }

@@ -50,14 +50,14 @@ impl<'de> Deserialize<'de> for MessageFlag
         
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
             {
-                return formatter.write_str("data");
+                formatter.write_str("data")
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                return MessageFlag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS));
+                MessageFlag::from_str(v)
+                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 

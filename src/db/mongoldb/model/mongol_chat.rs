@@ -51,7 +51,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let db_id = mongol_helper::convert_domain_id_to_mongol(id)?;
 
                 let owner_ids = owners
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
@@ -76,7 +76,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
@@ -104,7 +104,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 

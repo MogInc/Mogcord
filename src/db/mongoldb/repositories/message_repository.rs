@@ -109,7 +109,7 @@ impl MessageRepository for MongolDB
     async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, ServerError>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
         
         let pipelines = vec!
         [
@@ -291,7 +291,7 @@ impl MessageRepository for MongolDB
     async fn get_message(&self, message_id: &str) -> Result<Message, ServerError>
     {
 
-        let message_id_local = mongol_helper::convert_domain_id_to_mongol(&message_id)?;
+        let message_id_local = mongol_helper::convert_domain_id_to_mongol(message_id)?;
         
         let pipelines = vec![
             //filter to only given chat
@@ -424,8 +424,8 @@ impl MessageRepository for MongolDB
 
 fn internal_valid_message_filter() -> Document
 {
-    let valid_flags = vec!
-    [ 
+    let valid_flags = 
+    [
         MessageFlag::None, 
         MessageFlag::Edited { date: Utc::now() }
     ];
@@ -436,7 +436,7 @@ fn internal_valid_message_filter() -> Document
             let temp = flag.to_string();
 
             let parts: Vec<&str> = temp
-                .split("|")
+                .split('|')
                 .collect();
 
             let pattern = format!("^{}", parts[0]);

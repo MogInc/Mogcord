@@ -21,7 +21,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
 
         //TODO: refactor this at some point 
         //currently doing 2 db calls
@@ -109,7 +109,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, ServerError>
     {
-        let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_info_id)?;
+        let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(chat_info_id)?;
 
 
         //TODO: refactor this at some point 
