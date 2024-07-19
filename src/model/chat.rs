@@ -243,7 +243,7 @@ impl Chat
 
                 Ok(())
             },
-            Chat::Group{..} | Chat::Server{..} => Ok(()),
+            Chat::Group(_) | Chat::Server(_) => Ok(()),
         }
     }
 
