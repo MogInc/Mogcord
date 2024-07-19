@@ -112,6 +112,8 @@ impl IntoResponse for ServerError
 
 impl ServerError 
 {
+	#[must_use]
+	#[allow(clippy::match_same_arms)]
 	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) 
     {
         #[allow(unreachable_patterns)]
