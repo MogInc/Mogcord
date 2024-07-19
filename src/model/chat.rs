@@ -255,7 +255,7 @@ impl Chat
             Chat::Private(private) => private.owners.iter().any(|owner| &owner.id == other_user_id),
             Chat::Group(group) => &group.owner.id == other_user_id
                 || group.users.iter().any(|user| &user.id == other_user_id),
-            Chat::Server(_) => true,
+            Chat::Server(server) => server.users.iter().any(|user| &user.id == other_user_id),
         }
     }
 
