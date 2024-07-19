@@ -138,7 +138,7 @@ async fn refresh_token_for_everyone(
 
     let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.as_str())?;
 
-    let claims = jwt::extract_acces_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
+    let claims = jwt::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
    
     let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.as_str())?;
 

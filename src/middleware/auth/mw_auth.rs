@@ -91,7 +91,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 
 fn parse_token(acces_token: &str) -> Result<Claims, ServerError>
 {
-	let claims = jwt::extract_acces_token(acces_token, TokenStatus::DisallowExpired)?;
+	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 
     Ok(claims)
 }

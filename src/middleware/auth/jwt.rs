@@ -46,6 +46,7 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, S
     {
         sub: request.user_id.clone(),
         user_flag: request.user_flag.clone(),
+        #[allow(clippy::cast_possible_truncation)]
         exp: (Utc::now() + Duration::minutes(ACCES_TOKEN_TTL_MIN)).timestamp() as usize,
     };
     
@@ -62,14 +63,14 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, S
     Ok(acces_token)
 }
 
-pub fn extract_acces_token(token: &str, acces_token_status: TokenStatus) -> Result<Claims, ServerError>
+pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, ServerError>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
         .map_err(|_| ServerError::AccesTokenHashKeyNotSet)?;
 
     let mut validation = Validation::default();
     
-    if acces_token_status == TokenStatus::AllowExpired
+    if acces_token_status == &TokenStatus::AllowExpired
     {
         validation.validate_exp = false;
     }
