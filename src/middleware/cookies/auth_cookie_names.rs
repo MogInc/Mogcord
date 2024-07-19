@@ -20,6 +20,7 @@ impl fmt::Display for AuthCookieNames
 
 impl AuthCookieNames
 {
+    #[must_use]
     pub fn as_str(&self) -> &str 
     {
         match self 
@@ -30,12 +31,13 @@ impl AuthCookieNames
         }
     }
 
+    #[must_use]
     pub fn ttl_in_mins(&self) -> i64
     {
         match self 
         {
-            AuthCookieNames::AUTH_ACCES => 60 * 24 * 365,
-            AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
+            AuthCookieNames::AUTH_ACCES
+            | AuthCookieNames::AUTH_REFRESH => 60 * 24 * 365,
             AuthCookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }
     }
