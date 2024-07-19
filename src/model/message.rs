@@ -1,8 +1,8 @@
 mod message_flag;
-mod message_repository;
+mod repository;
 
 pub use message_flag::*;
-pub use message_repository::*;
+pub use repository::*;
 
 use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Utc};

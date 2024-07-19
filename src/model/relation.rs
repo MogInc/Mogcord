@@ -1,3 +1,3 @@
-mod relation_repository;
+mod repository;
 
-pub use relation_repository::*;
+pub use repository::*;

@@ -1,8 +1,8 @@
 mod refresh_token_flag;
-mod refresh_token_repository;
+mod repository;
 
 pub use refresh_token_flag::*;
-pub use refresh_token_repository::*;
+pub use repository::*;
 
 use argon2::password_hash::rand_core::{OsRng, RngCore};
 use base64::{alphabet, engine::{general_purpose, GeneralPurpose}, Engine};

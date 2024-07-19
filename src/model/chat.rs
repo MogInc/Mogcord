@@ -1,8 +1,8 @@
 mod chat_info;
-mod chat_repository;
+mod repository;
 
 pub use chat_info::*;
-pub use chat_repository::*;
+pub use repository::*;
 
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};

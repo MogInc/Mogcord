@@ -1,8 +1,8 @@
 mod user_flag;
-mod user_repository;
+mod repository;
 
 pub use user_flag::*;
-pub use user_repository::*;
+pub use repository::*;
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
