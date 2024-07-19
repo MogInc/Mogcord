@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use super::{chat::ChatRepository, message::MessageRepository, refresh_token::RefreshTokenRepository, relation::RelationRepository, user::UserRepository};
+use super::{chat, message::MessageRepository, refresh_token::RefreshTokenRepository, relation::RelationRepository, user::UserRepository};
 
 
 pub struct AppState 
 {
-    pub chat: Arc<dyn ChatRepository>,
+    pub chat: Arc<dyn chat::Repository>,
     pub user: Arc<dyn UserRepository>,
     pub message: Arc<dyn MessageRepository>,
     pub refresh_token: Arc<dyn RefreshTokenRepository>,

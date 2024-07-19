@@ -4,7 +4,7 @@ use crate::model::error::Server;
 use super::Chat;
 
 #[async_trait]
-pub trait ChatRepository: Send + Sync 
+pub trait Repository: Send + Sync 
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, Server>;
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, Server>;

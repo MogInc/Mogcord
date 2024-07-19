@@ -3,12 +3,12 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{chat::{Chat, ChatRepository}, error };
+use crate::model::{chat::{self, Chat}, error };
 use crate::db::mongol::{helper, MongolChat, MongolChatWrapper, MongolDB};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
 #[async_trait]
-impl ChatRepository for MongolDB
+impl chat::Repository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
     {
