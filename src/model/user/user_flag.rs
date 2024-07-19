@@ -16,22 +16,16 @@ pub enum UserFlag
 
 impl UserFlag
 {
+    #[must_use]
     pub fn is_admin_or_owner(&self) -> bool
     {
-        match &self
-        {
-            Self::Admin | Self::Owner => true,
-            _ => false,
-        }
+        matches!(self, Self::Admin | Self::Owner)
     }
 
+    #[must_use]
     pub fn is_allowed_on_mogcord(&self) -> bool
     {
-        match &self
-        {
-            Self::None | Self::Admin | Self::Owner => true,
-            _ => false,
-        }
+        matches!(self, Self::None | Self::Admin | Self::Owner)
     }
 }
 
@@ -89,7 +83,7 @@ impl FromStr for UserFlag
     {
         let parts: Vec<&str> = input
             .splitn(2,'|')
-            .map(|x| x.trim())
+            .map(str::trim)
             .collect();
                             
         match parts[0].to_lowercase().as_str() 
