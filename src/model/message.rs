@@ -1,7 +1,7 @@
-mod message_flag;
+mod flag;
 mod repository;
 
-pub use message_flag::*;
+pub use flag::*;
 pub use repository::*;
 
 use bson::serde_helpers::chrono_datetime_as_bson_datetime;

@@ -1,7 +1,7 @@
-mod refresh_token_flag;
+mod flag;
 mod repository;
 
-pub use refresh_token_flag::*;
+pub use flag::*;
 pub use repository::*;
 
 use argon2::password_hash::rand_core::{OsRng, RngCore};

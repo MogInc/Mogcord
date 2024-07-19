@@ -1,7 +1,7 @@
-mod user_flag;
+mod flag;
 mod repository;
 
-pub use user_flag::*;
+pub use flag::*;
 pub use repository::*;
 
 use serde::{Serialize, Deserialize};
