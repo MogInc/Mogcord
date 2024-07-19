@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, ObjectToDTO, UserDTO}, middleware::auth::{self, Ctx}, model::misc::{AppState, Hashing, Pagination, ServerError}};
+use crate::{dto::{vec_to_dto, ObjectToDTO, UserDTO}, middleware::auth::{self, Ctx}, model::{error, AppState, Hashing, Pagination}};
 use crate::model::user::User;
 
 pub fn routes_user(state: Arc<AppState>) -> Router
@@ -99,12 +99,12 @@ async fn create_user_for_everyone(
 
     if repo_user.does_user_exist_by_username(&payload.username).await?
     {
-        return Err(ServerError::UsernameAlreadyInUse);
+        return Err(error::Server::UsernameAlreadyInUse);
     }
 
     if repo_user.does_user_exist_by_mail(&payload.mail).await?
     {
-        return Err(ServerError::MailAlreadyInUse);
+        return Err(error::Server::MailAlreadyInUse);
     }
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;

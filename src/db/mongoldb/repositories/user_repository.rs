@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::model::{error, pagination::Pagination, user::{User, UserFlag, UserRepository}};
+use crate::model::{error, Pagination, user::{User, UserFlag, UserRepository}};
 use crate::db::mongoldb::{mongol_helper, MongolDB, MongolUser, MongolUserVec};
 use crate::map_mongo_key_to_string;
 

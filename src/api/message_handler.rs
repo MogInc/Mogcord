@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, MessageDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{message::Message, misc::{AppState, Pagination, ServerError}}};
+use crate::{dto::{vec_to_dto, MessageDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{message::Message, {AppState, Pagination, error}}};
 
 pub fn routes_message(state: Arc<AppState>) -> Router
 {
@@ -34,7 +34,7 @@ async fn get_messages_for_authenticated(
 
     if !chat.is_user_part_of_chat(current_user_id)
     {
-        return Err(ServerError::ChatDoesNotContainThisUser);
+        return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
     match repo_message.get_valid_messages(&chat_info_id, pagination).await
@@ -68,7 +68,7 @@ async fn create_message_for_authenticated(
 
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        return Err(ServerError::ChatDoesNotContainThisUser);
+        return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
     let owner = repo_user
@@ -77,7 +77,7 @@ async fn create_message_for_authenticated(
 
     let chat_info = chat
         .chat_info(Some(chat_info_id))
-        .ok_or(ServerError::ChatInfoNotFound)?;
+        .ok_or(error::Server::ChatInfoNotFound)?;
 
     let message = Message::new(payload.value, owner, chat_info);
 
@@ -110,12 +110,12 @@ async fn update_message_for_authenticated(
     
     if !message.is_chat_part_of_message(&chat_info_id)
     {
-        return Err(ServerError::MessageDoesNotContainThisChat);
+        return Err(error::Server::MessageDoesNotContainThisChat);
     }
 
     if !message.is_user_allowed_to_edit_message(ctx_user_id)
     {
-        return Err(ServerError::MessageDoesNotContainThisUser);
+        return Err(error::Server::MessageDoesNotContainThisUser);
     }
 
     message.update_value(payload.value);

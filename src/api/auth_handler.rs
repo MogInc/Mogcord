@@ -4,7 +4,8 @@ use axum::{extract::State, middleware, response::IntoResponse, routing::{delete,
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken, user::UserFlag}};
+use crate::model::{error, refresh_token::RefreshToken, user::UserFlag, AppState, Hashing};
+use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::{AuthCookieNames, Manager}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -16,8 +17,8 @@ pub fn routes_auth(state: Arc<AppState>) -> Router
     let routes_with_regular_middleware =  Router::new()
         .route("/auth/revoke", delete(revoke_token_for_authorized))
         .route("/auth/revoke/all", delete(revoke_all_tokens_for_authorized))
-        .layer(middleware::from_fn(mw::auth::mw_require_regular_auth))
-        .layer(middleware::from_fn(mw::auth::mw_ctx_resolver))
+        .layer(middleware::from_fn(auth::mw_require_regular_auth))
+        .layer(middleware::from_fn(auth::mw_ctx_resolver))
         .with_state(state);
 
     Router::new()
@@ -49,7 +50,7 @@ async fn login_for_everyone(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(ServerError::IncorrectUserPermissions
+        return Err(error::Server::IncorrectUserPermissions
             { 
                 expected_min_grade: UserFlag::None, 
                 found: user.flag.clone()
@@ -97,7 +98,7 @@ async fn login_for_everyone(
     let user = refresh_token.owner;
     let create_token_request = CreateAccesTokenRequest::new(&user.id, &user.flag);
     
-    match jwt::create_acces_token(&create_token_request)
+    match auth::create_acces_token(&create_token_request)
     {
         Ok(acces_token) => 
         {
@@ -134,7 +135,7 @@ async fn refresh_token_for_everyone(
 
     let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.as_str())?;
 
-    let claims = jwt::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
+    let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
    
     let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.as_str())?;
 
@@ -148,7 +149,7 @@ async fn refresh_token_for_everyone(
     {
         jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
         jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
-        return Err(ServerError::IncorrectUserPermissions
+        return Err(error::Server::IncorrectUserPermissions
             { 
                 expected_min_grade: UserFlag::None, 
                 found: refresh_token.owner.flag
@@ -158,12 +159,12 @@ async fn refresh_token_for_everyone(
 
     if refresh_token.value != refresh_token_cookie
     {
-        return Err(ServerError::RefreshTokenDoesNotMatchDeviceId);
+        return Err(error::Server::RefreshTokenDoesNotMatchDeviceId);
     }
 
     let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
 
-    match jwt::create_acces_token(&create_token_request)
+    match auth::create_acces_token(&create_token_request)
     {
         Ok(token) => 
         {

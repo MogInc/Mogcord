@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, misc::{AppState, ServerError, ServerErrorInfo}}};
+use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, {AppState, error}}};
 
 pub fn routes_chat(state: Arc<AppState>) -> Router
 {
@@ -30,7 +30,7 @@ async fn get_chat_for_authenticated(
     
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        return Err(ServerError::ChatDoesNotContainThisUser);
+        return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
     Ok(Json(ChatDTO::obj_to_dto(chat)))
@@ -83,13 +83,13 @@ async fn create_chat_for_authenticated(
 
             if req_owner_size != actual_owner_size
             {
-                return Err(ServerError::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
+                return Err(error::Server::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
             }
 
             //can move this inside new method
             if !owner_ids.contains(ctx_user_id)
             {
-                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
             }
 
             let owners = repo_user
@@ -103,7 +103,7 @@ async fn create_chat_for_authenticated(
             //can move this inside new method
             if &owner_id != ctx_user_id
             {
-                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
             }
 
             let owner = repo_user
@@ -121,7 +121,7 @@ async fn create_chat_for_authenticated(
             //can move this inside new method
             if &owner_id != ctx_user_id
             {
-                return Err(ServerError::ChatNotAllowedToBeMade(ServerErrorInfo::UserCreatingIsNotOwner))
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
             }
 
             let owner = repo_user
@@ -136,7 +136,7 @@ async fn create_chat_for_authenticated(
         .does_chat_exist(&chat)
         .await?
     {
-        return Err(ServerError::ChatAlreadyExists);
+        return Err(error::Server::ChatAlreadyExists);
     }
 
     match repo_chat.create_chat(chat).await 
