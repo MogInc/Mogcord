@@ -71,17 +71,13 @@ async fn login_for_everyone(
 
     if let Ok(device_id_cookie) = device_id_cookie_result
     {
-        match repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
+        if let Ok(token) = repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
         {
-            Ok(token) => 
-            {
-                if token.owner.id == refresh_token.owner.id
-                {    
-                    refresh_token = token;
-                    create_new_refresh_token = false;
-                }
-            },
-            _ => (),
+            if token.owner.id == refresh_token.owner.id
+            {    
+                refresh_token = token;
+                create_new_refresh_token = false;
+            }
         }
     }
 
@@ -155,7 +151,7 @@ async fn refresh_token_for_everyone(
         return Err(ServerError::IncorrectUserPermissions
             { 
                 expected_min_grade: UserFlag::None, 
-                found: refresh_token.owner.flag.clone()
+                found: refresh_token.owner.flag
             }
         );
     }
@@ -199,7 +195,7 @@ async fn revoke_token_for_authorized(
 
     match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
     {
-        Ok(_) => 
+        Ok(()) => 
         {
             jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
             jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
@@ -222,7 +218,7 @@ async fn revoke_all_tokens_for_authorized(
 
     match repo_refresh.revoke_all_tokens(ctx_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }
