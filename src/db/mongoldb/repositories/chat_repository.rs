@@ -21,7 +21,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, ServerError>
     {
-        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_id)?;
+        let chat_id_local = mongol_helper::convert_domain_id_to_mongol(chat_id)?;
 
         //TODO: refactor this at some point 
         //currently doing 2 db calls
@@ -39,50 +39,65 @@ impl ChatRepository for MongolDB
             .map_err(|err| ServerError::FailedRead(err.to_string()))?
             .ok_or(ServerError::ChatNotFound)?;
 
-        let pipelines = match &mongol_chat_wrapper.chat
+        let pipeline = match &mongol_chat_wrapper.chat
         {
             MongolChat::Private { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
+                let mut pipeline = vec!
+                [
+                    doc! 
                     {
-                        "_id": chat_id_local
-                    }
-                };
-                
-                get_private_chat_pipeline(filter)
+                        "$match":
+                        {
+                            "_id": chat_id_local
+                        }
+                    },
+                ];
+
+                pipeline.extend(internal_private_chat_pipeline());
+
+                pipeline
             },
             MongolChat::Group { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
+                let mut pipeline = vec!
+                [
+                    doc! 
                     {
-                        "_id": chat_id_local
-                    }
-                };
-                
-                get_group_chat_pipeline(filter)
+                        "$match":
+                        {
+                            "_id": chat_id_local
+                        }
+                    },
+                ];
+
+                pipeline.extend(internal_group_chat_pipeline());
+
+                pipeline
             },
             MongolChat::Server { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
+                let mut pipeline = vec!
+                [
+                    doc! 
                     {
-                        "_id": chat_id_local
-                    }
-                };
+                        "$match":
+                        {
+                            "_id": chat_id_local
+                        }
+                    },
+                ];
 
-                get_server_chat_pipeline(filter)
+                pipeline.extend(internal_server_chat_pipeline());
+
+                pipeline
             },
         };
             
 
         let mut cursor = self
             .chats()
-            .aggregate(pipelines)
+            .aggregate(pipeline)
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
     
@@ -109,7 +124,7 @@ impl ChatRepository for MongolDB
 
     async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, ServerError>
     {
-        let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(&chat_info_id)?;
+        let chat_info_id_local = mongol_helper::convert_domain_id_to_mongol(chat_info_id)?;
 
 
         //TODO: refactor this at some point 
@@ -132,50 +147,66 @@ impl ChatRepository for MongolDB
             .ok_or(ServerError::ChatNotFound)?;
 
 
-        let pipelines = match &mongol_chat_wrapper.chat
+        let pipeline = match &mongol_chat_wrapper.chat
         {
             MongolChat::Private { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
+                let mut pipeline = vec!
+                [
+                    doc! 
                     {
-                        "_id": chat_info_id_local
-                    }
-                };
+                        "$match":
+                        {
+                            "_id": chat_info_id_local
+                        }
+                    },
+                ];
 
-                get_private_chat_pipeline(filter)
+                pipeline.extend(internal_private_chat_pipeline());
+
+                pipeline
             },
             MongolChat::Group { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
+                let mut pipeline = vec!
+                [
+                    doc! 
                     {
-                        "_id": chat_info_id_local
-                    }
-                };
-                
-                get_group_chat_pipeline(filter)
+                        "$match":
+                        {
+                            "_id": chat_info_id_local
+                        }
+                    },
+                ];
+
+                pipeline.extend(internal_group_chat_pipeline());
+
+                pipeline
             },
             MongolChat::Server { .. } => 
             {
-                let filter = doc! 
-                {
-                    "$match":
-                    {
-                        "chat.Server.chat_infos._id": chat_info_id_local
-                    }
-                };
 
-                get_server_chat_pipeline(filter)
+                let mut pipeline = vec!
+                [
+                    doc! 
+                    {
+                        "$match":
+                        {
+                            "chat.Server.chat_infos._id": chat_info_id_local
+                        }
+                    },
+                ];
+
+                pipeline.extend(internal_server_chat_pipeline());
+
+                pipeline
             },
         };
             
 
         let mut cursor = self
             .chats()
-            .aggregate(pipelines)
+            .aggregate(pipeline)
             .await
             .map_err(|err| ServerError::FailedRead(err.to_string()))?;
     
@@ -237,11 +268,9 @@ impl ChatRepository for MongolDB
     }
 }
 
-fn get_private_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_private_chat_pipeline() -> [Document; 4]
 {
-    vec!
     [
-        filter, 
         doc!
         {
             "$project":
@@ -275,11 +304,9 @@ fn get_private_chat_pipeline(filter: Document) -> Vec<Document>
     ]
 }
 
-fn get_group_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_group_chat_pipeline() -> [Document; 6]
 {
-    vec!
     [
-        filter,
         doc!
         {
             "$project":
@@ -331,11 +358,9 @@ fn get_group_chat_pipeline(filter: Document) -> Vec<Document>
     ]
 }
 
-fn get_server_chat_pipeline(filter: Document) -> Vec<Document>
+fn internal_server_chat_pipeline() -> [Document; 6]
 {
-    vec!
     [
-        filter,
         doc!
         {
             "$project":

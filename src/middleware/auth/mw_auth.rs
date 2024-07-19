@@ -64,7 +64,7 @@ pub async fn mw_ctx_resolver(
 
 	if ctx_result.is_err() && !matches!(ctx_result, Err(ServerError::AccesTokenExpired))
 	{
-		jar.remove_cookie(cookie_names_acces_token.as_str());
+		jar.remove_cookie(cookie_names_acces_token.to_string());
 	}
 
 	req
@@ -91,7 +91,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx
 
 fn parse_token(acces_token: &str) -> Result<Claims, ServerError>
 {
-	let claims = jwt::extract_acces_token(acces_token, TokenStatus::DisallowExpired)?;
+	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 
     Ok(claims)
 }

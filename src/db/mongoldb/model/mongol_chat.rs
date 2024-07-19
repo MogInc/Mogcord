@@ -8,6 +8,8 @@ use super::{MongolChatInfo, MongolChatInfoWrapper};
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolChatWrapper
 {
     pub _id: Uuid,
@@ -51,7 +53,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let db_id = mongol_helper::convert_domain_id_to_mongol(id)?;
 
                 let owner_ids = owners
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
@@ -76,7 +78,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
@@ -84,8 +86,8 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Group
                 {
                     name: name.to_string(),
-                    owner_id: owner_id,
-                    user_ids: user_ids,
+                    owner_id,
+                    user_ids,
                     chat_info: MongolChatInfo::try_from(chat_info)?,
                 };
 
@@ -104,7 +106,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let owner_id = mongol_helper::convert_domain_id_to_mongol(&owner.id)?;
 
                 let user_ids = users
-                    .into_iter()
+                    .iter()
                     .map(|owner| mongol_helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
 
@@ -112,8 +114,8 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Server
                 { 
                     name: name.to_string(),
-                    owner_id: owner_id,
-                    user_ids: user_ids,
+                    owner_id,
+                    user_ids,
                     chat_infos: MongolChatInfoWrapper::try_from(chat_infos)?.0,
                 };
 

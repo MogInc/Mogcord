@@ -42,29 +42,29 @@ async fn add_friend_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
-    if !repo_user.does_user_exist_by_id(&other_user_id).await?
+    if !repo_user.does_user_exist_by_id(other_user_id).await?
     {
         return Err(ServerError::UserYoureAddingNotFound);
     }
 
-    if repo_relation.does_blocked_exist(&ctx_user_id, &other_user_id).await?
+    if repo_relation.does_blocked_exist(ctx_user_id, other_user_id).await?
     {
         return Err(ServerError::UserYoureAddingIsBlocked);
     }
 
-    if repo_relation.does_blocked_exist(&other_user_id, &ctx_user_id).await?
+    if repo_relation.does_blocked_exist(other_user_id, ctx_user_id).await?
     {
         return Err(ServerError::UserYoureAddingHasYouBlocked);
     }
 
-    if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
+    if repo_relation.does_friendship_exist(ctx_user_id, other_user_id).await?
     {
         return Err(ServerError::UserIsAlreadyFriend);
     }
 
-    match repo_relation.add_user_as_friend(&ctx_user_id, &other_user_id).await
+    match repo_relation.add_user_as_friend(ctx_user_id, other_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }
@@ -85,19 +85,19 @@ async fn confirm_friend_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
-    if !repo_relation.does_incoming_friendship_exist(&ctx_user_id, &other_user_id).await?
+    if !repo_relation.does_incoming_friendship_exist(ctx_user_id, other_user_id).await?
     {
         return Err(ServerError::IncomingFriendRequestNotFound);
     }
 
-    if repo_relation.does_friendship_exist(&ctx_user_id, &other_user_id).await?
+    if repo_relation.does_friendship_exist(ctx_user_id, other_user_id).await?
     {
         return Err(ServerError::UserIsAlreadyFriend);
     }
 
-    match repo_relation.confirm_user_as_friend(&ctx_user_id, &other_user_id).await
+    match repo_relation.confirm_user_as_friend(ctx_user_id, other_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }
@@ -121,9 +121,9 @@ async fn remove_friend_for_authenticated(
 
     //no clue if i need more checks as like is_user_a_friend
     //maybe is handy if remove_user_as_friend is expensive and end users are spamming endpoint
-    match repo_relation.remove_user_as_friend(&ctx_user_id, &other_user_id).await
+    match repo_relation.remove_user_as_friend(ctx_user_id, other_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }
@@ -145,19 +145,19 @@ async fn add_blocked_for_authenticated(
         return Err(ServerError::UserYoureAddingCantBeSelf);
     }
 
-    if !repo_user.does_user_exist_by_id(&other_user_id).await?
+    if !repo_user.does_user_exist_by_id(other_user_id).await?
     {
         return Err(ServerError::UserYoureAddingNotFound);
     }
 
-    if repo_relation.does_blocked_exist(&ctx_user_id, &other_user_id).await?
+    if repo_relation.does_blocked_exist(ctx_user_id, other_user_id).await?
     {
         return Err(ServerError::UserIsAlreadyBlocked);
     }
 
-    match repo_relation.add_user_as_blocked(&ctx_user_id, &other_user_id).await
+    match repo_relation.add_user_as_blocked(ctx_user_id, other_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }
@@ -180,9 +180,9 @@ async fn remove_blocked_for_authenticated(
 
     //no clue if i need more checks as like is_user_blocked
     //maybe is handy if remove_user_as_blocked is expensive and end users are spamming endpoint
-    match repo_relation.remove_user_as_blocked(&ctx_user_id, &other_user_id).await
+    match repo_relation.remove_user_as_blocked(ctx_user_id, other_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }

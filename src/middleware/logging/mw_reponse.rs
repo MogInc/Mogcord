@@ -19,7 +19,7 @@ pub async fn main_response_mapper(
         .extensions()
         .get::<ServerError>();
 	let client_status_error = service_error
-        .map(|se| se.client_status_and_error());
+        .map(ServerError::client_status_and_error);
 
 	let error_response =
 		client_status_error
@@ -42,7 +42,7 @@ pub async fn main_response_mapper(
 		.ok();
 
 	let user_info = RequestLogLinePersonal::new(
-		ctx.map(|x| x.user_id()), device_id_option);
+		ctx.map(Ctx::user_id), device_id_option);
 
     log_request(req_id, user_info, req_method, uri, service_error, client_error_option).await;
 

@@ -24,6 +24,7 @@ pub enum ServerError
 	ChatDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
+	ChatNotAllowedToBeMade(ServerErrorInfo),
 
 	//message
 	MessageNotFound,
@@ -74,11 +75,17 @@ pub enum ServerError
 
 	//permissions
 	UserIsNotAdminOrOwner,
-	IncorrectUserPermissions(UserFlag),
+	IncorrectUserPermissions{ expected_min_grade: UserFlag, found: UserFlag },
 
 	//fallback
 	NotImplemented,
     UnexpectedError(String),
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum ServerErrorInfo
+{
+	UserCreatingIsNotOwner,
 }
 
 impl fmt::Display for ServerError 
@@ -105,6 +112,8 @@ impl IntoResponse for ServerError
 
 impl ServerError 
 {
+	#[must_use]
+	#[allow(clippy::match_same_arms)]
 	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) 
     {
         #[allow(unreachable_patterns)]
@@ -168,7 +177,7 @@ impl ServerError
 
 			//permissions
 			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectUserPermissions(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 
 			//fallback

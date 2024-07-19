@@ -8,6 +8,8 @@ use crate::model::misc::ServerError;
 
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolBucket 
 {
     pub _id: Uuid,

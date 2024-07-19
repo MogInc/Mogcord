@@ -21,6 +21,7 @@ impl MongolHelper for DateTime<Utc>
         MongolHelper::convert_to_bson_date(&date)
     }
 
+    #[allow(clippy::cast_possible_truncation)]
     fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
@@ -36,6 +37,7 @@ impl MongolHelper for DateTime<Utc>
 
 impl MongolHelper for NaiveDate
 {
+    #[allow(clippy::cast_possible_truncation)]
     fn convert_to_bson_date(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
@@ -44,7 +46,8 @@ impl MongolHelper for NaiveDate
             .day(self.day() as u8)
             .build()
     }
-
+    
+    #[allow(clippy::cast_possible_truncation)]
     fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
@@ -55,8 +58,9 @@ impl MongolHelper for NaiveDate
     }
 }
 
-pub fn convert_domain_id_to_mongol(id: &str)
- -> Result<Uuid, ServerError>
+pub fn convert_domain_id_to_mongol(
+    id: &str
+)-> Result<Uuid, ServerError>
 {
     Uuid::parse_str(id).map_err(|_| ServerError::InvalidID(id.to_string()))
 }

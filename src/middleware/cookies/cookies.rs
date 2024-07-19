@@ -4,15 +4,15 @@ use crate::model::misc::ServerError;
 
 pub trait Cookie2
 {
-    fn create_cookie(&self, name: &'static str, value: String, ttl_in_mins: i64);
+    fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64);
     fn get_cookie(&self, name: &str) -> Result<String, ServerError>;
-    fn remove_cookie(&self, name: &'static str);
+    fn remove_cookie(&self, name: String);
 }
 
 
 impl Cookie2 for Cookies
 {
-    fn create_cookie(&self, name: &'static str, value: String, ttl_in_mins: i64) 
+    fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64) 
     {
         let cookie = Cookie::build((name, value))
             .path("/")
@@ -33,7 +33,7 @@ impl Cookie2 for Cookies
             .ok_or(ServerError::CookieNotFound(name.to_string()))
     }
 
-    fn remove_cookie(&self, name: &'static str) 
+    fn remove_cookie(&self, name: String) 
     {
         let cookie = Cookie::build(name).path("/").build();
 

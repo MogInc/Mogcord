@@ -10,7 +10,7 @@ impl UserRepository for MongolDB
 {
     async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id" : user_id_local };
 
@@ -55,7 +55,7 @@ impl UserRepository for MongolDB
 
     async fn get_user_by_id(&self, user_id: &str) -> Result<User, ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc! { "_id": user_id_local };
 
@@ -80,7 +80,8 @@ impl UserRepository for MongolDB
             user_ids_local.push(user_id);
         }
 
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             doc! 
             { 
                 "$match": 
@@ -121,7 +122,7 @@ impl UserRepository for MongolDB
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
-                Err(_) => (),
+                Err(err) => println!("{err}"),
             }
         }
     
@@ -130,7 +131,8 @@ impl UserRepository for MongolDB
 
     async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, ServerError>
     {
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             //rename fields
             doc!
             {
@@ -147,12 +149,12 @@ impl UserRepository for MongolDB
             //skip offset
             doc! 
             {
-                "$skip": pagination.get_skip_size() as i32
+                "$skip": i32::try_from(pagination.get_skip_size()).ok().unwrap_or(0)
             },
             //limit output
             doc! 
             {
-                "$limit": pagination.page_size as i32
+                "$limit": i32::try_from(pagination.page_size).ok().unwrap_or(0)
             },
         ];
 
@@ -174,7 +176,7 @@ impl UserRepository for MongolDB
                         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
                     users.push(user);
                 },
-                Err(err) => println!("{}", err),
+                Err(err) => println!("{err}"),
             }
         }
     

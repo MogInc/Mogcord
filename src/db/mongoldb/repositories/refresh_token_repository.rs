@@ -20,9 +20,10 @@ impl RefreshTokenRepository for MongolDB
 
     async fn get_valid_token_by_device_id(&self, device_id: &str) -> Result<RefreshToken, ServerError>
     {
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(device_id)?;
 
-        let pipelines = vec![
+        let pipelines = vec!
+        [
             //filter
             doc! 
             {
@@ -96,9 +97,9 @@ impl RefreshTokenRepository for MongolDB
 
     async fn revoke_token(&self, user_id: &str, device_id: &str) -> Result<(), ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
-        let device_id_local = mongol_helper::convert_domain_id_to_mongol(&device_id)?;
+        let device_id_local = mongol_helper::convert_domain_id_to_mongol(device_id)?;
 
         let filter = doc!
         {
@@ -119,7 +120,7 @@ impl RefreshTokenRepository for MongolDB
     }
     async fn revoke_all_tokens(&self, user_id: &str) -> Result<(), ServerError>
     {
-        let user_id_local = mongol_helper::convert_domain_id_to_mongol(&user_id)?;
+        let user_id_local = mongol_helper::convert_domain_id_to_mongol(user_id)?;
 
         let filter = doc!
         {

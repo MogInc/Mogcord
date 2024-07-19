@@ -14,13 +14,10 @@ pub struct ChatInfo
 
 impl ChatInfo
 {
+    #[must_use]
     pub fn new(name: Option<String>) -> Self
     {
-        let name_sanitized = match name
-        {
-            Some(name) => Some(name.trim().to_owned()),
-            None => None,
-        };
+        let name_sanitized = name.map(|name| name.trim().to_owned());
 
         Self
         {
@@ -43,6 +40,7 @@ pub struct Bucket
 
 impl Bucket
 {
+    #[must_use]
     pub fn new(chat: &ChatInfo, date: &DateTime<Utc>) -> Self
     {
         Self

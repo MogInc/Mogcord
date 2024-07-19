@@ -4,7 +4,7 @@ use axum::{extract::State, middleware, response::IntoResponse, routing::{delete,
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken}};
+use crate::{middleware::{self as mw, auth::{jwt::{self, CreateAccesTokenRequest, TokenStatus}, Ctx}, cookies::{AuthCookieNames, Cookie2}}, model::{misc::{AppState, Hashing, ServerError}, token::RefreshToken, user::UserFlag}};
 
 pub fn routes_auth(state: Arc<AppState>) -> Router
 {
@@ -49,10 +49,15 @@ async fn login_for_everyone(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(ServerError::IncorrectUserPermissions(user.flag.clone()));
+        return Err(ServerError::IncorrectUserPermissions
+            { 
+                expected_min_grade: UserFlag::None, 
+                found: user.flag.clone()
+            }
+        );
     }
 
-    let _ = Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
+    Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
 
     //either 
     //1: if user has a device id, db lookup for token and use that if it exists.
@@ -66,17 +71,13 @@ async fn login_for_everyone(
 
     if let Ok(device_id_cookie) = device_id_cookie_result
     {
-        match repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
+        if let Ok(token) = repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
         {
-            Ok(token) => 
-            {
-                if token.owner.id == refresh_token.owner.id
-                {    
-                    refresh_token = token;
-                    create_new_refresh_token = false;
-                }
-            },
-            _ => (),
+            if token.owner.id == refresh_token.owner.id
+            {    
+                refresh_token = token;
+                create_new_refresh_token = false;
+            }
         }
     }
 
@@ -87,7 +88,7 @@ async fn login_for_everyone(
             .await?;
 
         jar.create_cookie(
-            cookie_names_device_id.as_str(), 
+            cookie_names_device_id.to_string(), 
             refresh_token.device_id, 
             cookie_names_device_id.ttl_in_mins(),
         );
@@ -104,7 +105,7 @@ async fn login_for_everyone(
             let cookie_names_refresh_token = AuthCookieNames::AUTH_REFRESH;
 
             jar.create_cookie(
-                cookie_names_acces_token.as_str(), 
+                cookie_names_acces_token.to_string(), 
                 acces_token, 
                 cookie_names_acces_token.ttl_in_mins(), 
             );
@@ -112,12 +113,12 @@ async fn login_for_everyone(
             //refresh token value always gets rewritten
             //not gonna assume its there when trying to login
             jar.create_cookie(
-                cookie_names_refresh_token.as_str(),
+                cookie_names_refresh_token.to_string(),
                 refresh_token.value,
                 cookie_names_refresh_token.ttl_in_mins(),
             );
 
-            return Ok(());
+            Ok(())
         },
         Err(err) => Err(err),
     }
@@ -133,7 +134,7 @@ async fn refresh_token_for_everyone(
 
     let acces_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_ACCES.as_str())?;
 
-    let claims = jwt::extract_acces_token(&acces_token_cookie, TokenStatus::AllowExpired)?;
+    let claims = jwt::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
    
     let refresh_token_cookie = jar.get_cookie(AuthCookieNames::AUTH_REFRESH.as_str())?;
 
@@ -145,9 +146,14 @@ async fn refresh_token_for_everyone(
 
     if !refresh_token.owner.flag.is_allowed_on_mogcord()
     {
-        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
-        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
-        return Err(ServerError::IncorrectUserPermissions(refresh_token.owner.flag.clone()));
+        jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
+        jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
+        return Err(ServerError::IncorrectUserPermissions
+            { 
+                expected_min_grade: UserFlag::None, 
+                found: refresh_token.owner.flag
+            }
+        );
     }
 
     if refresh_token.value != refresh_token_cookie
@@ -164,12 +170,12 @@ async fn refresh_token_for_everyone(
             let cookie_names_acces_token = AuthCookieNames::AUTH_ACCES;
 
             jar.create_cookie(
-                cookie_names_acces_token.as_str(), 
+                cookie_names_acces_token.to_string(), 
                 token, 
                 cookie_names_acces_token.ttl_in_mins(),
             );
             
-            return Ok(());
+            Ok(())
         },
         Err(err) => Err(err),
     }
@@ -189,10 +195,10 @@ async fn revoke_token_for_authorized(
 
     match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
     {
-        Ok(_) => 
+        Ok(()) => 
         {
-            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.as_str());
-            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.as_str());
+            jar.remove_cookie(AuthCookieNames::AUTH_ACCES.to_string());
+            jar.remove_cookie(AuthCookieNames::AUTH_REFRESH.to_string());
 
             Ok(())
         },
@@ -212,7 +218,7 @@ async fn revoke_all_tokens_for_authorized(
 
     match repo_refresh.revoke_all_tokens(ctx_user_id).await
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }

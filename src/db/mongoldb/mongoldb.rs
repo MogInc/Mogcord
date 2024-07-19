@@ -24,15 +24,18 @@ impl MongolDB
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
-        client_options.compressors = Some(vec![
-            Compressor::Snappy,
-            Compressor::Zlib {
-                level: Default::default(),
-            },
-            Compressor::Zstd {
-                level: Default::default(),
-            },
-        ]);
+        client_options.compressors = Some(
+            vec!
+            [
+                Compressor::Snappy,
+                Compressor::Zlib {
+                    level: Option::default(),
+                },
+                Compressor::Zstd {
+                    level: Option::default(),
+                },
+            ]
+        );
     
         let client = Client::with_options(client_options)?;
 
@@ -47,13 +50,13 @@ impl MongolDB
 
         Ok(Self 
             { 
-                client: client,
-                users : users,
-                chats: chats,
-                buckets: buckets,
-                messages: messages,
-                refreshtokens: refreshtokens,
-                relations: relations,
+                client,
+                users,
+                chats,
+                buckets,
+                messages,
+                refreshtokens,
+                relations,
             }
         )
     }
@@ -61,36 +64,43 @@ impl MongolDB
 
 impl MongolDB
 {
+    #[must_use]
     pub fn client(&self) -> &Client 
     {
         &self.client
     }
-
+    
+    #[must_use]
     pub fn users(&self) -> &Collection<MongolUser>
     {
         &self.users
     }
-
+    
+    #[must_use]
     pub fn chats(&self) -> &Collection<MongolChatWrapper> 
     {
         &self.chats
     }
-
+    
+    #[must_use]
     pub fn buckets(&self) -> &Collection<MongolBucket> 
     {
         &self.buckets
     }
-
+    
+    #[must_use]
     pub fn messages(&self) -> &Collection<MongolMessage> 
     {
         &self.messages
     }
-
+    
+    #[must_use]
     pub fn refresh_tokens(&self) -> &Collection<MongolRefreshToken> 
     {
         &self.refreshtokens
     }
-
+    
+    #[must_use]
     pub fn relations(&self) -> &Collection<MongolRelation> 
     {
         &self.relations

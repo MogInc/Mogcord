@@ -8,6 +8,8 @@ use crate::{db::mongoldb::{as_string, mongol_helper}, model::{message::{Message,
 
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolMessage
 {
     pub _id : Uuid,
@@ -34,7 +36,7 @@ impl TryFrom<&Message> for MongolMessage
 
         let bucket_id_option = value.bucket_id
             .as_ref()
-            .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(&bucket_id))
+            .map(|bucket_id|mongol_helper::convert_domain_id_to_mongol(bucket_id))
             .transpose()?;
 
         let timestamp: SystemTime = value.timestamp.into();

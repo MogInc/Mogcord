@@ -16,22 +16,16 @@ pub enum UserFlag
 
 impl UserFlag
 {
+    #[must_use]
     pub fn is_admin_or_owner(&self) -> bool
     {
-        match &self
-        {
-            Self::Admin | Self::Owner => true,
-            _ => false,
-        }
+        matches!(self, Self::Admin | Self::Owner)
     }
 
+    #[must_use]
     pub fn is_allowed_on_mogcord(&self) -> bool
     {
-        match &self
-        {
-            Self::None | Self::Admin | Self::Owner => true,
-            _ => false,
-        }
+        matches!(self, Self::None | Self::Admin | Self::Owner)
     }
 }
 
@@ -43,8 +37,8 @@ impl fmt::Display for UserFlag
         {
             Self::None => write!(f, "none"),
             Self::Disabled => write!(f, "disabled"),
-            Self::Banned { date } => write!(f, "banned|{}", date),
-            Self::Deleted { date } => write!(f, "deleted|{}", date),
+            Self::Banned { date } => write!(f, "banned|{date}"),
+            Self::Deleted { date } => write!(f, "deleted|{date}"),
             Self::Admin => write!(f, "admin"),
             Self::Owner => write!(f, "owner"),
         }
@@ -64,14 +58,14 @@ impl<'de> Deserialize<'de> for UserFlag
         
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result 
             {
-                return formatter.write_str("data");
+                formatter.write_str("data")
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
                 where E: serde::de::Error, 
             {
-                return UserFlag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS));
+                UserFlag::from_str(v)
+                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 
@@ -89,7 +83,7 @@ impl FromStr for UserFlag
     {
         let parts: Vec<&str> = input
             .splitn(2,'|')
-            .map(|x| x.trim())
+            .map(str::trim)
             .collect();
                             
         match parts[0].to_lowercase().as_str() 
@@ -104,7 +98,8 @@ impl FromStr for UserFlag
                     .parse::<DateTime<Utc>>()
                     .map(|date| UserFlag::Deleted { date })
                     .map_err(|_| UserFlagParseError::InvalidDate)
-                } else 
+                } 
+                else 
                 {
                     Err(UserFlagParseError::InvalidFormat)
                 }
@@ -117,7 +112,8 @@ impl FromStr for UserFlag
                     .parse::<DateTime<Utc>>()
                     .map(|date| UserFlag::Banned { date })
                     .map_err(|_| UserFlagParseError::InvalidDate)
-                } else 
+                } 
+                else 
                 {
                     Err(UserFlagParseError::InvalidFormat)
                 }

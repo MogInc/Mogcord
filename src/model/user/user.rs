@@ -17,26 +17,27 @@ pub struct User
 
 impl User
 {
+    #[must_use]
     pub fn convert(id: String, username: String, mail: String, hashed_password: String, user_flag: UserFlag) -> Self
     {
         Self
         {
-            id: id,
-            username: username,
-            mail: mail,
-            hashed_password: hashed_password,
+            id,
+            username,
+            mail,
+            hashed_password,
             flag: user_flag,
         }
     }
-
+    #[must_use]
     pub fn new(username: String, mail: String, hashed_password: String) -> Self
     {
         Self
         {
             id: Uuid::now_v7().to_string(),
-            username: username,
-            mail: mail,
-            hashed_password: hashed_password,
+            username,
+            mail,
+            hashed_password,
             flag: UserFlag::None,
         }
     }

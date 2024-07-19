@@ -24,16 +24,18 @@ pub struct RefreshToken
 
 impl RefreshToken
 {
+    #[must_use]
     pub fn create_token(owner: User) -> Self
     {
+        const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
+        
         let mut random_number = [0u8; 64];
             
         let mut rng = OsRng;
         rng.fill_bytes(&mut random_number);
         
-        const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
 
-        let refresh_token = CUSTOM_ENGINE.encode(&random_number);
+        let refresh_token = CUSTOM_ENGINE.encode(random_number);
         
         Self
         {
@@ -41,7 +43,7 @@ impl RefreshToken
             device_id: Uuid::now_v7().to_string(),
             expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
             flag: RefreshTokenFlag::None,
-            owner: owner,
+            owner,
         }
     }
 }

@@ -4,6 +4,8 @@ use crate::{db::mongoldb::mongol_helper, model::{chat::{ChatInfo, Chat}, misc::S
 
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::pub_underscore_fields)]
+#[allow(clippy::used_underscore_binding)]
 pub struct MongolChatInfo
 {
     pub _id : Uuid,
@@ -43,7 +45,7 @@ impl TryFrom<&Vec<ChatInfo>> for MongolChatInfoWrapper
             chat_info_vec.push(MongolChatInfo::try_from(chat_info)?);
         }
 
-        Ok(MongolChatInfoWrapper{0: chat_info_vec})
+        Ok(MongolChatInfoWrapper(chat_info_vec))
     }
 }
 

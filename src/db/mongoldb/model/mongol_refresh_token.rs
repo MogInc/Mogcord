@@ -33,10 +33,10 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
             Self
             {
                 value: value.value.clone(),
-                device_id: device_id,
-                expiration_date: expiration_date,
+                device_id,
+                expiration_date,
                 flag: value.flag.clone(),
-                owner_id: owner_id,
+                owner_id,
             }
         )
     }

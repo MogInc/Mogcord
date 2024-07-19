@@ -9,9 +9,9 @@ impl RelationRepository for MongolDB
 {
     async fn does_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let filter = doc!
         {
@@ -34,9 +34,9 @@ impl RelationRepository for MongolDB
 
     async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let filter = doc!
         {
@@ -52,9 +52,9 @@ impl RelationRepository for MongolDB
 
     async fn does_blocked_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let filter = doc!
         {
@@ -70,9 +70,9 @@ impl RelationRepository for MongolDB
 
     async fn add_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
 
         let mut session = self
@@ -136,9 +136,9 @@ impl RelationRepository for MongolDB
 
     async fn add_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let mut session = self
             .client()
@@ -212,9 +212,9 @@ impl RelationRepository for MongolDB
 
     async fn confirm_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
 
         let mut session = self
@@ -277,9 +277,9 @@ impl RelationRepository for MongolDB
 
     async fn remove_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 
@@ -301,9 +301,9 @@ impl RelationRepository for MongolDB
 
     async fn remove_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), ServerError>
     {
-        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(&current_user_id)?;
+        let current_user_id_local = mongol_helper::convert_domain_id_to_mongol(current_user_id)?;
 
-        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(&other_user_id)?;
+        let other_user_id_local = mongol_helper::convert_domain_id_to_mongol(other_user_id)?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 
@@ -330,7 +330,7 @@ async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), Serv
         .await
         .map_err(|err| ServerError::UnexpectedError(err.to_string()))?;
 
-    if let None = relation_option
+    if relation_option.is_none()
     {
         let relation = MongolRelation::new(current_user_id);
 
