@@ -23,6 +23,17 @@ pub struct Private
 impl Private
 {
     #[must_use]
+    pub fn convert(id: String, owners: Vec<User>, chat_info: Info) -> Self
+    {
+        Self
+        {
+            id,
+            owners,
+            chat_info,
+        }
+    }
+
+    #[must_use]
     pub fn new(owners: Vec<User>, chat_info: Info) -> Self
     {
         Self
@@ -46,6 +57,19 @@ pub struct Group
 
 impl Group
 {
+    #[must_use]
+    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, chat_info: Info) -> Self
+    {
+        Self
+        {
+            id,
+            name,
+            owner,
+            users,
+            chat_info,
+        }
+    }
+
     #[must_use]
     pub fn new(name: String, owner: User, users: Vec<User>, chat_info: Info) -> Self
     {
@@ -71,6 +95,19 @@ pub struct Server
 
 impl Server
 {
+    #[must_use]
+    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, chat_infos: Vec<Info>) -> Self
+    {
+        Self
+        {
+            id,
+            name,
+            owner,
+            users,
+            chat_infos,
+        }
+    }
+
     #[must_use]
     pub fn new(name: String, owner: User, chat_info: Info) -> Self
     {
