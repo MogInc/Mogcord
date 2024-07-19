@@ -16,6 +16,7 @@ pub struct MongolRelation
 
 impl MongolRelation
 {
+    #[must_use]
     pub fn new(user_id: Uuid) -> Self
     {
         Self
