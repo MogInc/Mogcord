@@ -14,6 +14,7 @@ pub struct ChatInfo
 
 impl ChatInfo
 {
+    #[must_use]
     pub fn new(name: Option<String>) -> Self
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
@@ -39,6 +40,7 @@ pub struct Bucket
 
 impl Bucket
 {
+    #[must_use]
     pub fn new(chat: &ChatInfo, date: &DateTime<Utc>) -> Self
     {
         Self
