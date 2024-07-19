@@ -1,10 +1,10 @@
 use std::time::SystemTime;
-
 use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongol::{as_string, helper}, model::{message::{Message, MessageFlag}, error}};
+use crate::model::{message::{Message, MessageFlag}, error};
+use crate::db::mongol::{as_string, helper};
 
 
 #[derive(Debug, Serialize, Deserialize)]

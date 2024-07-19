@@ -1,7 +1,8 @@
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongol::{as_string, helper, MongolHelper}, model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}}};
+use crate::model::{error, refresh_token::{RefreshToken, RefreshTokenFlag}};
+use crate::db::mongol::{as_string, helper, MongolHelper};
 
 
 #[derive(Debug, Serialize, Deserialize)]

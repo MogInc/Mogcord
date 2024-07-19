@@ -1,6 +1,8 @@
 use mongodb::bson::{Bson, Uuid};
 use serde::{Serialize, Deserialize};
-use crate::{db::mongol::helper, model::{chat::{self, Chat}, error}};
+
+use crate::model::{chat::{self, Chat}, error};
+use crate::db::mongol::helper;
 
 
 #[derive(Debug, Serialize, Deserialize)]

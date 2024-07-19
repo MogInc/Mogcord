@@ -1,9 +1,9 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::mongol::helper, model::{chat::Chat, error}};
-
-use super::{MongolChatInfo, MongolChatInfoWrapper};
+use crate::model::{chat::Chat, error};
+use super::{MongolChatInfoWrapper, MongolChatInfo};
+use crate::db::mongol::helper;
 
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat

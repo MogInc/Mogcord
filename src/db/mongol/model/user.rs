@@ -1,7 +1,9 @@
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{db::mongol::{as_string, helper}, model::{error, user::{User, UserFlag}}};
+
+use crate::model::{error, user::{User, UserFlag}};
+use crate::db::mongol::{as_string, helper};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]

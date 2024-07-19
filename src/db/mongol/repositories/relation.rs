@@ -1,10 +1,10 @@
 use axum::async_trait;
 use bson::{Document, Uuid};
+use mongodb::bson::doc;
 
 use crate::model::{error, relation::RelationRepository};
 use crate::db::mongol::{MongolDB, MongolRelation};
 use crate::db::mongol::helper;
-use mongodb::bson::doc;
 
 #[async_trait]
 impl RelationRepository for MongolDB
