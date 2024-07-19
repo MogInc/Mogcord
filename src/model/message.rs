@@ -6,7 +6,6 @@ pub use message_repository::*;
 
 use bson::serde_helpers::chrono_datetime_as_bson_datetime;
 use chrono::{DateTime, Utc};
-use message_flag::MessageFlag;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use super::chat::ChatInfo;
