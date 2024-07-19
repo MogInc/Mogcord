@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::{dto::{vec_to_dto, MessageDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{message::Message, {AppState, Pagination, error}}};
 
-pub fn routes_message(state: Arc<AppState>) -> Router
+pub fn routes(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/chat/:chat_info_id/messages", get(get_messages_for_authenticated))

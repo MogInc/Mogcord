@@ -7,7 +7,7 @@ use tower_cookies::Cookies;
 use crate::model::{error, refresh_token::RefreshToken, user::UserFlag, AppState, Hashing};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::{AuthCookieNames, Manager}};
 
-pub fn routes_auth(state: Arc<AppState>) -> Router
+pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_without_middleware =  Router::new()
         .route("/auth/login", post(login_for_everyone))

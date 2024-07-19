@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::{middleware::auth::{self, Ctx}, model::{AppState, error}};
 
-pub fn routes_relation(state: Arc<AppState>) -> Router
+pub fn routes(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/friends", post(add_friend_for_authenticated))

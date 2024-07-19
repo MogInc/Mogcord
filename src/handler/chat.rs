@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::{dto::{ChatDTO, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, {AppState, error}}};
 
-pub fn routes_chat(state: Arc<AppState>) -> Router
+pub fn routes(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/chat", post(create_chat_for_authenticated))

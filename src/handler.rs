@@ -1,5 +1,5 @@
-pub mod user_handler;
-pub mod chat_handler;
-pub mod message_handler;
-pub mod auth_handler;
-pub mod relation_handler;
+pub mod user;
+pub mod chat;
+pub mod message;
+pub mod auth;
+pub mod relation;

@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::{dto::{vec_to_dto, ObjectToDTO, UserDTO}, middleware::auth::{self, Ctx}, model::{error, AppState, Hashing, Pagination}};
 use crate::model::user::User;
 
-pub fn routes_user(state: Arc<AppState>) -> Router
+pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_regular_middleware = Router::new()
         .route("/user", get(get_ctx_user_for_authenticated))

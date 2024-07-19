@@ -5,7 +5,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 use mogcord::model::{chat::ChatRepository, message::MessageRepository, AppState, relation::RelationRepository, refresh_token::RefreshTokenRepository, user::UserRepository};
-use mogcord::handler::{auth_handler::routes_auth, chat_handler::routes_chat, message_handler::routes_message, relation_handler::routes_relation, user_handler::routes_user};
+use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
 
@@ -38,11 +38,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         });
 
     let api_routes = Router::new()
-        .merge(routes_chat(state.clone()))
-        .merge(routes_message(state.clone()))
-        .merge(routes_user(state.clone()))
-        .merge(routes_auth(state.clone()))
-        .merge(routes_relation(state));
+        .merge(handler::auth::routes(state.clone()))
+        .merge(handler::chat::routes(state.clone()))
+        .merge(handler::message::routes(state.clone()))
+        .merge(handler::relation::routes(state.clone()))
+        .merge(handler::user::routes(state));
 
 
     let app: Router = Router::new()
