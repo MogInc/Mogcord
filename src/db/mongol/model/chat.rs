@@ -48,11 +48,11 @@ impl TryFrom<&Chat> for MongolChatWrapper
     {
         match value
         {
-            Chat::Private { id, owners, chat_info } => 
+            Chat::Private(private_chat)=> 
             {
-                let db_id = helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(&private_chat.id)?;
 
-                let owner_ids = owners
+                let owner_ids = private_chat.owners
                     .iter()
                     .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
@@ -60,7 +60,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Private 
                 { 
                     owner_ids,
-                    chat_info: MongolChatInfo::try_from(chat_info)?,
+                    chat_info: MongolChatInfo::try_from(&private_chat.chat_info)?,
                 };
 
                 Ok(
@@ -71,13 +71,13 @@ impl TryFrom<&Chat> for MongolChatWrapper
                     }
                 )
             },
-            Chat::Group { id, name, owner, users, chat_info } => 
+            Chat::Group(group) => 
             {
-                let db_id = helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(&group.id)?;
 
-                let owner_id = helper::convert_domain_id_to_mongol(&owner.id)?;
+                let owner_id = helper::convert_domain_id_to_mongol(&group.owner.id)?;
 
-                let user_ids = users
+                let user_ids = group.users
                     .iter()
                     .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
@@ -85,10 +85,10 @@ impl TryFrom<&Chat> for MongolChatWrapper
 
                 let chat = MongolChat::Group
                 {
-                    name: name.to_string(),
+                    name: group.name.to_string(),
                     owner_id,
                     user_ids,
-                    chat_info: MongolChatInfo::try_from(chat_info)?,
+                    chat_info: MongolChatInfo::try_from(&group.chat_info)?,
                 };
 
                 Ok(
@@ -99,13 +99,13 @@ impl TryFrom<&Chat> for MongolChatWrapper
                     }
                 )
             },
-            Chat::Server { id, name, owner, users, chat_infos } => 
+            Chat::Server(server) => 
             {
-                let db_id = helper::convert_domain_id_to_mongol(id)?;
+                let db_id = helper::convert_domain_id_to_mongol(&server.id)?;
 
-                let owner_id = helper::convert_domain_id_to_mongol(&owner.id)?;
+                let owner_id = helper::convert_domain_id_to_mongol(&server.owner.id)?;
 
-                let user_ids = users
+                let user_ids = server.users
                     .iter()
                     .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
                     .collect::<Result<_, _>>()?;
@@ -113,10 +113,10 @@ impl TryFrom<&Chat> for MongolChatWrapper
 
                 let chat = MongolChat::Server
                 { 
-                    name: name.to_string(),
+                    name: server.name.to_string(),
                     owner_id,
                     user_ids,
-                    chat_infos: MongolChatInfoWrapper::try_from(chat_infos)?.0,
+                    chat_infos: MongolChatInfoWrapper::try_from(&server.chat_infos)?.0,
                 };
 
                 Ok(

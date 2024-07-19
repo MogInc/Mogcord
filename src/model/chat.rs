@@ -12,31 +12,39 @@ use uuid::Uuid;
 use crate::model::user::User;
 use super::error;
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Private
+{
+    pub id: String,
+    pub owners: Vec<User>,
+    pub chat_info: Info,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Group
+{
+    pub id: String,
+    pub name: String,
+    pub owner: User,
+    pub users: Vec<User>,
+    pub chat_info: Info,
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Server
+{
+    pub id: String,
+    pub name: String,
+    pub owner: User,
+    pub users: Vec<User>,
+    pub chat_infos: Vec<Info>,
+}
+
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
 {
-    Private
-    {
-        id: String,
-        owners: Vec<User>,
-        chat_info: Info,
-    },
-    Group
-    {
-        id: String,
-        name: String,
-        owner: User,
-        users: Vec<User>,
-        chat_info: Info,
-    },
-    Server
-    {
-        id: String,
-        name: String,
-        owner: User,
-        users: Vec<User>,
-        chat_infos: Vec<Info>,
-    },
+    Private(Private),
+    Group(Group),
+    Server(Server),
 }
 
 
@@ -54,12 +62,14 @@ impl Chat
 
         let chat_info = Info::new(None);
 
-        let chat_type = Chat::Private 
-        { 
+        let private_chat = Private
+        {
             id: chat_info.id.to_string(),
             owners: owners_sanitized,
             chat_info
         };
+
+        let chat_type = Chat::Private(private_chat);
 
         chat_type.is_chat_meeting_requirements()?;
 
@@ -75,7 +85,7 @@ impl Chat
 
         let chat_info = Info::new(None);
 
-        let chat_type = Chat::Group 
+        let group_chat = Group
         { 
             id: chat_info.id.to_string(),
             name, 
@@ -83,6 +93,8 @@ impl Chat
             users: users_sanitized,
             chat_info
         };
+
+        let chat_type = Chat::Group(group_chat);
 
         chat_type.is_chat_meeting_requirements()?;
 
@@ -93,7 +105,7 @@ impl Chat
     {
         let chat_info = Info::new(Some(String::from("Welcome")));
 
-        let chat_type = Chat::Server 
+        let server_chat = Server
         { 
             id: Uuid::now_v7().to_string(),
             owner, 
@@ -102,27 +114,29 @@ impl Chat
             chat_infos: vec![chat_info],
         };
 
+        let chat_type = Chat::Server(server_chat);
+
         chat_type.is_chat_meeting_requirements()?;
 
         Ok(chat_type)
     }
 
     #[must_use]
-    pub fn chat_info(self, chat_info_id_option: Option<String>) -> Option<Info>
+    pub fn chat_info(&self, chat_info_id_option: Option<String>) -> Option<Info>
     {
         match self
         {
-            Chat::Private { chat_info, .. } 
-             | Chat::Group { chat_info, ..  } => Some(chat_info),
-            Chat::Server { chat_infos, .. } => 
+            Chat::Private(private) => Some(private.chat_info.clone()),
+            Chat::Group(group) => Some(group.chat_info.clone()),
+            Chat::Server(server) => 
             {
                 let chat_info_id = chat_info_id_option?;
 
-                let position_option = chat_infos
+                let position_option = server.chat_infos
                     .iter()
                     .position(|chat_info| chat_info.id == chat_info_id)?;
 
-                Some(chat_infos[position_option].clone())
+                Some(server.chat_infos[position_option].clone())
             },
         }
     }
@@ -132,8 +146,8 @@ impl Chat
     {
         match self
         {
-            Chat::Private { .. } | Chat::Group { .. } => None,
-            Chat::Server { chat_infos, .. } => Some(chat_infos),
+            Chat::Private(_) | Chat::Group(_) => None,
+            Chat::Server(server) => Some(server.chat_infos),
         }
     }
 }
@@ -154,9 +168,9 @@ impl Chat
     {
         match self
         {
-            Chat::Private{owners,..} => 
+            Chat::Private(private) => 
             {
-                let user_len = owners.len();
+                let user_len = private.owners.len();
 
                 if !self.internal_is_owner_size_allowed(user_len)
                 {
@@ -174,10 +188,10 @@ impl Chat
     {
         match self
         {
-            Chat::Private{owners,..} => owners.iter().any(|owner| &owner.id == other_user_id),
-            Chat::Group{owner, users, ..} => &owner.id == other_user_id
-                || users.iter().any(|user| &user.id == other_user_id),
-            Chat::Server{ .. } => true,
+            Chat::Private(private) => private.owners.iter().any(|owner| &owner.id == other_user_id),
+            Chat::Group(group) => &group.owner.id == other_user_id
+                || group.users.iter().any(|user| &user.id == other_user_id),
+            Chat::Server(_) => true,
         }
     }
 
@@ -185,9 +199,9 @@ impl Chat
     {
         match self
         {
-            Chat::Private{..} => owner_count == Self::PRIVATE_OWNER_MAX,
-            Chat::Group{..} => owner_count == Self::GROUP_OWNER_MAX,
-            Chat::Server{..} => owner_count == Self::SERVER_OWNER_MAX,
+            Chat::Private(_) => owner_count == Self::PRIVATE_OWNER_MAX,
+            Chat::Group(_) => owner_count == Self::GROUP_OWNER_MAX,
+            Chat::Server(_) => owner_count == Self::SERVER_OWNER_MAX,
         }
     }
 }

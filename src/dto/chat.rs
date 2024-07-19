@@ -29,46 +29,46 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
     {
         match model_input
         {
-            Chat::Private { id, owners, chat_info } => 
+            Chat::Private(private) => 
             {
                 Self
                 {
-                    id, 
+                    id: private.id, 
                     r#type: String::from( "Private"),
                     name: None,
                     owner: None,
-                    owners: Some(owners.into_iter().map(|user| user.id).collect()),
+                    owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
-                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(chat_info)),
+                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(private.chat_info)),
                     chat_infos: None,
                 }
             },
-            Chat::Group { id, name, owner, users, chat_info } => 
+            Chat::Group(group) => 
             {
                 Self
                 {
-                    id,
+                    id: group.id,
                     r#type: String::from( "Group"),
-                    name: Some(name),
-                    owner: Some(owner.id),
+                    name: Some(group.name),
+                    owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(users.into_iter().map(|user| user.id).collect()),
-                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(chat_info)),
+                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
+                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(group.chat_info)),
                     chat_infos: None,
                 }
             },
-            Chat::Server { id, name, owner, users, chat_infos } => 
+            Chat::Server(server) => 
             {
                 Self
                 {
-                    id,
+                    id: server.id,
                     r#type: String::from( "Server"),
-                    name: Some(name),
-                    owner: Some(owner.id),
+                    name: Some(server.name),
+                    owner: Some(server.owner.id),
                     owners: None,
-                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    users: Some(server.users.into_iter().map(|user| user.id).collect()),
                     chat_info: None,
-                    chat_infos: Some(vec_to_dto(chat_infos))
+                    chat_infos: Some(vec_to_dto(server.chat_infos))
                 }
             },
         }
@@ -100,46 +100,46 @@ impl ObjectToDTO<Chat> for ChatGetResponse
     {
         match model_input
         {
-            Chat::Private { id, owners, chat_info } => 
+            Chat::Private(private) => 
             {
                 Self
                 {
-                    id, 
-                    r#type: String::from( "Private"),
+                    id: private.id, 
+                    r#type: String::from("Private"),
                     name: None,
                     owner: None,
-                    owners: Some(owners.into_iter().map(|user| user.id).collect()),
+                    owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
-                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(chat_info)),
+                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(private.chat_info)),
                     chat_infos: None,
                 }
             },
-            Chat::Group { id, name, owner, users, chat_info } => 
+            Chat::Group(group) => 
             {
                 Self
                 {
-                    id,
-                    r#type: String::from( "Group"),
-                    name: Some(name),
-                    owner: Some(owner.id),
+                    id: group.id,
+                    r#type: String::from("Group"),
+                    name: Some(group.name),
+                    owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(users.into_iter().map(|user| user.id).collect()),
-                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(chat_info)),
+                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
+                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(group.chat_info)),
                     chat_infos: None,
                 }
             },
-            Chat::Server { id, name, owner, users, chat_infos } => 
+            Chat::Server(server) => 
             {
                 Self
                 {
-                    id,
+                    id: server.id,
                     r#type: String::from( "Server"),
-                    name: Some(name),
-                    owner: Some(owner.id),
+                    name: Some(server.name),
+                    owner: Some(server.owner.id),
                     owners: None,
-                    users: Some(users.into_iter().map(|user| user.id).collect()),
+                    users: Some(server.users.into_iter().map(|user| user.id).collect()),
                     chat_info: None,
-                    chat_infos: Some(vec_to_dto(chat_infos))
+                    chat_infos: Some(vec_to_dto(server.chat_infos))
                 }
             },
         }
