@@ -13,6 +13,7 @@ pub enum RefreshTokenFlag
 
 impl RefreshTokenFlag
 {
+    #[must_use]
     pub fn is_yeeted(&self) -> bool
     {
         match &self
