@@ -1,5 +1,5 @@
-use std::sync::Arc;
-use axum::{middleware, routing::{delete, get, patch, post}, Router};
+use std::{collections::HashMap, sync::Arc};
+use axum::{async_trait, extract::{FromRequestParts, Path}, http::{request::Parts, StatusCode}, middleware, response::{IntoResponse, Response}, routing::{delete, get, patch, post}, RequestPartsExt, Router};
 
 use crate::{middleware::auth::mw_require_admin_auth, model::AppState};
 use crate::middleware::auth::{mw_ctx_resolver, mw_require_regular_auth};
@@ -61,4 +61,36 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_with_admin_middleware)
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
+}
+
+#[derive(Debug)]
+pub enum Version 
+{
+    V1,
+    V2,
+}
+
+#[async_trait]
+impl<S> FromRequestParts<S> for Version
+where
+    S: Send + Sync,
+{
+    type Rejection = Response;
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> 
+    {
+        let params: Path<HashMap<String, String>> =
+            parts.extract().await.map_err(IntoResponse::into_response)?;
+
+        let version = params
+            .get("version")
+            .ok_or_else(|| (StatusCode::NOT_FOUND, "version param missing").into_response())?;
+
+        match version.to_lowercase().as_str() 
+        {
+            "v1" => Ok(Version::V1),
+            "v2" => Ok(Version::V2),
+            _ => Err((StatusCode::NOT_FOUND, "unknown version").into_response()),
+        }
+    }
 }
