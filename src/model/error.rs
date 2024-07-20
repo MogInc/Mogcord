@@ -28,7 +28,7 @@ pub enum Server
 	ChatNotAllowedToBeMade(ExtraInfo),
 	ChatNotAllowedToGainUsers,
 	ChatAlreadyHasThisUser,
-
+	CantAddUsersToChatThatArentFriends,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
