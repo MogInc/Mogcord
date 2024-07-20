@@ -55,12 +55,6 @@ impl Server
 
 impl Server
 {
-    #[must_use]
-    pub fn chat_infos(self) -> Vec<Info>
-    {
-        self.chat_infos
-    }
-
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
         if self.is_user_part_of_server(&user.id)
