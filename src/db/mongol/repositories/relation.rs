@@ -34,6 +34,39 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
+    async fn does_friendships_exist(&self, current_user_id: &str, other_user_ids: Vec<&str>) -> Result<bool, error::Server>
+    {
+        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+
+        let other_user_ids_local = helper::convert_domain_ids_to_mongol(&other_user_ids)?;
+
+        let filter = doc!
+        {
+            "user_id" : current_user_id_local,
+        };
+
+        let mongol_relation_option = self
+            .relations()
+            .find_one(filter)
+            .await
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+
+
+        match mongol_relation_option
+        {
+            Some(mongol_relation) => 
+            {
+                let is_all_friends = mongol_relation
+                    .friend_ids
+                    .iter()
+                    .any(|id| !other_user_ids_local.contains(id));
+
+                Ok(is_all_friends)
+            },
+            None => Ok(other_user_ids_local.is_empty()),
+        }
+    }
+
     async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
