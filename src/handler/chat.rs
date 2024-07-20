@@ -8,9 +8,9 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/chat", post(create_chat_for_authenticated))
+        .route("/chat/:chat_id", get(get_chat_for_authenticated))
         .route("/chat/:chat_id/user", post(add_user_to_chat_for_authenticated))
         .route("/chat/:chat_id/users", post(add_users_to_chat_for_authenticated))
-        .route("/chat/:chat_id", get(get_chat_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
