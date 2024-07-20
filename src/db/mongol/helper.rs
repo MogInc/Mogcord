@@ -65,6 +65,16 @@ pub fn convert_domain_id_to_mongol(
     Uuid::parse_str(id).map_err(|_| error::Server::InvalidID(id.to_string()))
 }
 
+pub fn convert_domain_ids_to_mongol(
+    ids: &Vec<&str>
+)-> Result<Vec<Uuid>, error::Server>
+{
+    ids
+        .iter()
+        .map(|id| Uuid::parse_str(id).map_err(|_| error::Server::InvalidID(id.to_string())))
+        .collect()
+}
+
 pub fn as_string<S, T>(v: &T, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
