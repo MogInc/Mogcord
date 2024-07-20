@@ -79,6 +79,7 @@ async fn join_server_for_authenticated(
     let repo_server = &state.server;
 
     //add checks if joining is allowed
+    //like when rules get introduced (never)
 
     let ctx_user_id = ctx.user_id_ref();
 
