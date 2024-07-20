@@ -67,7 +67,46 @@ impl server::Repository for MongolDB
 
     async fn get_server_by_chat_info_id(&self, chat_info_id: &str) -> Result<Server, error::Server>
     {
-        todo!()
+        let chat_info_id_local = helper::convert_domain_id_to_mongol(chat_info_id)?;
+
+        let mut pipeline = vec!
+        [
+            doc! 
+            {
+                "$match":
+                {
+                    "chat_infos._id": chat_info_id_local
+                }
+            },
+        ];
+
+        pipeline.extend(internal_server_pipeline());
+
+
+        let mut cursor = self
+            .servers()
+            .aggregate(pipeline)
+            .await
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+
+        let document_option = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+
+        match document_option
+        {
+            Some(document) => 
+            {
+                let chat = from_document(document)
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+                return Ok(chat);
+            },
+            None => Err(error::Server::ChatNotFound), 
+        }
     }
 }
 
