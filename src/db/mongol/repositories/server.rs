@@ -108,6 +108,28 @@ impl server::Repository for MongolDB
             None => Err(error::Server::ChatNotFound), 
         }
     }
+
+    async fn add_user_to_server(&self, server_id: &str, user_id: &str) -> Result<(), error::Server>
+    {
+        let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+
+        let filter = doc!
+        {
+            "_id": server_id_local,
+        };
+
+        let update = doc!
+        {
+            "$push": { "user_ids": user_id_local }
+        };
+
+        match self.refresh_tokens().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+        }
+    }
 }
 
 fn internal_server_pipeline() -> [Document; 5]
