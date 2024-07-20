@@ -234,6 +234,12 @@ impl Chat
         matches!(self, Chat::Server(_))
     }
 
+    #[must_use]
+    pub fn is_group(&self) -> bool
+    {
+        matches!(self, Chat::Group(_))
+    }
+
     pub fn is_chat_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         match self
