@@ -36,6 +36,10 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/friends", delete(relation::remove_friend_for_authenticated))
         .route("/blocked", post(relation::add_blocked_for_authenticated))
         .route("/blocked", delete(relation::remove_blocked_for_authenticated))
+        //server
+        .route("/server", post(server::create_server_for_authenticated))
+        .route("/server/:server_id", get(server::get_server_for_authenticated))
+        .route("/server/:server_id/join", post(server::join_server_for_authenticated))
         .layer(middleware::from_fn(mw_require_regular_auth))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state);

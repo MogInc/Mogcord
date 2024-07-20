@@ -1,23 +1,13 @@
 use std::sync::Arc;
-use axum::{extract::{Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
+use axum::{extract::{Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
 use crate::{dto::ServerGetResponse, model::{error, server, AppState}};
-use crate::middleware::auth::{self, Ctx};
+use crate::middleware::auth::Ctx;
 use crate::dto::{ObjectToDTO, ServerCreateResponse};
 
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    Router::new()
-        .route("/server", post(create_server_for_authenticated))
-        .route("/server/:server_id", get(get_server_for_authenticated))
-        .route("/server/:server_id/join", post(join_server_for_authenticated))
-        .with_state(state)
-        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
-}
 
-async fn get_server_for_authenticated(
+pub async fn get_server_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(server_id): Path<String>
@@ -44,7 +34,7 @@ pub struct CreateServerRequest
 {
     name: String,
 }
-async fn create_server_for_authenticated(
+pub async fn create_server_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<CreateServerRequest>
@@ -68,7 +58,7 @@ async fn create_server_for_authenticated(
     }
 }
 
-async fn join_server_for_authenticated(
+pub async fn join_server_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(server_id): Path<String>,
