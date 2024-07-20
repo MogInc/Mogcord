@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
-use crate::model::{error, server, AppState};
+use crate::{dto::ServerGetResponse, model::{error, server, AppState}};
 use crate::middleware::auth::{self, Ctx};
 use crate::dto::{ChatGetResponse, ObjectToDTO, ServerCreateResponse};
 
@@ -23,20 +23,20 @@ async fn get_server_for_authenticated(
     Path(server_id): Path<String>
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.chat;
+    let repo_server = &state.server;
 
-    let chat = repo_chat
-        .get_chat_by_id(&server_id)
+    let server = repo_server
+        .get_server_by_id(&server_id)
         .await?;
 
-    let ctx_user_id = &ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
     
-    if !chat.is_user_part_of_chat(ctx_user_id)
+    if !server.is_user_part_of_server(ctx_user_id)
     {
-        return Err(error::Server::ChatDoesNotContainThisUser);
+        return Err(error::Server::ServerDoesNotContainThisUser);
     }
 
-    Ok(Json(ChatGetResponse::obj_to_dto(chat)))
+    Ok(Json(ServerGetResponse::obj_to_dto(server)))
 }
 
 #[derive(Deserialize)]

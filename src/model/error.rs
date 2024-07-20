@@ -23,6 +23,7 @@ pub enum Server
 	ChatAlreadyExists,
 	ChatRequirementsInvalid,
 	ChatDoesNotContainThisUser,
+	ServerDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
 	ChatNotAllowedToBeMade(ExtraInfo),
