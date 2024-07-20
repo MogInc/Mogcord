@@ -7,7 +7,7 @@ use crate::middleware::auth::Ctx;
 use crate::dto::{ObjectToDTO, ServerCreateResponse};
 
 
-pub async fn get_server_for_authenticated(
+pub async fn get_server_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(server_id): Path<String>
@@ -34,7 +34,7 @@ pub struct CreateServerRequest
 {
     name: String,
 }
-pub async fn create_server_for_authenticated(
+pub async fn create_server_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<CreateServerRequest>
@@ -58,7 +58,7 @@ pub async fn create_server_for_authenticated(
     }
 }
 
-pub async fn join_server_for_authenticated(
+pub async fn join_server_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(server_id): Path<String>,

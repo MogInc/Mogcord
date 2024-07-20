@@ -7,7 +7,7 @@ use crate::middleware::auth::Ctx;
 use crate::dto::{ChatCreateResponse, ChatGetResponse, ObjectToDTO};
 
 
-pub async fn get_chat_for_authenticated(
+pub async fn get_chat_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(chat_id): Path<String>
@@ -43,7 +43,7 @@ pub enum CreateChatRequest
         user_ids: Vec<String>,
     },
 }
-pub async fn create_chat_for_authenticated(
+pub async fn create_chat_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<CreateChatRequest>
@@ -129,7 +129,7 @@ pub struct AddUsersRequest
     user_ids: Vec<String>,
 }
 
-pub async fn add_users_to_chat_for_authenticated(
+pub async fn add_users_to_chat_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(chat_id): Path<String>,

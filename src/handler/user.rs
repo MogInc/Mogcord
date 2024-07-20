@@ -8,7 +8,7 @@ use crate::dto::{vec_to_dto, ObjectToDTO, UserCreateResponse, UserGetResponse};
 use crate::model::user::User;
 
 
-pub async fn get_user_for_admin(
+pub async fn get_user_admin(
     State(state): State<Arc<AppState>>,
     Path(user_id): Path<String>
 ) -> impl IntoResponse
@@ -22,7 +22,7 @@ pub async fn get_user_for_admin(
     }
 }
 
-pub async fn get_users_for_admin(
+pub async fn get_users_admin(
     State(state): State<Arc<AppState>>,
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
@@ -38,7 +38,7 @@ pub async fn get_users_for_admin(
     }
 }
 
-pub async fn get_ctx_user_for_authenticated(
+pub async fn get_ctx_user_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse
@@ -63,7 +63,7 @@ pub struct CreateUserRequest
     password: String,
 }
 
-pub async fn create_user_for_everyone(
+pub async fn create_user(
     State(state): State<Arc<AppState>>, 
     Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse

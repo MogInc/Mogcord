@@ -14,7 +14,7 @@ pub struct RelationRequest
 }
 
 
-pub async fn add_friend_for_authenticated(
+pub async fn add_friend_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -58,7 +58,7 @@ pub async fn add_friend_for_authenticated(
     }
 }
 
-pub async fn confirm_friend_for_authenticated(
+pub async fn confirm_friend_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -92,7 +92,7 @@ pub async fn confirm_friend_for_authenticated(
 }
 
 
-pub async fn remove_friend_for_authenticated(
+pub async fn remove_friend_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -117,7 +117,7 @@ pub async fn remove_friend_for_authenticated(
     }
 }
 
-pub async fn add_blocked_for_authenticated(
+pub async fn add_blocked_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -151,7 +151,7 @@ pub async fn add_blocked_for_authenticated(
     }
 }
 
-pub async fn remove_blocked_for_authenticated(
+pub async fn remove_blocked_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,

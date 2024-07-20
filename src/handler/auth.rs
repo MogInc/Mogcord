@@ -14,7 +14,7 @@ pub struct LoginRequest
     password: String,
 }
 
-pub async fn login_for_everyone(
+pub async fn login(
     State(state): State<Arc<AppState>>,
     jar: Cookies, 
     Json(payload): Json<LoginRequest>,
@@ -107,7 +107,7 @@ pub async fn login_for_everyone(
 }
 
 
-pub async fn refresh_token_for_everyone(
+pub async fn refresh_token(
     State(state): State<Arc<AppState>>,
     jar: Cookies
 ) -> impl IntoResponse
@@ -164,7 +164,7 @@ pub async fn refresh_token_for_everyone(
 }
 
 //can see this as a logout
-pub async fn revoke_token_for_authorized(
+pub async fn revoke_token_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     jar: Cookies,
@@ -189,7 +189,7 @@ pub async fn revoke_token_for_authorized(
 }
 
 
-pub async fn revoke_all_tokens_for_authorized(
+pub async fn revoke_all_tokens_auth(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse

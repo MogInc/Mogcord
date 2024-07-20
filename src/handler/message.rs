@@ -7,7 +7,7 @@ use crate::middleware::auth::Ctx;
 use crate::dto::{vec_to_dto, MessageCreateResponse, MessageGetResponse, ObjectToDTO};
 
 
-pub async fn get_messages_for_authenticated(
+pub async fn get_messages_auth(
     State(state, ): State<Arc<AppState>>,
     Path(chat_info_id): Path<String>,
     ctx: Ctx,
@@ -41,7 +41,7 @@ pub struct CreateMessageRequest
 {
     value: String,
 }
-pub async fn create_message_for_authenticated(
+pub async fn create_message_auth(
     State(state, ): State<Arc<AppState>>,
     Path(chat_info_id): Path<String>,
     ctx: Ctx,
@@ -83,7 +83,7 @@ pub struct UpdateMessageRequest
 {
     value: String,
 }
-pub async fn update_message_for_authenticated(
+pub async fn update_message_auth(
     State(state, ): State<Arc<AppState>>,
     Path((chat_info_id, message_id)): Path<(String, String)>,
     ctx: Ctx,
