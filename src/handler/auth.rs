@@ -1,39 +1,20 @@
 use std::sync::Arc;
 
-use axum::{extract::State, middleware, response::IntoResponse, routing::{delete, post}, Json, Router};
+use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
 use crate::model::{error, refresh_token::RefreshToken, user, AppState, Hashing};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::Manager};
 
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    let routes_without_middleware =  Router::new()
-        .route("/auth/login", post(login_for_everyone))
-        .route("/auth/refresh", post(refresh_token_for_everyone))
-        .with_state(state.clone());
-
-    let routes_with_regular_middleware =  Router::new()
-        .route("/auth/revoke", delete(revoke_token_for_authorized))
-        .route("/auth/revoke/all", delete(revoke_all_tokens_for_authorized))
-        .layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .layer(middleware::from_fn(auth::mw_ctx_resolver))
-        .with_state(state);
-
-    Router::new()
-        .merge(routes_with_regular_middleware)
-        .merge(routes_without_middleware)
-}
-
 #[derive(Deserialize)]
-struct LoginRequest
+pub struct LoginRequest
 {
     mail: String,
     password: String,
 }
 
-async fn login_for_everyone(
+pub async fn login_for_everyone(
     State(state): State<Arc<AppState>>,
     jar: Cookies, 
     Json(payload): Json<LoginRequest>,
@@ -126,7 +107,7 @@ async fn login_for_everyone(
 }
 
 
-async fn refresh_token_for_everyone(
+pub async fn refresh_token_for_everyone(
     State(state): State<Arc<AppState>>,
     jar: Cookies
 ) -> impl IntoResponse
@@ -183,7 +164,7 @@ async fn refresh_token_for_everyone(
 }
 
 //can see this as a logout
-async fn revoke_token_for_authorized(
+pub async fn revoke_token_for_authorized(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     jar: Cookies,
@@ -208,7 +189,7 @@ async fn revoke_token_for_authorized(
 }
 
 
-async fn revoke_all_tokens_for_authorized(
+pub async fn revoke_all_tokens_for_authorized(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
 ) -> impl IntoResponse
