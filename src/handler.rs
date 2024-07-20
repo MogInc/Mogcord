@@ -11,8 +11,8 @@ use axum::async_trait;
 use tower::{BoxError, ServiceBuilder};
 use tower::{buffer::BufferLayer, limit::RateLimitLayer};
 
-use crate::{middleware::auth::mw_require_admin_auth, model::AppState};
-use crate::middleware::auth::{mw_ctx_resolver, mw_require_regular_auth};
+use crate::{middleware::auth::mw_require_admin_authentication, model::AppState};
+use crate::middleware::auth::{mw_ctx_resolver, mw_require_authentication};
 
 pub mod user;
 pub mod chat;
@@ -28,7 +28,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/admin/user/:user_id", get(user::admin::get_user))
         .route("/admin/users", get(user::admin::get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw_require_admin_auth))
+        .route_layer(middleware::from_fn(mw_require_admin_authentication))
         .route_layer(middleware::from_fn(mw_ctx_resolver));
 
     let routes_with_regular_middleware =  Router::new()
@@ -55,7 +55,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/server/:server_id/join", post(server::authenticated::join_server))
         //user
         .route("/user", get(user::authenticated::get_ctx_user_auth))
-        .route_layer(middleware::from_fn(mw_require_regular_auth))
+        .route_layer(middleware::from_fn(mw_require_authentication))
         .route_layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state.clone());
 

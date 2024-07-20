@@ -17,7 +17,7 @@ use crate::model::error;
 use crate::middleware::{auth, cookies::Manager};
 
 
-pub async fn mw_require_regular_auth(
+pub async fn mw_require_authentication(
     ctx: Result<Ctx, error::Server>,
     req: Request<Body>, 
     next: Next
@@ -30,7 +30,7 @@ pub async fn mw_require_regular_auth(
     Ok(next.run(req).await)
 }
 
-pub async fn mw_require_admin_auth(
+pub async fn mw_require_admin_authentication(
     ctx: Result<Ctx, error::Server>,
     req: Request<Body>, 
     next: Next
