@@ -1,21 +1,13 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, Query, State}, middleware, response::IntoResponse, routing::{get, patch, post}, Json, Router};
+use axum::{extract::{self, Path, Query, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, MessageCreateResponse, MessageGetResponse, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{error, message::Message, AppState, Pagination}};
+use crate::model::{error, message::Message, AppState, Pagination};
+use crate::middleware::auth::Ctx;
+use crate::dto::{vec_to_dto, MessageCreateResponse, MessageGetResponse, ObjectToDTO};
 
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    Router::new()
-        .route("/chat/:chat_info_id/messages", get(get_messages_for_authenticated))
-        .route("/chat/:chat_info_id/message", post(create_message_for_authenticated))
-        .route("/chat/:chat_info_id/message/:message_id", patch(update_message_for_authenticated))
-        .with_state(state)
-        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
-}
 
-async fn get_messages_for_authenticated(
+pub async fn get_messages_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path(chat_info_id): Path<String>,
     ctx: Ctx,
@@ -45,11 +37,11 @@ async fn get_messages_for_authenticated(
 }
 
 #[derive(Deserialize)]
-struct CreateMessageRequest
+pub struct CreateMessageRequest
 {
     value: String,
 }
-async fn create_message_for_authenticated(
+pub async fn create_message_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path(chat_info_id): Path<String>,
     ctx: Ctx,
@@ -87,11 +79,11 @@ async fn create_message_for_authenticated(
 }
 
 #[derive(Deserialize)]
-struct UpdateMessageRequest
+pub struct UpdateMessageRequest
 {
     value: String,
 }
-async fn update_message_for_authenticated(
+pub async fn update_message_for_authenticated(
     State(state, ): State<Arc<AppState>>,
     Path((chat_info_id, message_id)): Path<(String, String)>,
     ctx: Ctx,

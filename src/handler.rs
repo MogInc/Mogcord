@@ -1,8 +1,8 @@
 use std::sync::Arc;
+use axum::{middleware, routing::{delete, get, patch, post}, Router};
 
-use axum::{middleware, routing::{delete, get, post}, Router};
-
-use crate::{middleware::auth::{mw_ctx_resolver, mw_require_regular_auth}, model::AppState};
+use crate::model::AppState;
+use crate::middleware::auth::{mw_ctx_resolver, mw_require_regular_auth};
 
 pub mod user;
 pub mod chat;
@@ -19,15 +19,20 @@ pub fn routes(state: Arc<AppState>) -> Router
         .with_state(state.clone());
 
     let routes_with_regular_middleware =  Router::new()
+        //auth
         .route("/auth/revoke", delete(auth::revoke_token_for_authorized))
         .route("/auth/revoke/all", delete(auth::revoke_all_tokens_for_authorized))
+        //chat
         .route("/chat", post(chat::create_chat_for_authenticated))
         .route("/chat/:chat_id", get(chat::get_chat_for_authenticated))
         .route("/chat/:chat_id/users", post(chat::add_users_to_chat_for_authenticated))
+        //message
+        .route("/chat/:chat_info_id/messages", get(message::get_messages_for_authenticated))
+        .route("/chat/:chat_info_id/message", post(message::create_message_for_authenticated))
+        .route("/chat/:chat_info_id/message/:message_id", patch(message::update_message_for_authenticated))
         .layer(middleware::from_fn(mw_require_regular_auth))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state);
-
 
     Router::new()
         .merge(routes_with_regular_middleware)
