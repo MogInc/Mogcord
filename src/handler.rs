@@ -30,6 +30,12 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/chat/:chat_info_id/messages", get(message::get_messages_for_authenticated))
         .route("/chat/:chat_info_id/message", post(message::create_message_for_authenticated))
         .route("/chat/:chat_info_id/message/:message_id", patch(message::update_message_for_authenticated))
+        //relation
+        .route("/friends", post(relation::add_friend_for_authenticated))
+        .route("/friends/confirm", post(relation::confirm_friend_for_authenticated))
+        .route("/friends", delete(relation::remove_friend_for_authenticated))
+        .route("/blocked", post(relation::add_blocked_for_authenticated))
+        .route("/blocked", delete(relation::remove_blocked_for_authenticated))
         .layer(middleware::from_fn(mw_require_regular_auth))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state);

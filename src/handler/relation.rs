@@ -1,31 +1,20 @@
 use std::sync::Arc;
 
-use axum::{extract::State, middleware, response::IntoResponse, routing::{delete, post}, Json, Router};
+use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::{middleware::auth::{self, Ctx}, model::{AppState, error}};
+use crate::model::{AppState, error};
+use crate::middleware::auth::Ctx;
 
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    Router::new()
-        .route("/friends", post(add_friend_for_authenticated))
-        .route("/friends/confirm", post(confirm_friend_for_authenticated))
-        .route("/friends", delete(remove_friend_for_authenticated))
-        .route("/blocked", post(add_blocked_for_authenticated))
-        .route("/blocked", delete(remove_blocked_for_authenticated))
-        .with_state(state)
-        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
-}
 
 #[derive(Deserialize)]
-struct RelationRequest
+pub struct RelationRequest
 {
     user_id: String,
 }
 
 
-async fn add_friend_for_authenticated(
+pub async fn add_friend_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -69,7 +58,7 @@ async fn add_friend_for_authenticated(
     }
 }
 
-async fn confirm_friend_for_authenticated(
+pub async fn confirm_friend_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -103,7 +92,7 @@ async fn confirm_friend_for_authenticated(
 }
 
 
-async fn remove_friend_for_authenticated(
+pub async fn remove_friend_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -128,7 +117,7 @@ async fn remove_friend_for_authenticated(
     }
 }
 
-async fn add_blocked_for_authenticated(
+pub async fn add_blocked_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
@@ -162,7 +151,7 @@ async fn add_blocked_for_authenticated(
     }
 }
 
-async fn remove_blocked_for_authenticated(
+pub async fn remove_blocked_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<RelationRequest>,
