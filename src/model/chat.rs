@@ -83,51 +83,12 @@ impl Group
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Server
-{
-    pub id: String,
-    pub name: String,
-    pub owner: User,
-    pub users: Vec<User>,
-    pub chat_infos: Vec<Info>,
-}
-
-impl Server
-{
-    #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, chat_infos: Vec<Info>) -> Self
-    {
-        Self
-        {
-            id,
-            name,
-            owner,
-            users,
-            chat_infos,
-        }
-    }
-
-    #[must_use]
-    pub fn new(name: String, owner: User, chat_info: Info) -> Self
-    {
-        Self
-        {
-            id: Uuid::now_v7().to_string(),
-            name,
-            owner,
-            users: Vec::new(),
-            chat_infos: vec![chat_info],
-        }
-    }
-}
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
 {
     Private(Private),
     Group(Group),
-    Server(Server),
 }
 
 
@@ -171,19 +132,6 @@ impl Chat
 
         Ok(chat_type)
     }
-
-    pub fn new_server(name: String, owner: User) -> Result<Self, error::Server> 
-    {
-        let chat_info = Info::new(Some(String::from("Welcome")));
-
-        let server_chat = Server::new(name, owner, chat_info);
-
-        let chat_type = Chat::Server(server_chat);
-
-        chat_type.is_chat_meeting_requirements()?;
-
-        Ok(chat_type)
-    }
 }
 
 impl Chat
@@ -193,32 +141,12 @@ impl Chat
     const SERVER_OWNER_MAX: usize = 1;
 
     #[must_use]
-    pub fn chat_info(&self, chat_info_id_option: Option<String>) -> Option<Info>
+    pub fn chat_info(&self) -> Option<Info>
     {
         match self
         {
             Chat::Private(private) => Some(private.chat_info.clone()),
             Chat::Group(group) => Some(group.chat_info.clone()),
-            Chat::Server(server) => 
-            {
-                let chat_info_id = chat_info_id_option?;
-
-                let position_option = server.chat_infos
-                    .iter()
-                    .position(|chat_info| chat_info.id == chat_info_id)?;
-
-                Some(server.chat_infos[position_option].clone())
-            },
-        }
-    }
-
-    #[must_use]
-    pub fn chat_infos(self) -> Option<Vec<Info>>
-    {
-        match self
-        {
-            Chat::Private(_) | Chat::Group(_) => None,
-            Chat::Server(server) => Some(server.chat_infos),
         }
     }
 
@@ -229,9 +157,9 @@ impl Chat
     }
 
     #[must_use]
-    pub fn is_server(&self) -> bool
+    pub fn is_private(&self) -> bool
     {
-        matches!(self, Chat::Server(_))
+        matches!(self, Chat::Private(_))
     }
 
     #[must_use]
@@ -255,11 +183,6 @@ impl Chat
                 group.users.push(user);
                 Ok(())
             },
-            Chat::Server(server) =>
-            {
-                server.users.push(user);
-                Ok(())
-            },
         }
     }
 
@@ -281,11 +204,6 @@ impl Chat
                 group.users.extend(users);
                 Ok(())
             },
-            Chat::Server(server) =>
-            {
-                server.users.extend(users);
-                Ok(())
-            },
         }
     }
 
@@ -296,7 +214,6 @@ impl Chat
         {
             Chat::Private(private) => private.owners.iter().any(|user| user.id == user_id),
             Chat::Group(group) => group.owner.id == user_id,
-            Chat::Server(server) => server.owner.id == user_id,
         }
     }
 
@@ -315,7 +232,7 @@ impl Chat
 
                 Ok(())
             },
-            Chat::Group(_) | Chat::Server(_) => Ok(()),
+            Chat::Group(_) => Ok(()),
         }
     }
 
@@ -327,7 +244,6 @@ impl Chat
             Chat::Private(private) => private.owners.iter().any(|owner| owner.id == other_user_id),
             Chat::Group(group) => group.owner.id == other_user_id
                 || group.users.iter().any(|user| user.id == other_user_id),
-            Chat::Server(server) => server.users.iter().any(|user| user.id == other_user_id),
         }
     }
 
@@ -337,7 +253,6 @@ impl Chat
         {
             Chat::Private(_) => owner_count == Self::PRIVATE_OWNER_MAX,
             Chat::Group(_) => owner_count == Self::GROUP_OWNER_MAX,
-            Chat::Server(_) => owner_count == Self::SERVER_OWNER_MAX,
         }
     }
 }
