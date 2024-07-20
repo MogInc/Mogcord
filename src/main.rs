@@ -44,6 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let api_routes = Router::new()
         .merge(handler::auth::routes(state.clone()))
         .merge(handler::chat::routes(state.clone()))
+        .merge(handler::server::routes(state.clone()))
         .merge(handler::message::routes(state.clone()))
         .merge(handler::relation::routes(state.clone()))
         .merge(handler::user::routes(state));
