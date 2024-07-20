@@ -124,7 +124,7 @@ impl server::Repository for MongolDB
             "$push": { "user_ids": user_id_local }
         };
 
-        match self.refresh_tokens().update_one(filter, update).await
+        match self.servers().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
             Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
