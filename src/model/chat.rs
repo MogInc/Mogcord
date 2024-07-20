@@ -240,6 +240,17 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
+    #[must_use]
+    pub fn is_owner(&self, user_id: &str) -> bool
+    {
+        match self
+        {
+            Chat::Private(private) => private.owners.iter().any(|user| user.id == user_id),
+            Chat::Group(group) => group.owner.id == user_id,
+            Chat::Server(server) => server.owner.id == user_id,
+        }
+    }
+
     pub fn is_chat_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         match self
@@ -260,14 +271,14 @@ impl Chat
     }
 
     #[must_use]
-    pub fn is_user_part_of_chat(&self, other_user_id: &String) -> bool
+    pub fn is_user_part_of_chat(&self, other_user_id: &str) -> bool
     {
         match self
         {
-            Chat::Private(private) => private.owners.iter().any(|owner| &owner.id == other_user_id),
-            Chat::Group(group) => &group.owner.id == other_user_id
-                || group.users.iter().any(|user| &user.id == other_user_id),
-            Chat::Server(server) => server.users.iter().any(|user| &user.id == other_user_id),
+            Chat::Private(private) => private.owners.iter().any(|owner| owner.id == other_user_id),
+            Chat::Group(group) => group.owner.id == other_user_id
+                || group.users.iter().any(|user| user.id == other_user_id),
+            Chat::Server(server) => server.users.iter().any(|user| user.id == other_user_id),
         }
     }
 
