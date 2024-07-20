@@ -1,21 +1,13 @@
 use std::sync::Arc;
-use axum::{extract::{Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
+use axum::{extract::{Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::{dto::{ChatCreateResponse, ChatGetResponse, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, error, AppState}};
+use crate::model::{chat::Chat, error, AppState};
+use crate::middleware::auth::Ctx;
+use crate::dto::{ChatCreateResponse, ChatGetResponse, ObjectToDTO};
 
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    Router::new()
-        .route("/chat", post(create_chat_for_authenticated))
-        .route("/chat/:chat_id", get(get_chat_for_authenticated))
-        .route("/chat/:chat_id/users", post(add_users_to_chat_for_authenticated))
-        .with_state(state)
-        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
-}
 
-async fn get_chat_for_authenticated(
+pub async fn get_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(chat_id): Path<String>
@@ -51,7 +43,7 @@ pub enum CreateChatRequest
         user_ids: Vec<String>,
     },
 }
-async fn create_chat_for_authenticated(
+pub async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Json(payload): Json<CreateChatRequest>
@@ -132,12 +124,12 @@ async fn create_chat_for_authenticated(
 
 #[derive(Deserialize)]
 
-struct AddUsersRequest
+pub struct AddUsersRequest
 {
     user_ids: Vec<String>,
 }
 
-async fn add_users_to_chat_for_authenticated(
+pub async fn add_users_to_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
     Path(chat_id): Path<String>,
