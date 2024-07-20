@@ -16,6 +16,7 @@ pub enum Server
     UserNotFound,
     MailAlreadyInUse,
     UsernameAlreadyInUse,
+	UserIsNotOwnerOfChat,
 
 	//chat
 	ChatNotFound,
@@ -25,6 +26,7 @@ pub enum Server
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
 	ChatNotAllowedToBeMade(ExtraInfo),
+	ChatNotAllowedToGainUsers,
 
 	//message
 	MessageNotFound,
