@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::{dto::ServerGetResponse, model::{error, server, AppState}};
 use crate::middleware::auth::{self, Ctx};
-use crate::dto::{ChatGetResponse, ObjectToDTO, ServerCreateResponse};
+use crate::dto::{ObjectToDTO, ServerCreateResponse};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
@@ -75,5 +75,26 @@ async fn join_server_for_authenticated(
     Path(server_id): Path<String>,
 ) -> impl IntoResponse
 {
-    todo!()
+    let repo_user = &state.user;
+    let repo_server = &state.server;
+
+    //add checks if joining is allowed
+
+    let ctx_user_id = ctx.user_id_ref();
+
+    let user = repo_user
+        .get_user_by_id(ctx_user_id)
+        .await?;
+
+    let mut server = repo_server
+        .get_server_by_id(&server_id)
+        .await?;
+
+    server.add_user(user)?;
+
+    match repo_server.add_user_to_server(&server_id, ctx_user_id).await
+    {
+        Ok(()) => Ok(()),
+        Err(_) => Err(error::Server::FailedToAddUserToServer),
+    }
 }
