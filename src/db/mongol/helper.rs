@@ -66,12 +66,12 @@ pub fn convert_domain_id_to_mongol(
 }
 
 pub fn convert_domain_ids_to_mongol(
-    ids: &Vec<&str>
+    ids: &[&str]
 )-> Result<Vec<Uuid>, error::Server>
 {
     ids
         .iter()
-        .map(|id| Uuid::parse_str(id).map_err(|_| error::Server::InvalidID(id.to_string())))
+        .map(|id| Uuid::parse_str(id).map_err(|_| error::Server::InvalidID((*id).to_string())))
         .collect()
 }
 
