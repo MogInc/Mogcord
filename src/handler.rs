@@ -1,5 +1,15 @@
+use std::time::Duration;
 use std::{collections::HashMap, sync::Arc};
-use axum::{async_trait, extract::{FromRequestParts, Path}, http::{request::Parts, StatusCode}, middleware, response::{IntoResponse, Response}, routing::{delete, get, patch, post}, RequestPartsExt, Router};
+use axum::error_handling::HandleErrorLayer;
+use axum::{RequestPartsExt, Router};
+use axum::routing::{delete, get, patch, post};
+use axum::response::{IntoResponse, Response};
+use axum::middleware;
+use axum::http::{request::Parts, StatusCode};
+use axum::extract::{FromRequestParts, Path};
+use axum::async_trait;
+use tower::{BoxError, ServiceBuilder};
+use tower::{buffer::BufferLayer, limit::RateLimitLayer};
 
 use crate::{middleware::auth::mw_require_admin_auth, model::AppState};
 use crate::middleware::auth::{mw_ctx_resolver, mw_require_regular_auth};
@@ -49,18 +59,33 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route_layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state.clone());
 
+
     let routes_without_middleware =  Router::new()
         //auth
-        .route("/auth/login", post(auth::login))
+        .route("/auth/login", post(auth::login).layer(
+            ServiceBuilder::new()
+            .layer(HandleErrorLayer::new(handle_too_many_requests))
+            .layer(BufferLayer::new(1024))
+            .layer(RateLimitLayer::new(5, Duration::from_secs(100)))
+        ))
         .route("/auth/refresh", post(auth::refresh_token))
         //user
         .route("/user", post(user::create_user))
         .with_state(state);
 
+
     Router::new()
         .merge(routes_with_admin_middleware)
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
+}
+
+async fn handle_too_many_requests(err: BoxError) -> (StatusCode, String) 
+{
+    (
+        StatusCode::TOO_MANY_REQUESTS,
+        format!("To many requests: {err}")
+    )
 }
 
 #[derive(Debug)]
