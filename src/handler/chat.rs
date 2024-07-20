@@ -65,6 +65,8 @@ async fn create_chat_for_authenticated(
     //also handle chat queu so that opposing users dont get auto dragged in it
     //or make it so only chats with friends can be made
 
+    //TODO stop asking owner_id and use ctx, for private ask opposite owner instead of vec
+
     let ctx_user_id = &ctx.user_id();
 
     let chat = match payload
