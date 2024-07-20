@@ -1,11 +1,12 @@
-use std::sync::Arc;
+pub mod authenticated;
 
+use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
 use crate::model::{error, refresh_token::RefreshToken, user, AppState, Hashing};
-use crate::middleware::{auth::{self, CreateAccesTokenRequest, Ctx, TokenStatus}, cookies::Manager};
+use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cookies::Manager};
 
 #[derive(Deserialize)]
 pub struct LoginRequest
@@ -159,48 +160,6 @@ pub async fn refresh_token(
             
             Ok(())
         },
-        Err(err) => Err(err),
-    }
-}
-
-//can see this as a logout
-pub async fn revoke_token_auth(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-    jar: Cookies,
-) -> impl IntoResponse
-{
-    let repo_refresh = &state.refresh_token;
-
-    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
-    let ctx_user_id = &ctx.user_id_ref();
-
-    match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
-    {
-        Ok(()) => 
-        {
-            jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
-            jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
-
-            Ok(())
-        },
-        Err(err) => Err(err),
-    }
-}
-
-
-pub async fn revoke_all_tokens_auth(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
-{
-    let repo_refresh = &state.refresh_token;
-    
-    let ctx_user_id = &ctx.user_id_ref();
-
-    match repo_refresh.revoke_all_tokens(ctx_user_id).await
-    {
-        Ok(()) => Ok(()),
         Err(err) => Err(err),
     }
 }

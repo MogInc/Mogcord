@@ -1,58 +1,12 @@
+pub mod admin;
+pub mod authenticated;
+
 use std::sync::Arc;
-use axum::{extract::{Path, Query, State}, response::IntoResponse, Json};
+use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{error, AppState, Hashing, Pagination};
-use crate::middleware::auth::Ctx;
-use crate::dto::{vec_to_dto, ObjectToDTO, UserCreateResponse, UserGetResponse};
-use crate::model::user::User;
-
-
-pub async fn get_user_admin(
-    State(state): State<Arc<AppState>>,
-    Path(user_id): Path<String>
-) -> impl IntoResponse
-{   
-    let repo_user = &state.user;
-
-    match repo_user.get_user_by_id(&user_id).await 
-    {
-        Ok(user) => Ok(Json(UserGetResponse::obj_to_dto(user))),
-        Err(e) => Err(e),
-    }
-}
-
-pub async fn get_users_admin(
-    State(state): State<Arc<AppState>>,
-    pagination: Option<Query<Pagination>>,
-) -> impl IntoResponse
-{
-    let repo_user = &state.user;
-
-    let pagination = Pagination::new(pagination);
-
-    match repo_user.get_users(pagination).await 
-    {
-        Ok(users) => Ok(Json(vec_to_dto::<User, UserGetResponse>(users))),
-        Err(e) => Err(e),
-    }
-}
-
-pub async fn get_ctx_user_auth(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
-{
-    let repo_user = &state.user;
- 
-    let ctx_user_id = &ctx.user_id_ref();
-    
-    match repo_user.get_user_by_id(ctx_user_id).await 
-    {
-        Ok(user) => Ok(Json(UserGetResponse::obj_to_dto(user))),
-        Err(e) => Err(e),
-    }
-}
+use crate::model::{error, user::User, AppState, Hashing};
+use crate::dto::{ObjectToDTO, UserCreateResponse};
 
 
 #[derive(Deserialize)]

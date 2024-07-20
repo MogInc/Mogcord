@@ -25,36 +25,36 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_admin_middleware = Router::new()
         //user
-        .route("/admin/user/:user_id", get(user::get_user_admin))
-        .route("/admin/users", get(user::get_users_admin))
+        .route("/admin/user/:user_id", get(user::admin::get_user))
+        .route("/admin/users", get(user::admin::get_users))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(mw_require_admin_auth))
         .route_layer(middleware::from_fn(mw_ctx_resolver));
 
     let routes_with_regular_middleware =  Router::new()
         //auth
-        .route("/auth/revoke", delete(auth::revoke_token_auth))
-        .route("/auth/revoke/all", delete(auth::revoke_all_tokens_auth))
+        .route("/auth/revoke", delete(auth::authenticated::revoke_token))
+        .route("/auth/revoke/all", delete(auth::authenticated::revoke_all_tokens))
         //chat
-        .route("/chat", post(chat::create_chat_auth))
-        .route("/chat/:chat_id", get(chat::get_chat_auth))
-        .route("/chat/:chat_id/users", post(chat::add_users_to_chat_auth))
+        .route("/chat", post(chat::authenticated::create_chat))
+        .route("/chat/:chat_id", get(chat::authenticated::get_chat))
+        .route("/chat/:chat_id/users", post(chat::authenticated::add_users_to_chat))
         //message
-        .route("/chat/:chat_info_id/messages", get(message::get_messages_auth))
-        .route("/chat/:chat_info_id/message", post(message::create_message_auth))
-        .route("/chat/:chat_info_id/message/:message_id", patch(message::update_message_auth))
+        .route("/chat/:chat_info_id/messages", get(message::authenticated::get_messages))
+        .route("/chat/:chat_info_id/message", post(message::authenticated::create_message))
+        .route("/chat/:chat_info_id/message/:message_id", patch(message::authenticated::update_message))
         //relation
-        .route("/friends", post(relation::add_friend_auth))
-        .route("/friends/confirm", post(relation::confirm_friend_auth))
-        .route("/friends", delete(relation::remove_friend_auth))
-        .route("/blocked", post(relation::add_blocked_auth))
-        .route("/blocked", delete(relation::remove_blocked_auth))
+        .route("/friends", post(relation::authenticated::add_friend))
+        .route("/friends/confirm", post(relation::authenticated::confirm_friend))
+        .route("/friends", delete(relation::authenticated::remove_friend))
+        .route("/blocked", post(relation::authenticated::add_blocked))
+        .route("/blocked", delete(relation::authenticated::remove_blocked))
         //server
-        .route("/server", post(server::create_server_auth))
-        .route("/server/:server_id", get(server::get_server_auth))
-        .route("/server/:server_id/join", post(server::join_server_auth))
+        .route("/server", post(server::authenticated::create_server))
+        .route("/server/:server_id", get(server::authenticated::get_server))
+        .route("/server/:server_id/join", post(server::authenticated::join_server))
         //user
-        .route("/user", get(user::get_ctx_user_auth))
+        .route("/user", get(user::authenticated::get_ctx_user_auth))
         .route_layer(middleware::from_fn(mw_require_regular_auth))
         .route_layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state.clone());
