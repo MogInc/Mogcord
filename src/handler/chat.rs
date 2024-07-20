@@ -165,7 +165,7 @@ async fn add_users_to_chat_for_authenticated(
     let repo_relation = &state.relation;
     let repo_user = &state.user;
     
-    let user_id = ctx.user_id_ref();
+    let ctx_user_id = ctx.user_id_ref();
 
     let mut chat = repo_chat
         .get_chat_by_id(&chat_id)
@@ -176,13 +176,21 @@ async fn add_users_to_chat_for_authenticated(
         return Err(error::Server::ChatNotAllowedToGainUsers);
     }
 
-    if !chat.is_owner(user_id)
+    if !chat.is_owner(ctx_user_id)
     {
         return Err(error::Server::UserIsNotOwnerOfChat);
     }
 
-    //todo
-    //filter out non friends
+    let user_ids: Vec<&str> = payload
+        .user_ids
+        .iter()
+        .map(AsRef::as_ref)
+        .collect();
+    
+    if repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
+    {
+        return Err(error::Server::CantAddUsersToChatThatArentFriends);
+    }
 
     let users = repo_user
         .get_users_by_id(payload.user_ids)
