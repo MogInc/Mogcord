@@ -190,5 +190,8 @@ async fn add_users_to_chat_for_authenticated(
 
     chat.add_users(users)?;
 
+    //todo
+    //update chat
+
     Ok(())
 }
