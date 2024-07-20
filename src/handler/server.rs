@@ -68,7 +68,6 @@ async fn create_server_for_authenticated(
     }
 }
 
-
 async fn join_server_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
