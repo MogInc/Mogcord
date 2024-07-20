@@ -2,11 +2,13 @@ mod chat;
 mod chat_info;
 mod message;
 mod user;
+mod server;
 
 pub use chat::*;
 pub use chat_info::*;
 pub use message::*;
 pub use user::*;
+pub use server::*;
 
 pub trait ObjectToDTO<Input>
 {
