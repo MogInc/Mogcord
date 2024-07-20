@@ -15,6 +15,7 @@ pub struct MongolDB
     client: Client,
     users: Collection<MongolUser>,
     chats: Collection<MongolChatWrapper>,
+    servers: Collection<MongolServer>,
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
     refreshtokens: Collection<MongolRefreshToken>,
@@ -48,6 +49,7 @@ impl MongolDB
         
         let users: Collection<MongolUser> = db.collection("users");
         let chats: Collection<MongolChatWrapper> = db.collection("chats");
+        let servers: Collection<MongolServer> = db.collection("server");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
         let messages: Collection<MongolMessage> = db.collection("messages");
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
@@ -58,6 +60,7 @@ impl MongolDB
                 client,
                 users,
                 chats,
+                servers,
                 buckets,
                 messages,
                 refreshtokens,
@@ -85,6 +88,12 @@ impl MongolDB
     pub fn chats(&self) -> &Collection<MongolChatWrapper> 
     {
         &self.chats
+    }
+
+    #[must_use]
+    pub fn servers(&self) -> &Collection<MongolServer> 
+    {
+        &self.servers
     }
     
     #[must_use]
