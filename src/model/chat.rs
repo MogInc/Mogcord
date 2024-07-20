@@ -184,6 +184,13 @@ impl Chat
 
         Ok(chat_type)
     }
+}
+
+impl Chat
+{
+    const PRIVATE_OWNER_MAX: usize = 2;
+    const GROUP_OWNER_MAX: usize = 1;
+    const SERVER_OWNER_MAX: usize = 1;
 
     #[must_use]
     pub fn chat_info(&self, chat_info_id_option: Option<String>) -> Option<Info>
@@ -214,18 +221,17 @@ impl Chat
             Chat::Server(server) => Some(server.chat_infos),
         }
     }
-}
-
-impl Chat
-{
-    const PRIVATE_OWNER_MAX: usize = 2;
-    const GROUP_OWNER_MAX: usize = 1;
-    const SERVER_OWNER_MAX: usize = 1;
 
     #[must_use]
     pub fn private_owner_size() -> usize
     {
         Self::PRIVATE_OWNER_MAX
+    }
+
+    #[must_use]
+    pub fn is_server(&self) -> bool
+    {
+        matches!(self, Chat::Server(_))
     }
 
     pub fn is_chat_meeting_requirements(&self) -> Result<(), error::Server> 
