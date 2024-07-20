@@ -92,7 +92,6 @@ async fn handle_too_many_requests(err: BoxError) -> (StatusCode, String)
 pub enum Version 
 {
     V1,
-    V2,
 }
 
 #[async_trait]
@@ -114,7 +113,6 @@ where
         match version.to_lowercase().as_str() 
         {
             "v1" => Ok(Version::V1),
-            "v2" => Ok(Version::V2),
             _ => Err((StatusCode::NOT_FOUND, "unknown version").into_response()),
         }
     }
