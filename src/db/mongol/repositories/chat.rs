@@ -77,23 +77,6 @@ impl chat::Repository for MongolDB
 
                 pipeline
             },
-            MongolChat::Server { .. } => 
-            {
-                let mut pipeline = vec!
-                [
-                    doc! 
-                    {
-                        "$match":
-                        {
-                            "_id": chat_id_local
-                        }
-                    },
-                ];
-
-                pipeline.extend(internal_server_chat_pipeline());
-
-                pipeline
-            },
         };
             
 
@@ -134,11 +117,7 @@ impl chat::Repository for MongolDB
         //see if it can be done in 1
         let filter = doc!
         {
-            "$or":
-            [
-              {"_id": chat_info_id_local},
-              {"chat.Server.chat_infos._id": chat_info_id_local}
-            ]
+            "_id": chat_info_id_local
         };
 
         let mongol_chat_wrapper = self
@@ -182,24 +161,6 @@ impl chat::Repository for MongolDB
                 ];
 
                 pipeline.extend(internal_group_chat_pipeline());
-
-                pipeline
-            },
-            MongolChat::Server { .. } => 
-            {
-
-                let mut pipeline = vec!
-                [
-                    doc! 
-                    {
-                        "$match":
-                        {
-                            "chat.Server.chat_infos._id": chat_info_id_local
-                        }
-                    },
-                ];
-
-                pipeline.extend(internal_server_chat_pipeline());
 
                 pipeline
             },
@@ -254,10 +215,6 @@ impl chat::Repository for MongolDB
                     "chat.Group.owner_id": owner_id,
                     "chat.Group.user_ids": user_ids,
                 }
-            },
-            MongolChat::Server { .. } => 
-            {
-                return Ok(false);
             },
         };
 
@@ -356,60 +313,6 @@ fn internal_group_chat_pipeline() -> [Document; 6]
         doc!
         {
             "$unset": ["_id", "Group.owner_id", "Group.user_ids", "Group.owner._id",  "Group.chat_info._id"]
-        }
-    ]
-}
-
-fn internal_server_chat_pipeline() -> [Document; 6]
-{
-    [
-        doc!
-        {
-            "$project":
-            {
-                "Server": "$chat.Server"
-            }
-        },
-        doc! 
-        {
-            "$lookup": 
-            {
-                "from": "users",
-                "localField": "Server.owner_id",
-                "foreignField": "_id",
-                "as": "Server.owner"
-            }
-        },
-        doc!
-        {
-            "$unwind":
-            {
-                "path": "$Server.owner"
-            }
-        },
-        doc!
-        {
-            "$lookup":
-            {
-                "from": "users",
-                "localField": "Server.user_ids",
-                "foreignField": "_id",
-                "as": "Server.users"
-            }
-        },
-        doc!
-        {
-            "$addFields":
-            {
-                "Server.id": map_mongo_key_to_string!("$_id", "uuid"),
-                "Server.owner.id": map_mongo_key_to_string!("$Server.owner._id", "uuid"),
-                "Server.users": map_mongo_collection_keys_to_string!("$Server.users", "_id", "id", "uuid"),
-                "Server.chat_infos": map_mongo_collection_keys_to_string!("$Server.chat_infos", "_id", "id", "uuid"),
-            }
-        },
-        doc!
-        {
-            "$unset": ["_id", "Server.owner_id", "Server.user_ids", "Server.owner._id",  "Server.chat_infos._id"]
         }
     ]
 }

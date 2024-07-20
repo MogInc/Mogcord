@@ -63,13 +63,13 @@ impl Message
     }
 
     #[must_use]
-    pub fn is_chat_part_of_message(&self, chat_id: &String) -> bool
+    pub fn is_chat_part_of_message(&self, chat_id: &str) -> bool
     {
         self.chat.id == *chat_id
     }
 
     #[must_use]
-    pub fn is_user_allowed_to_edit_message(&self, user_id: &String) -> bool
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &str) -> bool
     {
         //can add more checks since servers can have users with rights etc.
         //(will never be implemented)

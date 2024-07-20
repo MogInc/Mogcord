@@ -1,10 +1,11 @@
 use dotenv::dotenv;
+use mogcord::middleware::auth::mw_ctx_resolver;
 use tower_cookies::CookieManagerLayer;
 use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{chat, message, AppState, relation, refresh_token, user};
+use mogcord::model::{chat, message, refresh_token, relation, server, user, AppState};
 use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
@@ -24,6 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     
     let user = Arc::clone(&db) as Arc<dyn user::Repository>;
     let chat =  Arc::clone(&db) as Arc<dyn chat::Repository>;
+    let server =  Arc::clone(&db) as Arc<dyn server::Repository>;
     let message = Arc::clone(&db) as Arc<dyn message::Repository>;
     let refresh_token = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
     let relation = Arc::clone(&db) as Arc<dyn relation::Repository>;
@@ -32,6 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         AppState 
         {
             chat,
+            server,
             user,
             message,
             refresh_token,
@@ -42,6 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let api_routes = Router::new()
         .merge(handler::auth::routes(state.clone()))
         .merge(handler::chat::routes(state.clone()))
+        .merge(handler::server::routes(state.clone()))
         .merge(handler::message::routes(state.clone()))
         .merge(handler::relation::routes(state.clone()))
         .merge(handler::user::routes(state));
@@ -50,6 +54,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let app: Router = Router::new()
         .nest("/api", api_routes)
         .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::from_fn(mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 

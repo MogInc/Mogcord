@@ -7,6 +7,7 @@ pub use pagination::*;
 pub use hashing::*;
 
 pub mod chat;
+pub mod server;
 pub mod error;
 pub mod log;
 pub mod message;

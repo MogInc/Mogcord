@@ -24,6 +24,18 @@ impl Ctx
 impl Ctx 
 {
 	#[must_use]
+	pub fn user_id_ref(&self) -> &str 
+    {
+		&self.user_id
+	}
+
+	#[must_use]
+	pub fn user_flag_ref(&self) -> &user::Flag
+    {
+		&self.user_flag
+	}
+
+	#[must_use]
 	pub fn user_id(self) -> String 
     {
 		self.user_id

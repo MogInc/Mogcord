@@ -3,3 +3,4 @@ mod chat;
 mod message;
 mod refresh_token;
 mod relation;
+mod server;

@@ -16,20 +16,25 @@ pub enum Server
     UserNotFound,
     MailAlreadyInUse,
     UsernameAlreadyInUse,
+	UserIsNotOwnerOfChat,
 
 	//chat
 	ChatNotFound,
 	ChatAlreadyExists,
 	ChatRequirementsInvalid,
 	ChatDoesNotContainThisUser,
+	ServerDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
 	ChatInfoNotFound,
 	ChatNotAllowedToBeMade(ExtraInfo),
-
+	ChatNotAllowedToGainUsers,
+	ChatAlreadyHasThisUser,
+	CantAddUsersToChatThatArentFriends,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
 	MessageDoesNotContainThisUser,
+	FailedToAddUserToServer,
 
 	//relation
 	UserIsAlreadyFriend,

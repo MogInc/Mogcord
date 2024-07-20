@@ -192,7 +192,7 @@ async fn revoke_token_for_authorized(
     let repo_refresh = &state.refresh_token;
 
     let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
-    let ctx_user_id = &ctx.user_id();
+    let ctx_user_id = &ctx.user_id_ref();
 
     match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
     {
@@ -215,7 +215,7 @@ async fn revoke_all_tokens_for_authorized(
 {
     let repo_refresh = &state.refresh_token;
     
-    let ctx_user_id = &ctx.user_id();
+    let ctx_user_id = &ctx.user_id_ref();
 
     match repo_refresh.revoke_all_tokens(ctx_user_id).await
     {

@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRelation
 {
-    user_id: Uuid,
-    friend_ids: Vec<Uuid>,
-    pending_incoming_friend_ids: Vec<Uuid>,
-    pending_outgoing_friend_ids: Vec<Uuid>,
-    blocked_ids: Vec<Uuid>,
+    pub user_id: Uuid,
+    pub friend_ids: Vec<Uuid>,
+    pub pending_incoming_friend_ids: Vec<Uuid>,
+    pub pending_outgoing_friend_ids: Vec<Uuid>,
+    pub blocked_ids: Vec<Uuid>,
 }
 
 //todo: add friend count and blocked count when Count gets expensive
