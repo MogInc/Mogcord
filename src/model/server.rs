@@ -1,3 +1,7 @@
+mod repository;
+
+pub use repository::*;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
