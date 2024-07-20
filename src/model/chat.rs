@@ -240,6 +240,29 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
+    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    {
+        if self.is_user_part_of_chat(&user.id)
+        {
+            return Err(error::Server::ChatAlreadyHasThisUser);
+        }
+
+        match self
+        {
+            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Group(group) => 
+            {
+                group.users.push(user);
+                Ok(())
+            },
+            Chat::Server(server) =>
+            {
+                server.users.push(user);
+                Ok(())
+            },
+        }
+    }
+
     #[must_use]
     pub fn is_owner(&self, user_id: &str) -> bool
     {
