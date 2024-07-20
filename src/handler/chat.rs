@@ -8,7 +8,8 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     Router::new()
         .route("/chat", post(create_chat_for_authenticated))
-        .route("/chat/:chat_id", post(add_user_to_chat_for_authenticated))
+        .route("/chat/:chat_id/user", post(add_user_to_chat_for_authenticated))
+        .route("/chat/:chat_id/users", post(add_users_to_chat_for_authenticated))
         .route("/chat/:chat_id", get(get_chat_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
@@ -147,6 +148,7 @@ async fn create_chat_for_authenticated(
     }
 }
 
+
 async fn add_user_to_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
@@ -156,5 +158,15 @@ async fn add_user_to_chat_for_authenticated(
     let repo_relation = &state.relation;
     let repo_user = &state.user;
 
-    //
+}
+
+async fn add_users_to_chat_for_authenticated(
+    State(state): State<Arc<AppState>>,
+    ctx: Ctx,
+) -> impl IntoResponse
+{
+    let repo_chat = &state.chat;
+    let repo_relation = &state.relation;
+    let repo_user = &state.user;
+
 }
