@@ -34,6 +34,7 @@ pub enum Server
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
 	MessageDoesNotContainThisUser,
+	FailedToAddUserToServer,
 
 	//relation
 	UserIsAlreadyFriend,
