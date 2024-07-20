@@ -263,6 +263,32 @@ impl Chat
         }
     }
 
+    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    {
+        for user in &users 
+        {
+            if self.is_user_part_of_chat(&user.id) 
+            {
+                return Err(error::Server::ChatAlreadyHasThisUser);
+            }
+        }
+
+        match self
+        {
+            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Group(group) => 
+            {
+                group.users.extend(users);
+                Ok(())
+            },
+            Chat::Server(server) =>
+            {
+                server.users.extend(users);
+                Ok(())
+            },
+        }
+    }
+
     #[must_use]
     pub fn is_owner(&self, user_id: &str) -> bool
     {

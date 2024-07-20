@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use axum::{extract::{self, Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
+use axum::{extract::{Path, State}, middleware, response::IntoResponse, routing::{get, post}, Json, Router};
 use serde::Deserialize;
 
 use crate::{dto::{ChatCreateResponse, ChatGetResponse, ObjectToDTO}, middleware::auth::{self, Ctx}, model::{chat::Chat, error, AppState}};
@@ -9,7 +9,6 @@ pub fn routes(state: Arc<AppState>) -> Router
     Router::new()
         .route("/chat", post(create_chat_for_authenticated))
         .route("/chat/:chat_id", get(get_chat_for_authenticated))
-        .route("/chat/:chat_id/user", post(add_user_to_chat_for_authenticated))
         .route("/chat/:chat_id/users", post(add_users_to_chat_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
@@ -28,7 +27,7 @@ async fn get_chat_for_authenticated(
         .get_chat_by_id(&chat_id)
         .await?;
 
-    let ctx_user_id = &ctx.user_id();
+    let ctx_user_id = &ctx.user_id_ref();
     
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
@@ -60,7 +59,7 @@ pub enum CreateChatRequest
 async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
-    extract::Json(payload): extract::Json<CreateChatRequest>
+    Json(payload): Json<CreateChatRequest>
 ) -> impl IntoResponse
 {
     let repo_chat = &state.chat;
@@ -148,25 +147,48 @@ async fn create_chat_for_authenticated(
     }
 }
 
+#[derive(Deserialize)]
 
-async fn add_user_to_chat_for_authenticated(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
+struct AddUsersRequest
 {
-    let repo_chat = &state.chat;
-    let repo_relation = &state.relation;
-    let repo_user = &state.user;
-
+    user_ids: Vec<String>,
 }
 
 async fn add_users_to_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
     ctx: Ctx,
+    Path(chat_id): Path<String>,
+    Json(payload): Json<AddUsersRequest>,
 ) -> impl IntoResponse
 {
     let repo_chat = &state.chat;
     let repo_relation = &state.relation;
     let repo_user = &state.user;
+    
+    let user_id = ctx.user_id_ref();
 
+    let mut chat = repo_chat
+        .get_chat_by_id(&chat_id)
+        .await?;
+
+    if !chat.is_group()
+    {   
+        return Err(error::Server::ChatNotAllowedToGainUsers);
+    }
+
+    if !chat.is_owner(user_id)
+    {
+        return Err(error::Server::UserIsNotOwnerOfChat);
+    }
+
+    //todo
+    //filter out non friends
+
+    let users = repo_user
+        .get_users_by_id(payload.user_ids)
+        .await?;
+
+    chat.add_users(users)?;
+
+    Ok(())
 }
