@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{middleware, routing::{delete, get, patch, post}, Router};
 
-use crate::model::AppState;
+use crate::{middleware::auth::mw_require_admin_auth, model::AppState};
 use crate::middleware::auth::{mw_ctx_resolver, mw_require_regular_auth};
 
 pub mod user;
@@ -13,10 +13,13 @@ pub mod relation;
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
-    let routes_without_middleware =  Router::new()
-        .route("/auth/login", post(auth::login_for_everyone))
-        .route("/auth/refresh", post(auth::refresh_token_for_everyone))
-        .with_state(state.clone());
+    let routes_with_admin_middleware = Router::new()
+        //user
+        .route("/admin/user/:user_id", get(user::get_user_for_admin))
+        .route("/admin/users", get(user::get_users_for_admin))
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw_require_admin_auth))
+        .route_layer(middleware::from_fn(mw_ctx_resolver));
 
     let routes_with_regular_middleware =  Router::new()
         //auth
@@ -40,11 +43,22 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/server", post(server::create_server_for_authenticated))
         .route("/server/:server_id", get(server::get_server_for_authenticated))
         .route("/server/:server_id/join", post(server::join_server_for_authenticated))
-        .layer(middleware::from_fn(mw_require_regular_auth))
-        .layer(middleware::from_fn(mw_ctx_resolver))
+        //user
+        .route("/user", get(user::get_ctx_user_for_authenticated))
+        .route_layer(middleware::from_fn(mw_require_regular_auth))
+        .route_layer(middleware::from_fn(mw_ctx_resolver))
+        .with_state(state.clone());
+
+    let routes_without_middleware =  Router::new()
+        //auth
+        .route("/auth/login", post(auth::login_for_everyone))
+        .route("/auth/refresh", post(auth::refresh_token_for_everyone))
+        //user
+        .route("/user", post(user::create_user_for_everyone))
         .with_state(state);
 
     Router::new()
+        .merge(routes_with_admin_middleware)
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
 }
