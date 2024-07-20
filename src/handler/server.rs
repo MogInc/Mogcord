@@ -11,7 +11,7 @@ pub fn routes(state: Arc<AppState>) -> Router
     Router::new()
         .route("/server", post(create_server_for_authenticated))
         .route("/server/:server_id", get(get_server_for_authenticated))
-        .route("/server/:server_id", post(join_server_for_authenticated))
+        .route("/server/:server_id/join", post(join_server_for_authenticated))
         .with_state(state)
         .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
         .route_layer(middleware::from_fn(auth::mw_ctx_resolver))
