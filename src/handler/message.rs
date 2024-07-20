@@ -75,9 +75,7 @@ async fn create_message_for_authenticated(
         .get_user_by_id(ctx_user_id)
         .await?;
 
-    let chat_info = chat
-        .chat_info(Some(chat_info_id))
-        .ok_or(error::Server::ChatInfoNotFound)?;
+    let chat_info = chat.chat_info();
 
     let message = Message::new(payload.value, owner, chat_info);
 

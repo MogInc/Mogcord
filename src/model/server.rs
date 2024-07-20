@@ -28,7 +28,6 @@ impl Server
         }
     }
 
-    #[must_use]
     pub fn new(name: String, owner: User) -> Result<Self, error::Server>
     {
         let chat_info = Info::new(Some(String::from("Welcome")));

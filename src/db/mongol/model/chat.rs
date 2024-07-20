@@ -2,7 +2,7 @@ use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{chat::Chat, error};
-use super::{MongolChatInfoWrapper, MongolChatInfo};
+use super::MongolChatInfo;
 use crate::db::mongol::helper;
 
 //reason for wrapper
@@ -30,13 +30,6 @@ pub enum MongolChat
         owner_id: Uuid,
         user_ids: Vec<Uuid>,
         chat_info: MongolChatInfo,
-    },
-    Server
-    {
-        name: String,
-        owner_id: Uuid,
-        user_ids: Vec<Uuid>,
-        chat_infos: Vec<MongolChatInfo> 
     },
 }
 
@@ -89,34 +82,6 @@ impl TryFrom<&Chat> for MongolChatWrapper
                     owner_id,
                     user_ids,
                     chat_info: MongolChatInfo::try_from(&group.chat_info)?,
-                };
-
-                Ok(
-                    Self 
-                    { 
-                        _id: db_id,
-                        chat
-                    }
-                )
-            },
-            Chat::Server(server) => 
-            {
-                let db_id = helper::convert_domain_id_to_mongol(&server.id)?;
-
-                let owner_id = helper::convert_domain_id_to_mongol(&server.owner.id)?;
-
-                let user_ids = server.users
-                    .iter()
-                    .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
-                    .collect::<Result<_, _>>()?;
-
-
-                let chat = MongolChat::Server
-                { 
-                    name: server.name.to_string(),
-                    owner_id,
-                    user_ids,
-                    chat_infos: MongolChatInfoWrapper::try_from(&server.chat_infos)?.0,
                 };
 
                 Ok(

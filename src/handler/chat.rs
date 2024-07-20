@@ -50,11 +50,6 @@ pub enum CreateChatRequest
         owner_id: String,
         user_ids: Vec<String>,
     },
-    Server
-    {
-        name: String,
-        owner_id: String,
-    },
 }
 async fn create_chat_for_authenticated(
     State(state): State<Arc<AppState>>,
@@ -116,20 +111,6 @@ async fn create_chat_for_authenticated(
                 .await?;
 
             Chat::new_group(name, owner, users)?
-        },
-        CreateChatRequest::Server { name, owner_id} => 
-        {
-            //can move this inside new method
-            if &owner_id != ctx_user_id
-            {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
-            }
-
-            let owner = repo_user
-                .get_user_by_id(&owner_id)
-                .await?;
-
-            Chat::new_server(name, owner)?
         },
     };
 

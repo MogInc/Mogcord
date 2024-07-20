@@ -138,15 +138,14 @@ impl Chat
 {
     const PRIVATE_OWNER_MAX: usize = 2;
     const GROUP_OWNER_MAX: usize = 1;
-    const SERVER_OWNER_MAX: usize = 1;
 
     #[must_use]
-    pub fn chat_info(&self) -> Option<Info>
+    pub fn chat_info(&self) -> Info
     {
         match self
         {
-            Chat::Private(private) => Some(private.chat_info.clone()),
-            Chat::Group(group) => Some(group.chat_info.clone()),
+            Chat::Private(private) => private.chat_info.clone(),
+            Chat::Group(group) => group.chat_info.clone(),
         }
     }
 
