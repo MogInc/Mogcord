@@ -21,6 +21,7 @@ pub mod message;
 pub mod auth;
 pub mod relation;
 
+
 pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_admin_middleware = Router::new()
@@ -66,7 +67,7 @@ pub fn routes(state: Arc<AppState>) -> Router
             ServiceBuilder::new()
             .layer(HandleErrorLayer::new(handle_too_many_requests))
             .layer(BufferLayer::new(1024))
-            .layer(RateLimitLayer::new(5, Duration::from_secs(100)))
+            .layer(RateLimitLayer::new(Limit::Login.attempts(), Limit::Login.duration()))
         ))
         .route("/auth/refresh", post(auth::refresh_token))
         //user
@@ -78,6 +79,32 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_with_admin_middleware)
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
+}
+
+enum Limit
+{
+    Login,
+}
+
+impl Limit
+{
+    const MIN: u64 = 60;
+
+    fn attempts(&self) -> u64
+    {
+        match self
+        {
+            Limit::Login => 5,
+        }
+    }
+
+    fn duration(&self) -> Duration
+    {
+        match self
+        {
+            Limit::Login => Duration::from_secs(5 * Self::MIN),
+        }
+    }
 }
 
 async fn handle_too_many_requests(err: BoxError) -> (StatusCode, String) 
