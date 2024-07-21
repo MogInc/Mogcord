@@ -5,7 +5,7 @@ pub use repository::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::{chat::Info, error, user::User};
+use super::{channel::Channel, error, user::User};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server
@@ -14,13 +14,13 @@ pub struct Server
     pub name: String,
     pub owner: User,
     pub users: Vec<User>,
-    pub chat_infos: Vec<Info>,
+    pub channels: Vec<Channel>,
 }
 
 impl Server
 {
     #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, chat_infos: Vec<Info>) -> Self
+    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channels: Vec<Channel>) -> Self
     {
         Self
         {
@@ -28,13 +28,13 @@ impl Server
             name,
             owner,
             users,
-            chat_infos,
+            channels,
         }
     }
 
     pub fn new(name: String, owner: User) -> Result<Self, error::Server>
     {
-        let chat_info = Info::new(Some(String::from("Welcome")));
+        let channel = Channel::new(Some(String::from("Welcome")));
 
 
         let server = Self
@@ -43,7 +43,7 @@ impl Server
             name,
             owner,
             users: Vec::new(),
-            chat_infos: vec![chat_info],
+            channels: vec![channel],
         };
 
         server.is_server_meeting_requirements()?;
