@@ -1,11 +1,9 @@
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
-
-use crate::db::mongol::{helper, MongolHelper};
 use crate::model::chat::Bucket;
 use crate::model::error;
-
+use super::helper::{self, MongolHelper};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]

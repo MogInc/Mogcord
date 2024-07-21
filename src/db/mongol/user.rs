@@ -1,9 +1,13 @@
+mod repository;
+
+
 use bson::Bson;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::{error, user::{self, User}};
-use crate::db::mongol::{as_string, helper};
+
+use super::helper::{self, as_string};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]

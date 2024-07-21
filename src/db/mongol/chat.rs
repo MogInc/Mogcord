@@ -1,9 +1,14 @@
+mod info;
+mod repository;
+
+pub use info::*;
+
+
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{chat::Chat, error};
-use super::MongolChatInfo;
-use crate::db::mongol::helper;
+use super::helper;
 
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
