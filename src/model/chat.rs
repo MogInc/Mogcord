@@ -1,7 +1,5 @@
-mod info;
 mod repository;
 
-pub use info::*;
 pub use repository::*;
 
 use std::collections::HashSet;
@@ -10,37 +8,37 @@ use strum_macros::Display;
 use uuid::Uuid;
 
 use crate::model::user::User;
-use super::error;
+use super::{channel::Channel, error};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Private
 {
     pub id: String,
     pub owners: Vec<User>,
-    pub chat_info: Info,
+    pub channel: Channel,
 }
 
 impl Private
 {
     #[must_use]
-    pub fn convert(id: String, owners: Vec<User>, chat_info: Info) -> Self
+    pub fn convert(id: String, owners: Vec<User>, channel: Channel) -> Self
     {
         Self
         {
             id,
             owners,
-            chat_info,
+            channel,
         }
     }
 
     #[must_use]
-    pub fn new(owners: Vec<User>, chat_info: Info) -> Self
+    pub fn new(owners: Vec<User>, channel: Channel) -> Self
     {
         Self
         {
             id: Uuid::now_v7().to_string(),
             owners,
-            chat_info,
+            channel,
         }
     }
 }
@@ -52,13 +50,13 @@ pub struct Group
     pub name: String,
     pub owner: User,
     pub users: Vec<User>,
-    pub chat_info: Info,
+    pub channel: Channel,
 }
 
 impl Group
 {
     #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, chat_info: Info) -> Self
+    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channel: Channel) -> Self
     {
         Self
         {
@@ -66,12 +64,12 @@ impl Group
             name,
             owner,
             users,
-            chat_info,
+            channel,
         }
     }
 
     #[must_use]
-    pub fn new(name: String, owner: User, users: Vec<User>, chat_info: Info) -> Self
+    pub fn new(name: String, owner: User, users: Vec<User>, channel: Channel) -> Self
     {
         Self
         {
@@ -79,7 +77,7 @@ impl Group
             name,
             owner,
             users,
-            chat_info,
+            channel,
         }
     }
 }
@@ -104,9 +102,9 @@ impl Chat
             .into_iter()
             .collect();
 
-        let chat_info = Info::new(None);
+        let channel = Channel::new(None);
 
-        let private_chat = Private::convert(chat_info.id.to_string(), owners_sanitized, chat_info);
+        let private_chat = Private::convert(channel.id.to_string(), owners_sanitized, channel);
 
         let chat_type = Chat::Private(private_chat);
 
@@ -122,9 +120,9 @@ impl Chat
             .filter(|user| user.id != owner.id)
             .collect();
 
-        let chat_info = Info::new(None);
+        let channel = Channel::new(None);
 
-        let group_chat = Group::convert(chat_info.id.to_string(), name, owner, users_sanitized, chat_info);
+        let group_chat = Group::convert(channel.id.to_string(), name, owner, users_sanitized, channel);
 
         let chat_type = Chat::Group(group_chat);
 
@@ -140,12 +138,12 @@ impl Chat
     const GROUP_OWNER_MAX: usize = 1;
 
     #[must_use]
-    pub fn chat_info(&self) -> Info
+    pub fn channel(&self) -> Channel
     {
         match self
         {
-            Chat::Private(private) => private.chat_info.clone(),
-            Chat::Group(group) => group.chat_info.clone(),
+            Chat::Private(private) => private.channel.clone(),
+            Chat::Group(group) => group.channel.clone(),
         }
     }
 
