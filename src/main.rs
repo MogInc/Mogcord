@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     );
 
     let app: Router = Router::new()
-        .nest("/api/:version", handler::routes(state))
+        .nest("/api", handler::routes(state))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
