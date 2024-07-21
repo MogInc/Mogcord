@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::{error, server::Server};
 use crate::db::mongol::helper;
-use super::{MongolChatInfoWrapper, MongolChatInfo};
+use super::{MongolChannelWrapper, MongolChannel};
 
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
@@ -19,7 +19,7 @@ pub struct MongolServer
     name: String,
     owner_id: Uuid,
     user_ids: Vec<Uuid>,
-    chat_infos: Vec<MongolChatInfo> 
+    channels: Vec<MongolChannel> 
 }
 
 impl TryFrom<&Server> for MongolServer
@@ -45,7 +45,7 @@ impl TryFrom<&Server> for MongolServer
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                chat_infos:  MongolChatInfoWrapper::try_from(&value.chat_infos)?.0,
+                channels:  MongolChannelWrapper::try_from(&value.channels)?.0,
             }
         )
     }
