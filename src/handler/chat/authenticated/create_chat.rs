@@ -11,12 +11,11 @@ pub enum CreateChatRequest
 {
     Private
     {
-        owner_ids: Vec<String>,
+        user_id: String,
     },
     Group
     {
         name: String,
-        owner_id: String,
         user_ids: Vec<String>,
     },
 }
@@ -40,41 +39,23 @@ pub async fn create_chat(
 
     let chat = match payload
     {
-        CreateChatRequest::Private { owner_ids } => 
+        CreateChatRequest::Private { user_id } => 
         {
-
-            //reason for this check
-            //prevention that an end user just overloads the db with a large fetch req
-            let req_owner_size = Chat::private_owner_size();
-            let actual_owner_size = owner_ids.len();
-
-            if req_owner_size != actual_owner_size
+            if &user_id == ctx_user_id
             {
-                return Err(error::Server::OwnerCountInvalid { expected: req_owner_size, found: actual_owner_size } );
-            }
-
-            //can move this inside new method
-            if !owner_ids.contains(ctx_user_id)
-            {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::CantHaveChatWithSelf));
             }
 
             let owners = repo_user
-                .get_users_by_id(owner_ids)
+                .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
                 .await?;
 
             Chat::new_private(owners)?
         },
-        CreateChatRequest::Group { name, owner_id, user_ids } => 
+        CreateChatRequest::Group { name, user_ids } => 
         {
-            //can move this inside new method
-            if &owner_id != ctx_user_id
-            {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::UserCreatingIsNotOwner))
-            }
-
             let owner = repo_user
-                .get_user_by_id(&owner_id)
+                .get_user_by_id(ctx_user_id)
                 .await?;
 
             let users = repo_user

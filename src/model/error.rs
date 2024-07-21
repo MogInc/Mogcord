@@ -91,6 +91,7 @@ pub enum Server
 pub enum ExtraInfo
 {
 	UserCreatingIsNotOwner,
+	CantHaveChatWithSelf,
 }
 
 impl fmt::Display for Server 
