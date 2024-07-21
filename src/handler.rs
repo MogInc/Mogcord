@@ -25,8 +25,8 @@ pub mod relation;
 pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_admin_middleware = Router::new()
-        //user
-        .route("/admin/user/:user_id", get(user::admin::get_user))
+        //users
+        .route("/admin/users/:user_id", get(user::admin::get_user))
         .route("/admin/users", get(user::admin::get_users))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(mw_require_admin_authentication))
@@ -40,22 +40,22 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/chat", post(chat::authenticated::create_chat))
         .route("/chat/:chat_id", get(chat::authenticated::get_chat))
         .route("/chat/:chat_id/users", post(chat::authenticated::add_users_to_chat))
-        //message
-        .route("/chat/:chat_info_id/messages", get(message::authenticated::get_messages))
-        .route("/chat/:chat_info_id/message", post(message::authenticated::create_message))
-        .route("/chat/:chat_info_id/message/:message_id", patch(message::authenticated::update_message))
-        //relation
+        //messages
+        .route("/chat_infos/:chat_info_id/messages", get(message::authenticated::get_messages))
+        .route("/chat_infos/:chat_info_id/messages", post(message::authenticated::create_message))
+        .route("/chat_infos/:chat_info_id/messages/:message_id", patch(message::authenticated::update_message))
+        //relations
         .route("/friends", post(relation::authenticated::add_friend))
         .route("/friends/confirm", post(relation::authenticated::confirm_friend))
         .route("/friends", delete(relation::authenticated::remove_friend))
         .route("/blocked", post(relation::authenticated::add_blocked))
         .route("/blocked", delete(relation::authenticated::remove_blocked))
-        //server
-        .route("/server", post(server::authenticated::create_server))
-        .route("/server/:server_id", get(server::authenticated::get_server))
-        .route("/server/:server_id/join", post(server::authenticated::join_server))
-        //user
-        .route("/user", get(user::authenticated::get_ctx_user_auth))
+        //servers
+        .route("/servers", post(server::authenticated::create_server))
+        .route("/servers/:server_id", get(server::authenticated::get_server))
+        .route("/servers/:server_id/join", post(server::authenticated::join_server))
+        //users
+        .route("/users/current", get(user::authenticated::get_ctx_user_auth))
         .route_layer(middleware::from_fn(mw_require_authentication))
         .route_layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state.clone());
@@ -70,8 +70,8 @@ pub fn routes(state: Arc<AppState>) -> Router
             .layer(RateLimitLayer::new(Limit::Login.attempts(), Limit::Login.duration()))
         ))
         .route("/auth/refresh", post(auth::refresh_token))
-        //user
-        .route("/user", post(user::create_user))
+        //users
+        .route("/users", post(user::create_user))
         .with_state(state);
 
 
