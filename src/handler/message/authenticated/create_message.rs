@@ -13,7 +13,7 @@ pub struct CreateMessageRequest
 }
 pub async fn create_message(
     State(state, ): State<Arc<AppState>>,
-    Path(chat_info_id): Path<String>,
+    Path(channel_id): Path<String>,
     ctx: Ctx,
     extract::Json(payload): extract::Json<CreateMessageRequest>,
 ) -> impl IntoResponse
@@ -25,7 +25,7 @@ pub async fn create_message(
     let ctx_user_id = &ctx.user_id_ref();
 
     let chat = repo_chat
-        .get_chat_by_chat_info_id(&chat_info_id)
+        .get_chat_by_chat_info_id(&channel_id)
         .await?;
 
     if !chat.is_user_part_of_chat(ctx_user_id)
@@ -37,9 +37,9 @@ pub async fn create_message(
         .get_user_by_id(ctx_user_id)
         .await?;
 
-    let chat_info = chat.chat_info();
+    let channel = chat.channel();
 
-    let message = Message::new(payload.value, owner, chat_info);
+    let message = Message::new(payload.value, owner, channel);
 
     match repo_message.create_message(message).await
     {

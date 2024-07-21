@@ -13,7 +13,7 @@ pub struct UpdateMessageRequest
 }
 pub async fn update_message(
     State(state, ): State<Arc<AppState>>,
-    Path((chat_info_id, message_id)): Path<(String, String)>,
+    Path((channel_id, message_id)): Path<(String, String)>,
     ctx: Ctx,
     extract::Json(payload): extract::Json<UpdateMessageRequest>,
 ) -> impl IntoResponse
@@ -26,7 +26,7 @@ pub async fn update_message(
         .get_message(&message_id)
         .await?;
     
-    if !message.is_chat_part_of_message(&chat_info_id)
+    if !message.is_chat_part_of_message(&channel_id)
     {
         return Err(error::Server::MessageDoesNotContainThisChat);
     }

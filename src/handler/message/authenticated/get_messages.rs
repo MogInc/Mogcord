@@ -8,7 +8,7 @@ use crate::dto::{vec_to_dto, MessageGetResponse};
 
 pub async fn get_messages(
     State(state, ): State<Arc<AppState>>,
-    Path(chat_info_id): Path<String>,
+    Path(channel_id): Path<String>,
     ctx: Ctx,
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
@@ -20,7 +20,7 @@ pub async fn get_messages(
     let current_user_id = &ctx.user_id_ref();
 
     let chat = repo_chat
-        .get_chat_by_chat_info_id(&chat_info_id)
+        .get_chat_by_chat_info_id(&channel_id)
         .await?;
 
     if !chat.is_user_part_of_chat(current_user_id)
@@ -28,7 +28,7 @@ pub async fn get_messages(
         return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
-    match repo_message.get_valid_messages(&chat_info_id, pagination).await
+    match repo_message.get_valid_messages(&channel_id, pagination).await
     {
         Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageGetResponse>(messages))),
         Err(e) => Err(e),
