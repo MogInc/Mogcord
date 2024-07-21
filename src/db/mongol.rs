@@ -1,18 +1,20 @@
 pub mod helper;
 mod bucket;
 mod chat;
+mod server;
+mod channel;
 mod message;
 mod refresh_token;
 mod relation;
-mod server;
 mod user;
 
 pub use bucket::*;
 pub use chat::*;
+pub use server::*;
+pub use channel::*;
 pub use message::*;
 pub use refresh_token::*;
 pub use relation::*;
-pub use server::*;
 pub use user::*;
 
 use std::time::Duration;
