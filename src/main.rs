@@ -42,17 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         }
     );
 
-    let api_routes = Router::new()
-        .merge(handler::auth::routes(state.clone()))
-        .merge(handler::chat::routes(state.clone()))
-        .merge(handler::server::routes(state.clone()))
-        .merge(handler::message::routes(state.clone()))
-        .merge(handler::relation::routes(state.clone()))
-        .merge(handler::user::routes(state));
-
-
     let app: Router = Router::new()
-        .nest("/api", api_routes)
+        .nest("/api/:version", handler::routes(state))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .layer(CookieManagerLayer::new())

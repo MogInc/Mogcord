@@ -1,93 +1,23 @@
+pub mod admin;
+pub mod authenticated;
+
 use std::sync::Arc;
-use axum::{extract::{Path, Query, State}, middleware, response::IntoResponse, routing::{get, post, Router}, Json};
+use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::{dto::{vec_to_dto, ObjectToDTO, UserCreateResponse, UserGetResponse}, middleware::auth::{self, Ctx}, model::{error, AppState, Hashing, Pagination}};
-use crate::model::user::User;
-
-pub fn routes(state: Arc<AppState>) -> Router
-{
-    let routes_with_regular_middleware = Router::new()
-        .route("/user", get(get_ctx_user_for_authenticated))
-        .with_state(state.clone())
-        .route_layer(middleware::from_fn(auth::mw_require_regular_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
-
-    let routes_with_admin_middleware = Router::new()
-        .route("/admin/user/:user_id", get(get_user_for_admin))
-        .route("/admin/users", get(get_users_for_admin))
-        .with_state(state.clone())
-        .route_layer(middleware::from_fn(auth::mw_require_admin_auth))
-        .route_layer(middleware::from_fn(auth::mw_ctx_resolver));
-
-
-    let routes_without_middleware = Router::new()
-        .route("/user", post(create_user_for_everyone))
-        .with_state(state);
-
-    Router::new()
-        .merge(routes_with_regular_middleware)
-        .merge(routes_with_admin_middleware)
-        .merge(routes_without_middleware)
-}
-
-
-async fn get_user_for_admin(
-    State(state): State<Arc<AppState>>,
-    Path(user_id): Path<String>
-) -> impl IntoResponse
-{   
-    let repo_user = &state.user;
-
-    match repo_user.get_user_by_id(&user_id).await 
-    {
-        Ok(user) => Ok(Json(UserGetResponse::obj_to_dto(user))),
-        Err(e) => Err(e),
-    }
-}
-
-async fn get_users_for_admin(
-    State(state): State<Arc<AppState>>,
-    pagination: Option<Query<Pagination>>,
-) -> impl IntoResponse
-{
-    let repo_user = &state.user;
-
-    let pagination = Pagination::new(pagination);
-
-    match repo_user.get_users(pagination).await 
-    {
-        Ok(users) => Ok(Json(vec_to_dto::<User, UserGetResponse>(users))),
-        Err(e) => Err(e),
-    }
-}
-
-async fn get_ctx_user_for_authenticated(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
-{
-    let repo_user = &state.user;
- 
-    let ctx_user_id = &ctx.user_id_ref();
-    
-    match repo_user.get_user_by_id(ctx_user_id).await 
-    {
-        Ok(user) => Ok(Json(UserGetResponse::obj_to_dto(user))),
-        Err(e) => Err(e),
-    }
-}
+use crate::model::{error, user::User, AppState, Hashing};
+use crate::dto::{ObjectToDTO, UserCreateResponse};
 
 
 #[derive(Deserialize)]
-struct CreateUserRequest
+pub struct CreateUserRequest
 {
     username: String,
     mail: String,
     password: String,
 }
 
-async fn create_user_for_everyone(
+pub async fn create_user(
     State(state): State<Arc<AppState>>, 
     Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse
