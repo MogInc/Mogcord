@@ -55,8 +55,10 @@ pub async fn add_users_to_chat(
 
     chat.add_users(users)?;
 
-    //todo
-    //update chat
-
-    Ok(())
+    
+    match repo_chat.update_chat(chat).await
+    {
+        Ok(()) => Ok(()),
+        Err(err) => Err(err),
+    }
 }
