@@ -4,8 +4,9 @@ use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
 use crate::{db::mongol, model::{chat::{self, Chat}, error }};
-use crate::db::mongol::{helper, MongolChat, MongolChatWrapper, MongolDB};
+use crate::db::mongol::{MongolChat, MongolChatWrapper, MongolDB};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
+use super::helper;
 
 #[async_trait]
 impl chat::Repository for MongolDB

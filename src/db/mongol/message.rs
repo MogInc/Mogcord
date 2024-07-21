@@ -1,11 +1,13 @@
+mod repository;
+
+
 use std::time::SystemTime;
 use bson::Bson;
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
 use crate::model::{message::{self, Message}, error};
-use crate::db::mongol::{as_string, helper};
-
+use super::helper::{self, as_string};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
