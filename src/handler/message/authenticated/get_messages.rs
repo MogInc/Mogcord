@@ -20,7 +20,7 @@ pub async fn get_messages(
     let current_user_id = &ctx.user_id_ref();
 
     let chat = repo_chat
-        .get_chat_by_chat_info_id(&channel_id)
+        .get_chat_by_channel_id(&channel_id)
         .await?;
 
     if !chat.is_user_part_of_chat(current_user_id)
