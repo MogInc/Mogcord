@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::model::server::Server;
 
-use super::{vec_to_dto, ChatInfoCreateResponse, ChatInfoGetResponse, ObjectToDTO};
+use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ServerCreateResponse
@@ -14,7 +14,7 @@ pub struct ServerCreateResponse
     owner: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
-    chat_infos: Vec<ChatInfoCreateResponse>,
+    chat_infos: Vec<ChannelCreateResponse>,
 }
 
 impl ObjectToDTO<Server> for ServerCreateResponse
@@ -28,7 +28,7 @@ impl ObjectToDTO<Server> for ServerCreateResponse
             name: Some(model_input.name),
             owner: model_input.owner.id,
             users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
-            chat_infos: vec_to_dto(model_input.chat_infos),
+            chat_infos: vec_to_dto(model_input.channels),
         }
     }
 }
@@ -43,7 +43,7 @@ pub struct ServerGetResponse
     owner: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
-    chat_infos: Vec<ChatInfoGetResponse>,
+    chat_infos: Vec<ChannelGetResponse>,
 }
 
 impl ObjectToDTO<Server> for ServerGetResponse
@@ -57,7 +57,7 @@ impl ObjectToDTO<Server> for ServerGetResponse
             name: Some(model_input.name),
             owner: model_input.owner.id,
             users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
-            chat_infos: vec_to_dto(model_input.chat_infos),
+            chat_infos: vec_to_dto(model_input.channels),
         }
     }
 }
