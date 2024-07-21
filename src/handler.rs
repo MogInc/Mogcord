@@ -41,9 +41,9 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/chat/:chat_id", get(chat::authenticated::get_chat))
         .route("/chat/:chat_id/users", post(chat::authenticated::add_users_to_chat))
         //messages
-        .route("/chat_infos/:chat_info_id/messages", get(message::authenticated::get_messages))
-        .route("/chat_infos/:chat_info_id/messages", post(message::authenticated::create_message))
-        .route("/chat_infos/:chat_info_id/messages/:message_id", patch(message::authenticated::update_message))
+        .route("/channels/:channel_id/messages", get(message::authenticated::get_messages))
+        .route("/channels/:channel_id/messages", post(message::authenticated::create_message))
+        .route("/channels/:channel_id/messages/:message_id", patch(message::authenticated::update_message))
         //relations
         .route("/friends", post(relation::authenticated::add_friend))
         .route("/friends/confirm", post(relation::authenticated::confirm_friend))
