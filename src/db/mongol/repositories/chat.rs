@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{chat::{self, Chat}, error };
+use crate::{db::mongol, model::{chat::{self, Chat}, error }};
 use crate::db::mongol::{helper, MongolChat, MongolChatWrapper, MongolDB};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
@@ -18,6 +18,40 @@ impl chat::Repository for MongolDB
         {
             Ok(_) => Ok(chat),
             Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+        }
+    }
+
+    async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>
+    {
+        let filter: Document;
+        let update = match chat
+        {
+            Chat::Private(_) => 
+            {
+                return Ok(());
+            },
+            Chat::Group(group) => 
+            {
+                let id = mongol::helper::convert_domain_id_to_mongol(&group.id)?;
+                filter = doc! 
+                {
+                    "_id": id
+                };
+
+                let user_ids: Vec<&str> = group.users.iter().map(|user| &*user.id).collect();
+
+                doc!
+                {
+                    "chat.Group.name": group.name,
+                    "chat.Group.user_ids": mongol::helper::convert_domain_ids_to_mongol(&user_ids)?,
+                }
+            },
+        };
+
+        match self.chats().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
         }
     }
 
