@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::chat;
+use super::channel::Channel;
 use super::user::User;
 
 
@@ -21,7 +21,7 @@ pub struct Message
     #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub timestamp: DateTime<Utc>,
     pub owner: User,
-    pub chat: chat::Info,
+    pub channel: Channel,
     pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)
@@ -33,7 +33,7 @@ impl Message {
     pub fn new(
         value: String, 
         owner: User,
-        chat: chat::Info
+        channel: Channel
     ) -> Self
     {
         Self
@@ -42,7 +42,7 @@ impl Message {
             value,
             timestamp: Utc::now(),
             owner,
-            chat,
+            channel,
             bucket_id: None,
             flag: Flag::None
         }
@@ -63,9 +63,9 @@ impl Message
     }
 
     #[must_use]
-    pub fn is_chat_part_of_message(&self, chat_id: &str) -> bool
+    pub fn is_chat_part_of_message(&self, channel_id: &str) -> bool
     {
-        self.chat.id == *chat_id
+        self.channel.id == *channel_id
     }
 
     #[must_use]
