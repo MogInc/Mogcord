@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash)]
 pub struct User
 {
     pub id: String,
@@ -45,6 +45,15 @@ impl User
         }
     }
 }
+
+impl PartialEq for User
+{
+    fn eq(&self, other: &Self) -> bool 
+    {
+        self.id == other.id
+    }
+}
+impl Eq for User {}
 
 #[cfg(test)]
 mod tests 
