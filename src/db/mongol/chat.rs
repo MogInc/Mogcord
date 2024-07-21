@@ -1,14 +1,11 @@
-mod info;
 mod repository;
 
-pub use info::*;
 
-
-use bson::Uuid;
+use bson::{Bson, Uuid};
 use serde::{Deserialize, Serialize};
 
 use crate::model::{chat::Chat, error};
-use super::helper;
+use super::{helper, MongolChannel};
 
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
@@ -27,14 +24,14 @@ pub enum MongolChat
     Private
     {
         owner_ids: Vec<Uuid>,
-        chat_info: MongolChatInfo 
+        channel: MongolChannel
     },
     Group
     {
         name: String,
         owner_id: Uuid,
         user_ids: Vec<Uuid>,
-        chat_info: MongolChatInfo,
+        channel: MongolChannel,
     },
 }
 
@@ -58,7 +55,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 let chat = MongolChat::Private 
                 { 
                     owner_ids,
-                    chat_info: MongolChatInfo::try_from(&private_chat.chat_info)?,
+                    channel: MongolChannel::try_from(&private_chat.channel)?,
                 };
 
                 Ok(
@@ -86,7 +83,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                     name: group.name.to_string(),
                     owner_id,
                     user_ids,
-                    chat_info: MongolChatInfo::try_from(&group.chat_info)?,
+                    channel: MongolChannel::try_from(&group.channel)?,
                 };
 
                 Ok(
@@ -98,5 +95,13 @@ impl TryFrom<&Chat> for MongolChatWrapper
                 )
             },
         }
+    }
+}
+
+impl From<Chat> for Bson 
+{
+    fn from(chat: Chat) -> Bson 
+    {
+        Bson::String(chat.to_string())
     }
 }
