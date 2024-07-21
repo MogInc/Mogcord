@@ -8,6 +8,7 @@ pub use hashing::*;
 
 pub mod chat;
 pub mod server;
+pub mod channel;
 pub mod error;
 pub mod log;
 pub mod message;
