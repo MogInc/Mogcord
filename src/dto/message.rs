@@ -11,7 +11,7 @@ pub struct MessageCreateResponse
     value: String,
     timestamp: String,
     owner_id: String,
-    chat_id: String,
+    channel_id: String,
     bucket_id: String,
     //we actually gonna delete stuff?
     //(:sins:)
@@ -28,7 +28,7 @@ impl ObjectToDTO<Message> for MessageCreateResponse
             value: message.value,
             timestamp: message.timestamp.to_rfc3339(),
             owner_id: message.owner.id,
-            chat_id: message.chat.id,
+            channel_id: message.channel.id,
             bucket_id: message.bucket_id.map_or(String::new(), |bucket| bucket),
             flag: message.flag.to_string(),
         }
@@ -43,7 +43,7 @@ pub struct MessageGetResponse
     value: String,
     timestamp: String,
     owner_id: String,
-    chat_id: String,
+    channel_id: String,
     bucket_id: String,
     //we actually gonna delete stuff?
     //(:sins:)
@@ -60,7 +60,7 @@ impl ObjectToDTO<Message> for MessageGetResponse
             value: message.value,
             timestamp: message.timestamp.to_rfc3339(),
             owner_id: message.owner.id,
-            chat_id: message.chat.id,
+            channel_id: message.channel.id,
             bucket_id: message.bucket_id.map_or(String::new(), |bucket| bucket),
             flag: message.flag.to_string(),
         }
