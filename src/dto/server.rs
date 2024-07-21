@@ -14,7 +14,7 @@ pub struct ServerCreateResponse
     owner: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
-    chat_infos: Vec<ChannelCreateResponse>,
+    channels: Vec<ChannelCreateResponse>,
 }
 
 impl ObjectToDTO<Server> for ServerCreateResponse
@@ -28,7 +28,7 @@ impl ObjectToDTO<Server> for ServerCreateResponse
             name: Some(model_input.name),
             owner: model_input.owner.id,
             users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
-            chat_infos: vec_to_dto(model_input.channels),
+            channels: vec_to_dto(model_input.channels),
         }
     }
 }
