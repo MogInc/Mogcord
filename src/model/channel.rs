@@ -1,3 +1,9 @@
+mod rights;
+mod repository;
+
+pub use rights::*;
+pub use repository::*;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
