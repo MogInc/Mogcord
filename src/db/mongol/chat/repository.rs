@@ -142,7 +142,7 @@ impl chat::Repository for MongolDB
     }
 
 
-    async fn get_chat_by_chat_info_id(&self, chat_info_id: &str) -> Result<Chat, error::Server>
+    async fn get_chat_by_channel_id(&self, chat_info_id: &str) -> Result<Chat, error::Server>
     {
         let chat_info_id_local = helper::convert_domain_id_to_mongol(chat_info_id)?;
 
