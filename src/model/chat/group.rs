@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::model::{channel, error, user::User};
 use super::channel::Channel;
@@ -29,17 +28,28 @@ impl Group
         }
     }
 
-    #[must_use]
-    pub fn new(name: String, owner: User, users: Vec<User>, channel: Channel) -> Self
+    pub fn new(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
     {
-        Self
-        {
-            id: Uuid::now_v7().to_string(),
-            name,
-            owner,
-            users,
-            channel,
-        }
+        let users_sanitized: Vec<User> = users
+            .into_iter()
+            .filter(|user| user.id != owner.id)
+            .collect();
+
+        let channel = Channel::new(None);
+
+        let group = Group::convert(channel.id.to_string(), name, owner, users_sanitized, channel);
+
+        group.internal_is_meeting_requirements()?;
+
+        Ok(group)
+    }
+}
+
+impl Group
+{
+    fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
+    {
+        Ok(())
     }
 }
 
