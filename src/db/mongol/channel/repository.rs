@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::doc;
 
 use crate::model::channel::Channel;
-use crate::model::{channel, error };
+use crate::model::{channel, error};
 use crate::db::mongol::MongolDB;
 use super::helper;
 
