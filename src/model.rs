@@ -16,3 +16,5 @@ pub mod message;
 pub mod refresh_token;
 pub mod relation;
 pub mod user;
+
+const ROLE_NAME_EVERYBODY: &str = "everybody";

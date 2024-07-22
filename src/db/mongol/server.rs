@@ -1,7 +1,7 @@
 mod repository;
 
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
@@ -52,7 +52,7 @@ impl TryFrom<&Server> for MongolServer
             .iter()
             .map(|(key, val)| {
                 let uuid = helper::convert_domain_id_to_mongol(&key.id)?;
-                Ok((uuid, val.clone()))
+                Ok((uuid, val.get_all()))
             })
             .collect::<Result<_, _>>()?;
 

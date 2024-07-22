@@ -5,9 +5,66 @@ use super::Rights;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Role
 {
-    name: String,
-    rank: usize,
+    pub name: String,
+    pub rank: usize,
     rights: Vec<Rights>,
+}
+
+
+impl Role
+{
+    #[must_use]
+    pub fn can_read(&self) -> Option<bool>
+    {
+        self.rights
+            .iter()
+            .find_map(|right| 
+                if let Rights::Read(value) = right
+                {
+                    Some(*value)
+                }
+                else
+                {
+                    None
+                }
+            )?
+    }
+
+    #[must_use]
+    pub fn can_write(&self) -> Option<bool>
+    {
+        self.rights
+            .iter()
+            .find_map(|right| 
+                if let Rights::Write(value) = right
+                {
+                    Some(*value)
+                }
+                else
+                {
+                    None
+                }
+            )?
+    }
+
+    pub fn add_right(&mut self, right: Rights) 
+    {
+        if let Some(pos) = self.rights.iter().position(|r| r == &right) 
+        {
+            self.rights[pos] = right;
+        } 
+        else 
+        {
+            self.rights.push(right);
+        }
+    }
+
+    pub fn remove_right(&mut self, right: &Rights) 
+    {
+        self
+            .rights
+            .retain(|r| r != right);
+    }
 }
 
 impl std::hash::Hash for Role
