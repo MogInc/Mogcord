@@ -28,11 +28,11 @@ impl channel::Repository for MongolDB
         }
     }
 
-    async fn get_channel_parent(&self, channel_id: &str) -> Result<Box<dyn channel::Parent>, error::Server>
-    {
+    // async fn get_channel_parent(&self, channel_id: &str) -> Result<Box<dyn channel::Parent>, error::Server>
+    // {
         
 
-        todo!()
-    }
+    //     todo!()
+    // }
 }
 
