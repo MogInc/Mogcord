@@ -1,86 +1,18 @@
 mod repository;
+mod private;
+mod group;
 
 pub use repository::*;
+pub use private::*;
+pub use group::*;
 
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
-use uuid::Uuid;
 
 use crate::model::user::User;
 use super::{channel::{self, Channel}, error};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Private
-{
-    pub id: String,
-    pub owners: Vec<User>,
-    pub channel: Channel,
-}
-
-impl Private
-{
-    #[must_use]
-    pub fn convert(id: String, owners: Vec<User>, channel: Channel) -> Self
-    {
-        Self
-        {
-            id,
-            owners,
-            channel,
-        }
-    }
-
-    #[must_use]
-    pub fn new(owners: Vec<User>, channel: Channel) -> Self
-    {
-        Self
-        {
-            id: Uuid::now_v7().to_string(),
-            owners,
-            channel,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Group
-{
-    pub id: String,
-    pub name: String,
-    pub owner: User,
-    pub users: Vec<User>,
-    pub channel: Channel,
-}
-
-impl Group
-{
-    #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channel: Channel) -> Self
-    {
-        Self
-        {
-            id,
-            name,
-            owner,
-            users,
-            channel,
-        }
-    }
-
-    #[must_use]
-    pub fn new(name: String, owner: User, users: Vec<User>, channel: Channel) -> Self
-    {
-        Self
-        {
-            id: Uuid::now_v7().to_string(),
-            name,
-            owner,
-            users,
-            channel,
-        }
-    }
-}
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
@@ -251,59 +183,5 @@ impl Chat
             Chat::Private(_) => owner_count == Self::PRIVATE_OWNER_MAX,
             Chat::Group(_) => owner_count == Self::GROUP_OWNER_MAX,
         }
-    }
-}
-
-impl channel::Parent for Chat
-{
-    fn get_channel(&self, _: Option<&str>) -> Result<&Channel, error::Server> 
-    {
-        let channel = match self
-        {
-            Chat::Private(private) => 
-            {
-                &private.channel
-            },
-            Chat::Group(group) => 
-            {
-                &group.channel
-            },
-        };
-
-        Ok(channel)
-    }
-
-    fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
-    {
-        let res = match self
-        {
-            Chat::Private(private) => 
-            {
-                private.owners.iter().any(|user| user.id == user_id)
-            },
-            Chat::Group(group) => 
-            {
-                group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
-            },
-        };
-
-        Ok(res)
-    }
-
-    fn can_write(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
-    {
-        let res = match self
-        {
-            Chat::Private(private) => 
-            {
-                private.owners.iter().any(|user| user.id == user_id)
-            },
-            Chat::Group(group) => 
-            {
-                group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
-            },
-        };
-
-        Ok(res)
     }
 }
