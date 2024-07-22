@@ -256,7 +256,7 @@ impl Chat
 
 impl channel::Parent for Chat
 {
-    fn can_read(&self, user_id: &str) -> bool 
+    fn can_read(&self, user_id: &str, _: Option<&str>) -> bool 
     {
         match self
         {
@@ -271,7 +271,7 @@ impl channel::Parent for Chat
         }
     }
 
-    fn can_write(&self, user_id: &str) -> bool 
+    fn can_write(&self, user_id: &str, _: Option<&str>) -> bool 
     {
         match self
         {
