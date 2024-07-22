@@ -11,6 +11,7 @@ pub struct Group
     pub id: String,
     pub name: String,
     pub owner: User,
+    //key is user id
     pub users: HashMap<String, User>,
     pub channel: Channel,
 }
