@@ -1,6 +1,9 @@
+use std::collections::HashSet;
+
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
+use crate::model::channel::Role;
 use crate::model::{channel::Channel, error};
 use crate::db::mongol::helper;
 
@@ -12,6 +15,7 @@ pub struct MongolChannel
 {
     pub _id : Uuid,
     pub name: Option<String>,
+    pub roles: Option<HashSet<Role>>
 }
 
 impl TryFrom<&Channel> for MongolChannel
@@ -27,6 +31,7 @@ impl TryFrom<&Channel> for MongolChannel
             {
                 _id: chat_id,
                 name: value.name.clone(),
+                roles: value.roles.clone(),
             }
         )
     }
