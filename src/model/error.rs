@@ -30,6 +30,7 @@ pub enum Server
 	ChatNotAllowedToGainUsers,
 	ChatAlreadyHasThisUser,
 	CantAddUsersToChatThatArentFriends,
+	ChannelNotFound,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
