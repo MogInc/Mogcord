@@ -15,22 +15,14 @@ pub async fn get_messages(
 {
     let repo_message = &state.messages;
     let repo_chat = &state.chats;
+    let repo_channel = &state.channels;
 
     let pagination = Pagination::new(pagination);
     let current_user_id = &ctx.user_id_ref();
 
-    let chat = repo_chat
-        .get_chat_by_channel_id(&channel_id)
+    let channel = repo_channel
+        .get_channel(&channel_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(current_user_id)
-    {
-        return Err(error::Server::ChatDoesNotContainThisUser);
-    }
-
-    match repo_message.get_valid_messages(&channel_id, pagination).await
-    {
-        Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageGetResponse>(messages))),
-        Err(e) => Err(e),
-    }
+    todo!()
 }

@@ -21,29 +21,13 @@ pub async fn create_message(
     let repo_message = &state.messages;
     let repo_chat = &state.chats;
     let repo_user = &state.users;
+    let repo_channel = &state.channels;
 
     let ctx_user_id = &ctx.user_id_ref();
 
-    let chat = repo_chat
-        .get_chat_by_channel_id(&channel_id)
+    let channel = repo_channel
+        .get_channel(&channel_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(ctx_user_id)
-    {
-        return Err(error::Server::ChatDoesNotContainThisUser);
-    }
-
-    let owner = repo_user
-        .get_user_by_id(ctx_user_id)
-        .await?;
-
-    let channel = chat.channel();
-
-    let message = Message::new(payload.value, owner, channel);
-
-    match repo_message.create_message(message).await
-    {
-        Ok(message) => Ok(Json(MessageCreateResponse::obj_to_dto(message))),
-        Err(e) => Err(e),
-    }
+    todo!()
 }
