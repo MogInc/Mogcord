@@ -5,11 +5,11 @@ use super::{channel, chat, message, refresh_token, relation, server, user};
 
 pub struct AppState 
 {
-    pub chat: Arc<dyn chat::Repository>,
-    pub server: Arc<dyn server::Repository>,
+    pub chats: Arc<dyn chat::Repository>,
+    pub servers: Arc<dyn server::Repository>,
     pub channels: Arc<dyn channel::Repository>,
-    pub user: Arc<dyn user::Repository>,
-    pub message: Arc<dyn message::Repository>,
-    pub refresh_token: Arc<dyn refresh_token::Repository>,
-    pub relation: Arc<dyn relation::Repository>,
+    pub users: Arc<dyn user::Repository>,
+    pub messages: Arc<dyn message::Repository>,
+    pub refresh_tokens: Arc<dyn refresh_token::Repository>,
+    pub relations: Arc<dyn relation::Repository>,
 }
