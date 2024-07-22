@@ -97,8 +97,8 @@ impl Chat
     {
         match self
         {
-            Chat::Private(private) => private.owners.iter().any(|user| user.id == user_id),
-            Chat::Group(group) => group.owner.id == user_id,
+            Chat::Private(private) => private.is_owner(user_id),
+            Chat::Group(group) => group.is_owner(user_id),
         }
     }
 

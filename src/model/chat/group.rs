@@ -47,6 +47,12 @@ impl Group
 
 impl Group
 {
+    #[must_use]
+    pub fn is_owner(&self, user_id: &str) -> bool
+    {
+        self.owner.id == user_id
+    }
+
     fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         Ok(())
