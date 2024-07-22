@@ -20,9 +20,9 @@ pub async fn get_messages(
     let pagination = Pagination::new(pagination);
     let current_user_id = &ctx.user_id_ref();
 
-    let channel = repo_channel
-        .get_channel(&channel_id)
-        .await?;
+    // let channel = repo_channel
+    //     .get_channel(&channel_id)
+    //     .await?;
 
     todo!()
 }
