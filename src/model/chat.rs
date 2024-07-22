@@ -266,7 +266,7 @@ impl channel::Parent for Chat
             },
             Chat::Group(group) => 
             {
-                &group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
+                group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
         }
     }
@@ -281,7 +281,7 @@ impl channel::Parent for Chat
             },
             Chat::Group(group) => 
             {
-                &group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
+                group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
         }
     }
