@@ -17,7 +17,7 @@ pub struct Channel
 {
     pub id: String,
     pub name: Option<String>,
-    pub roles: Option<HashSet<Role>>
+    pub roles: HashSet<Role>,
 }
 
 impl Channel
@@ -31,12 +31,12 @@ impl Channel
         {
             id: Uuid::now_v7().to_string(),
             name: name_sanitized,
-            roles: None,
+            roles: HashSet::new(),
         }
     }
 
     #[must_use]
-    pub fn convert(id: String, name: Option<String>, roles: Option<HashSet<Role>>) -> Self
+    pub fn convert(id: String, name: Option<String>, roles: HashSet<Role>) -> Self
     {
         Self
         {

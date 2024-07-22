@@ -17,7 +17,7 @@ pub struct MongolChannel
 {
     pub _id : Uuid,
     pub name: Option<String>,
-    pub roles: Option<HashSet<Role>>
+    pub roles: HashSet<Role>
 }
 
 impl TryFrom<&Channel> for MongolChannel
