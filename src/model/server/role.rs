@@ -7,6 +7,7 @@ use super::Rights;
 pub struct Role
 {
     name: String,
+    rank: usize,
     rights: Vec<Rights>,
 }
 
