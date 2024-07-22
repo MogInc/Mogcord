@@ -256,9 +256,9 @@ impl Chat
 
 impl channel::Parent for Chat
 {
-    fn can_read(&self, user_id: &str, _: Option<&str>) -> bool 
+    fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
     {
-        match self
+        let res = match self
         {
             Chat::Private(private) => 
             {
@@ -268,12 +268,14 @@ impl channel::Parent for Chat
             {
                 group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
-        }
+        };
+
+        Ok(res)
     }
 
-    fn can_write(&self, user_id: &str, _: Option<&str>) -> bool 
+    fn can_write(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
     {
-        match self
+        let res = match self
         {
             Chat::Private(private) => 
             {
@@ -283,6 +285,8 @@ impl channel::Parent for Chat
             {
                 group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
-        }
+        };
+
+        Ok(res)
     }
 }
