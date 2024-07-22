@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+use super::Rights;
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub enum Rights
+pub struct Role
 {
-    Read(bool),
-    Write(bool)
+    name: String,
+    rights: Vec<Rights>,
 }
+
