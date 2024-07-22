@@ -57,3 +57,15 @@ impl TryFrom<&Vec<Channel>> for MongolChannelWrapper
         Ok(MongolChannelWrapper(channel_vec))
     }
 }
+
+impl From<&MongolChannel> for Channel
+{
+    fn from(value: &MongolChannel) -> Self 
+    {
+        Channel::convert(
+            value._id.to_string(),
+            value.name.clone(),
+            value.roles.clone(),
+        )
+    }
+}
