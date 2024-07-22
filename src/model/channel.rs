@@ -34,4 +34,15 @@ impl Channel
             roles: None,
         }
     }
+
+    #[must_use]
+    pub fn convert(id: String, name: Option<String>, roles: Option<HashSet<Role>>) -> Self
+    {
+        Self
+        {
+            id,
+            name,
+            roles,
+        }
+    }
 }
