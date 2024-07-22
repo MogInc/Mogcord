@@ -1,5 +1,3 @@
-use crate::model::user::User;
-
 pub trait Parent
 {
     fn can_read(&self, user: &str) -> bool;
