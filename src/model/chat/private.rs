@@ -55,6 +55,11 @@ impl Private
         Self::PRIVATE_OWNER_MAX
     }
 
+    pub fn is_owner(&self, user_id: &str) -> bool
+    {
+        self.owners.iter().any(|user| user.id == user_id)
+    }
+
     fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         if !self.internal_is_owner_size_allowed()
@@ -79,11 +84,11 @@ impl channel::Parent for Private
 
     fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
     {
-        Ok(self.owners.iter().any(|user| user.id == user_id))
+        Ok(self.is_owner(user_id))
     }
 
     fn can_write(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
     {
-        Ok(self.owners.iter().any(|user| user.id == user_id))
+        Ok(self.is_owner(user_id))
     }
 }
