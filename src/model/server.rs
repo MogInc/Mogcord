@@ -1,6 +1,8 @@
 mod role;
 mod repository;
 
+use std::collections::HashMap;
+
 pub use role::*;
 pub use repository::*;
 
@@ -17,13 +19,20 @@ pub struct Server
     pub owner: User,
     pub users: Vec<User>,
     pub channels: Vec<Channel>,
-    pub roles: Vec<Role>,
+    pub roles: HashMap<User, Vec<Role>>,
 }
 
 impl Server
 {
     #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channels: Vec<Channel>, roles: Vec<Role>) -> Self
+    pub fn convert(
+        id: String, 
+        name: String, 
+        owner: User, 
+        users: Vec<User>, 
+        channels: Vec<Channel>, 
+        roles: HashMap<User, Vec<Role>>
+    ) -> Self
     {
         Self
         {
@@ -48,7 +57,7 @@ impl Server
             owner,
             users: Vec::new(),
             channels: vec![channel],
-            roles: Vec::new(),
+            roles: HashMap::new(),
         };
 
         server.is_server_meeting_requirements()?;

@@ -1,9 +1,11 @@
 mod repository;
 
 
+use std::collections::HashMap;
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
+use crate::model::server::Role;
 use crate::model::{error, server::Server};
 use crate::db::mongol::helper;
 use super::{MongolChannelWrapper, MongolChannel};
@@ -19,7 +21,8 @@ pub struct MongolServer
     name: String,
     owner_id: Uuid,
     user_ids: Vec<Uuid>,
-    channels: Vec<MongolChannel> 
+    channels: Vec<MongolChannel>,
+    roles: HashMap<Uuid, Vec<Role>>,
 }
 
 impl TryFrom<&Server> for MongolServer
@@ -38,6 +41,16 @@ impl TryFrom<&Server> for MongolServer
             .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
             .collect::<Result<_, _>>()?;
 
+        
+        let roles = value
+            .roles
+            .iter()
+            .map(|(key, val)| {
+                let uuid = helper::convert_domain_id_to_mongol(&key.id)?;
+                Ok((uuid, val.clone()))
+            })
+            .collect::<Result<_, _>>()?;
+
         Ok(
             Self 
             { 
@@ -45,7 +58,8 @@ impl TryFrom<&Server> for MongolServer
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                channels:  MongolChannelWrapper::try_from(&value.channels)?.0,
+                channels: MongolChannelWrapper::try_from(&value.channels)?.0,
+                roles,
             }
         )
     }
