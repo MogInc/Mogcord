@@ -120,6 +120,15 @@ impl Server
 
 impl channel::Parent for Server
 {   
+    fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
+    {
+        match channel_id_option 
+        {
+            Some(id) => self.channels.get(id).ok_or(error::Server::ChannelNotFound),
+            None => Err(error::Server::ChannelNotFound),
+        }
+    }
+
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
         self.check_permission(user_id, channel_id_option, super::channel::Role::can_read)
@@ -143,11 +152,13 @@ impl Server
     where
         F: Fn(&channel::Role) -> Option<bool>,
     {
-        if self.is_owner(user_id) {
+        if self.is_owner(user_id) 
+        {
             return Ok(true);
         }
     
-        if !self.users.contains_key(user_id) {
+        if !self.users.contains_key(user_id) 
+        {
             return Ok(false);
         }
     

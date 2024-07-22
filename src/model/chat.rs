@@ -256,6 +256,23 @@ impl Chat
 
 impl channel::Parent for Chat
 {
+    fn get_channel(&self, _: Option<&str>) -> Result<&Channel, error::Server> 
+    {
+        let channel = match self
+        {
+            Chat::Private(private) => 
+            {
+                &private.channel
+            },
+            Chat::Group(group) => 
+            {
+                &group.channel
+            },
+        };
+
+        Ok(channel)
+    }
+
     fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
     {
         let res = match self

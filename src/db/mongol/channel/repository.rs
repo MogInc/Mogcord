@@ -27,5 +27,12 @@ impl channel::Repository for MongolDB
             None => Err(error::Server::ChannelNotFound),
         }
     }
+
+    async fn get_channel_parent(&self, channel_id: &str) -> Result<Box<dyn channel::Parent>, error::Server>
+    {
+        
+
+        todo!()
+    }
 }
 
