@@ -1,11 +1,13 @@
 mod rights;
 mod role;
+mod parent;
 mod repository;
 
 use std::collections::HashSet;
 
 pub use rights::*;
 pub use role::*;
+pub use parent::*;
 pub use repository::*;
 
 use serde::{Deserialize, Serialize};
