@@ -9,8 +9,7 @@ pub struct ServerCreateResponse
 {
     id: String,
     r#type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    name: String,
     owner: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
@@ -24,8 +23,8 @@ impl ObjectToDTO<Server> for ServerCreateResponse
         Self
         {
             id: model_input.id,
-            r#type: String::from( "Server"),
-            name: Some(model_input.name),
+            r#type: String::from("Server"),
+            name: model_input.name,
             owner: model_input.owner.id,
             users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
             channels: vec_to_dto(model_input.channels),
@@ -38,8 +37,7 @@ pub struct ServerGetResponse
 {
     id: String,
     r#type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    name: String,
     owner: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
@@ -53,8 +51,8 @@ impl ObjectToDTO<Server> for ServerGetResponse
         Self
         {
             id: model_input.id,
-            r#type: String::from( "Server"),
-            name: Some(model_input.name),
+            r#type: String::from("Server"),
+            name: model_input.name,
             owner: model_input.owner.id,
             users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
             channels: vec_to_dto(model_input.channels),
