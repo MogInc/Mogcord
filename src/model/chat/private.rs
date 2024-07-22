@@ -1,5 +1,5 @@
+use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::model::{channel, error, user::User};
 use super::channel::Channel;
@@ -25,15 +25,42 @@ impl Private
         }
     }
 
-    #[must_use]
-    pub fn new(owners: Vec<User>, channel: Channel) -> Self
+    pub fn new(owners: Vec<User>) -> Result<Self, error::Server> 
     {
-        Self
+        let set: HashSet<User> = owners
+            .into_iter()
+            .collect();
+
+        let owners_sanitized: Vec<User> = set
+            .into_iter()
+            .collect();
+
+        let channel = Channel::new(None);
+
+        let private_chat = Private::convert(channel.id.to_string(), owners_sanitized, channel);
+
+        private_chat.internal_is_meeting_requirements()?;
+
+        Ok(private_chat)
+    }
+}
+
+impl Private
+{
+    const PRIVATE_OWNER_MAX: usize = 2;
+
+    fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
+    {
+        if !self.internal_is_owner_size_allowed()
         {
-            id: Uuid::now_v7().to_string(),
-            owners,
-            channel,
+            return Err(error::Server::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: self.owners.len() });
         }
+
+        Ok(())
+    }
+    fn internal_is_owner_size_allowed(&self) -> bool
+    {
+        self.owners.len() == Self::PRIVATE_OWNER_MAX
     }
 }
 
