@@ -37,8 +37,8 @@ impl TryFrom<&Server> for MongolServer
 
         let user_ids = value
             .users
-            .iter()
-            .map(|(key, _)| helper::convert_domain_id_to_mongol(&key))
+            .keys()
+            .map(|key| helper::convert_domain_id_to_mongol(key))
             .collect::<Result<_, _>>()?;
 
         
@@ -46,7 +46,7 @@ impl TryFrom<&Server> for MongolServer
             .roles
             .iter()
             .map(|(key, val)| {
-                let uuid = helper::convert_domain_id_to_mongol(&key.id)?;
+                let uuid = helper::convert_domain_id_to_mongol(key)?;
                 Ok((uuid, val.clone()))
             })
             .collect::<Result<_, _>>()?;
