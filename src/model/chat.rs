@@ -256,32 +256,32 @@ impl Chat
 
 impl channel::Parent for Chat
 {
-    fn can_read(&self, user: &User) -> bool 
+    fn can_read(&self, user_id: &str) -> bool 
     {
         match self
         {
             Chat::Private(private) => 
             {
-                private.owners.contains(user)
+                private.owners.iter().any(|user| user.id == user_id)
             },
             Chat::Group(group) => 
             {
-                &group.owner == user || group.users.contains(user)
+                &group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
         }
     }
 
-    fn can_write(&self, user: &User) -> bool 
+    fn can_write(&self, user_id: &str) -> bool 
     {
         match self
         {
             Chat::Private(private) => 
             {
-                private.owners.contains(user)
+                private.owners.iter().any(|user| user.id == user_id)
             },
             Chat::Group(group) => 
             {
-                &group.owner == user || group.users.contains(user)
+                &group.owner.id == user_id || group.users.iter().any(|user| user.id == user_id)
             },
         }
     }
