@@ -1,5 +1,4 @@
 use crate::model::error;
-
 use super::Channel;
 
 pub trait Parent
