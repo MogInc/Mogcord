@@ -1,5 +1,7 @@
+mod role;
 mod repository;
 
+pub use role::*;
 pub use repository::*;
 
 use serde::{Deserialize, Serialize};
@@ -15,12 +17,13 @@ pub struct Server
     pub owner: User,
     pub users: Vec<User>,
     pub channels: Vec<Channel>,
+    pub roles: Vec<Role>,
 }
 
 impl Server
 {
     #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channels: Vec<Channel>) -> Self
+    pub fn convert(id: String, name: String, owner: User, users: Vec<User>, channels: Vec<Channel>, roles: Vec<Role>) -> Self
     {
         Self
         {
@@ -29,6 +32,7 @@ impl Server
             owner,
             users,
             channels,
+            roles,
         }
     }
 
@@ -44,6 +48,7 @@ impl Server
             owner,
             users: Vec::new(),
             channels: vec![channel],
+            roles: Vec::new(),
         };
 
         server.is_server_meeting_requirements()?;
