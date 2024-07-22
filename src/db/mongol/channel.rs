@@ -39,25 +39,6 @@ impl TryFrom<&Channel> for MongolChannel
     }
 }
 
-pub struct MongolChannelWrapper(pub Vec<MongolChannel>);
-
-impl TryFrom<&Vec<Channel>> for MongolChannelWrapper
-{
-    type Error = error::Server;
-
-    fn try_from(value: &Vec<Channel>) -> Result<Self, Self::Error>
-    {
-        let mut channel_vec = Vec::new();
-
-        for channel in value
-        {
-            channel_vec.push(MongolChannel::try_from(channel)?);
-        }
-
-        Ok(MongolChannelWrapper(channel_vec))
-    }
-}
-
 impl From<&MongolChannel> for Channel
 {
     fn from(value: &MongolChannel) -> Self 

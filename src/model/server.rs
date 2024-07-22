@@ -20,7 +20,7 @@ pub struct Server
     pub name: String,
     pub owner: User,
     pub users: HashMap<String, User>,
-    pub channels: Vec<Channel>,
+    pub channels: HashMap<String, Channel>,
     pub roles: HashMap<User, Vec<Role>>,
 }
 
@@ -32,7 +32,7 @@ impl Server
         name: String, 
         owner: User, 
         users: HashMap<String, User>, 
-        channels: Vec<Channel>, 
+        channels: HashMap<String, Channel>, 
         roles: HashMap<User, Vec<Role>>
     ) -> Self
     {
@@ -58,7 +58,7 @@ impl Server
             name,
             owner,
             users: HashMap::new(),
-            channels: vec![channel],
+            channels: HashMap::from([(channel.id.clone(), channel)]),
             roles: HashMap::new(),
         };
 

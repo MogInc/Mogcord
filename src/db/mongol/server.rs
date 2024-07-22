@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use crate::model::server::Role;
 use crate::model::{error, server::Server};
 use crate::db::mongol::helper;
-use super::{MongolChannelWrapper, MongolChannel};
 
 //reason for wrapper
 //else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
@@ -21,7 +20,7 @@ pub struct MongolServer
     name: String,
     owner_id: Uuid,
     user_ids: Vec<Uuid>,
-    channels: Vec<MongolChannel>,
+    channel_ids: Vec<Uuid>,
     //key is user id
     roles: HashMap<Uuid, Vec<Role>>,
 }
@@ -42,7 +41,12 @@ impl TryFrom<&Server> for MongolServer
             .map(|key| helper::convert_domain_id_to_mongol(key))
             .collect::<Result<_, _>>()?;
 
-        
+        let channel_ids = value
+            .channels
+            .keys()
+            .map(|key| helper::convert_domain_id_to_mongol(key))
+            .collect::<Result<_, _>>()?;
+
         let roles = value
             .roles
             .iter()
@@ -59,7 +63,7 @@ impl TryFrom<&Server> for MongolServer
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                channels: MongolChannelWrapper::try_from(&value.channels)?.0,
+                channel_ids,
                 roles,
             }
         )

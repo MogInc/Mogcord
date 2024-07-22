@@ -27,7 +27,7 @@ impl ObjectToDTO<Server> for ServerCreateResponse
             name: model_input.name,
             owner: model_input.owner.id,
             users: Some(model_input.users.into_keys().collect()),
-            channels: vec_to_dto(model_input.channels),
+            channels: vec_to_dto(model_input.channels.into_values().collect()),
         }
     }
 }
@@ -55,7 +55,7 @@ impl ObjectToDTO<Server> for ServerGetResponse
             name: model_input.name,
             owner: model_input.owner.id,
             users: Some(model_input.users.into_keys().collect()),
-            channels: vec_to_dto(model_input.channels),
+            channels: vec_to_dto(model_input.channels.into_values().collect()),
         }
     }
 }
