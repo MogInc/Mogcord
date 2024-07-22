@@ -22,6 +22,7 @@ pub struct MongolServer
     owner_id: Uuid,
     user_ids: Vec<Uuid>,
     channels: Vec<MongolChannel>,
+    //key is user id
     roles: HashMap<Uuid, Vec<Role>>,
 }
 
@@ -46,7 +47,7 @@ impl TryFrom<&Server> for MongolServer
             .roles
             .iter()
             .map(|(key, val)| {
-                let uuid = helper::convert_domain_id_to_mongol(key)?;
+                let uuid = helper::convert_domain_id_to_mongol(&key.id)?;
                 Ok((uuid, val.clone()))
             })
             .collect::<Result<_, _>>()?;
