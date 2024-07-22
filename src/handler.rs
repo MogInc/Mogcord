@@ -45,11 +45,11 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/channels/:channel_id/messages", post(message::authenticated::create_message))
         .route("/channels/:channel_id/messages/:message_id", patch(message::authenticated::update_message))
         //relations
-        .route("/friends", post(relation::authenticated::add_friend))
-        .route("/friends/confirm", post(relation::authenticated::confirm_friend))
-        .route("/friends", delete(relation::authenticated::remove_friend))
-        .route("/blocked", post(relation::authenticated::add_blocked))
-        .route("/blocked", delete(relation::authenticated::remove_blocked))
+        .route("/users/friends", post(relation::authenticated::add_friend))
+        .route("/users/friends/confirm", post(relation::authenticated::confirm_friend))
+        .route("/users/friends", delete(relation::authenticated::remove_friend))
+        .route("/users/blocked", post(relation::authenticated::add_blocked))
+        .route("/users/blocked", delete(relation::authenticated::remove_blocked))
         //servers
         .route("/servers", post(server::authenticated::create_server))
         .route("/servers/:server_id", get(server::authenticated::get_server))
