@@ -38,7 +38,7 @@ impl TryFrom<&Server> for MongolServer
         let user_ids = value
             .users
             .iter()
-            .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
+            .map(|(key, _)| helper::convert_domain_id_to_mongol(&key))
             .collect::<Result<_, _>>()?;
 
         

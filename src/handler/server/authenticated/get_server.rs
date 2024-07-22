@@ -13,20 +13,16 @@ pub async fn get_server(
 ) -> impl IntoResponse
 {
     let repo_server = &state.servers;
-    let repo_user = &state.users;
 
     let ctx_user_id = ctx.user_id_ref();
 
-    let user = repo_user
-        .get_user_by_id(ctx_user_id)
-        .await?;
 
     let server = repo_server
         .get_server_by_id(&server_id)
         .await?;
 
 
-    if !server.is_user_part_of_server(&user)
+    if !server.is_user_part_of_server(ctx_user_id)
     {
         return Err(error::Server::ServerDoesNotContainThisUser);
     }

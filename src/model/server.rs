@@ -1,7 +1,7 @@
 mod role;
 mod repository;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub use role::*;
 pub use repository::*;
@@ -17,7 +17,7 @@ pub struct Server
     pub id: String,
     pub name: String,
     pub owner: User,
-    pub users: HashSet<User>,
+    pub users: HashMap<String, User>,
     pub channels: Vec<Channel>,
     pub roles: HashMap<User, Vec<Role>>,
 }
@@ -29,7 +29,7 @@ impl Server
         id: String, 
         name: String, 
         owner: User, 
-        users: HashSet<User>, 
+        users: HashMap<String, User>, 
         channels: Vec<Channel>, 
         roles: HashMap<User, Vec<Role>>
     ) -> Self
@@ -55,7 +55,7 @@ impl Server
             id: Uuid::now_v7().to_string(),
             name,
             owner,
-            users: HashSet::new(),
+            users: HashMap::new(),
             channels: vec![channel],
             roles: HashMap::new(),
         };
@@ -71,9 +71,9 @@ impl Server
 {
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
-        let inserted = self.users.insert(user);
+        let insert_option = self.users.insert(user.id.to_string(), user);
 
-        if !inserted
+        if insert_option.is_none()
         {
             return Err(error::Server::ChatAlreadyHasThisUser);
         }
@@ -86,13 +86,13 @@ impl Server
     {
         for user in &users 
         {
-            if self.is_user_part_of_server(user) 
+            if self.is_user_part_of_server(&user.id) 
             {
                 return Err(error::Server::ChatAlreadyHasThisUser);
             }
         }
 
-        self.users.extend(users);
+        self.users.extend(users.into_iter().map(|user| (user.id.to_string(), user)));
 
         Ok(())
     }
@@ -109,9 +109,8 @@ impl Server
     }
 
     #[must_use]
-    pub fn is_user_part_of_server(&self, other_user: &User) -> bool
+    pub fn is_user_part_of_server(&self, other_user: &str) -> bool
     {
-        &self.owner == other_user || self.users.contains(other_user)
+        self.is_owner(other_user) || self.users.contains_key(other_user)
     }
 }
-
