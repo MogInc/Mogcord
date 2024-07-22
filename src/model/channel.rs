@@ -3,13 +3,13 @@ mod role;
 mod parent;
 mod repository;
 
-use std::collections::HashSet;
 
 pub use rights::*;
 pub use role::*;
 pub use parent::*;
 pub use repository::*;
 
+use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

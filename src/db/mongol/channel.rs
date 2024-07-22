@@ -1,7 +1,7 @@
 mod repository;
 
-use std::collections::HashSet;
 
+use std::collections::HashSet;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
