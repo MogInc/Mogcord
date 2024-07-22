@@ -26,7 +26,7 @@ impl ObjectToDTO<Server> for ServerCreateResponse
             r#type: String::from("Server"),
             name: model_input.name,
             owner: model_input.owner.id,
-            users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
+            users: Some(model_input.users.into_keys().collect()),
             channels: vec_to_dto(model_input.channels),
         }
     }
@@ -54,7 +54,7 @@ impl ObjectToDTO<Server> for ServerGetResponse
             r#type: String::from("Server"),
             name: model_input.name,
             owner: model_input.owner.id,
-            users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
+            users: Some(model_input.users.into_keys().collect()),
             channels: vec_to_dto(model_input.channels),
         }
     }
