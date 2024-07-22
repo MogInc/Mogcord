@@ -13,7 +13,7 @@ pub async fn revoke_token(
     jar: Cookies,
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.refresh_token;
+    let repo_refresh = &state.refresh_tokens;
 
     let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
     let ctx_user_id = &ctx.user_id_ref();

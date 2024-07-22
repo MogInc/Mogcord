@@ -18,7 +18,7 @@ pub async fn update_message(
     extract::Json(payload): extract::Json<UpdateMessageRequest>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.message;
+    let repo_message = &state.messages;
 
     let ctx_user_id = ctx.user_id_ref();
     

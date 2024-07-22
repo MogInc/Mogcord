@@ -25,8 +25,8 @@ pub async fn create_chat(
     Json(payload): Json<CreateChatRequest>
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.chat;
-    let repo_user = &state.user;
+    let repo_chat = &state.chats;
+    let repo_user = &state.users;
 
     //Naive solution
     //when AA gets added, check if chat is allowed to be made

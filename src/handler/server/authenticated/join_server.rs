@@ -10,8 +10,8 @@ pub async fn join_server(
     Path(server_id): Path<String>,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.user;
-    let repo_server = &state.server;
+    let repo_user = &state.users;
+    let repo_server = &state.servers;
 
     //add checks if joining is allowed
     //like when rules get introduced (never)

@@ -11,7 +11,7 @@ pub async fn get_chat(
     Path(chat_id): Path<String>
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.chat;
+    let repo_chat = &state.chats;
 
     let chat = repo_chat
         .get_chat_by_id(&chat_id)

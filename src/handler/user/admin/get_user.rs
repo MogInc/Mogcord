@@ -10,7 +10,7 @@ pub async fn get_user(
     Path(user_id): Path<String>
 ) -> impl IntoResponse
 {   
-    let repo_user = &state.user;
+    let repo_user = &state.users;
 
     match repo_user.get_user_by_id(&user_id).await 
     {

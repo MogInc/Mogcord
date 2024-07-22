@@ -10,7 +10,7 @@ pub async fn revoke_all_tokens(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.refresh_token;
+    let repo_refresh = &state.refresh_tokens;
     
     let ctx_user_id = &ctx.user_id_ref();
 

@@ -13,8 +13,8 @@ pub async fn get_messages(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.message;
-    let repo_chat = &state.chat;
+    let repo_message = &state.messages;
+    let repo_chat = &state.chats;
 
     let pagination = Pagination::new(pagination);
     let current_user_id = &ctx.user_id_ref();

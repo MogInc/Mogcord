@@ -18,8 +18,8 @@ pub async fn create_server(
     Json(payload): Json<CreateServerRequest>
 ) -> impl IntoResponse
 {
-    let repo_server = &state.server;
-    let repo_user = &state.user;
+    let repo_server = &state.servers;
+    let repo_user = &state.users;
 
     let ctx_user_id = &ctx.user_id();
 

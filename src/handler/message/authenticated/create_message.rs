@@ -18,9 +18,9 @@ pub async fn create_message(
     extract::Json(payload): extract::Json<CreateMessageRequest>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.message;
-    let repo_chat = &state.chat;
-    let repo_user = &state.user;
+    let repo_message = &state.messages;
+    let repo_chat = &state.chats;
+    let repo_user = &state.users;
 
     let ctx_user_id = &ctx.user_id_ref();
 

@@ -18,7 +18,7 @@ pub async fn remove_blocked(
     Json(payload): Json<RemoveBlockedRequest>,
 ) -> impl IntoResponse
 {
-    let repo_relation = &state.relation;
+    let repo_relation = &state.relations;
 
     let ctx_user_id = &ctx.user_id_ref();
     let other_user_id = &payload.user_id;

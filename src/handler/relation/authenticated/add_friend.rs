@@ -18,8 +18,8 @@ pub async fn add_friend(
     Json(payload): Json<AddFriendRequest>,
 ) -> impl IntoResponse
 {
-    let repo_relation = &state.relation;
-    let repo_user = &state.user;
+    let repo_relation = &state.relations;
+    let repo_user = &state.users;
 
     let ctx_user_id = &ctx.user_id_ref();
     let other_user_id = &payload.user_id;
