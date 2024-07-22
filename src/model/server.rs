@@ -1,11 +1,13 @@
 mod role;
+mod rights;
 mod repository;
 
-use std::collections::HashMap;
 
 pub use role::*;
+pub use rights::*;
 pub use repository::*;
 
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
