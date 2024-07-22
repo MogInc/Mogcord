@@ -1,3 +1,5 @@
+mod repository;
+
 use std::collections::HashSet;
 
 use mongodb::bson::Uuid;
