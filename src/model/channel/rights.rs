@@ -3,6 +3,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Rights
 {
-    Read(bool),
-    Write(bool)
+    Read(Option<bool>),
+    Write(Option<bool>),
 }
