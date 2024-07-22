@@ -1,7 +1,7 @@
 mod role;
 mod repository;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub use role::*;
 pub use repository::*;
@@ -9,7 +9,7 @@ pub use repository::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::{channel::Channel, error, user::User};
+use super::{channel::{self, Channel}, error, user::User};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server
@@ -17,7 +17,7 @@ pub struct Server
     pub id: String,
     pub name: String,
     pub owner: User,
-    pub users: Vec<User>,
+    pub users: HashSet<User>,
     pub channels: Vec<Channel>,
     pub roles: HashMap<User, Vec<Role>>,
 }
@@ -29,7 +29,7 @@ impl Server
         id: String, 
         name: String, 
         owner: User, 
-        users: Vec<User>, 
+        users: HashSet<User>, 
         channels: Vec<Channel>, 
         roles: HashMap<User, Vec<Role>>
     ) -> Self
@@ -55,7 +55,7 @@ impl Server
             id: Uuid::now_v7().to_string(),
             name,
             owner,
-            users: Vec::new(),
+            users: HashSet::new(),
             channels: vec![channel],
             roles: HashMap::new(),
         };
@@ -71,12 +71,13 @@ impl Server
 {
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
-        if self.is_user_part_of_server(&user.id)
+        let inserted = self.users.insert(user);
+
+        if !inserted
         {
             return Err(error::Server::ChatAlreadyHasThisUser);
         }
 
-        self.users.push(user);
 
         Ok(())
     }
@@ -92,6 +93,7 @@ impl Server
         }
 
         self.users.extend(users);
+
         Ok(())
     }
 
@@ -112,3 +114,4 @@ impl Server
         self.users.iter().any(|user| user.id == other_user_id)
     }
 }
+
