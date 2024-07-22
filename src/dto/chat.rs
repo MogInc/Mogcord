@@ -49,7 +49,7 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
+                    users: Some(group.users.into_iter().map(|(key, _)| key).collect()),
                     channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
                 }
             },
@@ -102,7 +102,7 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
+                    users: Some(group.users.into_iter().map(|(key, _)| key).collect()),
                     channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
                 }
             },
