@@ -39,7 +39,7 @@ impl chat::Repository for MongolDB
                     "_id": id
                 };
 
-                let user_ids: Vec<&str> = group.users.iter().map(|user| &*user.id).collect();
+                let user_ids: Vec<&str> = group.users.iter().map(|(key, _)| &**key).collect();
 
                 doc!
                 {

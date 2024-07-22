@@ -74,7 +74,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
 
                 let user_ids = group.users
                     .iter()
-                    .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
+                    .map(|(key, _)| helper::convert_domain_id_to_mongol(key))
                     .collect::<Result<_, _>>()?;
 
 
