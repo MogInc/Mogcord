@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 
-#[derive(Clone, Debug, Serialize, Deserialize, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User
 {
     pub id: String,
@@ -43,6 +43,14 @@ impl User
             hashed_password,
             flag: Flag::None,
         }
+    }
+}
+
+impl std::hash::Hash for User
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) 
+    {
+        self.id.hash(state);
     }
 }
 
