@@ -86,7 +86,7 @@ impl Server
     {
         for user in &users 
         {
-            if self.is_user_part_of_server(&user.id) 
+            if self.is_user_part_of_server(user) 
             {
                 return Err(error::Server::ChatAlreadyHasThisUser);
             }
@@ -109,9 +109,9 @@ impl Server
     }
 
     #[must_use]
-    pub fn is_user_part_of_server(&self, other_user_id: &str) -> bool
+    pub fn is_user_part_of_server(&self, other_user: &User) -> bool
     {
-        self.users.iter().any(|user| user.id == other_user_id)
+        &self.owner == other_user || self.users.contains(other_user)
     }
 }
 
