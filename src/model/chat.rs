@@ -8,7 +8,7 @@ use strum_macros::Display;
 use uuid::Uuid;
 
 use crate::model::user::User;
-use super::{channel::Channel, error};
+use super::{channel::{self, Channel}, error};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Private
@@ -250,6 +250,39 @@ impl Chat
         {
             Chat::Private(_) => owner_count == Self::PRIVATE_OWNER_MAX,
             Chat::Group(_) => owner_count == Self::GROUP_OWNER_MAX,
+        }
+    }
+}
+
+impl channel::Parent for Chat
+{
+    fn can_read(&self, user: &User) -> bool 
+    {
+        match self
+        {
+            Chat::Private(private) => 
+            {
+                private.owners.contains(user)
+            },
+            Chat::Group(group) => 
+            {
+                &group.owner == user || group.users.contains(user)
+            },
+        }
+    }
+
+    fn can_write(&self, user: &User) -> bool 
+    {
+        match self
+        {
+            Chat::Private(private) => 
+            {
+                private.owners.contains(user)
+            },
+            Chat::Group(group) => 
+            {
+                &group.owner == user || group.users.contains(user)
+            },
         }
     }
 }
