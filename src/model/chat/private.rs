@@ -49,6 +49,12 @@ impl Private
 {
     const PRIVATE_OWNER_MAX: usize = 2;
 
+    #[must_use]
+    pub fn owner_size() -> usize
+    {
+        Self::PRIVATE_OWNER_MAX
+    }
+
     fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         if !self.internal_is_owner_size_allowed()
