@@ -55,40 +55,19 @@ impl Chat
 
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
-        if self.is_user_part_of_chat(&user.id)
-        {
-            return Err(error::Server::ChatAlreadyHasThisUser);
-        }
-
         match self
         {
             Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            Chat::Group(group) => 
-            {
-                group.users.push(user);
-                Ok(())
-            },
+            Chat::Group(group) => group.add_user(user),
         }
     }
 
     pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
     {
-        for user in &users 
-        {
-            if self.is_user_part_of_chat(&user.id) 
-            {
-                return Err(error::Server::ChatAlreadyHasThisUser);
-            }
-        }
-
         match self
         {
             Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            Chat::Group(group) => 
-            {
-                group.users.extend(users);
-                Ok(())
-            },
+            Chat::Group(group) => group.add_users(users),
         }
     }
 
@@ -107,9 +86,8 @@ impl Chat
     {
         match self
         {
-            Chat::Private(private) => private.owners.iter().any(|owner| owner.id == other_user_id),
-            Chat::Group(group) => group.owner.id == other_user_id
-                || group.users.iter().any(|user| user.id == other_user_id),
+            Chat::Private(private) => private.is_owner(other_user_id),
+            Chat::Group(group) => group.is_user_part_of_server(other_user_id),
         }
     }
 }

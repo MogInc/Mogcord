@@ -50,6 +50,34 @@ impl Group
 
 impl Group
 {
+    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    {
+        let insert_option = self.users.insert(user.id.to_string(), user);
+
+        if insert_option.is_none()
+        {
+            return Err(error::Server::ChatAlreadyHasThisUser);
+        }
+
+
+        Ok(())
+    }
+
+    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    {
+        for user in &users 
+        {
+            if self.is_user_part_of_server(&user.id) 
+            {
+                return Err(error::Server::ChatAlreadyHasThisUser);
+            }
+        }
+
+        self.users.extend(users.into_iter().map(|user| (user.id.to_string(), user)));
+
+        Ok(())
+    }
+
     #[must_use]
     pub fn is_owner(&self, user_id: &str) -> bool
     {
