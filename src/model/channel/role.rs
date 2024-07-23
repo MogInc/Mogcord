@@ -23,6 +23,17 @@ impl Role
             rights: Self::default_rights(),
         }
     }
+
+    #[must_use]
+    pub fn new_private(name: String, rank: usize) -> Self
+    {
+        Self
+        {
+            name,
+            rank,
+            rights: Self::default_private_rights(),
+        }
+    }
 }
 
 impl Role
@@ -63,6 +74,15 @@ impl Role
 
     #[must_use]
     pub fn default_rights() -> Vec<Rights>
+    {
+        let mut rights = Vec::with_capacity(Rights::COUNT);
+        Rights::iter().for_each(|right| rights.push(right));
+
+        rights
+    }
+
+    #[must_use]
+    pub fn default_private_rights() -> Vec<Rights>
     {
         let mut rights = Vec::with_capacity(Rights::COUNT);
         Rights::iter().for_each(|right| rights.push(right));
