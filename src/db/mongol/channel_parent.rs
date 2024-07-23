@@ -11,7 +11,7 @@ use bson::Bson;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{channel_parent::ChannelParent, error};
-use super::{helper, MongolChannel};
+use super::helper;
 
 
 #[derive(Debug, Serialize, Deserialize)]
