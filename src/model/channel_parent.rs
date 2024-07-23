@@ -4,6 +4,7 @@ mod group;
 mod rights;
 mod roles;
 pub mod server;
+pub mod chat;
 
 pub use repository::*;
 pub use private::*;
