@@ -10,7 +10,7 @@ pub use server::*;
 use bson::Bson;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel_parent::{chat::Chat, ChannelParent}, error};
+use crate::model::{channel_parent::{chat::Chat, ChannelParent, Server}, error};
 use super::helper;
 
 
@@ -39,6 +39,31 @@ impl TryFrom<&ChannelParent> for MongolChannelParent
         }
     }
 }
+
+impl TryFrom<&Chat> for MongolChannelParent
+{
+    type Error = error::Server;
+    
+    fn try_from(value: &Chat) -> Result<Self, Self::Error> 
+    {
+        match value 
+        {
+            Chat::Private(private) => Ok(Self::Private(MongolPrivate::try_from(private)?)),
+            Chat::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
+        }
+    }
+}
+
+impl TryFrom<&Server> for MongolChannelParent
+{
+    type Error = error::Server;
+    
+    fn try_from(value: &Server) -> Result<Self, Self::Error> 
+    {
+        Ok(Self::Server(MongolServer::try_from(value)?))
+    }
+}
+
 
 impl From<ChannelParent> for Bson 
 {
