@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use strum::EnumIter;
+use strum_macros::EnumCount;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, EnumIter, EnumCount)]
 pub enum Rights
 {
     Read(Option<bool>),
