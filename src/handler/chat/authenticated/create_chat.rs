@@ -2,6 +2,7 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
+use crate::model::channel_parent;
 use crate::model::{channel_parent::ChannelParent, error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{ChannelWrapperCreateResponse, ObjectToDTO};
@@ -28,13 +29,7 @@ pub async fn create_chat(
     let repo_chat = &state.chats;
     let repo_user = &state.users;
 
-    //Naive solution
-    //when AA gets added, check if chat is allowed to be made
-    //also handle chat queu so that opposing users dont get auto dragged in it
-    //or make it so only chats with friends can be made
-
-    //TODO stop asking owner_id and use ctx, for private ask opposite owner instead of vec
-
+    
     let ctx_user_id = &ctx.user_id();
 
     let chat = match payload
@@ -50,7 +45,9 @@ pub async fn create_chat(
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
                 .await?;
 
-            ChannelParent::new_private(owners)?
+            let private = channel_parent::Private::new(owners)?;
+
+            ChannelParent::Private(private)
         },
         CreateChatRequest::Group { name, user_ids } => 
         {
@@ -62,7 +59,9 @@ pub async fn create_chat(
                 .get_users_by_id(user_ids)
                 .await?;
 
-            ChannelParent::new_group(name, owner, users)?
+            let group = channel_parent::Group::new(name, owner, users)?;
+
+            ChannelParent::Group(group)
         },
     };
 
