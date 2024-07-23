@@ -3,9 +3,10 @@ use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
 use crate::model::channel_parent;
-use crate::model::{channel_parent::ChannelParent, error, AppState};
+use crate::model::channel_parent::chat::Chat;
+use crate::model::{error, AppState};
 use crate::middleware::auth::Ctx;
-use crate::dto::{ChannelWrapperCreateResponse, ObjectToDTO};
+use crate::dto::{ChatCreateResponse, ObjectToDTO};
 
 #[derive(Deserialize)]
 pub enum CreateChatRequest
@@ -29,7 +30,7 @@ pub async fn create_chat(
     let repo_chat = &state.chats;
     let repo_user = &state.users;
 
-    
+
     let ctx_user_id = &ctx.user_id();
 
     let chat = match payload
@@ -47,7 +48,7 @@ pub async fn create_chat(
 
             let private = channel_parent::Private::new(owners)?;
 
-            ChannelParent::Private(private)
+            Chat::Private(private)
         },
         CreateChatRequest::Group { name, user_ids } => 
         {
@@ -61,7 +62,7 @@ pub async fn create_chat(
 
             let group = channel_parent::Group::new(name, owner, users)?;
 
-            ChannelParent::Group(group)
+            Chat::Group(group)
         },
     };
 
@@ -74,7 +75,7 @@ pub async fn create_chat(
 
     match repo_chat.create_chat(chat).await 
     {
-        Ok(chat) => Ok(Json(ChannelWrapperCreateResponse::obj_to_dto(chat))),
+        Ok(chat) => Ok(Json(ChatCreateResponse::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }

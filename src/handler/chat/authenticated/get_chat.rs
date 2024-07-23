@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse, Json};
 
-use crate::model::{error, AppState};
+use crate::{dto::ChatGetResponse, model::{error, AppState}};
 use crate::middleware::auth::Ctx;
-use crate::dto::{ChannelWrapperGetResponse, ObjectToDTO};
+use crate::dto::ObjectToDTO;
 
 pub async fn get_chat(
     State(state): State<Arc<AppState>>,
@@ -24,5 +24,5 @@ pub async fn get_chat(
         return Err(error::Server::ChatDoesNotContainThisUser);
     }
 
-    Ok(Json(ChannelWrapperGetResponse::obj_to_dto(chat)))
+    Ok(Json(ChatGetResponse::obj_to_dto(chat)))
 }
