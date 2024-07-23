@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{chat::Chat, error, AppState};
+use crate::model::{chat::ChannelParent, error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{ChatCreateResponse, ObjectToDTO};
 
@@ -50,7 +50,7 @@ pub async fn create_chat(
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
                 .await?;
 
-            Chat::new_private(owners)?
+            ChannelParent::new_private(owners)?
         },
         CreateChatRequest::Group { name, user_ids } => 
         {
@@ -62,7 +62,7 @@ pub async fn create_chat(
                 .get_users_by_id(user_ids)
                 .await?;
 
-            Chat::new_group(name, owner, users)?
+            ChannelParent::new_group(name, owner, users)?
         },
     };
 

@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::mongol, model::{chat::{self, Chat}, error }};
+use crate::{db::mongol, model::{chat::{self, ChannelParent}, error }};
 use crate::db::mongol::{MongolChat, MongolChatWrapper, MongolDB};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 use super::helper;
@@ -11,7 +11,7 @@ use super::helper;
 #[async_trait]
 impl chat::Repository for MongolDB
 {
-    async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
+    async fn create_chat(&self, chat: ChannelParent) -> Result<ChannelParent, error::Server>
     {
         let db_chat = MongolChatWrapper::try_from(&chat)?;
 
@@ -22,16 +22,16 @@ impl chat::Repository for MongolDB
         }
     }
 
-    async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>
+    async fn update_chat(&self, chat: ChannelParent) -> Result<(), error::Server>
     {
         let filter: Document;
         let update = match chat
         {
-            Chat::Private(_) => 
+            ChannelParent::Private(_) => 
             {
                 return Ok(());
             },
-            Chat::Group(group) => 
+            ChannelParent::Group(group) => 
             {
                 let id = mongol::helper::convert_domain_id_to_mongol(&group.id)?;
                 filter = doc! 
@@ -56,7 +56,7 @@ impl chat::Repository for MongolDB
         }
     }
 
-    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>
+    async fn get_chat_by_id(&self, chat_id: &str) -> Result<ChannelParent, error::Server>
     {
         let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
 
@@ -142,7 +142,7 @@ impl chat::Repository for MongolDB
     }
 
 
-    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>
+    async fn does_chat_exist(&self, chat: &ChannelParent) -> Result<bool, error::Server>
     {
         let mongol_chat_wrapper = MongolChatWrapper::try_from(chat)?;
 

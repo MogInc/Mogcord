@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::chat::Chat;
+use crate::model::chat::ChannelParent;
 
 use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
@@ -21,13 +21,13 @@ pub struct ChatCreateResponse
     channel: Option<ChannelCreateResponse>,
 }
 
-impl ObjectToDTO<Chat> for ChatCreateResponse
+impl ObjectToDTO<ChannelParent> for ChatCreateResponse
 {
-    fn obj_to_dto(model_input: Chat) -> Self 
+    fn obj_to_dto(model_input: ChannelParent) -> Self 
     {
         match model_input
         {
-            Chat::Private(private) => 
+            ChannelParent::Private(private) => 
             {
                 Self
                 {
@@ -40,7 +40,7 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                     channel: Some(ChannelCreateResponse::obj_to_dto(private.channel)),
                 }
             },
-            Chat::Group(group) => 
+            ChannelParent::Group(group) => 
             {
                 Self
                 {
@@ -74,13 +74,13 @@ pub struct ChatGetResponse
     channel: Option<ChannelGetResponse>,
 }
 
-impl ObjectToDTO<Chat> for ChatGetResponse
+impl ObjectToDTO<ChannelParent> for ChatGetResponse
 {
-    fn obj_to_dto(model_input: Chat) -> Self 
+    fn obj_to_dto(model_input: ChannelParent) -> Self 
     {
         match model_input
         {
-            Chat::Private(private) => 
+            ChannelParent::Private(private) => 
             {
                 Self
                 {
@@ -93,7 +93,7 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                     channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
                 }
             },
-            Chat::Group(group) => 
+            ChannelParent::Group(group) => 
             {
                 Self
                 {

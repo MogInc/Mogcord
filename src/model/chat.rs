@@ -10,28 +10,28 @@ use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::user::User;
-use super::{channel::{self, Channel}, error};
+use super::{channel::{self, Channel, Parent}, error, server::Server};
 
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
-pub enum Chat
+pub enum ChannelParent
 {
     Private(Private),
     Group(Group),
+    Server(Server),
 }
 
 
-impl Chat
+impl ChannelParent
 {
-    const GROUP_OWNER_MAX: usize = 1;
-
     #[must_use]
-    pub fn channel(&self) -> Channel
+    pub fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
     {
         match self
         {
-            Chat::Private(private) => private.channel.clone(),
-            Chat::Group(group) => group.channel.clone(),
+            ChannelParent::Private(private) => Ok(&private.channel),
+            ChannelParent::Group(group) => Ok(&group.channel),
+            ChannelParent::Server(server) => server.get_channel(channel_id_option),
         }
     }
 
@@ -44,21 +44,22 @@ impl Chat
     #[must_use]
     pub fn is_private(&self) -> bool
     {
-        matches!(self, Chat::Private(_))
+        matches!(self, ChannelParent::Private(_))
     }
 
     #[must_use]
     pub fn is_group(&self) -> bool
     {
-        matches!(self, Chat::Group(_))
+        matches!(self, ChannelParent::Group(_))
     }
 
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            Chat::Group(group) => group.add_user(user),
+            ChannelParent::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            ChannelParent::Group(group) => group.add_user(user),
+            ChannelParent::Server(server) => server.add_user(user),
         }
     }
 
@@ -66,8 +67,9 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            Chat::Group(group) => group.add_users(users),
+            ChannelParent::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            ChannelParent::Group(group) => group.add_users(users),
+            ChannelParent::Server(server) => server.add_users(users),
         }
     }
 
@@ -76,8 +78,9 @@ impl Chat
     {
         match self
         {
-            Chat::Private(private) => private.is_owner(user_id),
-            Chat::Group(group) => group.is_owner(user_id),
+            ChannelParent::Private(private) => private.is_owner(user_id),
+            ChannelParent::Group(group) => group.is_owner(user_id),
+            ChannelParent::Server(server) => server.is_owner(user_id),
         }
     }
 
@@ -86,8 +89,9 @@ impl Chat
     {
         match self
         {
-            Chat::Private(private) => private.is_owner(other_user_id),
-            Chat::Group(group) => group.is_user_part_of_server(other_user_id),
+            ChannelParent::Private(private) => private.is_owner(other_user_id),
+            ChannelParent::Group(group) => group.is_user_part_of_server(other_user_id),
+            ChannelParent::Server(server) => server.is_user_part_of_server(other_user_id),
         }
     }
 }

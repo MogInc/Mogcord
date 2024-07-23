@@ -4,7 +4,7 @@ mod repository;
 use bson::{Bson, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{chat::Chat, error};
+use crate::model::{chat::ChannelParent, error};
 use super::{helper, MongolChannel};
 
 //reason for wrapper
@@ -35,15 +35,15 @@ pub enum MongolChat
     },
 }
 
-impl TryFrom<&Chat> for MongolChatWrapper
+impl TryFrom<&ChannelParent> for MongolChatWrapper
 {
     type Error = error::Server;
     
-    fn try_from(value: &Chat) -> Result<Self, Self::Error> 
+    fn try_from(value: &ChannelParent) -> Result<Self, Self::Error> 
     {
         match value
         {
-            Chat::Private(private_chat)=> 
+            ChannelParent::Private(private_chat)=> 
             {
                 let db_id = helper::convert_domain_id_to_mongol(&private_chat.id)?;
 
@@ -66,7 +66,7 @@ impl TryFrom<&Chat> for MongolChatWrapper
                     }
                 )
             },
-            Chat::Group(group) => 
+            ChannelParent::Group(group) => 
             {
                 let db_id = helper::convert_domain_id_to_mongol(&group.id)?;
 
@@ -98,9 +98,9 @@ impl TryFrom<&Chat> for MongolChatWrapper
     }
 }
 
-impl From<Chat> for Bson 
+impl From<ChannelParent> for Bson 
 {
-    fn from(chat: Chat) -> Bson 
+    fn from(chat: ChannelParent) -> Bson 
     {
         Bson::String(chat.to_string())
     }
