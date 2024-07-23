@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use strum::{EnumCount, IntoEnumIterator};
+use strum::IntoEnumIterator;
 
 use super::Rights;
 
