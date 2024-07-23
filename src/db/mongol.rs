@@ -56,22 +56,28 @@ impl MongolDB
         );
     
         let client = Client::with_options(client_options)?;
-
         let db = client.database("db_mogcord");
         
         let users: Collection<MongolUser> = db.collection("users");
-        let chats: Collection<MongolChat> = db.collection("chats");
-        let servers: Collection<MongolServer> = db.collection("servers");
-        let channels: Collection<MongolChannel> = db.collection("channels");
-        let buckets: Collection<MongolBucket> = db.collection("buckets");
-        let messages: Collection<MongolMessage> = db.collection("messages");
-        let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
-        let relations: Collection<MongolRelation> = db.collection("relations");
-
         Self::internal_add_user_indexes(&users).await?;
+
+        let chats: Collection<MongolChat> = db.collection("chats");
         Self::internal_add_chat_indexes(&chats).await?;
+        
+        let servers: Collection<MongolServer> = db.collection("servers");
+        
+        let channels: Collection<MongolChannel> = db.collection("channels");
+        
+        let buckets: Collection<MongolBucket> = db.collection("buckets");
+        
+        let messages: Collection<MongolMessage> = db.collection("messages");
+        
+        let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         Self::internal_add_refresh_token_indexes(&refreshtokens).await?;
+        
+        let relations: Collection<MongolRelation> = db.collection("relations");
         Self::internal_add_relation_indexes(&relations).await?;
+
 
         Ok(
             Self 
