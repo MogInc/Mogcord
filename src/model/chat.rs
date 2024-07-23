@@ -53,6 +53,12 @@ impl ChannelParent
         matches!(self, ChannelParent::Group(_))
     }
 
+    #[must_use]
+    pub fn is_server(&self) -> bool
+    {
+        matches!(self, ChannelParent::Server(_))
+    }
+
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
         match self
