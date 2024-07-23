@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use strum::{EnumCount, IntoEnumIterator};
 
 use super::Rights;
 
@@ -10,6 +11,19 @@ pub struct Role
     rights: Vec<Rights>,
 }
 
+impl Role
+{
+    #[must_use]
+    pub fn new(name: String, rank: usize) -> Self
+    {
+        Self
+        {
+            name,
+            rank,
+            rights: Vec::new(),
+        }
+    }
+}
 
 impl Role
 {
@@ -47,12 +61,18 @@ impl Role
             )?
     }
 
+    pub fn default_rights(&mut self)
+    {
+        self.rights = Vec::with_capacity(Rights::COUNT);
+        Rights::iter().for_each(|right| self.rights.push(right));
+    }
+
     pub fn add_right(&mut self, right: Rights) 
     {
         if let Some(pos) = self.rights.iter().position(|r| r == &right) 
         {
             self.rights[pos] = right;
-        } 
+        }
         else 
         {
             self.rights.push(right);
