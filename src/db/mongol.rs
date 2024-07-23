@@ -24,7 +24,7 @@ pub struct MongolDB
 {
     client: Client,
     users: Collection<MongolUser>,
-    chats: Collection<MongolChatWrapper>,
+    channel_parents: Collection<MongolChannelParent>,
     channels: Collection<MongolChannel>,
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
@@ -58,7 +58,7 @@ impl MongolDB
         let db = client.database("db_mogcord");
         
         let users: Collection<MongolUser> = db.collection("users");
-        let chats: Collection<MongolChatWrapper> = db.collection("chats");
+        let channel_parents: Collection<MongolChannelParent> = db.collection("channel_parents");
         let channels: Collection<MongolChannel> = db.collection("channels");
         let buckets: Collection<MongolBucket> = db.collection("buckets");
         let messages: Collection<MongolMessage> = db.collection("messages");
@@ -70,7 +70,7 @@ impl MongolDB
             { 
                 client,
                 users,
-                chats,
+                channel_parents,
                 channels,
                 buckets,
                 messages,
@@ -96,9 +96,9 @@ impl MongolDB
     }
     
     #[must_use]
-    pub fn chats(&self) -> &Collection<MongolChatWrapper> 
+    pub fn channel_parents(&self) -> &Collection<MongolChannelParent> 
     {
-        &self.chats
+        &self.channel_parents
     }
 
     #[must_use]
