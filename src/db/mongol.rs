@@ -98,53 +98,53 @@ impl MongolDB
 
     async fn internal_add_refresh_token_indexes(coll: &Collection<MongolRefreshToken>) -> Result<(), Error>
     {
-        let device_id_compound_expiration = IndexModel::builder()
+        let device_expiration_compound = IndexModel::builder()
             .keys(doc!{ "device_id": 1, "expiration_date": -1 })
             .build();
 
-        let owner_id_compound_device = IndexModel::builder()
+        let owner_device_compound = IndexModel::builder()
             .keys(doc!{ "owner_id": 1, "device_id": 1 })
             .build();
 
-        coll.create_index(device_id_compound_expiration).await?;
-        coll.create_index(owner_id_compound_device).await?;
+        coll.create_index(device_expiration_compound).await?;
+        coll.create_index(owner_device_compound).await?;
 
         Ok(())
     }
 
     async fn internal_add_message_indexes(coll: &Collection<MongolMessage>) -> Result<(), Error>
     {
-        let channel_compound_timestamp_compound_flag = IndexModel::builder()
+        let channel_timestamp_flag_compound = IndexModel::builder()
             .keys(doc!{ "channel_id": 1, "timestamp": -1, "flag": 1 })
             .build();
 
-        coll.create_index(channel_compound_timestamp_compound_flag).await?;
+        coll.create_index(channel_timestamp_flag_compound).await?;
 
         Ok(())
     }
 
     async fn internal_add_relation_indexes(coll: &Collection<MongolRelation>) -> Result<(), Error>
     {
-        let user_id_compound_friends = IndexModel::builder()
+        let user_friends_compound = IndexModel::builder()
             .keys(doc!{ "user_id": 1, "friend_ids": 1 })
             .build();
 
-        let user_id_compound_incoming = IndexModel::builder()
+        let user_incoming_compound = IndexModel::builder()
             .keys(doc!{ "user_id": 1, "pending_incoming_friend_ids": 1 })
             .build();
 
-        let user_id_compound_outgoing = IndexModel::builder()
+        let user_outgoing_compound = IndexModel::builder()
             .keys(doc!{ "user_id": 1, "pending_outgoing_friend_ids": 1 })
             .build();
 
-        let user_id_compound_blocked = IndexModel::builder()
+        let user_blocked_compound = IndexModel::builder()
             .keys(doc!{ "user_id": 1, "blocked_ids": 1 })
             .build();
 
-        coll.create_index(user_id_compound_friends).await?;
-        coll.create_index(user_id_compound_incoming).await?;
-        coll.create_index(user_id_compound_outgoing).await?;
-        coll.create_index(user_id_compound_blocked).await?;
+        coll.create_index(user_friends_compound).await?;
+        coll.create_index(user_incoming_compound).await?;
+        coll.create_index(user_outgoing_compound).await?;
+        coll.create_index(user_blocked_compound).await?;
 
         Ok(())
     }
@@ -156,18 +156,18 @@ impl MongolDB
             .sparse(true)
             .build();
 
-        let private_chat_index = IndexModel::builder()
+        let private_id_index = IndexModel::builder()
             .keys(doc!{ "Private._id": 1 })
             .options(opts_sparse.clone())
             .build();
 
-        let group_chat_index = IndexModel::builder()
+        let group_id_index = IndexModel::builder()
             .keys(doc!{ "Group._id": 1 })
             .options(opts_sparse)
             .build();
 
-        coll.create_index(private_chat_index).await?;
-        coll.create_index(group_chat_index).await?;
+        coll.create_index(private_id_index).await?;
+        coll.create_index(group_id_index).await?;
 
         Ok(())
     }
