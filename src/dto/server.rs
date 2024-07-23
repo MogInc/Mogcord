@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::channel_parent::{ChannelParent, Server};
+use crate::model::channel_parent::Server;
 
 use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
