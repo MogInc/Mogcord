@@ -71,6 +71,7 @@ impl MongolDB
         Self::internal_add_user_indexes(&users).await?;
         Self::internal_add_chat_indexes(&chats).await?;
         Self::internal_add_refresh_token_indexes(&refreshtokens).await?;
+        Self::internal_add_relation_indexes(&relations).await?;
 
         Ok(
             Self 
@@ -90,16 +91,42 @@ impl MongolDB
 
     async fn internal_add_refresh_token_indexes(coll: &Collection<MongolRefreshToken>) -> Result<(), Error>
     {
-        let device_id_compound = IndexModel::builder()
+        let device_id_compound_expiration = IndexModel::builder()
             .keys(doc!{ "device_id": 1, "expiration_date": -1 })
             .build();
 
-        let owner_id_compound = IndexModel::builder()
+        let owner_id_compound_device = IndexModel::builder()
             .keys(doc!{ "owner_id": 1, "device_id": 1 })
             .build();
 
-        coll.create_index(device_id_compound).await?;
-        coll.create_index(owner_id_compound).await?;
+        coll.create_index(device_id_compound_expiration).await?;
+        coll.create_index(owner_id_compound_device).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_relation_indexes(coll: &Collection<MongolRelation>) -> Result<(), Error>
+    {
+        let user_id_compound_friends = IndexModel::builder()
+            .keys(doc!{ "user_id": 1, "friend_ids": 1 })
+            .build();
+
+        let user_id_compound_incoming = IndexModel::builder()
+            .keys(doc!{ "user_id": 1, "pending_incoming_friend_ids": 1 })
+            .build();
+
+        let user_id_compound_outgoing = IndexModel::builder()
+            .keys(doc!{ "user_id": 1, "pending_outgoing_friend_ids": 1 })
+            .build();
+
+        let user_id_compound_blocked = IndexModel::builder()
+            .keys(doc!{ "user_id": 1, "blocked_ids": 1 })
+            .build();
+
+        coll.create_index(user_id_compound_friends).await?;
+        coll.create_index(user_id_compound_incoming).await?;
+        coll.create_index(user_id_compound_outgoing).await?;
+        coll.create_index(user_id_compound_blocked).await?;
 
         Ok(())
     }
