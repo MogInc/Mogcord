@@ -81,10 +81,13 @@ impl Role
     #[must_use]
     pub fn default_private_rights() -> Vec<Rights>
     {
-        let mut rights = Vec::with_capacity(Rights::COUNT);
-        Rights::iter().for_each(|right| rights.push(right));
-
-        rights
+        Rights::iter().map(|right| {
+            match right
+            {
+                Rights::Read(_) => Rights::Read(Some(false)),
+                Rights::Write(_) => Rights::Write(Some(false)),
+            }
+        }).collect()
     }
 
     pub fn add_right(&mut self, right: Rights) 
