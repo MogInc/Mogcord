@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::db::MongolChannel;
+use crate::{db::{helper, MongolChannel}, model::{channel_parent::Private, error}};
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -12,4 +12,28 @@ pub struct MongolPrivate
     pub _id: Uuid,
     pub owner_ids: Vec<Uuid>,
     pub channel: MongolChannel
+}
+
+impl TryFrom<&Private> for MongolPrivate
+{
+    type Error = error::Server;
+
+    fn try_from(value: &Private) -> Result<Self, Self::Error> 
+    {
+        let db_id = helper::convert_domain_id_to_mongol(&value.id)?;
+
+        let owner_ids = value.owners
+            .iter()
+            .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
+            .collect::<Result<_, _>>()?;
+
+        let private = Self 
+        { 
+            _id: db_id,
+            owner_ids,
+            channel: MongolChannel::try_from(&value.channel)?
+        };
+
+        Ok(private)
+    }
 }
