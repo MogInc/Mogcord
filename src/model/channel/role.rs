@@ -20,7 +20,7 @@ impl Role
         {
             name,
             rank,
-            rights: Vec::new(),
+            rights: Self::default_rights(),
         }
     }
 }
@@ -61,10 +61,13 @@ impl Role
             )?
     }
 
-    pub fn default_rights(&mut self)
+    #[must_use]
+    pub fn default_rights() -> Vec<Rights>
     {
-        self.rights = Vec::with_capacity(Rights::COUNT);
-        Rights::iter().for_each(|right| self.rights.push(right));
+        let mut rights = Vec::with_capacity(Rights::COUNT);
+        Rights::iter().for_each(|right| rights.push(right));
+
+        rights
     }
 
     pub fn add_right(&mut self, right: Rights) 

@@ -27,8 +27,7 @@ impl Channel
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
-        let mut role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
-        role.default_rights();
+        let role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
 
         Self
         {
