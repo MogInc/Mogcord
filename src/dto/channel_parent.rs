@@ -52,7 +52,7 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users().iter().map(|user| user.id).collect()),
+                    users: Some(group.users.into_keys().collect()),
                     channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
                     channels: None,
                 }
@@ -66,9 +66,9 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
                     name: Some(server.name),
                     owner: Some(server.owner.id),
                     owners: None,
-                    users: Some(server.users().iter().map(|user| user.id).collect()),
+                    users: Some(server.users.into_keys().collect()),
                     channel: None,
-                    channels: Some(vec_to_dto(server.channels())),
+                    channels: Some(vec_to_dto(server.channels.into_values().collect())),
                 }
             },
         }
@@ -123,7 +123,7 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperGetResponse
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users().iter().map(|user| user.id).collect()),
+                    users: Some(group.users.into_keys().collect()),
                     channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
                     channels: None,
                 }
@@ -137,9 +137,9 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperGetResponse
                     name: Some(server.name),
                     owner: Some(server.owner.id),
                     owners: None,
-                    users: Some(server.users().iter().map(|user| user.id).collect()),
+                    users: Some(server.users.into_keys().collect()),
                     channel: None,
-                    channels: Some(vec_to_dto(server.channels())),
+                    channels: Some(vec_to_dto(server.channels.into_values().collect())),
                 }
             },
         }

@@ -50,11 +50,6 @@ impl Group
 
 impl Group
 {
-    pub fn users(&self) -> &Vec<User>
-    {
-        self.users.into_values().collect()
-    }
-
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
         let insert_option = self.users.insert(user.id.to_string(), user);

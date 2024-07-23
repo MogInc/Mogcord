@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::user::User;
-use super::{channel::Channel, error};
+use super::{channel::{Channel, Parent}, error};
 
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
