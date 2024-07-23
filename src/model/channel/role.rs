@@ -75,10 +75,7 @@ impl Role
     #[must_use]
     pub fn default_rights() -> Vec<Rights>
     {
-        let mut rights = Vec::with_capacity(Rights::COUNT);
-        Rights::iter().for_each(|right| rights.push(right));
-
-        rights
+        Rights::iter().collect()
     }
 
     #[must_use]
