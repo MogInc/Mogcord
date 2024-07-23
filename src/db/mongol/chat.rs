@@ -4,7 +4,7 @@ mod repository;
 use bson::{Bson, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{chat::ChannelParent, error};
+use crate::model::{channel_parent::ChannelParent, error};
 use super::{helper, MongolChannel};
 
 //reason for wrapper

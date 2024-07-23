@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{chat::ChannelParent, error, AppState};
+use crate::model::{channel_parent::ChannelParent, error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{ChatCreateResponse, ObjectToDTO};
 

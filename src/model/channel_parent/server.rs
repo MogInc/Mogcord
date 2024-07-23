@@ -1,17 +1,10 @@
-mod roles;
-mod rights;
-mod repository;
-
-
-pub use roles::*;
-pub use rights::*;
-pub use repository::*;
-
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::{channel::{self, Channel}, error, user::User};
+use crate::model::{channel::{self, Channel}, error, user::User, ROLE_NAME_EVERYBODY};
+use super::Roles;
+
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server
@@ -131,12 +124,12 @@ impl channel::Parent for Server
 
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.check_permission(user_id, channel_id_option, super::channel::Role::can_read)
+        self.check_permission(user_id, channel_id_option, channel::Role::can_read)
     }
     
     fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.check_permission(user_id, channel_id_option, super::channel::Role::can_write)
+        self.check_permission(user_id, channel_id_option, channel::Role::can_write)
     }
 }
 
@@ -183,7 +176,7 @@ impl Server
     
         for role in channel_roles 
         {
-            if role.name == super::ROLE_NAME_EVERYBODY 
+            if role.name == ROLE_NAME_EVERYBODY 
             {
                 return Ok(check_role(role).unwrap_or(true));
             }

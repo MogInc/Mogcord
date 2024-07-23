@@ -2,8 +2,7 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel, error, user::User};
-use super::channel::Channel;
+use crate::model::{channel::{self, Channel}, error, user::User};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group

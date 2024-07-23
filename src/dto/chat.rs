@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::chat::ChannelParent;
+use crate::model::channel_parent::ChannelParent;
 
 use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 

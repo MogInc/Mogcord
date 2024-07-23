@@ -1,16 +1,22 @@
 mod repository;
 mod private;
 mod group;
+mod server;
+mod rights;
+mod roles;
 
 pub use repository::*;
 pub use private::*;
 pub use group::*;
+pub use server::*;
+pub use rights::*;
+pub use roles::*;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::user::User;
-use super::{channel::{self, Channel, Parent}, error, server::Server};
+use super::{channel::Channel, error};
 
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
