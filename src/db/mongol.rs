@@ -71,7 +71,8 @@ impl MongolDB
         let buckets: Collection<MongolBucket> = db.collection("buckets");
         
         let messages: Collection<MongolMessage> = db.collection("messages");
-        
+        Self::internal_add_message_indexes(&messages).await?;
+
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         Self::internal_add_refresh_token_indexes(&refreshtokens).await?;
         
@@ -107,6 +108,17 @@ impl MongolDB
 
         coll.create_index(device_id_compound_expiration).await?;
         coll.create_index(owner_id_compound_device).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_message_indexes(coll: &Collection<MongolMessage>) -> Result<(), Error>
+    {
+        let channel_compound_timestamp_compound_flag = IndexModel::builder()
+            .keys(doc!{ "channel_id": 1, "timestamp": -1, "flag": 1 })
+            .build();
+
+        coll.create_index(channel_compound_timestamp_compound_flag).await?;
 
         Ok(())
     }
