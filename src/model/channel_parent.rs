@@ -6,6 +6,7 @@ mod roles;
 pub mod server;
 pub mod chat;
 
+use chat::Chat;
 pub use repository::*;
 pub use private::*;
 pub use group::*;
@@ -23,8 +24,7 @@ use super::{channel::{Channel, Parent}, error};
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum ChannelParent
 {
-    Private(Private),
-    Group(Group),
+    Chat(Chat),
     Server(Server),
 }
 
@@ -35,28 +35,15 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(private) => private.get_channel(channel_id_option),
-            ChannelParent::Group(group) => group.get_channel(channel_id_option),
+            ChannelParent::Chat(chat) => chat.get_channel(channel_id_option),
             ChannelParent::Server(server) => server.get_channel(channel_id_option),
         }
     }
 
     #[must_use]
-    pub fn private_owner_size() -> usize
+    pub fn is_chat(&self) -> bool
     {
-        Private::owner_size()
-    }
-
-    #[must_use]
-    pub fn is_private(&self) -> bool
-    {
-        matches!(self, ChannelParent::Private(_))
-    }
-
-    #[must_use]
-    pub fn is_group(&self) -> bool
-    {
-        matches!(self, ChannelParent::Group(_))
+        matches!(self, ChannelParent::Chat(_))
     }
 
     #[must_use]
@@ -69,9 +56,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            ChannelParent::Group(group) => group.add_user(user),
-            ChannelParent::Server(server) => server.add_user(user),
+            ChannelParent::Chat(value) => value.add_user(user),
+            ChannelParent::Server(value) => value.add_user(user),
         }
     }
 
@@ -79,9 +65,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
-            ChannelParent::Group(group) => group.add_users(users),
-            ChannelParent::Server(server) => server.add_users(users),
+            ChannelParent::Chat(value) => value.add_users(users),
+            ChannelParent::Server(value) => value.add_users(users),
         }
     }
 
@@ -90,9 +75,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(private) => private.is_owner(user_id),
-            ChannelParent::Group(group) => group.is_owner(user_id),
-            ChannelParent::Server(server) => server.is_owner(user_id),
+            ChannelParent::Chat(value) => value.is_owner(user_id),
+            ChannelParent::Server(value) => value.is_owner(user_id),
         }
     }
 
@@ -101,9 +85,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(private) => private.is_owner(other_user_id),
-            ChannelParent::Group(group) => group.is_user_part_of_server(other_user_id),
-            ChannelParent::Server(server) => server.is_user_part_of_server(other_user_id),
+            ChannelParent::Chat(value) => value.is_user_part_of_chat(other_user_id),
+            ChannelParent::Server(value) => value.is_user_part_of_server(other_user_id),
         }
     }
 }
