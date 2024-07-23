@@ -1,3 +1,7 @@
+mod repository;
+
+pub use repository::*;
+
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -20,7 +24,7 @@ pub struct Server
 impl Server
 {
     #[must_use]
-    fn convert(
+    fn _convert(
         id: String, 
         name: String, 
         owner: User, 

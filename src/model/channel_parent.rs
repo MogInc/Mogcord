@@ -1,16 +1,16 @@
 mod repository;
 mod private;
 mod group;
-mod server;
 mod rights;
 mod roles;
+pub mod server;
 
 pub use repository::*;
 pub use private::*;
 pub use group::*;
-pub use server::*;
 pub use rights::*;
 pub use roles::*;
+pub use server::Server;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
@@ -30,7 +30,6 @@ pub enum ChannelParent
 
 impl ChannelParent
 {
-    #[must_use]
     pub fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
     {
         match self
