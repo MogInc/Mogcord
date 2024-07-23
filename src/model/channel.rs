@@ -3,7 +3,6 @@ mod role;
 mod parent;
 mod repository;
 
-
 pub use rights::*;
 pub use role::*;
 pub use parent::*;
@@ -12,7 +11,6 @@ pub use repository::*;
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Channel
@@ -29,11 +27,14 @@ impl Channel
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
+        let mut role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
+        role.default_rights();
+
         Self
         {
             id: Uuid::now_v7().to_string(),
             name: name_sanitized,
-            roles: HashSet::new(),
+            roles: HashSet::from([role]),
         }
     }
 
