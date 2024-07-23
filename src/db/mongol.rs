@@ -195,13 +195,31 @@ impl MongolDB
             .options(opts_sparse.clone())
             .build();
 
+        let private_owners_index = IndexModel::builder()
+            .keys(doc!{ "Private.owner_ids": 1 })
+            .options(opts_sparse.clone())
+            .build();
+
         let group_id_index = IndexModel::builder()
             .keys(doc!{ "Group._id": 1 })
+            .options(opts_sparse.clone())
+            .build();
+
+        let group_owner_index = IndexModel::builder()
+            .keys(doc!{ "Group.owner_id": 1 })
+            .options(opts_sparse.clone())
+            .build();
+
+        let group_users_index = IndexModel::builder()
+            .keys(doc!{ "Group.user_ids": 1 })
             .options(opts_sparse)
             .build();
 
         coll.create_index(private_id_index).await?;
+        coll.create_index(private_owners_index).await?;
         coll.create_index(group_id_index).await?;
+        coll.create_index(group_owner_index).await?;
+        coll.create_index(group_users_index).await?;
 
         Ok(())
     }
