@@ -27,13 +27,13 @@ impl TryFrom<&Private> for MongolPrivate
             .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
             .collect::<Result<_, _>>()?;
 
-        let private = Self 
-        { 
-            _id: db_id,
-            owner_ids,
-            channel: MongolChannel::try_from(&value.channel)?
-        };
-
-        Ok(private)
+        Ok(
+            Self 
+            { 
+                _id: db_id,
+                owner_ids,
+                channel: MongolChannel::try_from(&value.channel)?
+            }
+        )
     }
 }

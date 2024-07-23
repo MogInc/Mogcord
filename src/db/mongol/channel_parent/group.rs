@@ -31,16 +31,15 @@ impl TryFrom<&Group> for MongolGroup
             .map(|(key, _)| helper::convert_domain_id_to_mongol(key))
             .collect::<Result<_, _>>()?;
 
-
-        let group = Self
-        {
-            _id: db_id,
-            name: value.name.to_string(),
-            owner_id,
-            user_ids,
-            channel: MongolChannel::try_from(&value.channel)?,
-        };
-
-        Ok(group)
+        Ok(
+            Self
+            {
+                _id: db_id,
+                name: value.name.to_string(),
+                owner_id,
+                user_ids,
+                channel: MongolChannel::try_from(&value.channel)?,
+            }
+        )
     }
 }
