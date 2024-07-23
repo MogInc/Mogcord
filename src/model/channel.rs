@@ -23,17 +23,23 @@ pub struct Channel
 impl Channel
 {
     #[must_use]
-    pub fn new(name: Option<String>) -> Self
+    pub fn new(name: Option<String>, add_base_roles: bool) -> Self
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
-        let role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
+        let mut roles = HashSet::new();
+
+        if add_base_roles
+        {
+            let role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
+            roles = HashSet::from([role]);
+        }
 
         Self
         {
             id: Uuid::now_v7().to_string(),
             name: name_sanitized,
-            roles: HashSet::from([role]),
+            roles,
         }
     }
 

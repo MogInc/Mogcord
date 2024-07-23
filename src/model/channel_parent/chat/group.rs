@@ -38,7 +38,7 @@ impl Group
             .map(|user| Ok((user.id.clone(), user)))
             .collect::<Result<_, _>>()?;
 
-        let channel = Channel::new(None);
+        let channel = Channel::new(None, false);
 
         let group = Group::convert(channel.id.to_string(), name, owner, users_sanitized, channel);
 

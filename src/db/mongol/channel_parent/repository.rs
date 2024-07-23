@@ -15,9 +15,9 @@ impl channel_parent::chat::Repository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
     {
-        let db_chat = MongolChannelParent::try_from(&chat)?;
+        let db_chat = MongolChat::try_from(&chat)?;
 
-        match self.channel_parents().insert_one(&db_chat).await
+        match self.chats().insert_one(&db_chat).await
         {
             Ok(_) => Ok(chat),
             Err(err) => Err(error::Server::FailedInsert(err.to_string())),
@@ -58,7 +58,7 @@ impl channel_parent::chat::Repository for MongolDB
             },
         };
 
-        match self.channel_parents().find_one(filter).await
+        match self.chats().find_one(filter).await
         {
             Ok(chat_option) => Ok(chat_option.is_some()),
             Err(err) => Err(error::Server::FailedRead(err.to_string())),

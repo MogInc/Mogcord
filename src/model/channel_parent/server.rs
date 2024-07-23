@@ -46,7 +46,7 @@ impl Server
 
     pub fn new(name: String, owner: User) -> Result<Self, error::Server>
     {
-        let channel = Channel::new(Some(String::from("Welcome")));
+        let channel = Channel::new(Some(String::from("Welcome")), true);
 
 
         let server = Self

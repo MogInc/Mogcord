@@ -34,7 +34,7 @@ impl Private
             .into_iter()
             .collect();
 
-        let channel = Channel::new(None);
+        let channel = Channel::new(None, false);
 
         let private_chat = Private::convert(channel.id.to_string(), owners_sanitized, channel);
 
