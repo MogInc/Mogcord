@@ -11,6 +11,7 @@ use bson::doc;
 pub use bucket::*;
 pub use channel_parent::*;
 pub use channel::*;
+use futures_util::future::ok;
 pub use message::*;
 pub use refresh_token::*;
 pub use relation::*;
@@ -68,9 +69,9 @@ impl MongolDB
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         let relations: Collection<MongolRelation> = db.collection("relations");
 
-
         Self::internal_add_user_indexes(&users).await?;
         Self::internal_add_chat_indexes(&chats).await?;
+        Self::internal_add_refresh_token_indexes(&refreshtokens).await?;
 
         Ok(
             Self 
@@ -86,6 +87,17 @@ impl MongolDB
                 relations,
             }
         )
+    }
+
+    async fn internal_add_refresh_token_indexes(coll: &Collection<MongolRefreshToken>) -> Result<(), Error>
+    {
+        let device_id_index = IndexModel::builder()
+            .keys(doc!{ "device_id": 1 })
+            .build();
+
+        coll.create_index(device_id_index).await?;
+
+        Ok(())
     }
 
     async fn internal_add_chat_indexes(coll: &Collection<MongolChat>) -> Result<(), Error>
