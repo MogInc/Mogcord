@@ -11,7 +11,6 @@ use bson::doc;
 pub use bucket::*;
 pub use channel_parent::*;
 pub use channel::*;
-use futures_util::future::ok;
 pub use message::*;
 pub use refresh_token::*;
 pub use relation::*;
