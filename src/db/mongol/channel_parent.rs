@@ -1,41 +1,28 @@
+mod private;
+mod group;
+mod server;
 mod repository;
 
+pub use private::*;
+pub use group::*;
+pub use server::*;
 
-use bson::{Bson, Uuid};
+use bson::Bson;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{channel_parent::ChannelParent, error};
 use super::{helper, MongolChannel};
 
-//reason for wrapper
-//else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
-#[derive(Debug, Serialize, Deserialize)]
-#[allow(clippy::pub_underscore_fields)]
-#[allow(clippy::used_underscore_binding)]
-pub struct MongolChatWrapper
-{
-    pub _id: Uuid,
-    pub chat: MongolChat,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
-pub enum MongolChat
+pub enum MongolChannelParent
 {
-    Private
-    {
-        owner_ids: Vec<Uuid>,
-        channel: MongolChannel
-    },
-    Group
-    {
-        name: String,
-        owner_id: Uuid,
-        user_ids: Vec<Uuid>,
-        channel: MongolChannel,
-    },
+    Private(MongolPrivate),
+    Group(MongolGroup),
+    Server(MongolServer),
 }
 
-impl TryFrom<&ChannelParent> for MongolChatWrapper
+impl TryFrom<&ChannelParent> for MongolChannelParent
 {
     type Error = error::Server;
     

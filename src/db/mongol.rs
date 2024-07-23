@@ -1,6 +1,6 @@
 pub mod helper;
 mod bucket;
-mod chat;
+mod channel_parent;
 mod channel;
 mod message;
 mod refresh_token;
@@ -8,7 +8,7 @@ mod relation;
 mod user;
 
 pub use bucket::*;
-pub use chat::*;
+pub use channel_parent::*;
 pub use channel::*;
 pub use message::*;
 pub use refresh_token::*;
