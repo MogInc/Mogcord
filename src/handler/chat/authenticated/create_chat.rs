@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::model::{channel_parent::ChannelParent, error, AppState};
 use crate::middleware::auth::Ctx;
-use crate::dto::{ChatCreateResponse, ObjectToDTO};
+use crate::dto::{ChannelWrapperCreateResponse, ObjectToDTO};
 
 #[derive(Deserialize)]
 pub enum CreateChatRequest
@@ -75,7 +75,7 @@ pub async fn create_chat(
 
     match repo_chat.create_chat(chat).await 
     {
-        Ok(chat) => Ok(Json(ChatCreateResponse::obj_to_dto(chat))),
+        Ok(chat) => Ok(Json(ChannelWrapperCreateResponse::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }

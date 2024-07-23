@@ -1,14 +1,12 @@
-mod chat;
+mod channel_parent;
 mod channel;
 mod message;
 mod user;
-mod server;
 
-pub use chat::*;
+pub use channel_parent::*;
 pub use channel::*;
 pub use message::*;
 pub use user::*;
-pub use server::*;
 
 pub trait ObjectToDTO<Input>
 {
