@@ -35,8 +35,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Private(private) => Ok(&private.channel),
-            ChannelParent::Group(group) => Ok(&group.channel),
+            ChannelParent::Private(private) => private.get_channel(channel_id_option),
+            ChannelParent::Group(group) => group.get_channel(channel_id_option),
             ChannelParent::Server(server) => server.get_channel(channel_id_option),
         }
     }
