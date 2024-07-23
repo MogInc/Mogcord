@@ -90,11 +90,16 @@ impl MongolDB
 
     async fn internal_add_refresh_token_indexes(coll: &Collection<MongolRefreshToken>) -> Result<(), Error>
     {
-        let device_id_index = IndexModel::builder()
-            .keys(doc!{ "device_id": 1 })
+        let device_id_compound = IndexModel::builder()
+            .keys(doc!{ "device_id": 1, "expiration_date": -1 })
             .build();
 
-        coll.create_index(device_id_index).await?;
+        let owner_id_compound = IndexModel::builder()
+            .keys(doc!{ "owner_id": 1, "device_id": 1 })
+            .build();
+
+        coll.create_index(device_id_compound).await?;
+        coll.create_index(owner_id_compound).await?;
 
         Ok(())
     }
