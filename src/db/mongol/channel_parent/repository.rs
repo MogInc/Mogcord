@@ -8,8 +8,10 @@ use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 use super::helper;
 
+impl channel_parent::Repository for MongolDB{}
+
 #[async_trait]
-impl channel_parent::Repository for MongolDB
+impl channel_parent::chat::Repository for MongolDB
 {
     async fn create_chat(&self, chat: ChannelParent) -> Result<ChannelParent, error::Server>
     {
