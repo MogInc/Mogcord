@@ -32,6 +32,7 @@ impl TryFrom<&ChannelParent> for MongolChannelParent
         {
             ChannelParent::Private(private)=> Ok(Self::Private(MongolPrivate::try_from(private)?)),
             ChannelParent::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
+            ChannelParent::Server(server) => Ok(Self::Server(MongolServer::try_from(server)?)),
         }
     }
 }
