@@ -1,10 +1,10 @@
 use axum::async_trait;
 
 use crate::model::error;
-use super::ChannelParent;
+use super::{server, ChannelParent};
 
 #[async_trait]
-pub trait Repository: Send + Sync + super::server::Repository
+pub trait Repository: Send + Sync + server::Repository
 {
     async fn create_chat(&self, chat: ChannelParent) -> Result<ChannelParent, error::Server>;
     async fn update_chat(&self, chat: ChannelParent) -> Result<(), error::Server>;
