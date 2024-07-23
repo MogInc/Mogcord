@@ -27,8 +27,8 @@ impl TryFrom<&Group> for MongolGroup
         let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
 
         let user_ids = value.users
-            .iter()
-            .map(|(key, _)| helper::convert_domain_id_to_mongol(key))
+            .keys()
+            .map(|key| helper::convert_domain_id_to_mongol(key))
             .collect::<Result<_, _>>()?;
 
         Ok(
