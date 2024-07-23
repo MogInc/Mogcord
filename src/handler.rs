@@ -53,7 +53,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         //servers
         .route("/servers", post(server::authenticated::create_server))
         .route("/servers/:server_id", get(server::authenticated::get_server))
-        .route("/servers/:server_id/:channel_id", todo!())
+        .route("/servers/:server_id/:channel_id", get(server::authenticated::get_server_channel))
         .route("/servers/:server_id/join", post(server::authenticated::join_server))
         //users
         .route("/users/current", get(user::authenticated::get_ctx_user_auth))
