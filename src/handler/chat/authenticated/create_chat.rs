@@ -46,7 +46,7 @@ pub async fn create_chat(
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
                 .await?;
 
-            let private = channel_parent::Private::new(owners)?;
+            let private = channel_parent::chat::Private::new(owners)?;
 
             Chat::Private(private)
         },
@@ -60,7 +60,7 @@ pub async fn create_chat(
                 .get_users_by_id(user_ids)
                 .await?;
 
-            let group = channel_parent::Group::new(name, owner, users)?;
+            let group = channel_parent::chat::Group::new(name, owner, users)?;
 
             Chat::Group(group)
         },

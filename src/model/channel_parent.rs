@@ -1,6 +1,4 @@
 mod repository;
-mod private;
-mod group;
 mod rights;
 mod roles;
 pub mod server;
@@ -8,8 +6,6 @@ pub mod chat;
 
 use chat::Chat;
 pub use repository::*;
-pub use private::*;
-pub use group::*;
 pub use rights::*;
 pub use roles::*;
 pub use server::Server;

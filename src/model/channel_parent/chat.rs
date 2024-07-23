@@ -1,12 +1,15 @@
 mod repository;
+mod group;
+mod private;
 
 pub use repository::*;
+pub use group::*;
+pub use private::*;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
 use crate::model::{channel::{Channel, Parent}, error, user::User};
-use super::{Group, Private};
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
