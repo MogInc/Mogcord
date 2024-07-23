@@ -1,11 +1,11 @@
 use serde::Serialize;
 
-use crate::model::channel_parent::ChannelParent;
+use crate::model::channel_parent::chat::Chat;
 
-use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
+use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
-pub struct ChannelWrapperCreateResponse
+pub struct ChatCreateResponse
 {
     id: String,
     r#type: String,
@@ -19,17 +19,15 @@ pub struct ChannelWrapperCreateResponse
     users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     channel: Option<ChannelCreateResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    channels: Option<Vec<ChannelCreateResponse>>,
 }
 
-impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
+impl ObjectToDTO<Chat> for ChatCreateResponse
 {
-    fn obj_to_dto(model_input: ChannelParent) -> Self 
+    fn obj_to_dto(model_input: Chat) -> Self 
     {
         match model_input
         {
-            ChannelParent::Private(private) => 
+            Chat::Private(private) => 
             {
                 Self
                 {
@@ -40,10 +38,9 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
                     owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
                     channel: Some(ChannelCreateResponse::obj_to_dto(private.channel)),
-                    channels: None,
                 }
             },
-            ChannelParent::Group(group) => 
+            Chat::Group(group) => 
             {
                 Self
                 {
@@ -54,21 +51,6 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
                     owners: None,
                     users: Some(group.users.into_keys().collect()),
                     channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
-                    channels: None,
-                }
-            },
-            ChannelParent::Server(server) =>
-            {
-                Self
-                {
-                    id: server.id,
-                    r#type: String::from("Server"),
-                    name: Some(server.name),
-                    owner: Some(server.owner.id),
-                    owners: None,
-                    users: Some(server.users.into_keys().collect()),
-                    channel: None,
-                    channels: Some(vec_to_dto(server.channels.into_values().collect())),
                 }
             },
         }
@@ -76,7 +58,7 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperCreateResponse
 }
 
 #[derive(Serialize)]
-pub struct ChannelWrapperGetResponse
+pub struct ChatGetResponse
 {
     id: String,
     r#type: String,
@@ -90,17 +72,15 @@ pub struct ChannelWrapperGetResponse
     users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     channel: Option<ChannelGetResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    channels: Option<Vec<ChannelGetResponse>>,
 }
 
-impl ObjectToDTO<ChannelParent> for ChannelWrapperGetResponse
+impl ObjectToDTO<Chat> for ChatGetResponse
 {
-    fn obj_to_dto(model_input: ChannelParent) -> Self 
+    fn obj_to_dto(model_input: Chat) -> Self 
     {
         match model_input
         {
-            ChannelParent::Private(private) => 
+            Chat::Private(private) => 
             {
                 Self
                 {
@@ -111,10 +91,9 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperGetResponse
                     owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
                     channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
-                    channels: None,
                 }
             },
-            ChannelParent::Group(group) => 
+            Chat::Group(group) => 
             {
                 Self
                 {
@@ -125,21 +104,6 @@ impl ObjectToDTO<ChannelParent> for ChannelWrapperGetResponse
                     owners: None,
                     users: Some(group.users.into_keys().collect()),
                     channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
-                    channels: None,
-                }
-            },
-            ChannelParent::Server(server) =>
-            {
-                Self
-                {
-                    id: server.id,
-                    r#type: String::from("Server"),
-                    name: Some(server.name),
-                    owner: Some(server.owner.id),
-                    owners: None,
-                    users: Some(server.users.into_keys().collect()),
-                    channel: None,
-                    channels: Some(vec_to_dto(server.channels.into_values().collect())),
                 }
             },
         }
