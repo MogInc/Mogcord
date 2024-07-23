@@ -54,6 +54,7 @@ impl Private
         Self::PRIVATE_OWNER_MAX
     }
 
+    #[must_use]
     pub fn is_owner(&self, user_id: &str) -> bool
     {
         self.owners.iter().any(|user| user.id == user_id)

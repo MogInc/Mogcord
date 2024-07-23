@@ -84,11 +84,14 @@ impl Group
         self.owner.id == user_id
     }
 
+    #[must_use]
     pub fn is_user_part_of_server(&self, other_user: &str) -> bool
     {
         self.is_owner(other_user) || self.users.contains_key(other_user)
     }
 
+    #[allow(clippy::unnecessary_wraps)]
+    #[allow(clippy::unused_self)]
     fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
     {
         Ok(())
