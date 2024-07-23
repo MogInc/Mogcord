@@ -7,6 +7,7 @@ mod refresh_token;
 mod relation;
 mod user;
 
+use bson::doc;
 pub use bucket::*;
 pub use channel_parent::*;
 pub use channel::*;
@@ -16,7 +17,7 @@ pub use relation::*;
 pub use user::*;
 
 use std::time::Duration;
-use mongodb::{options::{ClientOptions, Compressor}, Client, Collection};
+use mongodb::{options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
 
 
 #[derive(Clone, Debug)]
@@ -66,6 +67,24 @@ impl MongolDB
         let messages: Collection<MongolMessage> = db.collection("messages");
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         let relations: Collection<MongolRelation> = db.collection("relations");
+
+        let opts = IndexOptions::builder()
+            .unique(true)
+            .sparse(true)
+            .build();
+
+        let private_chat_index = IndexModel::builder()
+            .keys(doc!{ "Private._id": 1 })
+            .options(opts.clone())
+            .build();
+
+        let group_chat_index = IndexModel::builder()
+            .keys(doc!{ "Group._id": 1 })
+            .options(opts)
+            .build();
+
+        chats.create_index(private_chat_index).await?;
+        chats.create_index(group_chat_index).await?;
 
         Ok(
             Self 
