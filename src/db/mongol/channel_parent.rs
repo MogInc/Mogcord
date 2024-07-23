@@ -30,35 +30,8 @@ impl TryFrom<&ChannelParent> for MongolChannelParent
     {
         match value
         {
-            ChannelParent::Private(private_chat)=> Ok(Self::Private(MongolPrivate::try_from(private_chat)?)),
-            ChannelParent::Group(group) => 
-            {
-                let db_id = helper::convert_domain_id_to_mongol(&group.id)?;
-
-                let owner_id = helper::convert_domain_id_to_mongol(&group.owner.id)?;
-
-                let user_ids = group.users
-                    .iter()
-                    .map(|(key, _)| helper::convert_domain_id_to_mongol(key))
-                    .collect::<Result<_, _>>()?;
-
-
-                let chat = MongolChat::Group
-                {
-                    name: group.name.to_string(),
-                    owner_id,
-                    user_ids,
-                    channel: MongolChannel::try_from(&group.channel)?,
-                };
-
-                Ok(
-                    Self 
-                    { 
-                        _id: db_id,
-                        chat
-                    }
-                )
-            },
+            ChannelParent::Private(private)=> Ok(Self::Private(MongolPrivate::try_from(private)?)),
+            ChannelParent::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
         }
     }
 }
