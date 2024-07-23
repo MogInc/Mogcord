@@ -17,7 +17,7 @@ pub use relation::*;
 pub use user::*;
 
 use std::time::Duration;
-use mongodb::{options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
+use mongodb::{error::Error, options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
 
 
 #[derive(Clone, Debug)]
@@ -68,23 +68,9 @@ impl MongolDB
         let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         let relations: Collection<MongolRelation> = db.collection("relations");
 
-        let opts = IndexOptions::builder()
-            .unique(true)
-            .sparse(true)
-            .build();
 
-        let private_chat_index = IndexModel::builder()
-            .keys(doc!{ "Private._id": 1 })
-            .options(opts.clone())
-            .build();
-
-        let group_chat_index = IndexModel::builder()
-            .keys(doc!{ "Group._id": 1 })
-            .options(opts)
-            .build();
-
-        chats.create_index(private_chat_index).await?;
-        chats.create_index(group_chat_index).await?;
+        Self::internal_add_user_indexes(&users).await?;
+        Self::internal_add_chat_indexes(&chats).await?;
 
         Ok(
             Self 
@@ -100,6 +86,51 @@ impl MongolDB
                 relations,
             }
         )
+    }
+
+    async fn internal_add_chat_indexes(coll: &Collection<MongolChat>) -> Result<(), Error>
+    {
+        let opts_sparse = IndexOptions::builder()
+            .unique(true)
+            .sparse(true)
+            .build();
+
+        let private_chat_index = IndexModel::builder()
+            .keys(doc!{ "Private._id": 1 })
+            .options(opts_sparse.clone())
+            .build();
+
+        let group_chat_index = IndexModel::builder()
+            .keys(doc!{ "Group._id": 1 })
+            .options(opts_sparse)
+            .build();
+
+        coll.create_index(private_chat_index).await?;
+        coll.create_index(group_chat_index).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_user_indexes(coll: &Collection<MongolUser>) -> Result<(), Error>
+    {
+        let opts = IndexOptions::builder()
+            .unique(true)
+            .build();
+
+        let username_index = IndexModel::builder()
+            .keys(doc!{ "username": 1 })
+            .options(opts.clone())
+            .build();
+
+        let mail_index = IndexModel::builder()
+            .keys(doc!{ "mail": 1 })
+            .options(opts)
+            .build();
+
+        coll.create_index(username_index).await?;
+        coll.create_index(mail_index).await?;
+
+        Ok(())
     }
 }
 
