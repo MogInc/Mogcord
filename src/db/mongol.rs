@@ -69,7 +69,8 @@ impl MongolDB
         let channels: Collection<MongolChannel> = db.collection("channels");
         
         let buckets: Collection<MongolBucket> = db.collection("buckets");
-        
+        Self::internal_add_bucket_indexes(&buckets).await?;
+
         let messages: Collection<MongolMessage> = db.collection("messages");
         Self::internal_add_message_indexes(&messages).await?;
 
@@ -119,6 +120,17 @@ impl MongolDB
             .build();
 
         coll.create_index(channel_timestamp_flag_compound).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_bucket_indexes(coll: &Collection<MongolBucket>) -> Result<(), Error>
+    {
+        let channel_date_compound = IndexModel::builder()
+            .keys(doc!{ "channel_id": 1, "date": -1 })
+            .build();
+
+        coll.create_index(channel_date_compound).await?;
 
         Ok(())
     }
