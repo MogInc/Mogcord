@@ -15,7 +15,7 @@ pub struct Private
 impl Private
 {
     #[must_use]
-    pub fn convert(id: String, owners: Vec<User>, channel: Channel) -> Self
+    fn convert(id: String, owners: Vec<User>, channel: Channel) -> Self
     {
         Self
         {

@@ -27,7 +27,7 @@ pub struct Server
 impl Server
 {
     #[must_use]
-    pub fn convert(
+    fn convert(
         id: String, 
         name: String, 
         owner: User, 

@@ -19,7 +19,7 @@ pub struct Group
 impl Group
 {
     #[must_use]
-    pub fn convert(id: String, name: String, owner: User, users: HashMap<String, User>, channel: Channel) -> Self
+    fn convert(id: String, name: String, owner: User, users: HashMap<String, User>, channel: Channel) -> Self
     {
         Self
         {
