@@ -33,6 +33,9 @@ pub async fn create_chat(
 
     let ctx_user_id = &ctx.user_id();
 
+    //TODO
+    //add relation check
+
     let chat = match payload
     {
         CreateChatRequest::Private { user_id } => 
