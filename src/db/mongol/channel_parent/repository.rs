@@ -3,10 +3,10 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::mongol, model::{channel_parent::{self, chat::Chat, Server}, error }};
+use crate::{db::{mongol, MongolChannel}, model::{channel_parent::{self, chat::Chat, Server}, error }};
 use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
-use super::helper;
+use super::{helper, MongolChannelParent};
 
 impl channel_parent::Repository for MongolDB{}
 
@@ -15,7 +15,13 @@ impl channel_parent::chat::Repository for MongolDB
 {
     async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
     {
-        todo!()
+        let db_chat = MongolChannelParent::try_from(&chat)?;
+
+        match self.channel_parents().insert_one(&db_chat).await
+        {
+            Ok(_) => Ok(chat),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+        }
     }
 
     async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>
