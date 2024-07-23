@@ -65,7 +65,8 @@ impl MongolDB
         Self::internal_add_chat_indexes(&chats).await?;
         
         let servers: Collection<MongolServer> = db.collection("servers");
-        
+        Self::internal_add_server_indexes(&servers).await?;
+
         let channels: Collection<MongolChannel> = db.collection("channels");
         
         let buckets: Collection<MongolBucket> = db.collection("buckets");
@@ -120,6 +121,27 @@ impl MongolDB
             .build();
 
         coll.create_index(channel_timestamp_flag_compound).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_server_indexes(coll: &Collection<MongolServer>) -> Result<(), Error>
+    {
+        let owner_index = IndexModel::builder()
+            .keys(doc!{ "owner_id": 1})
+            .build();
+
+        let users_index = IndexModel::builder()
+            .keys(doc!{ "user_ids": 1})
+            .build();
+
+        let channels_index = IndexModel::builder()
+            .keys(doc!{ "channel_ids": 1})
+            .build();
+
+        coll.create_index(owner_index).await?;
+        coll.create_index(users_index).await?;
+        coll.create_index(channels_index).await?;
 
         Ok(())
     }
