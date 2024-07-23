@@ -5,7 +5,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{channel, channel_parent, message, refresh_token, relation, server, user, AppState};
+use mogcord::model::{channel, channel_parent, message, refresh_token, relation, user, AppState};
 use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
