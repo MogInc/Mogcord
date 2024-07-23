@@ -30,12 +30,8 @@ impl TryFrom<&ChannelParent> for MongolChannelParent
     {
         match value
         {
-            ChannelParent::Chat(chat) => match chat 
-            {
-                Chat::Private(private) => Ok(Self::Private(MongolPrivate::try_from(private)?)),
-                Chat::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
-            }
-            ChannelParent::Server(server) => Ok(Self::Server(MongolServer::try_from(server)?)),
+            ChannelParent::Chat(chat) => MongolChannelParent::try_from(chat),
+            ChannelParent::Server(server) => MongolChannelParent::try_from(server),
         }
     }
 }
