@@ -1,10 +1,8 @@
-mod private;
-mod group;
+mod chat;
 mod server;
 mod repository;
 
-pub use private::*;
-pub use group::*;
+pub use chat::*;
 pub use server::*;
 
 use bson::Bson;
@@ -17,8 +15,7 @@ use super::helper;
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MongolChannelParent
 {
-    Private(MongolPrivate),
-    Group(MongolGroup),
+    Chat(MongolChat),
     Server(MongolServer),
 }
 
@@ -42,11 +39,7 @@ impl TryFrom<&Chat> for MongolChannelParent
     
     fn try_from(value: &Chat) -> Result<Self, Self::Error> 
     {
-        match value 
-        {
-            Chat::Private(private) => Ok(Self::Private(MongolPrivate::try_from(private)?)),
-            Chat::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
-        }
+        Ok(Self::Chat(MongolChat::try_from(value)?))
     }
 }
 

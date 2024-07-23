@@ -6,7 +6,7 @@ use mongodb::bson::{doc, from_document};
 use crate::{db::{mongol, MongolChannel}, model::{channel_parent::{self, chat::Chat, Server}, error }};
 use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
-use super::{helper, MongolChannelParent};
+use super::{helper, MongolChannelParent, MongolChat};
 
 impl channel_parent::Repository for MongolDB{}
 
@@ -36,7 +36,33 @@ impl channel_parent::chat::Repository for MongolDB
 
     async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>
     {
-        todo!()
+        return Ok(false);
+
+        let filter = match MongolChat::try_from(chat)?
+        {
+            MongolChat::Private(private) => 
+            {
+                doc!
+                {
+                    "Private.owner_ids": private.owner_ids,
+                }
+            },
+            MongolChat::Group(group) => 
+            {
+                doc!
+                {
+                    "Group.name": group.name,
+                    "Group.owner_id": group.owner_id,
+                    "Group.user_ids": group.user_ids,
+                }
+            },
+        };
+
+        match self.channel_parents().find_one(filter).await
+        {
+            Ok(chat_option) => Ok(chat_option.is_some()),
+            Err(err) => Err(error::Server::FailedRead(err.to_string())),
+        }
     }
 }
 
