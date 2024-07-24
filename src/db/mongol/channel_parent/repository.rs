@@ -252,7 +252,47 @@ impl channel_parent::server::Repository for MongolDB
 
     async fn get_server_by_id(&self, server_id: &str) -> Result<Server, error::Server>
     {
-        todo!()
+        let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
+
+        let mut pipeline = vec!
+        [
+            doc! 
+            {
+                "$match":
+                {
+                    "_id": server_id_local
+                }
+            },
+        ];
+
+        pipeline.extend(internal_server_pipeline());
+
+        pipeline.push(doc! { "$limit": 1 });
+
+        let mut cursor = self
+            .servers()
+            .aggregate(pipeline)
+            .await
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+
+        let document_option = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+
+        match document_option
+        {
+            Some(document) => 
+            {
+                let chat = from_document(document)
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+                return Ok(chat);
+            },
+            None => Err(error::Server::ServerNotFound), 
+        }
     }
 
     async fn get_server_by_channel_id(&self, channel_id: &str) -> Result<Server, error::Server>
@@ -341,6 +381,53 @@ fn internal_group_chat_pipeline() -> [Document; 6]
         doc!
         {
             "$unset": ["_id", "Group._id", "Group.owner_id", "Group.owner._id", "Group.user_ids", "Group.channel._id"]
+        }
+    ]
+}
+
+fn internal_server_pipeline() -> [Document; 5]
+{
+    [
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "users",
+                "localField": "owner_id",
+                "foreignField": "_id",
+                "as": "owner"
+            }
+        },
+        doc!
+        {
+            "$unwind":
+            {
+                "path": "$owner"
+            }
+        },
+        doc!
+        {
+            "$lookup":
+            {
+                "from": "users",
+                "localField": "user_ids",
+                "foreignField": "_id",
+                "as": "users"
+            }
+        },
+        doc!
+        {
+            "$addFields":
+            {
+                "id": map_mongo_key_to_string!("$_id", "uuid"),
+                "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
+                "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
+                "chat_infos": map_mongo_collection_keys_to_string!("$chat_infos", "_id", "id", "uuid"),
+            }
+        },
+        doc!
+        {
+            "$unset": ["_id", "owner_id", "user_ids", "owner._id",  "chat_infos._id"]
         }
     ]
 }

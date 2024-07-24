@@ -34,6 +34,7 @@ pub enum Server
 	ChannelNotFound,
 	ChannelNotPassed,
 	CantUpdatePrivateChat,
+	ServerNotFound,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
