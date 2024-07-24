@@ -46,7 +46,7 @@ pub async fn create_chat(
                 return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::CantHaveChatWithSelf));
             }
 
-
+            if repo_relation.does_friendship_exist(current_user_id, other_user_id)
 
             let owners = repo_user
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
