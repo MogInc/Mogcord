@@ -67,6 +67,16 @@ pub async fn create_chat(
                 .get_users_by_id(user_ids)
                 .await?;
 
+            let user_ids: Vec<&str> = users
+                .iter()
+                .map(|user| &*user.id)
+                .collect();
+
+            if !repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
+            {
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::OutgoingUserNotFriend));
+            }
+
             let group = channel_parent::chat::Group::new(name, owner, users)?;
 
             Chat::Group(group)
