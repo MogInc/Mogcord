@@ -25,6 +25,7 @@ pub enum Server
 	ChatDoesNotContainThisUser,
 	ServerDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
+	UserCountInvalid { min: usize, found: usize },
 	ChatInfoNotFound,
 	ChatNotAllowedToBeMade(ExtraInfo),
 	ChatNotAllowedToGainUsers,

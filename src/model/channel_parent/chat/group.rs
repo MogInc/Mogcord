@@ -50,6 +50,8 @@ impl Group
 
 impl Group
 {
+    const GROUP_USER_MIN: usize = 2;
+
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
         let insert_option = self.users.insert(user.id.to_string(), user);
@@ -94,6 +96,11 @@ impl Group
     #[allow(clippy::unused_self)]
     fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
     {
+        if self.users.len() < Self::GROUP_USER_MIN
+        {
+            return Err(error::Server::UserCountInvalid { min: Self::GROUP_USER_MIN, found: self.users.len() });
+        }
+
         Ok(())
     }
 }
