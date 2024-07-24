@@ -1,6 +1,8 @@
 #[macro_export]
 /// Maps a mongodb key value (uuid, etc.) to string
 ///
+/// Macro is amde to combine with $addField
+/// 
 ///signature(`$id_name`, `mongo_id_type`),
 ///  
 /// `$` prefix means its a mongo field
@@ -31,6 +33,8 @@ macro_rules! map_mongo_key_to_string
 #[macro_export]
 /// maps over a mongodb collection and maps the key value (uuid, etc.) to string
 /// 
+/// Macro is amde to combine with $addField
+/// 
 /// uses [`map_mongo_key_to_string`] to map the individual keys
 /// 
 /// 
@@ -52,6 +56,37 @@ macro_rules! map_mongo_collection_keys_to_string
                     "$mergeObjects": ["$$this", { $rename_id_to : map_mongo_key_to_string!(format!("$$this.{}", $current_id_name), $id_type) }]
                 }
             } 
+        }
+    };
+}
+
+#[macro_export]
+/// maps over a mongodb collection and transforms it into a hashmap
+/// 
+/// Macro is amde to combine with $addField
+/// 
+/// signature(`$collection_name`, `key_name`)
+/// 
+/// `$` prefix means its a mongo field
+macro_rules! map_mongo_collection_to_hashmap 
+{
+    ($collection_name:expr, $key_name:expr) => 
+    {
+        doc! 
+        {
+            "$arrayToObject":
+            {
+                "$map": 
+                {
+                    "input": $collection_name,
+                    "as": "item",
+                    "in":
+                    {
+                        "k": format!("$$item.{}", $key_name),
+                        "v": "$$item"
+                    }
+                }
+            }
         }
     };
 }
