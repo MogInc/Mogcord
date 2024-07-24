@@ -29,6 +29,7 @@ pub async fn create_chat(
 {
     let repo_chat = &state.chats;
     let repo_user = &state.users;
+    let repo_relation = &state.relations;
 
 
     let ctx_user_id = &ctx.user_id();
@@ -44,6 +45,8 @@ pub async fn create_chat(
             {
                 return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::CantHaveChatWithSelf));
             }
+
+
 
             let owners = repo_user
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
