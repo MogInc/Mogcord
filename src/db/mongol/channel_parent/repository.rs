@@ -180,7 +180,12 @@ impl channel_parent::chat::Repository for MongolDB
             },
         };
 
-        match self.chats().find_one(filter).await
+        let projection = doc!
+        {
+            "_id": 0
+        };
+
+        match self.chats().find_one(filter).projection(projection).await
         {
             Ok(chat_option) => Ok(chat_option.is_some()),
             Err(err) => Err(error::Server::FailedRead(err.to_string())),
