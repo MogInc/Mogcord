@@ -6,6 +6,7 @@ use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::channel::Role;
+use crate::model::channel_parent::Server;
 use crate::model::{channel::Channel, error};
 use crate::db::mongol::helper;
 
@@ -36,6 +37,24 @@ impl TryFrom<&Channel> for MongolChannel
                 roles: value.roles.clone(),
             }
         )
+    }
+}
+
+pub struct MongolChannelVecWrapper(pub Vec<MongolChannel>);
+
+impl TryFrom<&Server> for MongolChannelVecWrapper
+{
+    type Error = error::Server;
+
+    fn try_from(value: &Server) -> Result<Self, Self::Error>
+    {
+        let mongol_channels = value
+            .channels
+            .values()
+            .map(MongolChannel::try_from)
+            .collect::<Result<_,_>>()?;
+
+        Ok(Self(mongol_channels))
     }
 }
 

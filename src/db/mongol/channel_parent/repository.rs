@@ -3,10 +3,10 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::mongol, map_mongo_collection_to_hashmap, model::{channel_parent::{self, chat::Chat, Server}, error }};
+use crate::{db::{mongol, MongolChannelVecWrapper}, map_mongo_collection_to_hashmap, model::{channel_parent::{self, chat::Chat, Server}, error }};
 use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
-use super::{helper, MongolChat};
+use super::{helper, MongolChat, MongolServer};
 
 impl channel_parent::Repository for MongolDB{}
 
@@ -201,7 +201,31 @@ impl channel_parent::server::Repository for MongolDB
 {
     async fn create_server(&self, server: Server) -> Result<Server, error::Server>
     {
-        todo!()
+        let db_server = MongolServer::try_from(&server)?;
+        let db_channels = MongolChannelVecWrapper::try_from(&server)?.0;
+
+        let mut session = self
+            .client()
+            .start_session()
+            .await
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+        session
+            .start_transaction()
+            .await
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+        self
+            .channels()
+            .insert_many(db_channels)
+            .await
+            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+
+        match self.servers().insert_one(&db_server).session(&mut session).await
+        {
+            Ok(_) => Ok(server),
+            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+        }
     }
 
     async fn add_user_to_server(&self, server_id: &str, user_id: &str) -> Result<(), error::Server>
