@@ -25,5 +25,22 @@ cargo run
 docker compose up
 ```
 
+```[tasklist]
+### branch tasklist
+- [x] Split Direct Messages and Server into their own entities.
+--- [x] MongolDB.
+--- [x] DTO.
+- [x] Add Roles to Server.
+- [x] Add Roles to Channel.
+- [x] Implement Chat Repository for MongolDB.
+--- [ ] Test (manual) Chat Endpoints.
+- [ ] Implement Server Repository for MongolDB.
+--- [ ] Test (manual) Server Endpoints.
+- [ ] Implement Message Endpoints.
+--- [ ] Add methods to Channel Parent Trait.
+--- [ ] Implement Channel Parent Repository for MongolDB.
+--- [ ] Test (manual) Message Endpoints.
+```
+
 ## Me
 <img src="https://i.imgur.com/qXyjT2u.jpg" width="400">
