@@ -58,6 +58,8 @@ impl MongolDB
         let client = Client::with_options(client_options)?;
         let db = client.database("db_mogcord");
         
+        println!("MongolDB connection...");
+
         let users: Collection<MongolUser> = db.collection("users");
         Self::internal_add_user_indexes(&users).await?;
 
@@ -81,6 +83,7 @@ impl MongolDB
         let relations: Collection<MongolRelation> = db.collection("relations");
         Self::internal_add_relation_indexes(&relations).await?;
 
+        println!("Mongol indexes set...");
 
         Ok(
             Self 
