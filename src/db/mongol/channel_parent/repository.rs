@@ -230,7 +230,24 @@ impl channel_parent::server::Repository for MongolDB
 
     async fn add_user_to_server(&self, server_id: &str, user_id: &str) -> Result<(), error::Server>
     {
-        todo!()
+        let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
+        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+
+        let filter = doc!
+        {
+            "_id": server_id_local,
+        };
+
+        let update = doc!
+        {
+            "$push": { "user_ids": user_id_local }
+        };
+
+        match self.servers().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+        }
     }
 
     async fn get_server_by_id(&self, server_id: &str) -> Result<Server, error::Server>
