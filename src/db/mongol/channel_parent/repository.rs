@@ -77,10 +77,16 @@ impl channel_parent::chat::Repository for MongolDB
                 doc!{ "Group._id": chat_id_local },
             ]
         };
+     
+        let projection = doc!
+        {
+            "_id": 0
+        };
 
         let mongol_chat = self
             .chats()
             .find_one(filter)
+            .projection(projection)
             .await
             .map_err(|err| error::Server::FailedRead(err.to_string()))?
             .ok_or(error::Server::ChatNotFound)?;
@@ -222,14 +228,14 @@ fn internal_private_chat_pipeline() -> [Document; 3]
         {
             "$addFields":
             {
-                "Private.id": map_mongo_key_to_string!("$_id", "uuid"),
-                "Private.chat_info.id": map_mongo_key_to_string!("$Private.chat_info._id", "uuid"),
+                "Private.id": map_mongo_key_to_string!("$Private._id", "uuid"),
+                "Private.channel.id": map_mongo_key_to_string!("$Private.channel._id", "uuid"),
                 "Private.owners": map_mongo_collection_keys_to_string!("$Private.owners", "_id", "id", "uuid"),
             }
         },
         doc!
         {
-            "$unset": ["_id", "Private.owner_ids", "Private.owners._id", "Private.chat_info._id"]
+            "$unset": ["_id", "Private.owner_ids", "Private.owners._id", "Private.channel._id"]
         }
     ]
 }
@@ -268,15 +274,15 @@ fn internal_group_chat_pipeline() -> [Document; 5]
         {
             "$addFields":
             {
-                "Group.id": map_mongo_key_to_string!("$_id", "uuid"),
+                "Group.id": map_mongo_key_to_string!("$Group._id", "uuid"),
                 "Group.owner.id": map_mongo_key_to_string!("$Group.owner._id", "uuid"),
-                "Group.chat_info.id": map_mongo_key_to_string!("$Group.chat_info._id", "uuid"),
+                "Group.channel.id": map_mongo_key_to_string!("$Group.channel._id", "uuid"),
                 "Group.users": map_mongo_collection_keys_to_string!("$Group.users", "_id", "id", "uuid"),
             }
         },
         doc!
         {
-            "$unset": ["_id", "Group.owner_id", "Group.user_ids", "Group.owner._id",  "Group.chat_info._id"]
+            "$unset": ["_id", "Group.owner_id", "Group.user_ids", "Group.owner._id",  "Group.channel._id"]
         }
     ]
 }
