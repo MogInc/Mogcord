@@ -146,6 +146,8 @@ impl channel_parent::chat::Repository for MongolDB
         {
             Some(document) => 
             {
+                println!("{document:#?}");
+
                 let chat = from_document(document)
                     .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
@@ -240,7 +242,7 @@ fn internal_private_chat_pipeline() -> [Document; 3]
     ]
 }
 
-fn internal_group_chat_pipeline() -> [Document; 5]
+fn internal_group_chat_pipeline() -> [Document; 6]
 {
     [
         doc! 
@@ -280,9 +282,25 @@ fn internal_group_chat_pipeline() -> [Document; 5]
                 "Group.users": map_mongo_collection_keys_to_string!("$Group.users", "_id", "id", "uuid"),
             }
         },
+        doc! {
+            "$addFields": doc! {
+                "Group.users": doc! {
+                    "$arrayToObject": doc! {
+                        "$map": doc! {
+                            "input": "$Group.users",
+                            "as": "item",
+                            "in": doc! {
+                                "k": "$$item.id",
+                                "v": "$$item"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         doc!
         {
-            "$unset": ["_id", "Group.owner_id", "Group.user_ids", "Group.owner._id",  "Group.channel._id"]
+            "$unset": ["_id", "Group._id", "Group.owner_id", "Group.owner._id", "Group.user_ids", "Group.channel._id"]
         }
     ]
 }
