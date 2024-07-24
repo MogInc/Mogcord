@@ -70,13 +70,12 @@ impl Server
 {
     pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
     {
-        let insert_option = self.users.insert(user.id.to_string(), user);
-
-        if insert_option.is_none()
+        if self.is_user_part_of_server(&user.id) 
         {
-            return Err(error::Server::ChatAlreadyHasThisUser);
+            return Err(error::Server::ServerAlreadyHasThisUser);
         }
 
+        self.users.insert(user.id.to_string(), user);
 
         Ok(())
     }
@@ -87,7 +86,7 @@ impl Server
         {
             if self.is_user_part_of_server(&user.id) 
             {
-                return Err(error::Server::ChatAlreadyHasThisUser);
+                return Err(error::Server::ServerAlreadyHasThisUser);
             }
         }
 
