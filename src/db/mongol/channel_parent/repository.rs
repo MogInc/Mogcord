@@ -218,13 +218,30 @@ impl channel_parent::server::Repository for MongolDB
         self
             .channels()
             .insert_many(db_channels)
+            .session(&mut session)
             .await
             .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
 
         match self.servers().insert_one(&db_server).session(&mut session).await
         {
-            Ok(_) => Ok(server),
-            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+            Ok(_) => 
+            {
+                session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+                Ok(server)
+            },
+            Err(err) => 
+            {
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+                Err(error::Server::FailedInsert(err.to_string()))
+            },
         }
     }
 
