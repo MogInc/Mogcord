@@ -35,10 +35,10 @@ impl channel_parent::chat::Repository for MongolDB
             },
             Chat::Group(group) => 
             {
-                let id = mongol::helper::convert_domain_id_to_mongol(&group.id)?;
+                let chat_id = mongol::helper::convert_domain_id_to_mongol(&group.id)?;
                 filter = doc! 
                 {
-                    "Group._id": id
+                    "Group._id": chat_id
                 };
 
                 let user_ids: Vec<&str> = group
@@ -49,8 +49,11 @@ impl channel_parent::chat::Repository for MongolDB
 
                 doc!
                 {
-                    "Group.name": group.name,
-                    "Group.user_ids": mongol::helper::convert_domain_ids_to_mongol(&user_ids)?,
+                    "$set":
+                    {
+                        "Group.name": group.name,
+                        "Group.user_ids": mongol::helper::convert_domain_ids_to_mongol(&user_ids)?,
+                    }
                 }
             },
         };
