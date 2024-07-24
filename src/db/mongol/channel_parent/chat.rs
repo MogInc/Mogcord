@@ -1,7 +1,6 @@
 mod group;
 mod private;
 
-use bson::Document;
 pub use group::*;
 pub use private::*;
 
