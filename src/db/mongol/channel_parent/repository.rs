@@ -284,8 +284,6 @@ impl channel_parent::server::Repository for MongolDB
 
         pipeline.extend(internal_server_pipeline());
 
-        pipeline.push(doc! { "$limit": 1 });
-
         let mut cursor = self
             .servers()
             .aggregate(pipeline)
@@ -303,10 +301,10 @@ impl channel_parent::server::Repository for MongolDB
         {
             Some(document) => 
             {
-                let chat = from_document(document)
+                let server = from_document(document)
                     .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
-                return Ok(chat);
+                return Ok(server);
             },
             None => Err(error::Server::ServerNotFound), 
         }
@@ -347,10 +345,10 @@ impl channel_parent::server::Repository for MongolDB
         {
             Some(document) => 
             {
-                let chat = from_document(document)
+                let server = from_document(document)
                     .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
-                return Ok(chat);
+                return Ok(server);
             },
             None => Err(error::Server::ChatNotFound), 
         }
@@ -476,7 +474,7 @@ fn internal_server_pipeline() -> [Document; 7]
             "$lookup":
             {
                 "from": "channels",
-                "localField": "channels_ids",
+                "localField": "channel_ids",
                 "foreignField": "_id",
                 "as": "channels"
             }
