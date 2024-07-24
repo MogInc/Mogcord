@@ -151,8 +151,6 @@ impl channel_parent::chat::Repository for MongolDB
 
     async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>
     {
-        return Ok(false);
-
         let filter = match MongolChat::try_from(chat)?
         {
             MongolChat::Private(private) => 
@@ -162,6 +160,7 @@ impl channel_parent::chat::Repository for MongolDB
                     "Private.owner_ids": private.owner_ids,
                 }
             },
+            //debating on wether to allow inf groups with same users
             MongolChat::Group(group) => 
             {
                 doc!
