@@ -20,14 +20,7 @@ impl relation::Repository for MongolDB
             "$and":
             [
                 doc! { "user_id" : current_user_id_local },
-                doc! 
-                {
-                    "$or" : 
-                    [
-                        { "pending_outgoing_friend_ids" : other_user_id_local },
-                        { "friend_ids" : other_user_id_local },
-                    ],
-                }
+                doc! { "friend_ids" : other_user_id_local },
             ]
         };
 
