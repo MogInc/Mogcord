@@ -297,7 +297,46 @@ impl channel_parent::server::Repository for MongolDB
 
     async fn get_server_by_channel_id(&self, channel_id: &str) -> Result<Server, error::Server>
     {
-        todo!()
+        let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
+
+        let mut pipeline = vec!
+        [
+            doc! 
+            {
+                "$match":
+                {
+                    "channel_ids._id": channel_id_local
+                }
+            },
+        ];
+
+        pipeline.extend(internal_server_pipeline());
+
+
+        let mut cursor = self
+            .servers()
+            .aggregate(pipeline)
+            .await
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+
+        let document_option = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+
+        match document_option
+        {
+            Some(document) => 
+            {
+                let chat = from_document(document)
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+                return Ok(chat);
+            },
+            None => Err(error::Server::ChatNotFound), 
+        }
     }
 }
 
@@ -385,7 +424,7 @@ fn internal_group_chat_pipeline() -> [Document; 6]
     ]
 }
 
-fn internal_server_pipeline() -> [Document; 5]
+fn internal_server_pipeline() -> [Document; 7]
 {
     [
         doc! 
@@ -417,17 +456,35 @@ fn internal_server_pipeline() -> [Document; 5]
         },
         doc!
         {
+            "$lookup":
+            {
+                "from": "channels",
+                "localField": "channels_ids",
+                "foreignField": "_id",
+                "as": "channels"
+            }
+        },
+        doc!
+        {
             "$addFields":
             {
                 "id": map_mongo_key_to_string!("$_id", "uuid"),
                 "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
                 "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
-                "chat_infos": map_mongo_collection_keys_to_string!("$chat_infos", "_id", "id", "uuid"),
+                "channels": map_mongo_collection_keys_to_string!("$channels", "_id", "id", "uuid"),
             }
         },
         doc!
         {
-            "$unset": ["_id", "owner_id", "user_ids", "owner._id",  "chat_infos._id"]
+            "$addFields":
+            {
+                "users": map_mongo_collection_to_hashmap!("$users", "id"),
+                "channels": map_mongo_collection_to_hashmap!("$channels", "id"),
+            }
+        },
+        doc!
+        {
+            "$unset": ["_id", "owner_id", "user_ids", "owner._id", "channel_ids", "channels._id"]
         }
     ]
 }
