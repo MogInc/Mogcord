@@ -3,10 +3,10 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::{mongol, MongolChannel}, model::{channel_parent::{self, chat::Chat, Server}, error }};
+use crate::{db::mongol, model::{channel_parent::{self, chat::Chat, Server}, error }};
 use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
-use super::{helper, MongolChannelParent, MongolChat};
+use super::{helper, MongolChat};
 
 impl channel_parent::Repository for MongolDB{}
 
