@@ -34,8 +34,6 @@ pub async fn create_chat(
 
     let ctx_user_id = &ctx.user_id();
 
-    //TODO
-    //add relation check
 
     let chat = match payload
     {
@@ -46,7 +44,10 @@ pub async fn create_chat(
                 return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::CantHaveChatWithSelf));
             }
 
-            if repo_relation.does_friendship_exist(current_user_id, other_user_id)
+            if !repo_relation.does_friendship_exist(ctx_user_id, &user_id).await?
+            {
+                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::OutgoingUserNotFriend));
+            }
 
             let owners = repo_user
                 .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
