@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::mongol, model::{channel_parent::{self, chat::Chat, Server}, error }};
+use crate::{db::mongol, map_mongo_collection_to_hashmap, model::{channel_parent::{self, chat::Chat, Server}, error }};
 use crate::db::mongol::MongolDB;
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 use super::{helper, MongolChat};
@@ -282,20 +282,11 @@ fn internal_group_chat_pipeline() -> [Document; 6]
                 "Group.users": map_mongo_collection_keys_to_string!("$Group.users", "_id", "id", "uuid"),
             }
         },
-        doc! {
-            "$addFields": doc! {
-                "Group.users": doc! {
-                    "$arrayToObject": doc! {
-                        "$map": doc! {
-                            "input": "$Group.users",
-                            "as": "item",
-                            "in": doc! {
-                                "k": "$$item.id",
-                                "v": "$$item"
-                            }
-                        }
-                    }
-                }
+        doc! 
+        {
+            "$addFields": 
+            {
+                "Group.users": map_mongo_collection_to_hashmap!("$Group.users", "id"),
             }
         },
         doc!
