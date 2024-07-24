@@ -35,6 +35,7 @@ docker compose up
 - [x] Implement Chat Repository for MongolDB.
 --- [ ] Test (manual) Chat Endpoints.
 - [ ] Implement Server Repository for MongolDB.
+--- [ ] Implement Server Endpoints.
 --- [ ] Test (manual) Server Endpoints.
 - [ ] Implement Message Endpoints.
 --- [ ] Add methods to Channel Parent Trait.
