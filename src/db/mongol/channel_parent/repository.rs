@@ -26,7 +26,40 @@ impl channel_parent::chat::Repository for MongolDB
 
     async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>
     {
-        todo!()
+        let filter: Document;
+        let update = match chat
+        {
+            Chat::Private(_) => 
+            {
+                return Err(error::Server::CantUpdatePrivateChat);
+            },
+            Chat::Group(group) => 
+            {
+                let id = mongol::helper::convert_domain_id_to_mongol(&group.id)?;
+                filter = doc! 
+                {
+                    "Group._id": id
+                };
+
+                let user_ids: Vec<&str> = group
+                    .users
+                    .keys()
+                    .map(AsRef::as_ref)
+                    .collect();
+
+                doc!
+                {
+                    "Group.name": group.name,
+                    "Group.user_ids": mongol::helper::convert_domain_ids_to_mongol(&user_ids)?,
+                }
+            },
+        };
+
+        match self.chats().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
+        }
     }
 
     async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>

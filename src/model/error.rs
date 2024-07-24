@@ -32,6 +32,7 @@ pub enum Server
 	CantAddUsersToChatThatArentFriends,
 	ChannelNotFound,
 	ChannelNotPassed,
+	CantUpdatePrivateChat,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
