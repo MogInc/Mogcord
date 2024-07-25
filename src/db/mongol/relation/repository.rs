@@ -20,14 +20,7 @@ impl relation::Repository for MongolDB
             "$and":
             [
                 doc! { "user_id" : current_user_id_local },
-                doc! 
-                {
-                    "$or" : 
-                    [
-                        { "pending_outgoing_friend_ids" : other_user_id_local },
-                        { "friend_ids" : other_user_id_local },
-                    ],
-                }
+                doc! { "friend_ids" : other_user_id_local },
             ]
         };
 
@@ -65,6 +58,31 @@ impl relation::Repository for MongolDB
             },
             None => Ok(other_user_ids_local.is_empty()),
         }
+    }
+
+    async fn does_outgoing_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
+    {
+        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+
+        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+
+        let filter = doc!
+        {
+            "$and":
+            [
+                doc! { "user_id" : current_user_id_local },
+                doc! 
+                {
+                    "$or" : 
+                    [
+                        { "pending_outgoing_friend_ids" : other_user_id_local },
+                        { "friend_ids" : other_user_id_local },
+                    ],
+                }
+            ]
+        };
+
+        does_user_relation_exist(self, filter).await
     }
 
     async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>

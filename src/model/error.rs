@@ -25,22 +25,33 @@ pub enum Server
 	ChatDoesNotContainThisUser,
 	ServerDoesNotContainThisUser,
 	OwnerCountInvalid { expected: usize, found: usize },
+	UserCountInvalid { min: usize, found: usize },
 	ChatInfoNotFound,
 	ChatNotAllowedToBeMade(ExtraInfo),
 	ChatNotAllowedToGainUsers,
 	ChatAlreadyHasThisUser,
+	ServerAlreadyHasThisUser,
 	CantAddUsersToChatThatArentFriends,
+	CantAddOwnerAsUser,
+	ChannelNotFound,
+	ChannelNotPassed,
+	NotAllowedToMakeAMessageInThisChannel,
+	CantUpdatePrivateChat,
+	ServerNotFound,
 	//message
 	MessageNotFound,
 	MessageDoesNotContainThisChat,
 	MessageDoesNotContainThisUser,
 	FailedToAddUserToServer,
+	MessageNotAllowedToBeEdited,
+	NotAllowedToRetrieveMessages,
 
 	//relation
 	UserIsAlreadyFriend,
 	UserIsAlreadyBlocked,
 	UserYoureAddingIsBlocked,
 	UserYoureAddingHasYouBlocked,
+	ServerOwnerHasYouBlocked,
 	UserYoureAddingNotFound,
 	UserYoureAddingCantBeSelf,
 	IncomingFriendRequestNotFound,
@@ -91,6 +102,8 @@ pub enum Server
 pub enum ExtraInfo
 {
 	UserCreatingIsNotOwner,
+	CantHaveChatWithSelf,
+	OutgoingUserNotFriend,
 }
 
 impl fmt::Display for Server 

@@ -22,7 +22,7 @@ pub async fn create_user(
     Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse
 {
-    let repo_user = &state.user;
+    let repo_user = &state.users;
 
     //TODO: add user ban checks
     //TODO: mail verification (never)

@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 
-use crate::model::server::Server;
+use crate::model::channel_parent::{Role, Server};
 
-use super::{vec_to_dto, ChatInfoCreateResponse, ChatInfoGetResponse, ObjectToDTO};
+use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ServerCreateResponse
@@ -11,10 +13,12 @@ pub struct ServerCreateResponse
     r#type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
-    owner: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    owner: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
-    chat_infos: Vec<ChatInfoCreateResponse>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    channels: Option<Vec<ChannelCreateResponse>>,
 }
 
 impl ObjectToDTO<Server> for ServerCreateResponse
@@ -24,11 +28,11 @@ impl ObjectToDTO<Server> for ServerCreateResponse
         Self
         {
             id: model_input.id,
-            r#type: String::from( "Server"),
+            r#type: String::from("Server"),
             name: Some(model_input.name),
-            owner: model_input.owner.id,
-            users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
-            chat_infos: vec_to_dto(model_input.chat_infos),
+            owner: Some(model_input.owner.id),
+            users: Some(model_input.users.into_keys().collect()),
+            channels: Some(vec_to_dto(model_input.channels.into_values().collect())),
         }
     }
 }
@@ -38,12 +42,14 @@ pub struct ServerGetResponse
 {
     id: String,
     r#type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    name: String,
     owner: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    users: Option<Vec<String>>,
-    chat_infos: Vec<ChatInfoGetResponse>,
+    users: Vec<String>,
+    channels: Vec<ChannelGetResponse>,
+    roles: Vec<Role>,
+    //key user id
+    //value role names
+    user_roles: HashMap<String, Vec<String>>,
 }
 
 impl ObjectToDTO<Server> for ServerGetResponse
@@ -53,11 +59,13 @@ impl ObjectToDTO<Server> for ServerGetResponse
         Self
         {
             id: model_input.id,
-            r#type: String::from( "Server"),
-            name: Some(model_input.name),
+            r#type: String::from("Server"),
+            name: model_input.name,
             owner: model_input.owner.id,
-            users: Some(model_input.users.into_iter().map(|user| user.id).collect()),
-            chat_infos: vec_to_dto(model_input.chat_infos),
+            users: model_input.users.into_keys().collect(),
+            channels: vec_to_dto(model_input.channels.into_values().collect()),
+            roles: model_input.roles.into_values().collect(),
+            user_roles: model_input.user_roles,
         }
     }
 }

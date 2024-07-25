@@ -11,7 +11,7 @@ pub async fn get_users(
     pagination: Option<Query<Pagination>>,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.user;
+    let repo_user = &state.users;
 
     let pagination = Pagination::new(pagination);
 

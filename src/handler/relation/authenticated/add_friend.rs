@@ -18,8 +18,8 @@ pub async fn add_friend(
     Json(payload): Json<AddFriendRequest>,
 ) -> impl IntoResponse
 {
-    let repo_relation = &state.relation;
-    let repo_user = &state.user;
+    let repo_relation = &state.relations;
+    let repo_user = &state.users;
 
     let ctx_user_id = &ctx.user_id_ref();
     let other_user_id = &payload.user_id;
@@ -44,7 +44,7 @@ pub async fn add_friend(
         return Err(error::Server::UserYoureAddingHasYouBlocked);
     }
 
-    if repo_relation.does_friendship_exist(ctx_user_id, other_user_id).await?
+    if repo_relation.does_outgoing_friendship_exist(ctx_user_id, other_user_id).await?
     {
         return Err(error::Server::UserIsAlreadyFriend);
     }

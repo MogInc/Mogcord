@@ -4,7 +4,7 @@ use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{chat::Bucket, error, message::{self, Message}, Pagination};
+use crate::model::{bucket::Bucket, error, message::{self, Message}, Pagination};
 use crate::db::mongol::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 
@@ -33,7 +33,7 @@ impl message::Repository for MongolDB
 
         let bucket_filter = doc!
         {
-            "chat_id": db_message.chat_id,
+            "channel_id": db_message.channel_id,
             "date": date,
         };
 
@@ -62,7 +62,7 @@ impl message::Repository for MongolDB
         }
         else
         {
-            let mut bucket = Bucket::new(&message.chat, &message.timestamp);
+            let mut bucket = Bucket::new(&message.channel, &message.timestamp);
                 
             bucket.add_message(message.clone());
 
@@ -107,10 +107,10 @@ impl message::Repository for MongolDB
         }
     }
 
-    async fn get_valid_messages(&self, chat_id: &str, pagination: Pagination) 
+    async fn get_valid_messages(&self, channel_id: &str, pagination: Pagination) 
         -> Result<Vec<Message>, error::Server>
     {
-        let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
+        let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
         
         let mut pipelines = vec!
         [
@@ -119,7 +119,7 @@ impl message::Repository for MongolDB
             {
                 "$match":
                 {
-                    "chat_id": chat_id_local,
+                    "channel_id": channel_id_local,
                     "flag": internal_valid_message_filter(),
                 },
             },
@@ -281,9 +281,9 @@ fn internal_message_pipeline() -> [Document; 8]
             "$lookup": 
             {
                 "from": "chats",
-                "localField": "chat_id",
+                "localField": "channel_id",
                 "foreignField": "_id",
-                "as": "chat"
+                "as": "channel"
             }
         },
         //join with owner of message

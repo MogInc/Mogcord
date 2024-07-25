@@ -18,9 +18,9 @@ pub async fn add_users_to_chat(
     Json(payload): Json<AddUsersRequest>,
 ) -> impl IntoResponse
 {
-    let repo_chat = &state.chat;
-    let repo_relation = &state.relation;
-    let repo_user = &state.user;
+    let repo_chat = &state.chats;
+    let repo_relation = &state.relations;
+    let repo_user = &state.users;
     
     let ctx_user_id = ctx.user_id_ref();
 

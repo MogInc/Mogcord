@@ -11,7 +11,7 @@ pub async fn get_ctx_user_auth(
     ctx: Ctx,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.user;
+    let repo_user = &state.users;
  
     let ctx_user_id = &ctx.user_id_ref();
     

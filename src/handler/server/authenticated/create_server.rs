@@ -2,9 +2,10 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{server, AppState};
-use crate::middleware::auth::Ctx;
 use crate::dto::{ObjectToDTO, ServerCreateResponse};
+use crate::model::channel_parent::server;
+use crate::model::AppState;
+use crate::middleware::auth::Ctx;
 
 
 #[derive(Deserialize)]
@@ -18,8 +19,8 @@ pub async fn create_server(
     Json(payload): Json<CreateServerRequest>
 ) -> impl IntoResponse
 {
-    let repo_server = &state.server;
-    let repo_user = &state.user;
+    let repo_server = &state.servers;
+    let repo_user = &state.users;
 
     let ctx_user_id = &ctx.user_id();
 
@@ -32,6 +33,6 @@ pub async fn create_server(
     match repo_server.create_server(server).await 
     {
         Ok(server) => Ok(Json(ServerCreateResponse::obj_to_dto(server))),
-        Err(e) => Err(e),
+        Err(err) => Err(err),
     }
 }

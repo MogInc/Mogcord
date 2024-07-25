@@ -12,7 +12,7 @@ pub async fn get_server(
     Path(server_id): Path<String>
 ) -> impl IntoResponse
 {
-    let repo_server = &state.server;
+    let repo_server = &state.servers;
 
     let server = repo_server
         .get_server_by_id(&server_id)
@@ -24,6 +24,8 @@ pub async fn get_server(
     {
         return Err(error::Server::ServerDoesNotContainThisUser);
     }
+
+    let server = server.filter_channels(ctx_user_id);
 
     Ok(Json(ServerGetResponse::obj_to_dto(server)))
 }

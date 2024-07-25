@@ -9,7 +9,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::chat;
+use super::channel::Channel;
+use super::error;
 use super::user::User;
 
 
@@ -21,7 +22,7 @@ pub struct Message
     #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub timestamp: DateTime<Utc>,
     pub owner: User,
-    pub chat: chat::Info,
+    pub channel: Channel,
     pub bucket_id: Option<String>,
     //we actually gonna delete stuff?
     //(:sins:)
@@ -33,7 +34,7 @@ impl Message {
     pub fn new(
         value: String, 
         owner: User,
-        chat: chat::Info
+        channel: Channel
     ) -> Self
     {
         Self
@@ -42,7 +43,7 @@ impl Message {
             value,
             timestamp: Utc::now(),
             owner,
-            chat,
+            channel,
             bucket_id: None,
             flag: Flag::None
         }
@@ -51,28 +52,55 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value(&mut self, value: String)
+    pub fn update_value(&mut self, value: String, user_id: &str, user_roles: Option<&Vec<String>>) -> Result<(), error::Server>
     {
+        if !self.is_user_allowed_to_edit_message(user_id, user_roles)
+        {
+            return Err(error::Server::MessageNotAllowedToBeEdited);
+        }
+
         if self.value == value
         {
-            return;
+            //can be return Ok(());
+            return Err(error::Server::MessageNotAllowedToBeEdited);
         }
 
         self.value = value;
         self.flag = Flag::Edited { date: Utc::now() };
+
+        Ok(())
     }
 
     #[must_use]
-    pub fn is_chat_part_of_message(&self, chat_id: &str) -> bool
+    pub fn is_channel_part_of_message(&self, channel_id: &str) -> bool
     {
-        self.chat.id == *chat_id
+        self.channel.id == *channel_id
     }
 
     #[must_use]
-    pub fn is_user_allowed_to_edit_message(&self, user_id: &str) -> bool
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &str, user_roles_option: Option<&Vec<String>>) -> bool
     {
-        //can add more checks since servers can have users with rights etc.
-        //(will never be implemented)
-        self.owner.id == *user_id && self.flag.is_allowed_to_be_editted()
+        if self.owner.id != *user_id || !self.flag.is_allowed_to_be_editted()
+        {
+            return false;
+        }
+
+        let can_read = user_roles_option
+            .map_or(!self.channel.has_roles(), |user_roles|
+            {
+                user_roles
+                    .iter()
+                    .any(|user_role| self.channel.can_role_read(user_role))
+            });
+
+        let can_write = user_roles_option
+            .map_or(!self.channel.has_roles(), |user_roles|
+            {
+                user_roles
+                    .iter()
+                    .any(|user_role| self.channel.can_role_write(user_role))
+            });
+
+        can_read && can_write
     }
 }

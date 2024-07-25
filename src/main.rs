@@ -5,7 +5,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{chat, message, refresh_token, relation, server, user, AppState};
+use mogcord::model::{channel, channel_parent, message, refresh_token, relation, user, AppState};
 use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
@@ -23,27 +23,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
     
-    let user = Arc::clone(&db) as Arc<dyn user::Repository>;
-    let chat =  Arc::clone(&db) as Arc<dyn chat::Repository>;
-    let server =  Arc::clone(&db) as Arc<dyn server::Repository>;
-    let message = Arc::clone(&db) as Arc<dyn message::Repository>;
-    let refresh_token = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
-    let relation = Arc::clone(&db) as Arc<dyn relation::Repository>;
+    let chats =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
+    let servers =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
+    let channel_parents =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
+    let channels =  Arc::clone(&db) as Arc<dyn channel::Repository>;
+    let users = Arc::clone(&db) as Arc<dyn user::Repository>;
+    let messages = Arc::clone(&db) as Arc<dyn message::Repository>;
+    let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
+    let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
     let state: Arc<AppState> = Arc::new(
         AppState 
         {
-            chat,
-            server,
-            user,
-            message,
-            refresh_token,
-            relation,
+            chats,
+            servers,
+            channel_parents,
+            channels,
+            users,
+            messages,
+            refresh_tokens,
+            relations,
         }
     );
 
     let app: Router = Router::new()
-        .nest("/api/:version", handler::routes(state))
+        .nest("/api", handler::routes(state))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .layer(CookieManagerLayer::new())

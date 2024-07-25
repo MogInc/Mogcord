@@ -18,7 +18,7 @@ pub struct MongolMessage
     pub value: String,
     pub timestamp: DateTime,
     pub owner_id: Uuid,
-    pub chat_id: Uuid,
+    pub channel_id: Uuid,
     pub bucket_id: Option<Uuid>,
     #[serde(serialize_with = "as_string")]
     pub flag: message::Flag
@@ -34,7 +34,7 @@ impl TryFrom<&Message> for MongolMessage
         
         let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
         
-        let chat_id = helper::convert_domain_id_to_mongol(&value.chat.id)?;
+        let channel_id = helper::convert_domain_id_to_mongol(&value.channel.id)?;
 
         let bucket_id_option = value.bucket_id
             .as_ref()
@@ -50,7 +50,7 @@ impl TryFrom<&Message> for MongolMessage
                 value: value.value.clone(), 
                 timestamp: DateTime::from(timestamp),
                 owner_id, 
-                chat_id,
+                channel_id,
                 bucket_id: bucket_id_option,
                 flag: value.flag.clone(),
             }

@@ -18,7 +18,7 @@ pub async fn confirm_friend(
     Json(payload): Json<ConfirmFriendRequest>,
 ) -> impl IntoResponse
 {
-    let repo_relation = &state.relation;
+    let repo_relation = &state.relations;
 
     let ctx_user_id = &ctx.user_id_ref();
     let other_user_id = &payload.user_id;

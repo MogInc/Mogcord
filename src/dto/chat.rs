@@ -1,8 +1,8 @@
 use serde::Serialize;
 
-use crate::model::chat::Chat;
+use crate::model::channel_parent::chat::Chat;
 
-use super::{ChatInfoCreateResponse, ChatInfoGetResponse, ObjectToDTO};
+use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ChatCreateResponse
@@ -18,9 +18,7 @@ pub struct ChatCreateResponse
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    chat_info: Option<ChatInfoCreateResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    chat_infos: Option<Vec<ChatInfoCreateResponse>>,
+    channel: Option<ChannelCreateResponse>,
 }
 
 impl ObjectToDTO<Chat> for ChatCreateResponse
@@ -34,13 +32,12 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                 Self
                 {
                     id: private.id, 
-                    r#type: String::from( "Private"),
+                    r#type: String::from("Private"),
                     name: None,
                     owner: None,
                     owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
-                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(private.chat_info)),
-                    chat_infos: None,
+                    channel: Some(ChannelCreateResponse::obj_to_dto(private.channel)),
                 }
             },
             Chat::Group(group) => 
@@ -48,13 +45,12 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                 Self
                 {
                     id: group.id,
-                    r#type: String::from( "Group"),
+                    r#type: String::from("Group"),
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
-                    chat_info: Some(ChatInfoCreateResponse::obj_to_dto(group.chat_info)),
-                    chat_infos: None,
+                    users: Some(group.users.into_keys().collect()),
+                    channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
                 }
             },
         }
@@ -75,9 +71,7 @@ pub struct ChatGetResponse
     #[serde(skip_serializing_if = "Option::is_none")]
     users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    chat_info: Option<ChatInfoGetResponse>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    chat_infos: Option<Vec<ChatInfoGetResponse>>,
+    channel: Option<ChannelGetResponse>,
 }
 
 impl ObjectToDTO<Chat> for ChatGetResponse
@@ -96,8 +90,7 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                     owner: None,
                     owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                     users: None,
-                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(private.chat_info)),
-                    chat_infos: None,
+                    channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
                 }
             },
             Chat::Group(group) => 
@@ -109,9 +102,8 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                     name: Some(group.name),
                     owner: Some(group.owner.id),
                     owners: None,
-                    users: Some(group.users.into_iter().map(|user| user.id).collect()),
-                    chat_info: Some(ChatInfoGetResponse::obj_to_dto(group.chat_info)),
-                    chat_infos: None,
+                    users: Some(group.users.into_keys().collect()),
+                    channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
                 }
             },
         }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{error, AppState};
+use crate::model::{channel::Parent, error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{MessageCreateResponse, ObjectToDTO};
 
@@ -13,12 +13,13 @@ pub struct UpdateMessageRequest
 }
 pub async fn update_message(
     State(state, ): State<Arc<AppState>>,
-    Path((chat_info_id, message_id)): Path<(String, String)>,
+    Path((channel_id, message_id)): Path<(String, String)>,
     ctx: Ctx,
     extract::Json(payload): extract::Json<UpdateMessageRequest>,
 ) -> impl IntoResponse
 {
-    let repo_message = &state.message;
+    let repo_message = &state.messages;
+    let repo_parent = &state.channel_parents;
 
     let ctx_user_id = ctx.user_id_ref();
     
@@ -26,17 +27,18 @@ pub async fn update_message(
         .get_message(&message_id)
         .await?;
     
-    if !message.is_chat_part_of_message(&chat_info_id)
+    if !message.is_channel_part_of_message(&channel_id)
     {
         return Err(error::Server::MessageDoesNotContainThisChat);
     }
 
-    if !message.is_user_allowed_to_edit_message(ctx_user_id)
-    {
-        return Err(error::Server::MessageDoesNotContainThisUser);
-    }
+    let channel_parent = repo_parent
+        .get_channel_parent(&channel_id)
+        .await?;
 
-    message.update_value(payload.value);
+    let user_roles = channel_parent.get_user_roles(ctx_user_id);
+
+    message.update_value(payload.value, ctx_user_id, user_roles)?;
 
     match repo_message.update_message(message).await
     {

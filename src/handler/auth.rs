@@ -21,8 +21,8 @@ pub async fn login(
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse
 {
-    let repo_user = &state.user;
-    let repo_refresh = &state.refresh_token;
+    let repo_user = &state.users;
+    let repo_refresh = &state.refresh_tokens;
 
     let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
@@ -113,7 +113,7 @@ pub async fn refresh_token(
     jar: Cookies
 ) -> impl IntoResponse
 {
-    let repo_refresh = &state.refresh_token;
+    let repo_refresh = &state.refresh_tokens;
 
     let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())?;
 

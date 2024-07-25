@@ -1,15 +1,10 @@
-mod repository;
-
-
+use std::collections::HashMap;
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{error, server::Server};
-use crate::db::mongol::helper;
-use super::{MongolChatInfoWrapper, MongolChatInfo};
+use crate::{db::helper, model::{channel_parent::{Role, Server}, error}};
 
-//reason for wrapper
-//else _id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
+//_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
 #[allow(clippy::used_underscore_binding)]
@@ -19,13 +14,19 @@ pub struct MongolServer
     name: String,
     owner_id: Uuid,
     user_ids: Vec<Uuid>,
-    chat_infos: Vec<MongolChatInfo> 
+    channel_ids: Vec<Uuid>,
+    //key is role name
+    roles: HashMap<String, Role>,
+    //key is user id
+    //value is role name
+    user_roles: HashMap<String, Vec<String>>,
 }
+
 
 impl TryFrom<&Server> for MongolServer
 {
     type Error = error::Server;
-    
+
     fn try_from(value: &Server) -> Result<Self, Self::Error> 
     {
         let db_id = helper::convert_domain_id_to_mongol(&value.id)?;
@@ -34,8 +35,14 @@ impl TryFrom<&Server> for MongolServer
 
         let user_ids = value
             .users
-            .iter()
-            .map(|owner| helper::convert_domain_id_to_mongol(&owner.id))
+            .keys()
+            .map(|key| helper::convert_domain_id_to_mongol(key))
+            .collect::<Result<_, _>>()?;
+
+        let channel_ids = value
+            .channels
+            .keys()
+            .map(|key| helper::convert_domain_id_to_mongol(key))
             .collect::<Result<_, _>>()?;
 
         Ok(
@@ -45,7 +52,9 @@ impl TryFrom<&Server> for MongolServer
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                chat_infos:  MongolChatInfoWrapper::try_from(&value.chat_infos)?.0,
+                channel_ids,
+                roles: value.roles.clone(),
+                user_roles: value.user_roles.clone(),
             }
         )
     }
