@@ -91,25 +91,7 @@ impl Channel
     /// ```
     pub fn can_role_read(&self, role_name: &str) -> bool
     {
-        for role in &self.roles
-        {
-            if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true) 
-            {
-                return true;
-            }
-    
-            if role.name != role_name
-            {
-                continue;
-            }
-    
-            if let Some(b) = role.can_read()
-            {
-                return b;
-            }
-        }
-
-        self.roles.is_empty()
+        self.internal_can_role_perform_action(role_name, Role::can_read)
     }
 
     #[must_use]
@@ -147,6 +129,13 @@ impl Channel
     /// ```
     pub fn can_role_write(&self, role_name: &str) -> bool
     {
+        self.internal_can_role_perform_action(role_name, Role::can_write)
+    }
+
+    fn internal_can_role_perform_action<T>(&self, role_name: &str, func: T) -> bool
+    where 
+        T: Fn(&Role) -> Option<bool>,
+    {
         for role in &self.roles
         {
             if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true) 
@@ -159,7 +148,7 @@ impl Channel
                 continue;
             }
     
-            if let Some(b) = role.can_read()
+            if let Some(b) = func(role)
             {
                 return b;
             }
