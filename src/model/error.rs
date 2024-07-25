@@ -35,6 +35,7 @@ pub enum Server
 	CantAddOwnerAsUser,
 	ChannelNotFound,
 	ChannelNotPassed,
+	NotAllowedToMakeAMessageInThisChannel,
 	CantUpdatePrivateChat,
 	ServerNotFound,
 	//message
