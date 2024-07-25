@@ -40,6 +40,25 @@ impl Role
 impl Role
 {
     #[must_use]
+    #[allow(irrefutable_let_patterns)]
+    pub fn can_read_channels(&self) -> Option<bool>
+    {
+        self.rights
+            .iter()
+            .find_map(|right| 
+                if let Rights::ReadChannels(value) = right
+                {
+                    Some(*value)
+                }
+                else
+                {
+                    None
+                }
+            )?
+    }
+
+
+    #[must_use]
     pub fn default_rights() -> Vec<Rights>
     {
         Rights::iter().collect()

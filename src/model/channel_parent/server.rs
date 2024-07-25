@@ -16,9 +16,15 @@ pub struct Server
     pub id: String,
     pub name: String,
     pub owner: User,
+    //key is user id
     pub users: HashMap<String, User>,
+    //key is channel id
     pub channels: HashMap<String, Channel>,
+    //key is role name
     pub roles: HashMap<String, Role>,
+    //key is user_id
+    //value are role names => can become a HashSet if Vec becomes slow
+    //can work with full obj but seems like waste
     pub user_roles: HashMap<String, Vec<String>>,
 }
 
@@ -120,12 +126,19 @@ impl Server
     #[must_use]
     pub fn filter_channels(self, user_id: &str) -> Self
     {
-        let filtered_channels = self
-            .channels
-            .clone()
-            .into_iter()
-            .filter(|(channel_id, _)| self.can_read(user_id, Some(channel_id)).unwrap_or(false))
-            .collect();
+        let filtered_channels = if self.internal_server_check_permision(user_id, Role::can_read_channels)
+        {
+            self
+                .channels
+                .clone()
+                .into_iter()
+                .filter(|(channel_id, _)| self.can_read(user_id, Some(channel_id)).unwrap_or(false))
+                .collect()
+        }
+        else
+        {
+            HashMap::new()
+        };
 
         Self::convert(
             self.id, 
@@ -158,18 +171,60 @@ impl channel::Parent for Server
 
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.internal_check_permission(user_id, channel_id_option, Channel::can_role_read)
+        self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
     
     fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.internal_check_permission(user_id, channel_id_option, Channel::can_role_write)
+        self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
 }
 
 impl Server
 {
-    fn internal_check_permission(
+    fn internal_server_check_permision(
+        &self,
+        user_id: &str,
+        func: impl Fn(&Role) -> Option<bool>,
+    ) -> bool 
+    {
+        if self.is_owner(user_id) 
+        {
+            return true;
+        }
+    
+        if !self.users.contains_key(user_id) 
+        {
+            return false;
+        }
+
+        let user_roles_option = self.get_user_roles(user_id);
+        
+        let roles_default: &Vec<String> = &Vec::new();
+        let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);
+    
+        for (name, role) in &self.roles
+        {
+            if name == ROLE_NAME_EVERYBODY && role.can_read_channels().unwrap_or(true) 
+            {
+                return true;
+            }
+    
+            if !user_roles.contains(name)
+            {
+                continue;
+            }
+    
+            if let Some(b) = func(role)
+            {
+                return b;
+            }
+        }
+
+        self.roles.is_empty()
+    }
+
+    fn internal_channel_check_permission(
         &self,
         user_id: &str,
         channel_id_option: Option<&str>,
