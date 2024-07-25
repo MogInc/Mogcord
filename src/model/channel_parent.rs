@@ -89,6 +89,15 @@ impl channel::Parent for ChannelParent
         }
     }
 
+    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    {
+        match self
+        {
+            ChannelParent::Chat(val) => val.get_user_roles(user_id),
+            ChannelParent::Server(val) => val.get_user_roles(user_id),
+        }
+    }
+
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
         match self
