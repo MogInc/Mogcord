@@ -398,7 +398,7 @@ impl channel_parent::server::Repository for MongolDB
 }
 
 
-fn internal_private_chat_pipeline() -> [Document; 3]
+fn internal_private_chat_pipeline() -> [Document; 5]
 {
     [
         doc! 
@@ -409,6 +409,23 @@ fn internal_private_chat_pipeline() -> [Document; 3]
                 "localField": "Private.owner_ids",
                 "foreignField": "_id",
                 "as": "Private.owners"
+            }
+        },
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "channels",
+                "localField": "Private.channel_id",
+                "foreignField": "_id",
+                "as": "Private.channel"
+            }
+        },
+        doc!
+        {
+            "$unwind":
+            {
+                "path": "$Private.channel"
             }
         },
         doc!
@@ -427,7 +444,7 @@ fn internal_private_chat_pipeline() -> [Document; 3]
     ]
 }
 
-fn internal_group_chat_pipeline() -> [Document; 6]
+fn internal_group_chat_pipeline() -> [Document; 8]
 {
     [
         doc! 
@@ -445,6 +462,23 @@ fn internal_group_chat_pipeline() -> [Document; 6]
             "$unwind":
             {
                 "path": "$Group.owner"
+            }
+        },
+        doc! 
+        {
+            "$lookup": 
+            {
+                "from": "channels",
+                "localField": "Group.channel_id",
+                "foreignField": "_id",
+                "as": "Group.channel"
+            }
+        },
+        doc!
+        {
+            "$unwind":
+            {
+                "path": "$Group.channel"
             }
         },
         doc!
