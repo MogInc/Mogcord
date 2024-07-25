@@ -1,49 +1,7 @@
-use std::collections::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
+use strum::IntoEnumIterator;
 
 use super::Rights;
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-//server roles, roles linked to server
-pub struct Roles
-{
-    //key is role name
-    roles: HashMap<String, Role>,
-}
-
-impl Default for Roles
-{
-    #[must_use]
-    fn default() -> Self
-    {
-        Self 
-        { 
-            roles: HashMap::new()
-        }
-    }
-}
-
-impl Roles
-{
-    #[must_use]
-    pub fn contains(&self, key: &str) -> bool
-    {
-        self.roles.contains_key(key)
-    }
-
-    #[must_use]
-    pub fn get(&self, key: &str) -> Option<&Role>
-    {
-        self.roles.get(key)
-    }
-
-    #[must_use]
-    pub fn get_all(&self) -> Vec<Role>
-    {
-        self.roles.clone().into_values().collect()
-    }
-}
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 //server roles, roles linked to server
@@ -51,15 +9,51 @@ pub struct Role
 {
     pub name: String,
     pub rank: usize,
-    rights: HashSet<Rights>,
+    rights: Vec<Rights>,
 }
 
 impl Role
 {
     #[must_use]
-    pub fn get_read_channel(&self) -> Option<&Rights>
+    pub fn new(name: String, rank: usize) -> Self
     {
-        self.rights.get(&Rights::ReadChannels(None))
+        Self
+        {
+            name,
+            rank,
+            rights: Self::default_rights(),
+        }
+    }
+
+    #[must_use]
+    pub fn new_private(name: String, rank: usize) -> Self
+    {
+        Self
+        {
+            name,
+            rank,
+            rights: Self::default_private_rights(),
+        }
+    }
+}
+
+impl Role
+{
+    #[must_use]
+    pub fn default_rights() -> Vec<Rights>
+    {
+        Rights::iter().collect()
+    }
+
+    #[must_use]
+    pub fn default_private_rights() -> Vec<Rights>
+    {
+        Rights::iter().map(|right| {
+            match right
+            {
+                Rights::ReadChannels(_) => Rights::ReadChannels(Some(false)),
+            }
+        }).collect()
     }
 }
 
