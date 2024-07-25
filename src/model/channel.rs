@@ -143,7 +143,44 @@ impl Channel
         self.internal_can_role_perform_action(role_name, Role::can_read)
     }
 
-    #[must_use]
+    #[must_use]    
+    /// returns `true` or `false` if the role has write rights.
+    /// 
+    /// # Examples - pseudo code for simplicity
+    /// ```
+    /// # use mogcord::model::channel::Channel;
+    /// # use mogcord::model::channel::Role;
+    /// //channel has roles - everyone = true
+    /// let mut channel = Channel::new(Some(String::from("Channel")), true);
+    /// channel.add_role(Role::new_private(String::from("a"), 2));
+    /// //{
+    /// //    { role: name: "a", weight: 2, write: false }
+    /// //    { role: name: "everyone", weight: 1, write: true }
+    /// //}
+    /// //can still write regardless if they have role "a"
+    /// assert!(channel.can_role_write("a"));
+    /// assert!(channel.can_role_write("b"));
+    /// 
+    /// //channel has roles - everyone = false
+    /// let mut channel = Channel::new_private(Some(String::from("Channel")));
+    /// channel.add_role(Role::new_public(String::from("a"), 2));
+    /// //{
+    /// //    { role: name: "a", weight: 2, write: true }
+    /// //    { role: name: "everyone", weight: 1, write: false }
+    /// //}
+    /// 
+    /// // only role "a" can write
+    /// assert!(channel.can_role_write("a"));
+    /// assert!(!channel.can_role_write("b"));
+    /// 
+    /// let mut channel = Channel::new(Some(String::from("Channel")), false);
+    /// //channel has no roles
+    /// //{
+    /// //}
+    /// //can still write regardless of the role
+    /// assert!(channel.can_role_write("a"));
+    /// assert!(channel.can_role_write("b"));
+    /// ```
     pub fn can_role_write(&self, role_name: &str) -> bool
     {
         self.internal_can_role_perform_action(role_name, Role::can_write)
@@ -161,7 +198,6 @@ impl Channel
     {
         for role in &self.roles
         {
-            println!("{role:?}");
             if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true) 
             {
                 return true;
@@ -177,8 +213,6 @@ impl Channel
                 return b;
             }
         }
-        println!("");
-        println!("");
         self.roles.is_empty()
     }
 }
