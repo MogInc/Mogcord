@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{error, AppState};
+use crate::model::{channel::Parent, error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{MessageCreateResponse, ObjectToDTO};
 
@@ -19,6 +19,7 @@ pub async fn update_message(
 ) -> impl IntoResponse
 {
     let repo_message = &state.messages;
+    let repo_parent = &state.channel_parents;
 
     let ctx_user_id = ctx.user_id_ref();
     
@@ -31,7 +32,13 @@ pub async fn update_message(
         return Err(error::Server::MessageDoesNotContainThisChat);
     }
 
-    message.update_value(payload.value, ctx_user_id)?;
+    let channel_parent = repo_parent
+        .get_channel_parent(&channel_id)
+        .await?;
+
+    let user_roles = channel_parent.get_user_roles(ctx_user_id);
+
+    message.update_value(payload.value, ctx_user_id, user_roles)?;
 
     match repo_message.update_message(message).await
     {
