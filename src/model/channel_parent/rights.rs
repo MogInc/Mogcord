@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+//server rights
 pub enum Rights
 {
     ReadChannels(Option<bool>),
