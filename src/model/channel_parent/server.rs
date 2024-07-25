@@ -154,27 +154,25 @@ impl channel::Parent for Server
 
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.check_permission(user_id, channel_id_option, channel::Role::can_read)
+        self.internal_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
     
     fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
-        self.check_permission(user_id, channel_id_option, channel::Role::can_write)
+        self.internal_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
 }
 
 impl Server
 {
-    fn check_permission<F>(
-        &self, 
-        user_id: &str, 
-        channel_id_option: 
-        Option<&str>, 
-        check_role: F
-    ) -> Result<bool, error::Server>
-    where
-        F: Fn(&channel::Role) -> Option<bool>,
+    fn internal_check_permission(
+        &self,
+        user_id: &str,
+        channel_id_option: Option<&str>,
+        access_check: impl Fn(&Channel, &str) -> bool,
+    ) -> Result<bool, error::Server> 
     {
+
         if self.is_owner(user_id) 
         {
             return Ok(true);
@@ -200,25 +198,14 @@ impl Server
             .get(channel_id)
             .ok_or(error::Server::ChannelNotFound)?;
     
-        let channel_roles = &channel.roles;
         let roles_default = &Roles::default();
         let user_roles = user_roles_option.unwrap_or(roles_default);
     
-        for role in channel_roles 
+        for user_role in user_roles.get_all() 
         {
-            if role.name == ROLE_NAME_EVERYBODY 
+            if access_check(channel, &user_role.name) 
             {
-                return Ok(check_role(role).unwrap_or(true));
-            }
-    
-            if !user_roles.contains(&role.name) 
-            {
-                continue;
-            }
-    
-            if let Some(b) = check_role(role) 
-            {
-                return Ok(b);
+                return Ok(true);
             }
         }
     
