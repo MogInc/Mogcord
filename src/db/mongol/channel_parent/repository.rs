@@ -13,7 +13,113 @@ impl channel_parent::Repository for MongolDB
 {
     async fn get_channel_parent(&self, channel_id: &str) -> Result<ChannelParent, error::Server>
     {
-        todo!()
+        let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
+
+        let mongol_channel = self
+            .channels()
+            .find_one(doc!{ "_id": channel_id_local })
+            .await
+            .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            .ok_or(error::Server::ChannelNotFound)?;
+
+        let mut cursor = match mongol_channel.parent_type
+        {
+            mongol::ParentType::ChatPrivate => 
+            {
+                let mut pipeline = Vec::new();
+
+                pipeline.push(
+                    doc!
+                    { 
+                       "$match":
+                       {
+                            "Private._id": channel_id_local
+                       } 
+                    }
+                );
+
+                pipeline.extend(internal_private_chat_pipeline());
+                
+                self
+                    .chats()
+                    .aggregate(pipeline)
+                    .await
+                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            },
+            mongol::ParentType::ChatGroup => 
+            {
+                let mut pipeline = Vec::new();
+
+                pipeline.push(
+                    doc!
+                    {
+                         "$match":
+                         {
+                            "Group._id": channel_id_local 
+                         }
+                    }
+                );
+
+                pipeline.extend(internal_group_chat_pipeline());
+                
+                self
+                    .chats()
+                    .aggregate(pipeline)
+                    .await
+                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            },
+            mongol::ParentType::Server => 
+            {
+                let mut pipeline = Vec::new();
+
+                pipeline.push(
+                    doc!
+                    { 
+                        "$match":
+                        {
+                            "channel_ids": channel_id_local 
+                        }
+                    }
+                );
+
+                pipeline.extend(internal_server_pipeline());
+                
+                pipeline.push(
+                    doc!
+                    { 
+                        "$replaceWith":
+                        {
+                            "Server": "$$ROOT" 
+                        }
+                    }
+                );
+
+                self
+                    .servers()
+                    .aggregate(pipeline)
+                    .await
+                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+            },
+        };
+
+        let document_option = cursor
+            .next()
+            .await
+            .transpose()
+            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+        match document_option
+        {
+            Some(document) => 
+            {
+                println!("{document:#?}");
+                let channel_parent = from_document(document)
+                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+
+                return Ok(channel_parent);
+            },
+            None => Err(error::Server::ChannelNotFound), 
+        }
     }
 }
 
@@ -191,8 +297,6 @@ impl channel_parent::chat::Repository for MongolDB
         {
             Some(document) => 
             {
-                println!("{document:#?}");
-
                 let chat = from_document(document)
                     .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
 
@@ -563,6 +667,7 @@ fn internal_server_pipeline() -> [Document; 7]
                 "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
                 "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
                 "channels": map_mongo_collection_keys_to_string!("$channels", "_id", "id", "uuid"),
+                // "roles": map_mongo_collection_to_hashmap!("$roles", "name"),
             }
         },
         doc!
