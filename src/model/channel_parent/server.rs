@@ -145,6 +145,13 @@ impl channel::Parent for Server
         }
     }
 
+    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    {
+        let user = self.users.get(user_id)?;
+
+        self.roles.get(user)
+    }
+
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
     {
         self.check_permission(user_id, channel_id_option, channel::Role::can_read)
