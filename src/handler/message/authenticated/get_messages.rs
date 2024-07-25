@@ -30,7 +30,7 @@ pub async fn get_messages(
 
     if !chat.can_read(current_user_id, Some(&channel_id))?
     {
-        return Err(error::Server::NotALlowedToRetrieveMessages);
+        return Err(error::Server::NotAllowedToRetrieveMessages);
     }
 
     match repo_message.get_valid_messages(&channel_id, pagination).await

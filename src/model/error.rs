@@ -44,7 +44,7 @@ pub enum Server
 	MessageDoesNotContainThisUser,
 	FailedToAddUserToServer,
 	MessageNotAllowedToBeEdited,
-	NotALlowedToRetrieveMessages,
+	NotAllowedToRetrieveMessages,
 
 	//relation
 	UserIsAlreadyFriend,
