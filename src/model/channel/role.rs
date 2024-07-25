@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 
@@ -11,6 +12,7 @@ pub struct Role
     pub rank: usize,
     rights: Vec<Rights>,
 }
+
 
 impl Role
 {
@@ -116,6 +118,22 @@ impl std::hash::Hash for Role
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) 
     {
         self.name.hash(state);
+    }
+}
+
+impl Ord for Role 
+{
+    fn cmp(&self, other: &Self) -> Ordering 
+    {
+        self.rank.cmp(&other.rank)
+    }
+}
+
+impl PartialOrd for Role 
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> 
+    {
+        Some(self.cmp(other))
     }
 }
 
