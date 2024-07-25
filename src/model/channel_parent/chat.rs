@@ -11,6 +11,8 @@ use strum_macros::Display;
 
 use crate::model::{channel::{self, Channel}, error, user::User};
 
+use super::Roles;
+
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
 {
@@ -85,6 +87,15 @@ impl channel::Parent for Chat
         {
             Chat::Private(private) => private.get_channel(channel_id_option),
             Chat::Group(group) => group.get_channel(channel_id_option),
+        }
+    }
+
+    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    {
+        match self
+        {
+            Chat::Private(val) => val.get_user_roles(user_id),
+            Chat::Group(val) => val.get_user_roles(user_id),
         }
     }
 
