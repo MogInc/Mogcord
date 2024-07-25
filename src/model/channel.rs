@@ -132,6 +132,7 @@ impl Channel
         self.internal_can_role_perform_action(role_name, Role::can_write)
     }
 
+    #[must_use]
     pub fn has_roles(&self) -> bool
     {
         !self.roles.is_empty()
