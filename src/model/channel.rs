@@ -12,6 +12,8 @@ use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use super::ROLE_NAME_EVERYBODY;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Channel
 {
@@ -52,5 +54,53 @@ impl Channel
             name,
             roles,
         }
+    }
+
+    #[must_use]
+    pub fn can_role_read(&self, role_name: &str) -> bool
+    {
+        for role in &self.roles
+        {
+            if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true) 
+            {
+                return true;
+            }
+    
+            if role.name != role_name
+            {
+                continue;
+            }
+    
+            if let Some(b) = role.can_read()
+            {
+                return b;
+            }
+        }
+
+        false
+    }
+
+    #[must_use]
+    pub fn can_role_write(&self, role_name: &str) -> bool
+    {
+        for role in &self.roles
+        {
+            if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true) 
+            {
+                return true;
+            }
+    
+            if role.name != role_name
+            {
+                continue;
+            }
+    
+            if let Some(b) = role.can_read()
+            {
+                return b;
+            }
+        }
+
+        false
     }
 }
