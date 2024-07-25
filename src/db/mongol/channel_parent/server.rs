@@ -22,6 +22,7 @@ pub struct MongolServer
     user_roles: HashMap<String, Vec<String>>,
 }
 
+
 impl TryFrom<&Server> for MongolServer
 {
     type Error = error::Server;

@@ -8,7 +8,7 @@ pub use role::*;
 pub use parent::*;
 pub use repository::*;
 
-use std::collections::HashSet;
+use std::{cmp::Ordering, collections::BTreeSet};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -19,7 +19,23 @@ pub struct Channel
 {
     pub id: String,
     pub name: Option<String>,
-    pub roles: HashSet<Role>,
+    pub roles: BTreeSet<Role>,
+}
+
+impl Ord for Role 
+{
+    fn cmp(&self, other: &Self) -> Ordering 
+    {
+        self.rank.cmp(&other.rank)
+    }
+}
+
+impl PartialOrd for Role 
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> 
+    {
+        Some(self.cmp(other))
+    }
 }
 
 impl Channel
@@ -29,12 +45,12 @@ impl Channel
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
-        let mut roles = HashSet::new();
+        let mut roles = BTreeSet::new();
 
         if add_base_roles
         {
             let role = Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
-            roles = HashSet::from([role]);
+            roles = BTreeSet::from([role]);
         }
 
         Self
@@ -46,7 +62,7 @@ impl Channel
     }
 
     #[must_use]
-    pub fn convert(id: String, name: Option<String>, roles: HashSet<Role>) -> Self
+    pub fn convert(id: String, name: Option<String>, roles: BTreeSet<Role>) -> Self
     {
         Self
         {
@@ -56,12 +72,16 @@ impl Channel
         }
     }
 
+
+
     #[must_use]
     /// returns `true` or `false` if the role has read rights.
     /// 
     /// # Examples - pseudo code for simplicity
     /// ```
     /// //channel has roles - everyone = true
+    /// let mut channel = Channel::new(Some(String::from("Channel")), true);
+    /// channel.roles.insert(Role::new(crate::model::ROLE_NAME_EVERYBODY.to_string(), 2))
     /// channel.roles
     /// {
     ///     { role: name: "a", weight: 2, read: false }

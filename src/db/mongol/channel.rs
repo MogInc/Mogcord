@@ -1,7 +1,6 @@
 mod repository;
 
 
-use std::collections::HashSet;
 use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
@@ -28,7 +27,7 @@ pub struct MongolChannel
     pub _id : Uuid,
     pub parent_type: ParentType,
     pub name: Option<String>,
-    pub roles: HashSet<Role>
+    pub roles: Vec<Role>
 }
 
 impl TryFrom<&Chat> for MongolChannel
@@ -61,7 +60,7 @@ impl TryFrom<(&Channel, ParentType)> for MongolChannel
                 _id: channel_id,
                 parent_type,
                 name: value.name.clone(),
-                roles: value.roles.clone(),
+                roles: value.roles.iter().cloned().collect(),
             }
         )
     }
@@ -92,7 +91,7 @@ impl From<&MongolChannel> for Channel
         Channel::convert(
             value._id.to_string(),
             value.name.clone(),
-            value.roles.clone(),
+            value.roles.iter().cloned().collect(),
         )
     }
 }

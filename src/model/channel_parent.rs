@@ -21,7 +21,7 @@ use super::{channel::{self, Channel}, error};
 pub enum ChannelParent
 {
     Chat(Chat),
-    Server(Server),
+    Server(Box<Server>),
 }
 
 

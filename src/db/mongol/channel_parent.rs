@@ -43,13 +43,13 @@ impl TryFrom<&Chat> for MongolChannelParent
     }
 }
 
-impl TryFrom<&Server> for MongolChannelParent
+impl TryFrom<&Box<Server>> for MongolChannelParent
 {
     type Error = error::Server;
     
-    fn try_from(value: &Server) -> Result<Self, Self::Error> 
+    fn try_from(value: &Box<Server>) -> Result<Self, Self::Error> 
     {
-        Ok(Self::Server(MongolServer::try_from(value)?))
+        Ok(Self::Server(MongolServer::try_from(&**value)?))
     }
 }
 
