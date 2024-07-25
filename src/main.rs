@@ -23,10 +23,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
     
-    let users = Arc::clone(&db) as Arc<dyn user::Repository>;
     let chats =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
     let servers =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
+    let channel_parents =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
     let channels =  Arc::clone(&db) as Arc<dyn channel::Repository>;
+    let users = Arc::clone(&db) as Arc<dyn user::Repository>;
     let messages = Arc::clone(&db) as Arc<dyn message::Repository>;
     let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
     let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
@@ -36,6 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         {
             chats,
             servers,
+            channel_parents,
             channels,
             users,
             messages,
