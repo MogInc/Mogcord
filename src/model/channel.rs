@@ -57,6 +57,16 @@ impl Channel
     }
 
     #[must_use]
+    /// this assumes the end user is responsible
+    /// 
+    /// let say you have
+    /// 
+    /// # Examples
+    /// ```
+    /// role: name: "a", weight: 2, read: false
+    /// role: name: "everyone", weight: 1, read: true
+    /// ```
+    /// users can still read regardless if they have role "a"
     pub fn can_role_read(&self, role_name: &str) -> bool
     {
         for role in &self.roles
@@ -81,6 +91,16 @@ impl Channel
     }
 
     #[must_use]
+    /// this assumes the end user is responsible
+    /// 
+    /// let say you have
+    /// 
+    /// # Examples
+    /// ```
+    /// role: name: "a", weight: 2, write: false
+    /// role: name: "everyone", weight: 1, write: true
+    /// ```
+    /// users can still write regardless if they have role "a"
     pub fn can_role_write(&self, role_name: &str) -> bool
     {
         for role in &self.roles
