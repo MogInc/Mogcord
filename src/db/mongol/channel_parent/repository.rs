@@ -3,12 +3,19 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::{mongol, MongolChannelVecWrapper}, map_mongo_collection_to_hashmap, model::{channel_parent::{self, chat::Chat, Server}, error }};
-use crate::db::mongol::MongolDB;
-use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
+use crate::model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error };
+use crate::db::{mongol::{self, MongolDB}, MongolChannelVecWrapper};
+use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, map_mongo_collection_to_hashmap};
 use super::{helper, MongolChat, MongolServer};
 
-impl channel_parent::Repository for MongolDB{}
+#[async_trait]
+impl channel_parent::Repository for MongolDB
+{
+    async fn get_channel_parent(&self, channel_id: &str) -> Result<ChannelParent, error::Server>
+    {
+        todo!()
+    }
+}
 
 #[async_trait]
 impl channel_parent::chat::Repository for MongolDB
