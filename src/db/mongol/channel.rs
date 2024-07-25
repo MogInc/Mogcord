@@ -6,6 +6,7 @@ use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::channel::Role;
+use crate::model::channel_parent::chat::{Chat, Group};
 use crate::model::channel_parent::Server;
 use crate::model::{channel::Channel, error};
 use crate::db::mongol::helper;
@@ -30,18 +31,34 @@ pub struct MongolChannel
     pub roles: HashSet<Role>
 }
 
+impl TryFrom<&Chat> for MongolChannel
+{
+    type Error = error::Server;
+
+    fn try_from(value: &Chat) -> Result<Self, Self::Error>
+    {
+        let mongol_channel = match value
+        {
+            Chat::Private(val) => MongolChannel::try_from((&val.channel, ParentType::ChatPrivate))?,
+            Chat::Group(val) => MongolChannel::try_from((&val.channel, ParentType::ChatGroup))?,
+        };
+
+        Ok(mongol_channel)
+    }
+}
+
 impl TryFrom<(&Channel, ParentType)> for MongolChannel
 {
     type Error = error::Server;
 
     fn try_from((value, parent_type): (&Channel, ParentType)) -> Result<Self, Self::Error>
     {
-        let chat_id = helper::convert_domain_id_to_mongol(&value.id)?;
+        let channel_id = helper::convert_domain_id_to_mongol(&value.id)?;
 
         Ok(
             Self 
             {
-                _id: chat_id,
+                _id: channel_id,
                 parent_type,
                 name: value.name.clone(),
                 roles: value.roles.clone(),

@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::{helper, MongolChannel, ParentType}, model::{channel_parent::chat::Group, error}};
+use crate::{db::helper, model::{channel_parent::chat::Group, error}};
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -13,7 +13,7 @@ pub struct MongolGroup
     pub name: String,
     pub owner_id: Uuid,
     pub user_ids: Vec<Uuid>,
-    pub channel: MongolChannel,
+    pub channel_id: Uuid,
 }
 
 impl TryFrom<&Group> for MongolGroup
@@ -23,6 +23,8 @@ impl TryFrom<&Group> for MongolGroup
     fn try_from(value: &Group) -> Result<Self, Self::Error> 
     {
         let db_id = helper::convert_domain_id_to_mongol(&value.id)?;
+
+        let channel_id = helper::convert_domain_id_to_mongol(&value.channel.id)?;
 
         let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
 
@@ -38,7 +40,7 @@ impl TryFrom<&Group> for MongolGroup
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                channel: MongolChannel::try_from((&value.channel, ParentType::ChatGroup))?,
+                channel_id,
             }
         )
     }

@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error };
+use crate::{db::MongolChannel, model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error }};
 use crate::db::{mongol::{self, MongolDB}, MongolChannelVecWrapper};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, map_mongo_collection_to_hashmap};
 use super::{helper, MongolChat, MongolServer};
@@ -23,11 +23,46 @@ impl channel_parent::chat::Repository for MongolDB
     async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
     {
         let db_chat = MongolChat::try_from(&chat)?;
+        let db_channel = MongolChannel::try_from(&chat)?;
 
-        match self.chats().insert_one(&db_chat).await
+        let mut session = self
+            .client()
+            .start_session()
+            .await
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+        
+        session
+            .start_transaction()
+            .await
+            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+        self
+            .channels()
+            .insert_one(db_channel)
+            .session(&mut session)
+            .await
+            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+
+        match self.chats().insert_one(&db_chat).session(&mut session).await
         {
-            Ok(_) => Ok(chat),
-            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+            Ok(_) =>
+            {
+                session
+                    .commit_transaction()
+                    .await
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+                Ok(chat)
+            },
+            Err(err) => 
+            {
+                session
+                    .abort_transaction()
+                    .await
+                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+
+                Err(error::Server::FailedInsert(err.to_string()))
+            },
         }
     }
 
