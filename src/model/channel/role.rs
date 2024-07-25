@@ -17,13 +17,24 @@ pub struct Role
 impl Role
 {
     #[must_use]
-    pub fn new(name: String, rank: usize) -> Self
+    pub fn new_neutral(name: String, rank: usize) -> Self
     {
         Self
         {
             name,
             rank,
             rights: Self::default_rights(),
+        }
+    }
+
+    #[must_use]
+    pub fn new_public(name: String, rank: usize) -> Self
+    {
+        Self
+        {
+            name,
+            rank,
+            rights: Self::default_public_rights(),
         }
     }
 
@@ -79,6 +90,18 @@ impl Role
     pub fn default_rights() -> Vec<Rights>
     {
         Rights::iter().collect()
+    }
+
+    #[must_use]
+    pub fn default_public_rights() -> Vec<Rights>
+    {
+        Rights::iter().map(|right| {
+            match right
+            {
+                Rights::Read(_) => Rights::Read(Some(true)),
+                Rights::Write(_) => Rights::Write(Some(true)),
+            }
+        }).collect()
     }
 
     #[must_use]
