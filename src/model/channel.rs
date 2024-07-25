@@ -87,7 +87,7 @@ impl Channel
             }
         }
 
-        false
+        self.roles.is_empty()
     }
 
     #[must_use]
@@ -121,6 +121,6 @@ impl Channel
             }
         }
 
-        false
+        self.roles.is_empty()
     }
 }
