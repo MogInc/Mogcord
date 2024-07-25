@@ -6,7 +6,7 @@ use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::channel::Role;
-use crate::model::channel_parent::chat::{Chat, Group};
+use crate::model::channel_parent::chat::Chat;
 use crate::model::channel_parent::Server;
 use crate::model::{channel::Channel, error};
 use crate::db::mongol::helper;

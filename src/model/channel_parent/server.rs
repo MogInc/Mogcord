@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{channel::{self, Channel, Parent}, error, user::User, ROLE_NAME_EVERYBODY};
+use crate::model::{channel::{self, Channel, Parent}, error, user::User};
 use super::Roles;
 
 
@@ -47,7 +47,6 @@ impl Server
     pub fn new(name: String, owner: User) -> Result<Self, error::Server>
     {
         let channel = Channel::new(Some(String::from("Welcome")), true);
-
 
         let server = Self
         {
