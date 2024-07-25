@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel::{self, Channel}, error, user::User};
+use crate::model::{channel::{self, Channel}, channel_parent, error, user::User};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group
@@ -110,6 +110,11 @@ impl channel::Parent for Group
     fn get_channel(&self, _: Option<&str>) -> Result<&Channel, error::Server> 
     {
         Ok(&self.channel)
+    }
+
+    fn get_user_roles(&self, _: &str) -> Option<&channel_parent::Roles> 
+    {
+        None
     }
 
     fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
