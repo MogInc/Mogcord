@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{channel::{self, Channel}, error, user::User, ROLE_NAME_EVERYBODY};
+use crate::model::{channel::{self, Channel, Parent}, error, user::User, ROLE_NAME_EVERYBODY};
 use super::Roles;
 
 
@@ -24,7 +24,7 @@ pub struct Server
 impl Server
 {
     #[must_use]
-    fn _convert(
+    fn convert(
         id: String, 
         name: String, 
         owner: User, 
@@ -110,6 +110,26 @@ impl Server
     pub fn is_user_part_of_server(&self, other_user: &str) -> bool
     {
         self.is_owner(other_user) || self.users.contains_key(other_user)
+    }
+
+    #[must_use]
+    pub fn apply_can_read(self, user_id: &str) -> Self
+    {
+        let filtered_channels = self
+            .channels
+            .clone()
+            .into_iter()
+            .filter(|(channel_id, _)| self.can_read(user_id, Some(channel_id)).unwrap_or(false))
+            .collect();
+
+        Self::convert(
+            self.id, 
+            self.name, 
+            self.owner, 
+            self.users, 
+            filtered_channels, 
+            self.roles
+        )
     }
 }
 
