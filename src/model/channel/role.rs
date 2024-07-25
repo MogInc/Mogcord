@@ -23,7 +23,7 @@ impl Role
         {
             name,
             rank,
-            rights: Self::default_rights(),
+            rights: Self::internal_default_rights(),
         }
     }
 
@@ -34,7 +34,7 @@ impl Role
         {
             name,
             rank,
-            rights: Self::default_public_rights(),
+            rights: Self::internal_default_public_rights(),
         }
     }
 
@@ -45,8 +45,38 @@ impl Role
         {
             name,
             rank,
-            rights: Self::default_private_rights(),
+            rights: Self::internal_default_private_rights(),
         }
+    }
+
+    #[must_use]
+    fn internal_default_rights() -> Vec<Rights>
+    {
+        Rights::iter().collect()
+    }
+
+    #[must_use]
+    fn internal_default_public_rights() -> Vec<Rights>
+    {
+        Rights::iter().map(|right| {
+            match right
+            {
+                Rights::Read(_) => Rights::Read(Some(true)),
+                Rights::Write(_) => Rights::Write(Some(true)),
+            }
+        }).collect()
+    }
+
+    #[must_use]
+    fn internal_default_private_rights() -> Vec<Rights>
+    {
+        Rights::iter().map(|right| {
+            match right
+            {
+                Rights::Read(_) => Rights::Read(Some(false)),
+                Rights::Write(_) => Rights::Write(Some(false)),
+            }
+        }).collect()
     }
 }
 
@@ -84,36 +114,6 @@ impl Role
                     None
                 }
             )?
-    }
-
-    #[must_use]
-    pub fn default_rights() -> Vec<Rights>
-    {
-        Rights::iter().collect()
-    }
-
-    #[must_use]
-    pub fn default_public_rights() -> Vec<Rights>
-    {
-        Rights::iter().map(|right| {
-            match right
-            {
-                Rights::Read(_) => Rights::Read(Some(true)),
-                Rights::Write(_) => Rights::Write(Some(true)),
-            }
-        }).collect()
-    }
-
-    #[must_use]
-    pub fn default_private_rights() -> Vec<Rights>
-    {
-        Rights::iter().map(|right| {
-            match right
-            {
-                Rights::Read(_) => Rights::Read(Some(false)),
-                Rights::Write(_) => Rights::Write(Some(false)),
-            }
-        }).collect()
     }
 
     pub fn add_right(&mut self, right: Rights) 
