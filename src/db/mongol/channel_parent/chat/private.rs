@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::{helper, MongolChannel}, model::{channel_parent::chat::Private, error}};
+use crate::{db::{helper, MongolChannel, ParentType}, model::{channel_parent::chat::Private, error}};
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ impl TryFrom<&Private> for MongolPrivate
             { 
                 _id: db_id,
                 owner_ids,
-                channel: MongolChannel::try_from(&value.channel)?
+                channel: MongolChannel::try_from((&value.channel, ParentType::ChatPrivate))?
             }
         )
     }

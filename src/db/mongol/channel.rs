@@ -12,20 +12,29 @@ use crate::db::mongol::helper;
 
 
 #[derive(Debug, Serialize, Deserialize)]
+pub enum ParentType
+{
+    ChatPrivate,
+    ChatGroup,
+    Server,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
 #[allow(clippy::used_underscore_binding)]
 pub struct MongolChannel
 {
     pub _id : Uuid,
+    pub parent_type: ParentType,
     pub name: Option<String>,
     pub roles: HashSet<Role>
 }
 
-impl TryFrom<&Channel> for MongolChannel
+impl TryFrom<(&Channel, ParentType)> for MongolChannel
 {
     type Error = error::Server;
 
-    fn try_from(value: &Channel) -> Result<Self, Self::Error>
+    fn try_from((value, parent_type): (&Channel, ParentType)) -> Result<Self, Self::Error>
     {
         let chat_id = helper::convert_domain_id_to_mongol(&value.id)?;
 
@@ -33,6 +42,7 @@ impl TryFrom<&Channel> for MongolChannel
             Self 
             {
                 _id: chat_id,
+                parent_type,
                 name: value.name.clone(),
                 roles: value.roles.clone(),
             }
@@ -51,7 +61,7 @@ impl TryFrom<&Server> for MongolChannelVecWrapper
         let mongol_channels = value
             .channels
             .values()
-            .map(MongolChannel::try_from)
+            .map(|channel| MongolChannel::try_from((channel, ParentType::Server)))
             .collect::<Result<_,_>>()?;
 
         Ok(Self(mongol_channels))

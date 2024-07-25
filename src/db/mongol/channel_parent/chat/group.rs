@@ -1,7 +1,7 @@
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::{helper, MongolChannel}, model::{channel_parent::chat::Group, error}};
+use crate::{db::{helper, MongolChannel, ParentType}, model::{channel_parent::chat::Group, error}};
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,7 +38,7 @@ impl TryFrom<&Group> for MongolGroup
                 name: value.name.to_string(),
                 owner_id,
                 user_ids,
-                channel: MongolChannel::try_from(&value.channel)?,
+                channel: MongolChannel::try_from((&value.channel, ParentType::ChatGroup))?,
             }
         )
     }
