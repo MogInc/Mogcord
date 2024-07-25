@@ -1,11 +1,20 @@
 #[macro_export]
 /// Maps a mongodb key value (uuid, etc.) to string
 ///
-/// Macro is amde to combine with $addField
-/// 
 ///signature(`$id_name`, `mongo_id_type`),
 ///  
 /// `$` prefix means its a mongo field
+/// # Examples
+/// ```
+/// doc!
+/// {
+///     "$addFields":
+///     {
+///         "id": map_mongo_key_to_string!("$_id", "uuid"),
+///         "user.id": map_mongo_key_to_string!("$user._id", "uuid"),
+///     },
+/// }
+/// ```
 macro_rules! map_mongo_key_to_string 
 {
     ($id_field:expr, $id_type:expr) => 
@@ -33,14 +42,22 @@ macro_rules! map_mongo_key_to_string
 #[macro_export]
 /// maps over a mongodb collection and maps the key value (uuid, etc.) to string
 /// 
-/// Macro is amde to combine with $addField
-/// 
 /// uses [`map_mongo_key_to_string`] to map the individual keys
-/// 
 /// 
 /// signature(`$collection_name`, `current_id_name`, `rename_id_to`, `mongo_id_type`)
 /// 
 /// `$` prefix means its a mongo field
+/// # Examples
+/// ```
+/// doc!
+/// {
+///     "$addFields":
+///     {
+///         "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
+///         "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
+///     }
+/// }
+/// ```
 macro_rules! map_mongo_collection_keys_to_string 
 {
     
@@ -63,11 +80,37 @@ macro_rules! map_mongo_collection_keys_to_string
 #[macro_export]
 /// maps over a mongodb collection and transforms it into a hashmap
 /// 
-/// Macro is amde to combine with $addField
-/// 
 /// signature(`$collection_name`, `key_name`)
 /// 
 /// `$` prefix means its a mongo field
+/// # Examples
+/// ```
+/// doc!
+/// {
+///     "$addFields":
+///     {
+///         "users": map_mongo_collection_to_hashmap!("$users", "id"),
+///     },
+/// }
+/// ```
+/// # Note 
+/// if you have transformed the collection you want to map it needs to go in a seperate addFields
+/// ```
+/// doc!
+/// {
+///     "$addFields":
+///     {
+///         "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
+///     },
+/// },
+/// doc!
+/// {
+///     "$addFields":
+///     {
+///         "users": map_mongo_collection_to_hashmap!("$users", "id"),
+///     },
+/// }
+/// ```
 macro_rules! map_mongo_collection_to_hashmap 
 {
     ($collection_name:expr, $key_name:expr) => 
