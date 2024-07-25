@@ -57,16 +57,38 @@ impl Channel
     }
 
     #[must_use]
-    /// this assumes the end user is responsible
+    /// returns `true` or `false` if the role has read rights.
     /// 
-    /// let say you have
+    /// # Examples - pseudo code for simplicity
+    /// ```
+    /// //channel has roles - everyone = true
+    /// channel.roles
+    /// {
+    ///     { role: name: "a", weight: 2, read: false }
+    ///     { role: name: "everyone", weight: 1, read: true }
+    /// }
+    /// //can still read regardless if they have role "a"
+    /// assert!(channel.can_role_read("a"))
+    /// assert!(channel.can_role_read("b"))
     /// 
-    /// # Examples
+    /// //channel has roles - everyone = true
+    /// channel.roles
+    /// {
+    ///     { role: name: "a", weight: 2, read: true }
+    ///     { role: name: "everyone", weight: 1, read: false }
+    /// }
+    /// // only role "a" can read
+    /// assert!(channel.can_role_read("a"))
+    /// assert!(!channel.can_role_read("b"))
+    /// 
+    /// //channel has no roles
+    /// channel.roles
+    /// {
+    /// }
+    /// //can still read regardless of the role
+    /// assert!(channel.can_role_read("a"))
+    /// assert!(channel.can_role_read("b"))
     /// ```
-    /// role: name: "a", weight: 2, read: false
-    /// role: name: "everyone", weight: 1, read: true
-    /// ```
-    /// users can still read regardless if they have role "a"
     pub fn can_role_read(&self, role_name: &str) -> bool
     {
         for role in &self.roles
@@ -91,16 +113,38 @@ impl Channel
     }
 
     #[must_use]
-    /// this assumes the end user is responsible
+    /// returns `true` or `false` if the role has write rights.
     /// 
-    /// let say you have
+    /// # Examples - pseudo code for simplicity
+    /// ```
+    /// //channel has roles - everyone = true
+    /// channel.roles
+    /// {
+    ///     { role: name: "a", weight: 2, write: false }
+    ///     { role: name: "everyone", weight: 1, write: true }
+    /// }
+    /// //can still write regardless if they have role "a"
+    /// assert!(channel.can_role_write("a"))
+    /// assert!(channel.can_role_write("b"))
     /// 
-    /// # Examples
+    /// //channel has roles - everyone = true
+    /// channel.roles
+    /// {
+    ///     { role: name: "a", weight: 2, write: true }
+    ///     { role: name: "everyone", weight: 1, write: false }
+    /// }
+    /// //only role "a" can write
+    /// assert!(channel.can_role_write("a"))
+    /// assert!(!channel.can_role_write("b"))
+    /// 
+    /// //channel has no roles
+    /// channel.roles
+    /// {
+    /// }
+    /// //can still write regardless of the role
+    /// assert!(channel.can_role_write("a"))
+    /// assert!(channel.can_role_write("b"))
     /// ```
-    /// role: name: "a", weight: 2, write: false
-    /// role: name: "everyone", weight: 1, write: true
-    /// ```
-    /// users can still write regardless if they have role "a"
     pub fn can_role_write(&self, role_name: &str) -> bool
     {
         for role in &self.roles
