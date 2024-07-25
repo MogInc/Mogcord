@@ -26,17 +26,12 @@ pub async fn update_message(
         .get_message(&message_id)
         .await?;
     
-    if !message.is_chat_part_of_message(&channel_id)
+    if !message.is_channel_part_of_message(&channel_id)
     {
         return Err(error::Server::MessageDoesNotContainThisChat);
     }
 
-    if !message.is_user_allowed_to_edit_message(ctx_user_id)
-    {
-        return Err(error::Server::MessageDoesNotContainThisUser);
-    }
-
-    message.update_value(payload.value);
+    message.update_value(payload.value, ctx_user_id)?;
 
     match repo_message.update_message(message).await
     {

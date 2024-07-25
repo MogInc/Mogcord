@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::channel::Channel;
+use super::error;
 use super::user::User;
 
 
@@ -51,19 +52,26 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value(&mut self, value: String)
+    pub fn update_value(&mut self, value: String, user_id: &str) -> Result<(), error::Server>
     {
+        if !self.is_user_allowed_to_edit_message(user_id)
+        {
+            return Err(error::Server::MessageDoesNotContainThisUser);
+        }
+
         if self.value == value
         {
-            return;
+            return Ok(());
         }
 
         self.value = value;
         self.flag = Flag::Edited { date: Utc::now() };
+
+        Ok(())
     }
 
     #[must_use]
-    pub fn is_chat_part_of_message(&self, channel_id: &str) -> bool
+    pub fn is_channel_part_of_message(&self, channel_id: &str) -> bool
     {
         self.channel.id == *channel_id
     }
