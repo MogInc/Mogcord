@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{channel::{self, Channel, Parent}, error, user::User};
-use super::Roles;
+use crate::model::{channel::{self, Channel, Parent}, error, user::User, ROLE_NAME_EVERYBODY};
+use super::Role;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -18,7 +18,8 @@ pub struct Server
     pub owner: User,
     pub users: HashMap<String, User>,
     pub channels: HashMap<String, Channel>,
-    pub roles: HashMap<User, Roles>,
+    pub roles: HashMap<String, Role>,
+    pub user_roles: HashMap<String, Vec<String>>,
 }
 
 impl Server
@@ -29,8 +30,9 @@ impl Server
         name: String, 
         owner: User, 
         users: HashMap<String, User>, 
-        channels: HashMap<String, Channel>, 
-        roles: HashMap<User, Roles>
+        channels: HashMap<String, Channel>,
+        roles: HashMap<String, Role>,
+        user_roles: HashMap<String, Vec<String>>,
     ) -> Self
     {
         Self
@@ -41,12 +43,15 @@ impl Server
             users,
             channels,
             roles,
+            user_roles,
         }
     }
 
     pub fn new(name: String, owner: User) -> Result<Self, error::Server>
     {
-        let channel = Channel::new(Some(String::from("Welcome")), true);
+        let base_channel = Channel::new(Some(String::from("Welcome")), true);
+
+        let base_role = Role::new(ROLE_NAME_EVERYBODY.to_string(), 1);
 
         let server = Self
         {
@@ -54,8 +59,9 @@ impl Server
             name,
             owner,
             users: HashMap::new(),
-            channels: HashMap::from([(channel.id.clone(), channel)]),
-            roles: HashMap::new(),
+            channels: HashMap::from([(base_channel.id.clone(), base_channel)]),
+            roles: HashMap::from([(ROLE_NAME_EVERYBODY.to_string(), base_role)]),
+            user_roles: HashMap::new(),
         };
 
         server.is_server_meeting_requirements()?;
@@ -112,7 +118,7 @@ impl Server
     }
 
     #[must_use]
-    pub fn apply_can_read(self, user_id: &str) -> Self
+    pub fn filter_channels(self, user_id: &str) -> Self
     {
         let filtered_channels = self
             .channels
@@ -125,9 +131,10 @@ impl Server
             self.id, 
             self.name, 
             self.owner, 
-            self.users, 
-            filtered_channels, 
-            self.roles
+            self.users,
+            filtered_channels,
+            self.roles,
+            self.user_roles
         )
     }
 }
@@ -144,11 +151,9 @@ impl channel::Parent for Server
         }
     }
 
-    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>> 
     {
-        let user = self.users.get(user_id)?;
-
-        self.roles.get(user)
+        self.user_roles.get(user_id)
     }
 
     fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
@@ -181,13 +186,8 @@ impl Server
         {
             return Ok(false);
         }
-    
-        let user = self
-            .users
-            .get(user_id)
-            .ok_or(error::Server::UserNotFound)?;
-    
-        let user_roles_option = self.roles.get(user);
+        
+        let user_roles_option = self.get_user_roles(user_id);
     
         let channel_id = channel_id_option
             .ok_or(error::Server::ChannelNotPassed)?;
@@ -197,12 +197,12 @@ impl Server
             .get(channel_id)
             .ok_or(error::Server::ChannelNotFound)?;
     
-        let roles_default = &Roles::default();
-        let user_roles = user_roles_option.unwrap_or(roles_default);
+        let roles_default: &Vec<String> = &Vec::new();
+        let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);
     
-        for user_role in user_roles.get_all() 
+        for user_role in user_roles
         {
-            if access_check(channel, &user_role.name) 
+            if access_check(channel, user_role) 
             {
                 return Ok(true);
             }

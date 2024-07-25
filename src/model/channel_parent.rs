@@ -1,13 +1,13 @@
 mod repository;
 mod rights;
-mod roles;
+mod role;
 pub mod server;
 pub mod chat;
 
 use chat::Chat;
 pub use repository::*;
 pub use rights::*;
-pub use roles::*;
+pub use role::*;
 pub use server::Server;
 
 use serde::{Deserialize, Serialize};
@@ -89,7 +89,7 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>> 
     {
         match self
         {

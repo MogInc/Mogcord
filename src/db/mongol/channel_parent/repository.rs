@@ -667,7 +667,6 @@ fn internal_server_pipeline() -> [Document; 7]
                 "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
                 "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
                 "channels": map_mongo_collection_keys_to_string!("$channels", "_id", "id", "uuid"),
-                // "roles": map_mongo_collection_to_hashmap!("$roles", "name"),
             }
         },
         doc!

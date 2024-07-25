@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::channel::Channel;
-use super::{channel_parent, error};
+use super::error;
 use super::user::User;
 
 
@@ -52,7 +52,7 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value(&mut self, value: String, user_id: &str, user_roles: Option<&channel_parent::Roles>) -> Result<(), error::Server>
+    pub fn update_value(&mut self, value: String, user_id: &str, user_roles: Option<&Vec<String>>) -> Result<(), error::Server>
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
@@ -78,7 +78,7 @@ impl Message
     }
 
     #[must_use]
-    pub fn is_user_allowed_to_edit_message(&self, user_id: &str, user_roles_option: Option<&channel_parent::Roles>) -> bool
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &str, user_roles_option: Option<&Vec<String>>) -> bool
     {
         if self.owner.id != *user_id || !self.flag.is_allowed_to_be_editted()
         {
@@ -89,18 +89,16 @@ impl Message
             .map_or(!self.channel.has_roles(), |user_roles|
             {
                 user_roles
-                    .get_all()
                     .iter()
-                    .any(|user_role| self.channel.can_role_read(&user_role.name))
+                    .any(|user_role| self.channel.can_role_read(user_role))
             });
 
         let can_write = user_roles_option
             .map_or(!self.channel.has_roles(), |user_roles|
             {
                 user_roles
-                    .get_all()
                     .iter()
-                    .any(|user_role| self.channel.can_role_write(&user_role.name))
+                    .any(|user_role| self.channel.can_role_write(user_role))
             });
 
         can_read && can_write

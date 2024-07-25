@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel::{self, Channel}, channel_parent, error, user::User};
+use crate::model::{channel::{self, Channel}, error, user::User};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Private
@@ -82,7 +82,7 @@ impl channel::Parent for Private
         Ok(&self.channel)
     }
 
-    fn get_user_roles(&self, _: &str) -> Option<&channel_parent::Roles> 
+    fn get_user_roles(&self, _: &str) -> Option<&Vec<String>> 
     {
         None
     }

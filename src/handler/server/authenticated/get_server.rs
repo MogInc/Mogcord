@@ -25,7 +25,7 @@ pub async fn get_server(
         return Err(error::Server::ServerDoesNotContainThisUser);
     }
 
-    let server = server.apply_can_read(ctx_user_id);
+    let server = server.filter_channels(ctx_user_id);
 
     Ok(Json(ServerGetResponse::obj_to_dto(server)))
 }

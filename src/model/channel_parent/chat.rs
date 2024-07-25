@@ -11,7 +11,6 @@ use strum_macros::Display;
 
 use crate::model::{channel::{self, Channel}, error, user::User};
 
-use super::Roles;
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
@@ -90,7 +89,7 @@ impl channel::Parent for Chat
         }
     }
 
-    fn get_user_roles(&self, user_id: &str) -> Option<&Roles> 
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>> 
     {
         match self
         {
