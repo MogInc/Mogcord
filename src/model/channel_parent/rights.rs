@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use strum::{EnumCount, EnumIter};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, EnumIter, EnumCount)]
 //server rights
 pub enum Rights
 {
