@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse};
+use axum::{extract::{Path, State}, response::IntoResponse};
 
 use crate::model::{error, AppState};
 use crate::middleware::auth::Ctx;
@@ -33,7 +33,7 @@ pub async fn join_server(
 
     match repo_server.add_user_to_server(&server_id, ctx_user_id).await
     {
-        Ok(()) => Ok(StatusCode::NO_CONTENT),
+        Ok(()) => Ok(()),
         Err(_) => Err(error::Server::FailedToAddUserToServer),
     }
 }
