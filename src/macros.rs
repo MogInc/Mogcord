@@ -5,7 +5,7 @@
 ///  
 /// `$` prefix means its a mongo field
 /// # Examples
-/// ```
+/// ```ignore
 /// doc!
 /// {
 ///     "$addFields":
@@ -48,7 +48,7 @@ macro_rules! map_mongo_key_to_string
 /// 
 /// `$` prefix means its a mongo field
 /// # Examples
-/// ```
+/// ```ignore
 /// doc!
 /// {
 ///     "$addFields":
@@ -84,7 +84,7 @@ macro_rules! map_mongo_collection_keys_to_string
 /// 
 /// `$` prefix means its a mongo field
 /// # Examples
-/// ```
+/// ```ignore
 /// doc!
 /// {
 ///     "$addFields":
@@ -95,7 +95,7 @@ macro_rules! map_mongo_collection_keys_to_string
 /// ```
 /// # Note 
 /// if you have transformed the collection you want to map it needs to go in a seperate addFields
-/// ```
+/// ```ignore
 /// doc!
 /// {
 ///     "$addFields":
