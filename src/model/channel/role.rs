@@ -4,6 +4,7 @@ use strum::IntoEnumIterator;
 use super::Rights;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+//channel roles, roles linked to channels
 pub struct Role
 {
     pub name: String,

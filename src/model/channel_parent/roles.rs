@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::Rights;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+//server roles, roles linked to server
 pub struct Roles
 {
     //key is role name
@@ -45,6 +46,7 @@ impl Roles
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+//server roles, roles linked to server
 pub struct Role
 {
     pub name: String,

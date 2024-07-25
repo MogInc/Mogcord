@@ -3,6 +3,7 @@ use strum::EnumIter;
 use strum_macros::EnumCount;
 
 #[derive(Clone, Debug, Serialize, Deserialize, EnumIter, EnumCount)]
+//channel rights
 pub enum Rights
 {
     Read(Option<bool>),
