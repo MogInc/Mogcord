@@ -43,6 +43,7 @@ pub enum Server
 	MessageDoesNotContainThisChat,
 	MessageDoesNotContainThisUser,
 	FailedToAddUserToServer,
+	MessageNotAllowedToBeEdited,
 
 	//relation
 	UserIsAlreadyFriend,
