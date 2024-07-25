@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::channel::Channel;
-use super::error;
+use super::{channel_parent, error};
 use super::user::User;
 
 
@@ -52,16 +52,17 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value(&mut self, value: String, user_id: &str) -> Result<(), error::Server>
+    pub fn update_value(&mut self, value: String, user_id: &str, user_roles: Option<&channel_parent::Roles>) -> Result<(), error::Server>
     {
-        if !self.is_user_allowed_to_edit_message(user_id)
+        if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
-            return Err(error::Server::MessageDoesNotContainThisUser);
+            return Err(error::Server::MessageNotAllowedToBeEdited);
         }
 
         if self.value == value
         {
-            return Ok(());
+            //can be return Ok(());
+            return Err(error::Server::MessageNotAllowedToBeEdited);
         }
 
         self.value = value;
@@ -77,10 +78,31 @@ impl Message
     }
 
     #[must_use]
-    pub fn is_user_allowed_to_edit_message(&self, user_id: &str) -> bool
+    pub fn is_user_allowed_to_edit_message(&self, user_id: &str, user_roles_option: Option<&channel_parent::Roles>) -> bool
     {
-        //can add more checks since servers can have users with rights etc.
-        //(will never be implemented)
-        self.owner.id == *user_id && self.flag.is_allowed_to_be_editted()
+        if self.owner.id != *user_id || !self.flag.is_allowed_to_be_editted()
+        {
+            return false;
+        }
+
+        let can_read = user_roles_option
+            .map_or(!self.channel.has_roles(), |user_roles|
+            {
+                user_roles
+                    .get_all()
+                    .iter()
+                    .any(|user_role| self.channel.can_role_read(&user_role.name))
+            });
+
+        let can_write = user_roles_option
+            .map_or(!self.channel.has_roles(), |user_roles|
+            {
+                user_roles
+                    .get_all()
+                    .iter()
+                    .any(|user_role| self.channel.can_role_write(&user_role.name))
+            });
+
+        can_read && can_write
     }
 }

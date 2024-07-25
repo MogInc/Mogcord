@@ -132,6 +132,11 @@ impl Channel
         self.internal_can_role_perform_action(role_name, Role::can_write)
     }
 
+    pub fn has_roles(&self) -> bool
+    {
+        !self.roles.is_empty()
+    }
+
     fn internal_can_role_perform_action<T>(&self, role_name: &str, func: T) -> bool
     where 
         T: Fn(&Role) -> Option<bool>,
