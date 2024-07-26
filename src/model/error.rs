@@ -90,6 +90,7 @@ impl<'stack> Server<'stack>
 pub enum Kind
 {
 	AlreadyMember,
+	CantGainUsers,
 	Create,
 	Delete,
 	Expired,
@@ -115,7 +116,8 @@ pub enum OnType
 	Auth,
 	Channel,
 	ChannelParent,
-	Chat,
+	ChatPrivate,
+	ChatGroup,
 	Cookie,
 	Ctx,
 	Hashing,

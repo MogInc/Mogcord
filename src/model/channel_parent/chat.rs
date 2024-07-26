@@ -43,7 +43,12 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Private(_) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::ChatPrivate,
+                file!(),
+                line!(),
+            )),
             Chat::Group(group) => group.add_user(user),
         }
     }
@@ -52,7 +57,12 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Private(_) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::ChatPrivate,
+                file!(),
+                line!(),
+            )),
             Chat::Group(group) => group.add_users(users),
         }
     }
