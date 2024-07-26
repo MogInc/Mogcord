@@ -33,7 +33,7 @@ impl Manager for Cookies
             .ok_or(error::Server::new(
                 error::Kind::NotFound, 
                 error::OnType::Cookie, 
-                "Middleware.Cookies::get_cookie", 
+                file!(), 
                 line!())
                 .add_client(error::Client::NO_COOKIES)
             )

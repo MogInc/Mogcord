@@ -64,7 +64,7 @@ impl Message
             return Err(error::Server::new(
                 error::Kind::IncorrectPermissions,
                 error::OnType::Message,
-                "Model.Message::update_value",
+                file!(),
                 line!())
                 .add_client(error::Client::NO_MESSAGE_EDIT)
             );

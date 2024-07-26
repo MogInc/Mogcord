@@ -47,7 +47,7 @@ pub async fn mw_require_admin_authentication(
 				return Err(
 					error::Server::new(
 						error::Kind::IncorrectValue, error::OnType::Rights, 
-						"Middleware.Auth::mw_require_admin_authentication", 
+						file!(), 
 						line!()
 					).add_client(error::Client::NO_ADMIN)
 				);
@@ -104,8 +104,8 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 			.ok_or(error::Server::new(
 				error::Kind::NotFound, 
 				error::OnType::Ctx, 
-				"Middleware.Auth::from_request_parts",
-				 line!()
+				file!(),
+				line!()
 			))?
 			.clone()
 	}

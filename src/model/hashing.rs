@@ -28,7 +28,7 @@ impl Hashing
                 .map_err(|_| error::Server::new(
                     error::Kind::Create,
                     error::OnType::Hashing,
-                    "Model.Hashing::hash_text",
+                    file!(),
                     line!()
                 ))
                 .map(|hash| hash.to_string());
@@ -36,7 +36,7 @@ impl Hashing
         }).await.map_err(|err| error::Server::new(
             error::Kind::Unexpected,
             error::OnType::SpawnBlocking,
-            "Model.Hashing::hash_text",
+            file!(),
             line!())
             .add_extra_info(err.to_string())
         )??;
@@ -55,7 +55,7 @@ impl Hashing
                 .map_err(|_| error::Server::new(
                     error::Kind::Verifying,
                     error::OnType::Hashing,
-                    "Model.Hashing::verify_hash",
+                    file!(),
                     line!(),
                 ))?;
             
@@ -65,13 +65,13 @@ impl Hashing
                   .map_err(|_| error::Server::new(
                     error::Kind::Verifying,
                     error::OnType::Hashing,
-                    "Model.Hashing::verify_hash",
+                    file!(),
                     line!(),
                     ))
         }).await.map_err(|_| error::Server::new(
             error::Kind::Unexpected,
             error::OnType::SpawnBlocking,
-            "Model.Hashing::verify_hash",
+            file!(),
             line!(),
         ))??;
 
