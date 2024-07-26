@@ -6,126 +6,27 @@ use axum::{
 };
 use serde::Serialize;
 
-use super::user;
-
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
-#[serde(tag = "type", content = "data")]
-pub enum Server 
-{
-	//user
-    UserNotFound,
-    MailAlreadyInUse,
-    UsernameAlreadyInUse,
-	UserIsNotOwnerOfChat,
-
-	//chat
-	ChatNotFound,
-	ChatAlreadyExists,
-	ChatRequirementsInvalid,
-	ChatDoesNotContainThisUser,
-	ServerDoesNotContainThisUser,
-	OwnerCountInvalid { expected: usize, found: usize },
-	UserCountInvalid { min: usize, found: usize },
-	ChatInfoNotFound,
-	ChatNotAllowedToBeMade(ExtraInfo),
-	ChatNotAllowedToGainUsers,
-	ChatAlreadyHasThisUser,
-	ServerAlreadyHasThisUser,
-	CantAddUsersToChatThatArentFriends,
-	CantAddOwnerAsUser,
-	ChannelNotFound,
-	ChannelNotPassed,
-	NotAllowedToMakeAMessageInThisChannel,
-	CantUpdatePrivateChat,
-	ServerNotFound,
-	//message
-	MessageNotFound,
-	MessageDoesNotContainThisChat,
-	MessageDoesNotContainThisUser,
-	FailedToAddUserToServer,
-	MessageNotAllowedToBeEdited,
-	NotAllowedToRetrieveMessages,
-
-	//relation
-	UserIsAlreadyFriend,
-	UserIsAlreadyBlocked,
-	UserYoureAddingIsBlocked,
-	UserYoureAddingHasYouBlocked,
-	ServerOwnerHasYouBlocked,
-	UserYoureAddingNotFound,
-	UserYoureAddingCantBeSelf,
-	IncomingFriendRequestNotFound,
-
-	//db
-	FailedRead(String),
-	FailedInsert(String),
-	FailedUpdate(String),
-	FailedDelete(String),
-	TransactionError(String),
-    InvalidID(String),
-    FailedUserParsing,
-    FailedChatParsing,
-    FailedDateParsing,
-
-	//auth
-	AuthCtxNotInRequest,
-
-	//cookies
-	CookieNotFound(String),
-
-	//auth - refresh token
-	RefreshTokenNotFound,
-	RefreshTokenDoesNotMatchDeviceId,
-
-	//auth - acces token
-	FailedCreatingAccesToken,
-	AccesTokenHashKeyNotSet,
-	AccesTokenInvalid,
-	AccesTokenExpired,
-
-	//hashing
-	HashingPasswordFailed,
-	VerifyingPasswordFailed,
-	HashingPasswordFailedBlocking,
-	VerifyingPasswordFailedBlocking,
-
-	//permissions
-	UserIsNotAdminOrOwner,
-	IncorrectUserPermissions{ expected_min_grade: user::Flag, found: user::Flag },
-
-	//fallback
-	NotImplemented,
-    UnexpectedError(String),
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub enum ExtraInfo
-{
-	UserCreatingIsNotOwner,
-	CantHaveChatWithSelf,
-	OutgoingUserNotFriend,
-}
-
-
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
-pub struct Server2<'stack>
+pub struct Server<'stack>
 {
 	kind: Kind,
 	on_type: OnType,
 	stack: &'stack str,
+	line_nr: u32,
 	extra_info: Option<String>,
 	client: Option<Client>,
-	child: Option<Box<Server2<'stack>>>,
+	child: Option<Box<Server<'stack>>>,
 }
 
-impl<'stack> Server2<'stack>
+impl<'stack> Server<'stack>
 {
 	#[must_use]
 	pub fn new(
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str
+		stack: &'stack str,
+		line_nr: u32,
 	) -> Self
 	{
 		Self
@@ -133,6 +34,7 @@ impl<'stack> Server2<'stack>
 			kind,
 			on_type,
 			stack,
+			line_nr,
 			extra_info: None,
 			client: None,
 			child: None,
@@ -170,6 +72,13 @@ pub enum Kind
 {
    NotFound,
    NotImplemented,
+   Incorrect,
+   Expired,
+   FailedRead,
+   FailedInsert,
+   FailedUpdate,
+   FailedDelete,
+   Transaction,
    UnexpectedError(String),
 }
 
@@ -181,11 +90,11 @@ pub enum OnType
    Message,
 }
 
-impl Server2<'_> 
+impl Server<'_> 
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-        write!(f, "{}: {:?}::{:?} - {:?}", depth, self.kind, self.on_type, self.stack)?;
+        write!(f, "{}: {:?}::{:?} - {} on ln:{}", depth, self.kind, self.on_type, self.stack, self.line_nr)?;
 
 		if let Some(ref child) = self.child 
 		{
@@ -197,7 +106,7 @@ impl Server2<'_>
     }
 }
 
-impl fmt::Display for Server2<'_>
+impl fmt::Display for Server<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
@@ -205,15 +114,7 @@ impl fmt::Display for Server2<'_>
 	}
 }
 
-impl fmt::Display for Server 
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
-	{
-        write!(f, "{self:?}")
-    }
-}
-
-impl IntoResponse for Server 
+impl IntoResponse for Server<'static>
 {
     fn into_response(self) -> Response 
     {
@@ -227,21 +128,7 @@ impl IntoResponse for Server
     }
 }
 
-impl IntoResponse for Server2<'static>
-{
-    fn into_response(self) -> Response 
-    {
-		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
-
-		response
-			.extensions_mut()
-			.insert(self);
-
-		response
-    }
-}
-
-impl Server2<'_>
+impl Server<'_>
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
@@ -251,6 +138,8 @@ impl Server2<'_>
 		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
+			Kind::Expired => StatusCode::FORBIDDEN,
+			Kind::Incorrect => StatusCode::BAD_REQUEST,
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
 			_ => StatusCode::INTERNAL_SERVER_ERROR,
 		};
@@ -265,88 +154,6 @@ impl Server2<'_>
 		}
 	}
 }
-
-
-impl Server 
-{
-	#[must_use]
-	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
-    {
-        #[allow(unreachable_patterns)]
-		match self 
-        {
-			//user
-            Self::UserNotFound 
-            | Self::UsernameAlreadyInUse 
-            | Self::MailAlreadyInUse => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-
-			//chat
-			Self::ChatNotFound
-			| Self::ChatAlreadyExists
-			| Self::OwnerCountInvalid {..}
-			| Self::ChatRequirementsInvalid 
-			| Self::ChatInfoNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
-
-
-			//relation
-			Self::UserYoureAddingNotFound
-			| Self::UserYoureAddingCantBeSelf
-			| Self::UserYoureAddingIsBlocked
-			| Self::UserIsAlreadyFriend 
-			| Self::UserIsAlreadyBlocked
-			| Self::IncomingFriendRequestNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-
-			//message
-			Self::MessageNotFound
-			| Self::MessageDoesNotContainThisChat
-			| Self::MessageDoesNotContainThisUser => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-
-			//auth
-			Self::AccesTokenInvalid
-			| Self::AccesTokenExpired
-			| Self::RefreshTokenNotFound
-			| Self::RefreshTokenDoesNotMatchDeviceId
-			| Self::AuthCtxNotInRequest
-			| Self::CookieNotFound(_) => (StatusCode::FORBIDDEN, Client::NO_AUTH),
-			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
-	
-
-			//db
-			Self::FailedRead(_)
-			| Self::FailedInsert(_)
-			| Self::FailedUpdate(_)
-			| Self::FailedDelete(_)
-			| Self::TransactionError(_)
-			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, Client::SERVICE_ERROR),
-			Self::InvalidID(_) => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-			//hashing
-			Self::HashingPasswordFailed
-			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
-			Self::VerifyingPasswordFailed
-			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
-
-
-			//permissions
-			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, Client::NO_AUTH),
-
-
-			//fallback
-			Self::NotImplemented => (StatusCode::BAD_GATEWAY, Client::SERVICE_ERROR),
-			_ => (
-				StatusCode::INTERNAL_SERVER_ERROR,
-				Client::SERVICE_ERROR,
-			),
-		}
-	}
-}
-
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[allow(non_camel_case_types)]

@@ -18,9 +18,9 @@ pub async fn main_response_mapper(
 
 	let service_error = res
         .extensions()
-        .get::<error::Server2>();
+        .get::<error::Server>();
 	let client_status_error = service_error
-        .map(error::Server2::client_status_and_error);
+        .map(error::Server::client_status_and_error);
 
 	let error_response =
 		client_status_error
