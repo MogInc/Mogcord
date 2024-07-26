@@ -46,7 +46,8 @@ pub async fn mw_require_admin_authentication(
 			{
 				return Err(
 					error::Server::new(
-						error::Kind::IncorrectValue, error::OnType::Rights, 
+						error::Kind::IncorrectValue, 
+						error::OnType::Rights, 
 						file!(), 
 						line!()
 					).add_client(error::Client::NO_ADMIN)

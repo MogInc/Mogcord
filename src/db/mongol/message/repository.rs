@@ -96,7 +96,7 @@ impl message::Repository for MongolDB
             bucket.add_message(message.clone());
 
             let db_bucket = MongolBucket::try_from(&bucket)
-                .map_err(|err| error::Server::new_from_child(
+                .map_err(|err| error::Server::from_child(
                     err, 
                     file!(), 
                     line!()

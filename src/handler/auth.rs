@@ -5,7 +5,7 @@ use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::model::{error, refresh_token::RefreshToken, user, AppState, Hashing};
+use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cookies::Manager};
 
 #[derive(Deserialize)]
@@ -32,11 +32,13 @@ pub async fn login(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(error::Server::IncorrectUserPermissions
-            { 
-                expected_min_grade: user::Flag::None, 
-                found: user.flag.clone()
-            }
+        return Err(error::Server::new(
+            error::Kind::IncorrectPermissions,
+            error::OnType::User,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_ALLOWED_PLATFORM)
+            .add_debug_info(user.flag.to_string())
         );
     }
 
@@ -115,13 +117,41 @@ pub async fn refresh_token(
 {
     let repo_refresh = &state.refresh_tokens;
 
-    let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())?;
+    let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
+        .map_err(|err| error::Server::new_from_child(
+            err, 
+            error::Kind::NoAuth,
+            error::OnType::Cookie,
+            file!(), 
+            line!()
+        ))?;
 
-    let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)?;
+    let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)
+        .map_err(|err| error::Server::new_from_child(
+            err, 
+            error::Kind::NoAuth,
+            error::OnType::AccesToken,
+            file!(), 
+            line!()
+        ))?;
    
-    let refresh_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_REFRESH.as_str())?;
+    let refresh_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_REFRESH.as_str())
+        .map_err(|err| error::Server::new_from_child(
+            err, 
+            error::Kind::NoAuth,
+            error::OnType::Cookie,
+            file!(), 
+            line!()
+        ))?;
 
-    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
+    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())
+        .map_err(|err| error::Server::new_from_child(
+            err, 
+            error::Kind::NoAuth,
+            error::OnType::Cookie,
+            file!(), 
+            line!()
+        ))?;
 
     let refresh_token = repo_refresh
         .get_valid_token_by_device_id(&device_id_cookie)
@@ -131,17 +161,24 @@ pub async fn refresh_token(
     {
         jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
         jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
-        return Err(error::Server::IncorrectUserPermissions
-            { 
-                expected_min_grade: user::Flag::None, 
-                found: refresh_token.owner.flag
-            }
+        return Err(error::Server::new(
+            error::Kind::IncorrectPermissions,
+            error::OnType::User,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_ALLOWED_PLATFORM)
+            .add_debug_info(refresh_token.owner.flag.to_string())
         );
     }
 
     if refresh_token.value != refresh_token_cookie
     {
-        return Err(error::Server::RefreshTokenDoesNotMatchDeviceId);
+        return Err(error::Server::new(
+            error::Kind::NoAuth,
+            error::OnType::RefreshToken,
+            file!(),
+            line!())
+        );
     }
 
     let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);

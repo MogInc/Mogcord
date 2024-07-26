@@ -75,7 +75,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::new_from_child(
+            .map_err(|err|error::Server::from_child(
                 err,
                 file!(),
                 line!())
@@ -89,7 +89,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::new_from_child(
+            .map_err(|err|error::Server::from_child(
                 err,
                 file!(),
                 line!())

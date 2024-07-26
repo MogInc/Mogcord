@@ -116,8 +116,8 @@ pub fn extract_acces_token<'token, 'stack>(token: &'token str, acces_token_statu
                         error::Kind::InValid,
                         error::OnType::AccesToken,
                         file!(),
-                        line!(),
-                    );
+                        line!())
+                        .add_debug_info(token.to_string());
 
                     Err(err)
                 },
