@@ -87,8 +87,9 @@ impl Server
                 error::Kind::AlreadyMember,
                 error::OnType::Server,
                 file!(),
-                line!()
-            ));
+                line!())
+                .expose_public_extra_info(user.id.to_string())
+            );
         }
 
         self.users.insert(user.id.to_string(), user);
@@ -107,7 +108,7 @@ impl Server
                     error::OnType::Server,
                     file!(),
                     line!())
-                    .add_extra_info(user.id.to_string())
+                    .expose_public_extra_info(user.id.to_string())
                 );
             }
         }
