@@ -137,7 +137,7 @@ impl user::Repository for MongolDB
             .aggregate(pipelines)
             .await
             .map_err(|err| error::Server::new(
-                error::Kind::Read,
+                error::Kind::Fetch,
                 error::OnType::User,
                 file!(),
                 line!())
@@ -203,7 +203,7 @@ impl user::Repository for MongolDB
             .aggregate(pipelines)
             .await
             .map_err(|err| error::Server::new(
-                error::Kind::Read,
+                error::Kind::Fetch,
                 error::OnType::User,
                 file!(),
                 line!())
@@ -258,7 +258,7 @@ async fn internal_get_user<'input, 'stack>(repo: &MongolDB, filter: Document) ->
         .find_one(filter)
         .await
         .map_err(|err| error::Server::new(
-            error::Kind::Read,
+            error::Kind::Fetch,
             error::OnType::User,
             file!(),
             line!())
