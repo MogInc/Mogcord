@@ -9,7 +9,11 @@ use crate::db::mongol::helper;
 #[async_trait]
 impl relation::Repository for MongolDB
 {
-    async fn does_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>
+    async fn does_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -27,7 +31,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_friendships_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_ids: Vec<&'input str>) -> Result<bool, error::Server<'stack>>
+    async fn does_friendships_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_ids: Vec<&'input str>
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -60,7 +68,11 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn does_outgoing_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>
+    async fn does_outgoing_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -85,7 +97,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_incoming_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>
+    async fn does_incoming_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str,
+         other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -103,7 +119,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_blocked_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>
+    async fn does_blocked_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -121,7 +141,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn add_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn add_user_as_friend<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str,
+         other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -187,7 +211,11 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn add_user_as_blocked<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn add_user_as_blocked<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -263,7 +291,10 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn confirm_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn confirm_user_as_friend<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -328,7 +359,10 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn remove_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn remove_user_as_friend<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -352,7 +386,10 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn remove_user_as_blocked<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn remove_user_as_blocked<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -373,7 +410,10 @@ impl relation::Repository for MongolDB
     }
 }
 
-async fn add_relation<'input, 'stack>(repo: &'input MongolDB, current_user_id: Uuid) -> Result<(), error::Server<'stack>>
+async fn add_relation<'input, 'stack>(
+    repo: &'input MongolDB, 
+    current_user_id: Uuid
+) -> Result<(), error::Server<'stack>>
 {
     let filter = doc! { "user_id" : current_user_id };
 
@@ -397,7 +437,10 @@ async fn add_relation<'input, 'stack>(repo: &'input MongolDB, current_user_id: U
     Ok(())
 }
 
-async fn does_user_relation_exist<'input, 'stack>(repo: &'input MongolDB, filter: Document) -> Result<bool, error::Server<'stack>>
+async fn does_user_relation_exist<'input, 'stack>(
+    repo: &'input MongolDB, 
+    filter: Document
+) -> Result<bool, error::Server<'stack>>
 {
     match repo.relations().find_one(filter).await
     {
