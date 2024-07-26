@@ -124,6 +124,7 @@ impl<'stack> Server<'stack>
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
+	AlreadyExists,
 	AlreadyInUse,
 	AlreadyMember,
 	CantGainUsers,
@@ -265,6 +266,8 @@ pub enum Client
 	NO_MESSAGE_EDIT,
 	NO_CHAT_PRIVATE_EDIT,
 	MAIL_IN_USE,
+	USER_ALREADY_FRIEND,
+	USER_BLOCKED,
 	USER_ALREADY_BLOCKED,
 	USER_BLOCKED_YOU,
 	SERVER_BLOCKED_YOU,
@@ -276,6 +279,8 @@ pub enum Client
 	SERVICE_ERROR,
 	TRY_SELF_BLOCKED,
 	TRY_SELF_FRIEND,
+	OUTGOING_FRIEND,
+	NO_OUTGOING_FRIEND,
 }
 
 impl fmt::Display for Client 
@@ -304,11 +309,15 @@ impl Client
             Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
             Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
             Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
-            Client::USER_ALREADY_BLOCKED => "You have this already user blocked",
+            Client::USER_BLOCKED => "You have this user blocked",
+            Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
             Client::USER_BLOCKED_YOU => "This user has you blocked",
             Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
 			Client::TRY_SELF_FRIEND => "Can't befriend yourself",
 			Client::TRY_SELF_BLOCKED => "Can't block yourself",
+			Client::USER_ALREADY_FRIEND => "User is already your friend",
+			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
+			Client::NO_OUTGOING_FRIEND => "You can't confirm a friendship that doesn't exist",
             Client::SERVICE_ERROR => "",
         }
     }
