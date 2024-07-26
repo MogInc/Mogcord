@@ -53,7 +53,7 @@ impl Server
         }
     }
 
-    pub fn new(name: String, owner: User) -> Result<Self, error::Server>
+    pub fn new<'stack>(name: String, owner: User) -> Result<Self, error::Server<'stack>>
     {
         let base_channel = Channel::new(Some(String::from("Welcome")), true);
 
@@ -106,7 +106,7 @@ impl Server
         Ok(())
     }
 
-    pub fn is_server_meeting_requirements(&self) -> Result<(), error::Server> 
+    pub fn is_server_meeting_requirements<'stack>(&self) -> Result<(), error::Server<'stack>> 
     {
         Ok(())
     }
@@ -155,7 +155,10 @@ impl Server
 
 impl channel::Parent for Server
 {   
-    fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>>
     {
         match channel_id_option 
         {
@@ -169,12 +172,20 @@ impl channel::Parent for Server
         self.user_roles.get(user_id)
     }
 
-    fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
     
-    fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
@@ -224,12 +235,12 @@ impl Server
         self.roles.is_empty()
     }
 
-    fn internal_channel_check_permission(
+    fn internal_channel_check_permission<'input, 'stack>(
         &self,
         user_id: &str,
         channel_id_option: Option<&str>,
         access_check: impl Fn(&Channel, &str) -> bool,
-    ) -> Result<bool, error::Server> 
+    ) -> Result<bool, error::Server<'stack>> 
     {
 
         if self.is_owner(user_id) 
