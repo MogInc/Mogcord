@@ -89,6 +89,7 @@ impl<'stack> Server<'stack>
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
+	AlreadyMember,
 	Create,
 	Delete,
 	Expired,
@@ -111,6 +112,8 @@ pub enum OnType
 {
 	AccesToken,
 	AccesTokenHashKey,
+	Auth,
+	Channel,
 	ChannelParent,
 	Chat,
 	Cookie,
@@ -168,7 +171,7 @@ impl Server<'_>
 	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
     {
 		#[allow(clippy::match_wildcard_for_single_variants)]
-		let status_code = match &self.kind
+		let mut status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
 			Kind::Expired
@@ -178,6 +181,11 @@ impl Server<'_>
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
 			_ => StatusCode::INTERNAL_SERVER_ERROR,
 		};
+
+		if let OnType::Auth = &self.on_type
+		{
+			status_code = StatusCode::UNAUTHORIZED;
+		}
 
 		if let Some(client) = &self.client
 		{
