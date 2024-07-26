@@ -41,7 +41,7 @@ pub async fn main_response_mapper(
 				(*status_code, Json(client_error_body)).into_response()
 			});
     
-    let client_error_option = client_status_error.unzip().1;
+    let client_error_option = client_status_error.map(|(_, client, _)| client);
 
 	let device_id_option = jar
 		.get_cookie(auth::CookieNames::DEVICE_ID.as_str())
