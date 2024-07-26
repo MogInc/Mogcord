@@ -114,6 +114,7 @@ pub struct Server2<'stack>
 	kind: Kind,
 	on_type: OnType,
 	stack: &'stack str,
+	extra_info: Option<String>,
 	client: Option<Client>,
 	child: Option<Box<Server2<'stack>>>,
 }
@@ -132,6 +133,7 @@ impl<'stack> Server2<'stack>
 			kind,
 			on_type,
 			stack,
+			extra_info: None,
 			client: None,
 			child: None,
 		}
@@ -149,6 +151,14 @@ impl<'stack> Server2<'stack>
 	pub fn add_child(mut self, child: Self) -> Self
 	{
 		self.child = Some(Box::new(child));
+
+		self
+	}
+
+	#[must_use]
+	pub fn add_extra_info(mut self, extra_info: String) -> Self
+	{
+		self.extra_info = Some(extra_info);
 
 		self
 	}
