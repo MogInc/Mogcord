@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse, Json};
 
-use crate::{dto::ServerGetResponse, model::{channel_parent::Server, error, AppState}};
+use crate::{dto::ServerGetResponse, model::{error, AppState}};
 use crate::middleware::auth::Ctx;
 use crate::dto::ObjectToDTO;
 

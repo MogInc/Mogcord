@@ -210,12 +210,28 @@ pub enum OnType
    Message,
 }
 
+impl Server2<'_> 
+{
+    fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
+	{
+        write!(f, "{}: {:?}::{:?} - {:?}", depth, self.kind, self.on_type, self.stack)?;
+
+		if let Some(ref child) = self.child 
+		{
+            write!(f, " -> ")?;
+            child.fmt_with_depth(f, depth + 1)?;
+        }
+
+        Ok(())
+    }
+}
+
 impl fmt::Display for Server2<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-        write!(f, "{:?}::{:?} - {:?} :{:?}", self.kind, self.on_type, self.stack, self.child)
-    }
+        self.fmt_with_depth(f, 0)
+	}
 }
 
 impl fmt::Display for Server 
