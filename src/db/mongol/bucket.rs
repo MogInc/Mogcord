@@ -17,7 +17,7 @@ pub struct MongolBucket
 
 impl TryFrom<&Bucket> for MongolBucket
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Bucket) -> Result<Self, Self::Error> 
     {
@@ -28,7 +28,13 @@ impl TryFrom<&Bucket> for MongolBucket
         let bucket_date = value
             .date
             .convert_to_bson_date()
-            .map_err(|_| error::Server::FailedDateParsing)?;
+            .map_err(|_| error::Server::new(
+                error::Kind::InValid,
+                error::OnType::Date,
+                file!(),
+                line!())
+                .add_debug_info(value.date.to_string())
+            )?;
 
         let bucket_message_ids = value
             .messages
