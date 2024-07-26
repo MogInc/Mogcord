@@ -135,6 +135,7 @@ pub enum Kind
 	IncorrectValue,
 	IncorrectPermissions,
 	Insert,
+	IsSelf,
 	NoAuth,
 	NotAllowed,
 	NotFound,
