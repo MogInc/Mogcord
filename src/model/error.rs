@@ -106,6 +106,117 @@ pub enum ExtraInfo
 	OutgoingUserNotFriend,
 }
 
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub struct Server2<'stack>
+{
+	kind: Kind,
+	on_type: OnType,
+	stack: &'stack str,
+	client: Option<Client>,
+	child: Option<Box<Server2<'stack>>>,
+}
+
+impl<'stack> Server2<'stack>
+{
+	#[must_use]
+	pub fn new_with_client(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		client: Client,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			client: Some(client),
+			child: None,
+		}
+	}
+
+	#[must_use]
+	pub fn new_with_client_and_child(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		client: Client,
+		child: Self,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			client: Some(client),
+			child: Some(Box::new(child)),
+		}
+	}
+
+	#[must_use]
+	pub fn new_with_child(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			client: None,
+			child: None,
+		}
+	}
+
+	#[must_use]
+	pub fn new(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			client: None,
+			child: None,
+		}
+	}
+}
+
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
+pub enum Kind
+{
+   NotFound,
+   NotImplemented,
+   UnexpectedError(String),
+}
+
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
+pub enum OnType
+{
+   Chat,
+   Message,
+}
+
+impl fmt::Display for Server2<'_>
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        write!(f, "{self:?}")
+    }
+}
+
 impl fmt::Display for Server 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
@@ -127,6 +238,46 @@ impl IntoResponse for Server
 		response
     }
 }
+
+impl IntoResponse for Server2<'static>
+{
+    fn into_response(self) -> Response 
+    {
+		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
+
+		response
+			.extensions_mut()
+			.insert(self);
+
+		response
+    }
+}
+
+impl Server2<'_>
+{
+	#[must_use]
+	#[allow(clippy::match_same_arms)]
+	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
+    {
+		#[allow(clippy::match_wildcard_for_single_variants)]
+		let status_code = match &self.kind
+		{
+			Kind::NotFound => StatusCode::NOT_FOUND,
+			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+			_ => StatusCode::INTERNAL_SERVER_ERROR,
+		};
+
+		if let Some(client) = &self.client
+		{
+			(status_code, client.clone())
+		}
+		else
+		{
+			(status_code, Client::SERVICE_ERROR)
+		}
+	}
+}
+
 
 impl Server 
 {
@@ -209,11 +360,33 @@ impl Server
 }
 
 
-#[derive(Debug, strum_macros::AsRefStr)]
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[allow(non_camel_case_types)]
 pub enum Client
 {
 	INVALID_PARAMS,
-	SERVICE_ERROR,
 	NO_AUTH,
+	SERVICE_ERROR,
+}
+
+impl fmt::Display for Client 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl Client
+{
+    #[must_use]
+    pub fn as_str(&self) -> &str 
+    {
+        match self 
+        {
+            Client::INVALID_PARAMS => "ACCES_TOKEN",
+            Client::NO_AUTH => "NO_AUTH",
+            Client::SERVICE_ERROR => "SERVICE_ERROR",
+        }
+    }
 }
