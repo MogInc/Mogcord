@@ -280,7 +280,7 @@ pub enum Client
 	TRY_SELF_BLOCKED,
 	TRY_SELF_FRIEND,
 	OUTGOING_FRIEND,
-	NO_OUTGOING_FRIEND,
+	NO_INCOMING_FRIEND,
 }
 
 impl fmt::Display for Client 
@@ -317,7 +317,7 @@ impl Client
 			Client::TRY_SELF_BLOCKED => "Can't block yourself",
 			Client::USER_ALREADY_FRIEND => "User is already your friend",
 			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
-			Client::NO_OUTGOING_FRIEND => "You can't confirm a friendship that doesn't exist",
+			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
             Client::SERVICE_ERROR => "",
         }
     }
