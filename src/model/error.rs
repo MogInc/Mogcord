@@ -265,7 +265,7 @@ pub enum Client
 	NO_MESSAGE_EDIT,
 	NO_CHAT_PRIVATE_EDIT,
 	MAIL_IN_USE,
-	USER_BLOCKED,
+	USER_ALREADY_BLOCKED,
 	USER_BLOCKED_YOU,
 	SERVER_BLOCKED_YOU,
 	USERNAME_IN_USE,
@@ -274,6 +274,8 @@ pub enum Client
 	NOT_PART_SERVER,
 	NOT_PART_CHAT,
 	SERVICE_ERROR,
+	TRY_SELF_BLOCKED,
+	TRY_SELF_FRIEND,
 }
 
 impl fmt::Display for Client 
@@ -302,9 +304,11 @@ impl Client
             Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
             Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
             Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
-            Client::USER_BLOCKED => "You have this user blocked",
+            Client::USER_ALREADY_BLOCKED => "You have this already user blocked",
             Client::USER_BLOCKED_YOU => "This user has you blocked",
             Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
+			Client::TRY_SELF_FRIEND => "Can't befriend yourself",
+			Client::TRY_SELF_BLOCKED => "Can't block yourself",
             Client::SERVICE_ERROR => "",
         }
     }
