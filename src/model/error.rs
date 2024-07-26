@@ -62,23 +62,24 @@ impl<'stack> Server<'stack>
 	#[must_use]
 	pub fn add_client(mut self, client: Client) -> Self
 	{
-		self.client = Some(client);
+		self.client.get_or_insert(client);
 
 		self
 	}
 
 	#[must_use]
-	pub fn add_child(mut self, child: Self) -> Self
+	pub fn add_child(mut self, mut child: Self) -> Self
 	{
+		self.client = child.client.take();
 		self.child = Some(Box::new(child));
-
+		
 		self
 	}
 
 	#[must_use]
 	pub fn add_extra_info(mut self, extra_info: String) -> Self
 	{
-		self.extra_info = Some(extra_info);
+		self.extra_info.insert(extra_info);
 
 		self
 	}
@@ -92,7 +93,8 @@ pub enum Kind
 	Delete,
 	Expired,
 	InValid,
-	Incorrect,
+	IncorrectValue,
+	IncorrectPermissions,
 	Insert,
 	NotFound,
 	NotImplemented,
@@ -169,8 +171,9 @@ impl Server<'_>
 		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
-			Kind::Expired => StatusCode::FORBIDDEN,
-			Kind::Incorrect 
+			Kind::Expired
+			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
+			Kind::IncorrectValue 
 			| Kind::InValid => StatusCode::BAD_REQUEST,
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
 			_ => StatusCode::INTERNAL_SERVER_ERROR,
@@ -194,6 +197,7 @@ pub enum Client
 	NO_ADMIN,
 	NO_AUTH,
 	NO_COOKIES,
+	NO_MESSAGE_EDIT,
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
@@ -216,8 +220,9 @@ impl Client
             Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint.",
 			Client::NO_AUTH => "Missing authentication, please reauthorize.",
 			Client::NO_COOKIES => "Missing cookies.",
+			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
             Client::INVALID_PARAMS => "Invalid parameters",
-            _ => "",
+            Client::SERVICE_ERROR => "",
         }
     }
 }
