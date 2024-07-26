@@ -29,7 +29,13 @@ pub async fn update_message(
     
     if !message.is_channel_part_of_message(&channel_id)
     {
-        return Err(error::Server::MessageDoesNotContainThisChat);
+        return Err(error::Server::new(
+            error::Kind::NotPartOf,
+            error::OnType::Channel,
+            file!(),
+            line!())
+            .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
+        );
     }
 
     let channel_parent = repo_parent

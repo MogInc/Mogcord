@@ -277,6 +277,7 @@ pub enum Client
 	USERNAME_IN_USE,
 	INVALID_PARAMS,
 	NOT_ALLOWED_PLATFORM,
+	MESSAGE_NOT_PART_CHANNEL,
 	NOT_PART_SERVER,
 	NOT_PART_CHANNEL_PARENT,
 	NOT_PART_CHAT,
@@ -305,6 +306,7 @@ impl Client
         match self 
         {
             Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+            Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
 			Client::NO_AUTH => "Missing authentication, please reauthorize",
 			Client::NO_COOKIES => "Missing cookies",
 			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
