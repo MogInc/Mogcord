@@ -38,7 +38,7 @@ impl Hashing
             error::OnType::SpawnBlocking,
             file!(),
             line!())
-            .add_extra_info(err.to_string())
+            .add_debug_info(err.to_string())
         )??;
 
         Ok(text_hashed)
