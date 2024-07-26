@@ -128,6 +128,7 @@ pub enum OnType
 	AccesToken,
 	AccesTokenHashKey,
 	Auth,
+	Bucket,
 	Channel,
 	ChannelParent,
 	ChatPrivate,
