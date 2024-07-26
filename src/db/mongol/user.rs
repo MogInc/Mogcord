@@ -24,7 +24,7 @@ pub struct MongolUser
 
 impl TryFrom<&User> for MongolUser
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
@@ -47,7 +47,7 @@ pub struct MongolUserVec(pub Vec<MongolUser>);
 
 impl TryFrom<&Vec<User>> for MongolUserVec 
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Vec<User>) -> Result<Self, Self::Error> 
     {

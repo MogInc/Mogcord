@@ -75,7 +75,7 @@ impl<'stack> Server<'stack>
 	{
 		self.client = child.client.take();
 		self.extra_public_info = child.extra_public_info.take();
-		
+
 		self.child = Some(Box::new(child));
 		
 		self
@@ -135,6 +135,7 @@ pub enum OnType
 	Ctx,
 	Hashing,
 	Message,
+	Mongo,
 	Rights,
 	Server,
 	SpawnBlocking,
