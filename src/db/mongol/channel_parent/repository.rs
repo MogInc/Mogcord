@@ -3,8 +3,8 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::MongolChannel, model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error }};
-use crate::db::{mongol::{self, MongolDB}, MongolChannelVecWrapper};
+use crate::db::{mongol::{self, MongolDB}, MongolChannel, MongolChannelVecWrapper};
+use crate::model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, map_mongo_collection_to_hashmap};
 use super::{helper, MongolChat, MongolServer};
 
@@ -19,8 +19,19 @@ impl channel_parent::Repository for MongolDB
             .channels()
             .find_one(doc!{ "_id": channel_id_local })
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?
-            .ok_or(error::Server::ChannelNotFound)?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::ChannelParent,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?.ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!())
+                .expose_public_extra_info(channel_id.to_string())
+            )?;
 
         let mut cursor = match mongol_channel.parent_type
         {
@@ -44,7 +55,13 @@ impl channel_parent::Repository for MongolDB
                     .chats()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::ChatPrivate,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
             mongol::ParentType::ChatGroup => 
             {
@@ -66,7 +83,13 @@ impl channel_parent::Repository for MongolDB
                     .chats()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::ChatGroup,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
             mongol::ParentType::Server => 
             {
@@ -98,7 +121,13 @@ impl channel_parent::Repository for MongolDB
                     .servers()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
         };
 
@@ -106,19 +135,35 @@ impl channel_parent::Repository for MongolDB
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::ChannelParent,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match document_option
         {
             Some(document) => 
             {
-                println!("{document:#?}");
                 let channel_parent = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::ChannelParent,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                return Ok(channel_parent);
+                Ok(channel_parent)
             },
-            None => Err(error::Server::ChannelNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::ChannelParent,
+                file!(),
+                line!()
+            )), 
         }
     }
 }
@@ -135,19 +180,37 @@ impl channel_parent::chat::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
-        
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Transaction,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
+
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Transaction,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         self
             .channels()
             .insert_one(db_channel)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Insert,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match self.chats().insert_one(&db_chat).session(&mut session).await
         {
@@ -156,7 +219,13 @@ impl channel_parent::chat::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Transaction,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
                 Ok(chat)
             },
@@ -165,9 +234,21 @@ impl channel_parent::chat::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Transaction,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                Err(error::Server::FailedInsert(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Insert,
+                    error::OnType::Chat,
+                    file!(),
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             },
         }
     }
@@ -179,7 +260,12 @@ impl channel_parent::chat::Repository for MongolDB
         {
             Chat::Private(_) => 
             {
-                return Err(error::Server::CantUpdatePrivateChat);
+                return Err(error::Server::new(
+                    error::Kind::Update,
+                    error::OnType::ChatPrivate,
+                    file!(),
+                    line!()
+                ));
             },
             Chat::Group(group) => 
             {
@@ -209,7 +295,13 @@ impl channel_parent::chat::Repository for MongolDB
         match self.chats().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
+            Err(err) => Err(error::Server::new(
+                error::Kind::Update,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )
         }
     }
 
@@ -239,8 +331,19 @@ impl channel_parent::chat::Repository for MongolDB
             .find_one(filter)
             .projection(projection)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?
-            .ok_or(error::Server::ChatNotFound)?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?.ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .expose_public_extra_info(chat_id.to_string())
+            )?;
 
         let pipeline = match &mongol_chat
         {
@@ -285,24 +388,48 @@ impl channel_parent::chat::Repository for MongolDB
             .chats()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
     
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
+            
         match document_option
         {
             Some(document) => 
             {
                 let chat = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::Chat,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                return Ok(chat);
+                Ok(chat)
             },
-            None => Err(error::Server::ChatNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .expose_public_extra_info(chat_id.to_string())
+            ), 
         }
     }
 
@@ -337,7 +464,13 @@ impl channel_parent::chat::Repository for MongolDB
         match self.chats().find_one(filter).projection(projection).await
         {
             Ok(chat_option) => Ok(chat_option.is_some()),
-            Err(err) => Err(error::Server::FailedRead(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            ),
         }
     }
 }
@@ -354,19 +487,37 @@ impl channel_parent::server::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Transaction,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Transaction,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         self
             .channels()
             .insert_many(db_channels)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Insert,
+                error::OnType::Channel,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match self.servers().insert_one(&db_server).session(&mut session).await
         {
@@ -375,7 +526,13 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Transaction,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
                 Ok(server)
             },
@@ -384,9 +541,21 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Transaction,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                Err(error::Server::FailedInsert(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Insert,
+                    error::OnType::Server,
+                    file!(),
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             },
         }
     }
@@ -409,7 +578,15 @@ impl channel_parent::server::Repository for MongolDB
         match self.servers().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+                .add_debug_info(server_id.to_string())
+                .add_debug_info(user_id.to_string())
+            ),
         }
     }
 
@@ -434,25 +611,47 @@ impl channel_parent::server::Repository for MongolDB
             .servers()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match document_option
         {
             Some(document) => 
             {
                 let server = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
-                return Ok(server);
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
+                
+                Ok(server)
             },
-            None => Err(error::Server::ServerNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Server,
+                file!(),
+                line!()
+            )),
         }
     }
 
@@ -478,13 +677,25 @@ impl channel_parent::server::Repository for MongolDB
             .servers()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
 
         match document_option
@@ -492,11 +703,22 @@ impl channel_parent::server::Repository for MongolDB
             Some(document) => 
             {
                 let server = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
                 return Ok(server);
             },
-            None => Err(error::Server::ChatNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Server,
+                file!(),
+                line!()
+            )), 
         }
     }
 }
