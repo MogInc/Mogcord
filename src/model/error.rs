@@ -121,61 +121,6 @@ pub struct Server2<'stack>
 impl<'stack> Server2<'stack>
 {
 	#[must_use]
-	pub fn new_with_client_and_child(
-		kind: Kind,
-		on_type: OnType,
-		stack: &'stack str,
-		client: Client,
-		child: Self,
-	) -> Self
-	{
-		Self
-		{
-			kind,
-			on_type,
-			stack,
-			client: Some(client),
-			child: Some(Box::new(child)),
-		}
-	}
-
-	#[must_use]
-	pub fn new_with_client(
-		kind: Kind,
-		on_type: OnType,
-		stack: &'stack str,
-		client: Client,
-	) -> Self
-	{
-		Self
-		{
-			kind,
-			on_type,
-			stack,
-			client: Some(client),
-			child: None,
-		}
-	}
-
-	#[must_use]
-	pub fn new_with_child(
-		kind: Kind,
-		on_type: OnType,
-		stack: &'stack str,
-		child: Self,
-	) -> Self
-	{
-		Self
-		{
-			kind,
-			on_type,
-			stack,
-			client: None,
-			child: Some(Box::new(child)),
-		}
-	}
-
-	#[must_use]
 	pub fn new(
 		kind: Kind,
 		on_type: OnType,
@@ -190,6 +135,22 @@ impl<'stack> Server2<'stack>
 			client: None,
 			child: None,
 		}
+	}
+
+	#[must_use]
+	pub fn add_client(mut self, client: Client) -> Self
+	{
+		self.client = Some(client);
+
+		self
+	}
+
+	#[must_use]
+	pub fn add_child(mut self, child: Self) -> Self
+	{
+		self.child = Some(Box::new(child));
+
+		self
 	}
 }
 
