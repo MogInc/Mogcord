@@ -45,6 +45,27 @@ impl<'stack> Server<'stack>
 
 	pub fn new_from_child(
 		self,
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		line_nr: u32,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			line_nr,
+			debug_info: self.debug_info,
+			extra_public_info: self.extra_public_info,
+			client: self.client,
+			child: self.child,
+		}
+	}
+
+	pub fn from_child(
+		self,
 		stack: &'stack str,
 		line_nr: u32,
 	) -> Self
@@ -114,6 +135,7 @@ pub enum Kind
 	IncorrectValue,
 	IncorrectPermissions,
 	Insert,
+	NoAuth,
 	NotFound,
 	NotImplemented,
 	Parse,
@@ -129,7 +151,6 @@ pub enum OnType
 {
 	AccesToken,
 	AccesTokenHashKey,
-	Auth,
 	Bucket,
 	Channel,
 	ChannelParent,
@@ -208,7 +229,7 @@ impl Server<'_>
 	pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>) 
     {
 		#[allow(clippy::match_wildcard_for_single_variants)]
-		let mut status_code = match &self.kind
+		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
 			Kind::Expired
@@ -216,13 +237,9 @@ impl Server<'_>
 			Kind::IncorrectValue 
 			| Kind::InValid => StatusCode::BAD_REQUEST,
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+			Kind::NoAuth => StatusCode::UNAUTHORIZED,
 			_ => StatusCode::INTERNAL_SERVER_ERROR,
 		};
-
-		if let OnType::Auth = &self.on_type
-		{
-			status_code = StatusCode::UNAUTHORIZED;
-		}
 
 		if let Some(client) = &self.client
 		{
@@ -247,6 +264,7 @@ pub enum Client
 	MAIL_IN_USE,
 	USERNAME_IN_USE,
 	INVALID_PARAMS,
+	NOT_ALLOWED_PLATFORM,
 	SERVICE_ERROR,
 }
 
@@ -271,8 +289,9 @@ impl Client
 			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
 			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
             Client::INVALID_PARAMS => "Invalid parameters",
-            Client::MAIL_IN_USE => "mail already in use",
-            Client::USERNAME_IN_USE => "username already in use",
+            Client::MAIL_IN_USE => "Mail already in use",
+            Client::USERNAME_IN_USE => "Username already in use",
+            Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
             Client::SERVICE_ERROR => "",
         }
     }
