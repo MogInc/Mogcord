@@ -29,12 +29,24 @@ pub async fn create_user(
 
     if repo_user.does_user_exist_by_username(&payload.username).await?
     {
-        return Err(error::Server::UsernameAlreadyInUse);
+        return Err(error::Server::new(
+            error::Kind::AlreadyInUse,
+            error::OnType::Username,
+            file!(),
+            line!())
+            .add_client(error::Client::USERNAME_IN_USE)
+        );
     }
 
     if repo_user.does_user_exist_by_mail(&payload.mail).await?
     {
-        return Err(error::Server::MailAlreadyInUse);
+        return Err(error::Server::new(
+            error::Kind::AlreadyInUse,
+            error::OnType::Mail,
+            file!(),
+            line!())
+            .add_client(error::Client::MAIL_IN_USE)
+        );
     }
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;

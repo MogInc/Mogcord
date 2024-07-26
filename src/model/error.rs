@@ -103,6 +103,7 @@ impl<'stack> Server<'stack>
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
+	AlreadyInUse,
 	AlreadyMember,
 	CantGainUsers,
 	Create,
@@ -139,6 +140,7 @@ pub enum OnType
 	Ctx,
 	Date,
 	Hashing,
+	Mail,
 	Message,
 	Mongo,
 	Transaction,
@@ -150,6 +152,7 @@ pub enum OnType
 	Server,
 	SpawnBlocking,
 	User,
+	Username,
 }
 
 impl Server<'_>
@@ -241,6 +244,8 @@ pub enum Client
 	NO_COOKIES,
 	NO_MESSAGE_EDIT,
 	NO_CHAT_PRIVATE_EDIT,
+	MAIL_IN_USE,
+	USERNAME_IN_USE,
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
@@ -260,12 +265,14 @@ impl Client
     {
         match self 
         {
-            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint.",
-			Client::NO_AUTH => "Missing authentication, please reauthorize.",
-			Client::NO_COOKIES => "Missing cookies.",
+            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+			Client::NO_AUTH => "Missing authentication, please reauthorize",
+			Client::NO_COOKIES => "Missing cookies",
 			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
 			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
             Client::INVALID_PARAMS => "Invalid parameters",
+            Client::MAIL_IN_USE => "mail already in use",
+            Client::USERNAME_IN_USE => "username already in use",
             Client::SERVICE_ERROR => "",
         }
     }
