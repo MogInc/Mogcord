@@ -30,6 +30,7 @@ pub async fn main_response_mapper(
 					"error": {
                         "req_id": req_id.to_string(),
 						"type": client_error.as_ref(),
+						"extra": client_error.as_str(),
 					}
 				});
         
