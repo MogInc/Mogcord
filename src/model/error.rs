@@ -14,7 +14,8 @@ pub struct Server<'stack>
 	pub on_type: OnType,
 	stack: &'stack str,
 	line_nr: u32,
-	extra_info: Option<String>,
+	debug_info: Option<String>,
+	pub extra_public_info: Option<String>,
 	client: Option<Client>,
 	child: Option<Box<Server<'stack>>>,
 }
@@ -35,7 +36,8 @@ impl<'stack> Server<'stack>
 			on_type,
 			stack,
 			line_nr,
-			extra_info: None,
+			debug_info: None,
+			extra_public_info: None,
 			client: None,
 			child: None,
 		}
@@ -53,7 +55,8 @@ impl<'stack> Server<'stack>
 			on_type: self.on_type,
 			stack,
 			line_nr,
-			extra_info: self.extra_info,
+			debug_info: self.debug_info,
+			extra_public_info: self.extra_public_info,
 			client: self.client,
 			child: self.child,
 		}
@@ -71,15 +74,25 @@ impl<'stack> Server<'stack>
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
 		self.client = child.client.take();
+		self.extra_public_info = child.extra_public_info.take();
+		
 		self.child = Some(Box::new(child));
 		
 		self
 	}
 
 	#[must_use]
-	pub fn add_extra_info(mut self, extra_info: String) -> Self
+	pub fn add_debug_info(mut self, extra_info: String) -> Self
 	{
-		self.extra_info.insert(extra_info);
+		self.debug_info.insert(extra_info);
+
+		self
+	}
+
+	#[must_use]
+	pub fn expose_public_extra_info(mut self, extra_info: String) -> Self
+	{
+		self.extra_public_info.insert(extra_info);
 
 		self
 	}
@@ -170,7 +183,7 @@ impl Server<'_>
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
+	pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>) 
     {
 		#[allow(clippy::match_wildcard_for_single_variants)]
 		let mut status_code = match &self.kind
@@ -191,11 +204,11 @@ impl Server<'_>
 
 		if let Some(client) = &self.client
 		{
-			(status_code, client.clone())
+			(status_code, client.clone(), self.extra_public_info.as_ref())
 		}
 		else
 		{
-			(status_code, Client::SERVICE_ERROR)
+			(status_code, Client::SERVICE_ERROR, self.extra_public_info.as_ref())
 		}
 	}
 }

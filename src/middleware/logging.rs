@@ -25,12 +25,16 @@ pub async fn main_response_mapper(
 	let error_response =
 		client_status_error
 			.as_ref()
-			.map(|(status_code, client_error)| {
-				let client_error_body = json!({
-					"error": {
+			.map(|(status_code, client_error, extra_info_option)| 
+			{
+				let client_error_body = json!(
+				{
+					"error": 
+					{
                         "req_id": req_id.to_string(),
 						"type": client_error.as_ref(),
-						"extra": client_error.as_str(),
+						"type_info": client_error.as_str(),
+						"extra": *extra_info_option.unwrap_or(&String::new()),
 					}
 				});
         
