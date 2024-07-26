@@ -79,7 +79,7 @@ impl Server
 
 impl Server
 {
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
         if self.is_user_part_of_server(&user.id) 
         {
@@ -97,7 +97,7 @@ impl Server
         Ok(())
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         for user in &users 
         {

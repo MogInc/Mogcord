@@ -264,6 +264,9 @@ pub enum Client
 	NO_MESSAGE_EDIT,
 	NO_CHAT_PRIVATE_EDIT,
 	MAIL_IN_USE,
+	USER_BLOCKED,
+	USER_BLOCKED_YOU,
+	SERVER_BLOCKED_YOU,
 	USERNAME_IN_USE,
 	INVALID_PARAMS,
 	NOT_ALLOWED_PLATFORM,
@@ -298,6 +301,9 @@ impl Client
             Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
             Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
             Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
+            Client::USER_BLOCKED => "You have this user blocked",
+            Client::USER_BLOCKED_YOU => "This user has you blocked",
+            Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
             Client::SERVICE_ERROR => "",
         }
     }

@@ -39,7 +39,7 @@ impl ChannelParent
         matches!(self, ChannelParent::Server(_))
     }
 
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
         match self
         {
@@ -48,7 +48,7 @@ impl ChannelParent
         }
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         match self
         {

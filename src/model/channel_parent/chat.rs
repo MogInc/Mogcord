@@ -39,7 +39,7 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
         match self
         {
@@ -53,7 +53,7 @@ impl Chat
         }
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         match self
         {
