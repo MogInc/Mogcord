@@ -19,12 +19,23 @@ impl channel::Repository for MongolDB
             .channels()
             .find_one(filter)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Channel,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match user_option 
         {
             Some(channel) => Ok(Channel::from(&channel)),
-            None => Err(error::Server::ChannelNotFound),
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!(),
+            )),
         }
     }
 }
