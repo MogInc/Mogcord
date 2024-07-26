@@ -121,24 +121,6 @@ pub struct Server2<'stack>
 impl<'stack> Server2<'stack>
 {
 	#[must_use]
-	pub fn new_with_client(
-		kind: Kind,
-		on_type: OnType,
-		stack: &'stack str,
-		client: Client,
-	) -> Self
-	{
-		Self
-		{
-			kind,
-			on_type,
-			stack,
-			client: Some(client),
-			child: None,
-		}
-	}
-
-	#[must_use]
 	pub fn new_with_client_and_child(
 		kind: Kind,
 		on_type: OnType,
@@ -158,10 +140,29 @@ impl<'stack> Server2<'stack>
 	}
 
 	#[must_use]
+	pub fn new_with_client(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		client: Client,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			client: Some(client),
+			child: None,
+		}
+	}
+
+	#[must_use]
 	pub fn new_with_child(
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str
+		stack: &'stack str,
+		child: Self,
 	) -> Self
 	{
 		Self
@@ -170,7 +171,7 @@ impl<'stack> Server2<'stack>
 			on_type,
 			stack,
 			client: None,
-			child: None,
+			child: Some(Box::new(child)),
 		}
 	}
 
@@ -213,7 +214,7 @@ impl fmt::Display for Server2<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-        write!(f, "{self:?}")
+        write!(f, "{:?}::{:?} - {:?} :{:?}", self.kind, self.on_type, self.stack, self.child)
     }
 }
 
