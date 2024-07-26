@@ -88,18 +88,19 @@ impl<'stack> Server<'stack>
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
-   NotFound,
-   Incorrect,
-   InValid,
-   Expired,
-   Read,
-   Create,
-   Insert,
-   Update,
-   Delete,
-   Transaction,
-   NotImplemented,
-   Unexpected(String),
+	Create,
+	Delete,
+	Expired,
+	InValid,
+	Incorrect,
+	Insert,
+	NotFound,
+	NotImplemented,
+	Read,
+	Transaction,
+	Unexpected,
+	Update,
+	Verifying
 }
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
@@ -108,14 +109,15 @@ pub enum OnType
 {
 	AccesToken,
 	AccesTokenHashKey,
-	Chat,
 	ChannelParent,
+	Chat,
 	Cookie,
 	Ctx,
 	Hashing,
 	Message,
 	Rights,
 	Server,
+	SpawnBlocking,
 	User,
 }
 
