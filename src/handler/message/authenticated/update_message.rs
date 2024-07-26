@@ -44,7 +44,16 @@ pub async fn update_message(
 
     let user_roles = channel_parent.get_user_roles(ctx_user_id);
 
-    message.update_value(payload.value, ctx_user_id, user_roles)?;
+    if !message.update_value(payload.value, ctx_user_id, user_roles)?
+    {
+        return Err(error::Server::new(
+            error::Kind::NoChange,
+            error::OnType::Message,
+            file!(),
+            line!())
+            .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
+        );
+    }
 
     match repo_message.update_message(message).await
     {
