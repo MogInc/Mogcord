@@ -41,6 +41,24 @@ impl<'stack> Server<'stack>
 		}
 	}
 
+	pub fn new_from_child(
+		self,
+		stack: &'stack str,
+		line_nr: u32,
+	) -> Self
+	{
+		Self
+		{
+			kind: self.kind,
+			on_type: self.on_type,
+			stack,
+			line_nr,
+			extra_info: self.extra_info,
+			client: self.client,
+			child: self.child,
+		}
+	}
+
 	#[must_use]
 	pub fn add_client(mut self, client: Client) -> Self
 	{
@@ -72,6 +90,7 @@ pub enum Kind
 {
    NotFound,
    Incorrect,
+   InValid,
    Expired,
    Read,
    Create,
@@ -87,10 +106,17 @@ pub enum Kind
 #[serde(tag = "type", content = "data")]
 pub enum OnType
 {
-	Rights,
-	Ctx,
+	AccesToken,
+	AccesTokenHashKey,
 	Chat,
+	ChannelParent,
+	Cookie,
+	Ctx,
+	Hashing,
 	Message,
+	Rights,
+	Server,
+	User,
 }
 
 impl Server<'_>
@@ -142,7 +168,8 @@ impl Server<'_>
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
 			Kind::Expired => StatusCode::FORBIDDEN,
-			Kind::Incorrect => StatusCode::BAD_REQUEST,
+			Kind::Incorrect 
+			| Kind::InValid => StatusCode::BAD_REQUEST,
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
 			_ => StatusCode::INTERNAL_SERVER_ERROR,
 		};
@@ -164,6 +191,7 @@ pub enum Client
 {
 	NO_ADMIN,
 	NO_AUTH,
+	NO_COOKIES,
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
@@ -185,8 +213,9 @@ impl Client
         {
             Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint.",
 			Client::NO_AUTH => "Missing authentication, please reauthorize.",
+			Client::NO_COOKIES => "Missing cookies.",
             Client::INVALID_PARAMS => "Invalid parameters",
-            Client::SERVICE_ERROR => "SERVICE_ERROR",
+            _ => "",
         }
     }
 }
