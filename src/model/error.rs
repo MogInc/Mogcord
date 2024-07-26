@@ -277,8 +277,10 @@ pub enum Client
 	NOT_PART_SERVER,
 	NOT_PART_CHAT,
 	SERVICE_ERROR,
-	TRY_SELF_BLOCKED,
-	TRY_SELF_FRIEND,
+	TRY_ADD_SELF_BLOCKED,
+	TRY_ADD_SELF_FRIEND,
+	TRY_REMOVE_SELF_BLOCKED,
+	TRY_REMOVE_SELF_FRIEND,
 	OUTGOING_FRIEND,
 	NO_INCOMING_FRIEND,
 }
@@ -313,11 +315,13 @@ impl Client
             Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
             Client::USER_BLOCKED_YOU => "This user has you blocked",
             Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
-			Client::TRY_SELF_FRIEND => "Can't befriend yourself",
-			Client::TRY_SELF_BLOCKED => "Can't block yourself",
+			Client::TRY_ADD_SELF_FRIEND => "Can't befriend yourself",
+			Client::TRY_ADD_SELF_BLOCKED => "Can't block yourself",
 			Client::USER_ALREADY_FRIEND => "User is already your friend",
 			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
 			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
+			Client::TRY_REMOVE_SELF_BLOCKED => "Can't unfriend yourself",
+			Client::TRY_REMOVE_SELF_FRIEND => "Can't unblock yourself",
             Client::SERVICE_ERROR => "",
         }
     }
