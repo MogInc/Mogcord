@@ -74,6 +74,7 @@ pub enum Kind
    Incorrect,
    Expired,
    Read,
+   Create,
    Insert,
    Update,
    Delete,
