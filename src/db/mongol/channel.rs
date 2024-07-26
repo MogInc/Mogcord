@@ -32,7 +32,7 @@ pub struct MongolChannel
 
 impl TryFrom<&Chat> for MongolChannel
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Chat) -> Result<Self, Self::Error>
     {
@@ -48,7 +48,7 @@ impl TryFrom<&Chat> for MongolChannel
 
 impl TryFrom<(&Channel, ParentType)> for MongolChannel
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from((value, parent_type): (&Channel, ParentType)) -> Result<Self, Self::Error>
     {
@@ -70,7 +70,7 @@ pub struct MongolChannelVecWrapper(pub Vec<MongolChannel>);
 
 impl TryFrom<&Server> for MongolChannelVecWrapper
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Server) -> Result<Self, Self::Error>
     {
