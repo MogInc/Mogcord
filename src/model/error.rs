@@ -14,7 +14,7 @@ pub struct Server<'stack>
 	pub on_type: OnType,
 	stack: &'stack str,
 	line_nr: u32,
-	debug_info: Option<String>,
+	debug_info: Vec<String>,
 	pub extra_public_info: Option<String>,
 	client: Option<Client>,
 	child: Option<Box<Server<'stack>>>,
@@ -36,7 +36,7 @@ impl<'stack> Server<'stack>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: None,
+			debug_info: Vec::new(),
 			extra_public_info: None,
 			client: None,
 			child: None,
@@ -75,6 +75,7 @@ impl<'stack> Server<'stack>
 	{
 		self.client = child.client.take();
 		self.extra_public_info = child.extra_public_info.take();
+		self.debug_info.extend(child.debug_info.drain(..));
 
 		self.child = Some(Box::new(child));
 		
@@ -84,7 +85,7 @@ impl<'stack> Server<'stack>
 	#[must_use]
 	pub fn add_debug_info(mut self, extra_info: String) -> Self
 	{
-		self.debug_info.insert(extra_info);
+		self.debug_info.push(extra_info);
 
 		self
 	}
@@ -131,8 +132,9 @@ pub enum OnType
 	Bucket,
 	Channel,
 	ChannelParent,
-	ChatPrivate,
+	Chat,
 	ChatGroup,
+	ChatPrivate,
 	Cookie,
 	Ctx,
 	Date,
@@ -230,6 +232,7 @@ pub enum Client
 	NO_AUTH,
 	NO_COOKIES,
 	NO_MESSAGE_EDIT,
+	NO_CHAT_PRIVATE_EDIT,
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
@@ -253,6 +256,7 @@ impl Client
 			Client::NO_AUTH => "Missing authentication, please reauthorize.",
 			Client::NO_COOKIES => "Missing cookies.",
 			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
+			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
             Client::INVALID_PARAMS => "Invalid parameters",
             Client::SERVICE_ERROR => "",
         }
