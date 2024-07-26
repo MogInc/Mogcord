@@ -138,6 +138,7 @@ pub enum Kind
 	Insert,
 	IsSelf,
 	NoAuth,
+	NoChange,
 	NotPartOf,
 	NotAllowed,
 	NotFound,
@@ -236,6 +237,8 @@ impl Server<'_>
 		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
+			Kind::NoChange => StatusCode::NO_CONTENT,
+			Kind::AlreadyExists => StatusCode::CONFLICT,
 			Kind::Expired
 			| Kind::NotAllowed
 			| Kind::NotPartOf
@@ -263,6 +266,8 @@ impl Server<'_>
 pub enum Client
 {
 	NO_ADMIN,
+	CHAT_NO_FRIEND,
+	CHAT_WITH_SELF,
 	NO_AUTH,
 	NO_COOKIES,
 	NO_MESSAGE_EDIT,
@@ -288,6 +293,7 @@ pub enum Client
 	TRY_REMOVE_SELF_FRIEND,
 	OUTGOING_FRIEND,
 	NO_INCOMING_FRIEND,
+	CHAT_ALREADY_EXISTS,
 }
 
 impl fmt::Display for Client 
@@ -306,6 +312,9 @@ impl Client
         match self 
         {
             Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+            Client::CHAT_ALREADY_EXISTS => "Chat already exists",
+            Client::CHAT_WITH_SELF => "Can't have chat with yourself",
+            Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
             Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
 			Client::NO_AUTH => "Missing authentication, please reauthorize",
 			Client::NO_COOKIES => "Missing cookies",
