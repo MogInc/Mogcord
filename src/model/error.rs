@@ -136,6 +136,7 @@ pub enum Kind
 	IncorrectPermissions,
 	Insert,
 	NoAuth,
+	NotAllowed,
 	NotFound,
 	NotImplemented,
 	Parse,
@@ -233,6 +234,7 @@ impl Server<'_>
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
 			Kind::Expired
+			| Kind::NotAllowed
 			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
 			Kind::IncorrectValue 
 			| Kind::InValid => StatusCode::BAD_REQUEST,
@@ -265,6 +267,8 @@ pub enum Client
 	USERNAME_IN_USE,
 	INVALID_PARAMS,
 	NOT_ALLOWED_PLATFORM,
+	NOT_PART_SERVER,
+	NOT_PART_CHAT,
 	SERVICE_ERROR,
 }
 
@@ -292,6 +296,8 @@ impl Client
             Client::MAIL_IN_USE => "Mail already in use",
             Client::USERNAME_IN_USE => "Username already in use",
             Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
+            Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
+            Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
             Client::SERVICE_ERROR => "",
         }
     }

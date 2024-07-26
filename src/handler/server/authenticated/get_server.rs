@@ -22,7 +22,12 @@ pub async fn get_server(
     
     if !server.is_user_part_of_server(ctx_user_id)
     {
-        return Err(error::Server::ServerDoesNotContainThisUser);
+        return Err(error::Server::new(
+            error::Kind::NotAllowed,
+            error::OnType::Server,
+            file!(),
+            line!())
+        );
     }
 
     let server = server.filter_channels(ctx_user_id);
