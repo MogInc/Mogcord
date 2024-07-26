@@ -80,7 +80,10 @@ impl Chat
 
 impl channel::Parent for Chat
 {
-    fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>>
     {
         match self
         {
@@ -98,7 +101,11 @@ impl channel::Parent for Chat
         }
     }
 
-    fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {
@@ -107,7 +114,11 @@ impl channel::Parent for Chat
         }
     }
 
-    fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {
