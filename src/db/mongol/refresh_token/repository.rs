@@ -117,7 +117,7 @@ impl refresh_token::Repository for MongolDB
                         .add_debug_info(err.to_string())
                     )?;
 
-                return Ok(refresh_token);
+                Ok(refresh_token)
             },
             None => Err(error::Server::new(
                 error::Kind::NotFound,
