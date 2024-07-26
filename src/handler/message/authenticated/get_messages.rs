@@ -23,14 +23,26 @@ pub async fn get_messages(
         .get_channel_parent(&channel_id)
         .await?;
 
-    if !chat.is_user_part_of_chat(current_user_id)
+    if !chat.is_user_part_of_channel_parent(current_user_id)
     {
-        return Err(error::Server::ChatDoesNotContainThisUser);
+        return Err(error::Server::new(
+            error::Kind::NotPartOf,
+            error::OnType::ChannelParent,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_PART_SERVER)
+        );
     }
 
     if !chat.can_read(current_user_id, Some(&channel_id))?
     {
-        return Err(error::Server::NotAllowedToRetrieveMessages);
+        return Err(error::Server::new(
+            error::Kind::NotPartOf,
+            error::OnType::ChannelParent,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_PART_SERVER)
+        );
     }
 
     match repo_message.get_valid_messages(&channel_id, pagination).await

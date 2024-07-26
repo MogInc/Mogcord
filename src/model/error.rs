@@ -138,6 +138,7 @@ pub enum Kind
 	Insert,
 	IsSelf,
 	NoAuth,
+	NotPartOf,
 	NotAllowed,
 	NotFound,
 	NotImplemented,
@@ -237,6 +238,7 @@ impl Server<'_>
 			Kind::NotFound => StatusCode::NOT_FOUND,
 			Kind::Expired
 			| Kind::NotAllowed
+			| Kind::NotPartOf
 			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
 			Kind::IncorrectValue 
 			| Kind::InValid => StatusCode::BAD_REQUEST,
@@ -276,6 +278,7 @@ pub enum Client
 	INVALID_PARAMS,
 	NOT_ALLOWED_PLATFORM,
 	NOT_PART_SERVER,
+	NOT_PART_CHANNEL_PARENT,
 	NOT_PART_CHAT,
 	SERVICE_ERROR,
 	TRY_ADD_SELF_BLOCKED,
@@ -313,6 +316,7 @@ impl Client
             Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
             Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
             Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
+            Client::NOT_PART_CHANNEL_PARENT => "Shoo shoo, youre not part of this chat or server",
             Client::USER_BLOCKED => "You have this user blocked",
             Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
             Client::USER_BLOCKED_YOU => "This user has you blocked",

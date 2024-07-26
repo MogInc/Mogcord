@@ -68,7 +68,7 @@ impl ChannelParent
     }
 
     #[must_use]
-    pub fn is_user_part_of_chat(&self, other_user_id: &str) -> bool
+    pub fn is_user_part_of_channel_parent(&self, other_user_id: &str) -> bool
     {
         match self
         {
