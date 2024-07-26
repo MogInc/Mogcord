@@ -7,8 +7,8 @@ use super::Chat;
 #[async_trait]
 pub trait Repository: Send + Sync 
 {
-    async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>;
-    async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>;
-    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>;
-    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>;
+    async fn create_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<Chat, error::Server<'stack>>;
+    async fn update_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<(), error::Server<'stack>>;
+    async fn get_chat_by_id<'input, 'stack>(&'input self, chat_id: &'input str) -> Result<Chat, error::Server<'stack>>;
+    async fn does_chat_exist<'input, 'stack>(&'input self, chat: &'input Chat) -> Result<bool, error::Server<'stack>>;
 }

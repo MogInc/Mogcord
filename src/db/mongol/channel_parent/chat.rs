@@ -17,7 +17,7 @@ pub enum MongolChat
 
 impl TryFrom<&Chat> for MongolChat
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
     
     fn try_from(value: &Chat) -> Result<Self, Self::Error> 
     {

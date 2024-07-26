@@ -9,7 +9,7 @@ use super::helper;
 #[async_trait]
 impl channel::Repository for MongolDB
 {
-    async fn get_channel(&self, channel_id: &str) -> Result<Channel, error::Server>
+    async fn get_channel<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<Channel, error::Server<'stack>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
 

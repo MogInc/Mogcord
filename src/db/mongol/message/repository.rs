@@ -11,7 +11,7 @@ use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 #[async_trait]
 impl message::Repository for MongolDB
 {
-    async fn create_message(&self, mut message: Message) -> Result<Message, error::Server>
+    async fn create_message<'input, 'stack>(&'input self, mut message: Message) -> Result<Message, error::Server<'stack>>
     {
         let mut db_message = MongolMessage::try_from(&message)?;
 
@@ -107,8 +107,8 @@ impl message::Repository for MongolDB
         }
     }
 
-    async fn get_valid_messages(&self, channel_id: &str, pagination: Pagination) 
-        -> Result<Vec<Message>, error::Server>
+    async fn get_valid_messages<'input, 'stack>(&'input self, channel_id: &str, pagination: Pagination) 
+        -> Result<Vec<Message>, error::Server<'stack>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
         
@@ -176,7 +176,7 @@ impl message::Repository for MongolDB
         Ok(messages)
     }
 
-    async fn update_message(&self, message: Message) -> Result<Message, error::Server>
+    async fn update_message<'input, 'stack>(&'input self, message: Message) -> Result<Message, error::Server<'stack>>
     {
         let db_message = MongolMessage::try_from(&message)?;
     
@@ -201,7 +201,7 @@ impl message::Repository for MongolDB
         }
     }
 
-    async fn get_message(&self, message_id: &str) -> Result<Message, error::Server>
+    async fn get_message<'input, 'stack>(&'input self, message_id: &str) -> Result<Message, error::Server<'stack>>
     {
 
         let message_id_local = helper::convert_domain_id_to_mongol(message_id)?;
