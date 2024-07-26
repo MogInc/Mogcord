@@ -10,8 +10,8 @@ use serde::Serialize;
 #[serde(tag = "type")]
 pub struct Server<'stack>
 {
-	kind: Kind,
-	on_type: OnType,
+	pub kind: Kind,
+	pub on_type: OnType,
 	stack: &'stack str,
 	line_nr: u32,
 	extra_info: Option<String>,
@@ -71,26 +71,28 @@ impl<'stack> Server<'stack>
 pub enum Kind
 {
    NotFound,
-   NotImplemented,
    Incorrect,
    Expired,
-   FailedRead,
-   FailedInsert,
-   FailedUpdate,
-   FailedDelete,
+   Read,
+   Insert,
+   Update,
+   Delete,
    Transaction,
-   UnexpectedError(String),
+   NotImplemented,
+   Unexpected(String),
 }
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum OnType
 {
-   Chat,
-   Message,
+	Rights,
+	Ctx,
+	Chat,
+	Message,
 }
 
-impl Server<'_> 
+impl Server<'_>
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
@@ -159,8 +161,9 @@ impl Server<'_>
 #[allow(non_camel_case_types)]
 pub enum Client
 {
-	INVALID_PARAMS,
+	NO_ADMIN,
 	NO_AUTH,
+	INVALID_PARAMS,
 	SERVICE_ERROR,
 }
 
@@ -168,7 +171,7 @@ impl fmt::Display for Client
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-        write!(f, "{}", self.as_str())
+        write!(f, "{self}")
     }
 }
 
@@ -179,8 +182,9 @@ impl Client
     {
         match self 
         {
-            Client::INVALID_PARAMS => "ACCES_TOKEN",
-            Client::NO_AUTH => "NO_AUTH",
+            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint.",
+			Client::NO_AUTH => "Missing authentication, please reauthorize.",
+            Client::INVALID_PARAMS => "Invalid parameters",
             Client::SERVICE_ERROR => "SERVICE_ERROR",
         }
     }
