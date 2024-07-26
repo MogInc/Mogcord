@@ -29,7 +29,7 @@ impl TryFrom<&Bucket> for MongolBucket
             .date
             .convert_to_bson_date()
             .map_err(|_| error::Server::new(
-                error::Kind::InValid,
+                error::Kind::Parse,
                 error::OnType::Date,
                 file!(),
                 line!())
