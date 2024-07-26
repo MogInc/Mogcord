@@ -11,13 +11,13 @@ pub async fn log_request(
 	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
-	service_error: Option<&error::Server2<'_>>,
+	service_error: Option<&error::Server<'_>>,
 	client_error: Option<error::Client>,
 ) {
 
     let timestamp = chrono::Utc::now();
 
-	let error_type_option = service_error.map(error::Server2::to_string);
+	let error_type_option = service_error.map(error::Server::to_string);
 	let error_data_option = serde_json::to_value(service_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(Value::take));
