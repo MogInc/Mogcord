@@ -156,7 +156,7 @@ impl Server<'_>
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-        write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info)?;
+        write!(f, "{}: {:?}::{:?} - {} on ln:{}", depth, self.kind, self.on_type, self.stack, self.line_nr)?;
 
 		if let Some(ref child) = self.child 
 		{
@@ -172,7 +172,15 @@ impl fmt::Display for Server<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-        self.fmt_with_depth(f, 0)
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
+
+		if let Some(ref child) = self.child 
+		{
+            write!(f, " -> ")?;
+            child.fmt_with_depth(f, 1)?;
+        }
+
+		Ok(())
 	}
 }
 
