@@ -83,7 +83,12 @@ impl Server
     {
         if self.is_user_part_of_server(&user.id) 
         {
-            return Err(error::Server::ServerAlreadyHasThisUser);
+            return Err(error::Server::new(
+                error::Kind::AlreadyMember,
+                error::OnType::Server,
+                file!(),
+                line!()
+            ));
         }
 
         self.users.insert(user.id.to_string(), user);
@@ -97,7 +102,13 @@ impl Server
         {
             if self.is_user_part_of_server(&user.id) 
             {
-                return Err(error::Server::ServerAlreadyHasThisUser);
+                return Err(error::Server::new(
+                    error::Kind::AlreadyMember,
+                    error::OnType::Server,
+                    file!(),
+                    line!())
+                    .add_extra_info(user.id.to_string())
+                );
             }
         }
 
@@ -162,8 +173,18 @@ impl channel::Parent for Server
     {
         match channel_id_option 
         {
-            Some(id) => self.channels.get(id).ok_or(error::Server::ChannelNotFound),
-            None => Err(error::Server::ChannelNotFound),
+            Some(id) => self.channels.get(id).ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!()
+            )),
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!()
+            )),
         }
     }
 
@@ -256,12 +277,22 @@ impl Server
         let user_roles_option = self.get_user_roles(user_id);
     
         let channel_id = channel_id_option
-            .ok_or(error::Server::ChannelNotPassed)?;
+            .ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!()
+            ))?;
     
         let channel = self
             .channels
             .get(channel_id)
-            .ok_or(error::Server::ChannelNotFound)?;
+            .ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!()
+            ))?;
     
         let roles_default: &Vec<String> = &Vec::new();
         let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);
