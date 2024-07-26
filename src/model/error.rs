@@ -133,6 +133,7 @@ pub enum OnType
 	ChatGroup,
 	Cookie,
 	Ctx,
+	Date,
 	Hashing,
 	Message,
 	Mongo,
