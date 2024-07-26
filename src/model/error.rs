@@ -43,6 +43,7 @@ impl<'stack> Server<'stack>
 		}
 	}
 
+	#[must_use]
 	pub fn new_from_child(
 		self,
 		kind: Kind,
@@ -64,6 +65,7 @@ impl<'stack> Server<'stack>
 		}
 	}
 
+	#[must_use]
 	pub fn from_child(
 		self,
 		stack: &'stack str,
@@ -296,13 +298,14 @@ pub enum Client
 	OUTGOING_FRIEND,
 	NO_INCOMING_FRIEND,
 	CHAT_ALREADY_EXISTS,
+	SERVER_NOT_FOUND,
 }
 
 impl fmt::Display for Client 
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-        write!(f, "{self}")
+        write!(f, "{self:?}")
     }
 }
 
@@ -343,7 +346,8 @@ impl Client
 			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
 			Client::TRY_REMOVE_SELF_BLOCKED => "Can't unfriend yourself",
 			Client::TRY_REMOVE_SELF_FRIEND => "Can't unblock yourself",
-            Client::SERVICE_ERROR => "",
+			Client::SERVER_NOT_FOUND => "Server not found",
+            Client::SERVICE_ERROR => "eh oh...",
         }
     }
 }

@@ -650,8 +650,9 @@ impl channel_parent::server::Repository for MongolDB
                 error::Kind::NotFound,
                 error::OnType::Server,
                 file!(),
-                line!()
-            )),
+                line!())
+                .add_client(error::Client::SERVER_NOT_FOUND)
+            ),
         }
     }
 
