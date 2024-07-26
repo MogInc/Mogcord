@@ -30,12 +30,24 @@ pub async fn add_users_to_chat(
 
     if !chat.is_group()
     {   
-        return Err(error::Server::ChatNotAllowedToGainUsers);
+        return Err(error::Server::new(
+            error::Kind::CantGainUsers,
+            error::OnType::ChatPrivate,
+            file!(),
+            line!())
+            .add_client(error::Client::CHAT_CANT_GAIN_USERS)
+        );
     }
 
     if !chat.is_owner(ctx_user_id)
     {
-        return Err(error::Server::UserIsNotOwnerOfChat);
+        return Err(error::Server::new(
+            error::Kind::IncorrectPermissions,
+            error::OnType::Chat,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_OWNER_CHAT)
+        );
     }
 
     let user_ids: Vec<&str> = payload
@@ -46,7 +58,13 @@ pub async fn add_users_to_chat(
     
     if repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
     {
-        return Err(error::Server::CantAddUsersToChatThatArentFriends);
+        return Err(error::Server::new(
+            error::Kind::NotFound,
+            error::OnType::RelationFriend,
+            file!(),
+            line!())
+            .add_client(error::Client::CHAT_NO_FRIEND)
+        );
     }
 
     let users = repo_user

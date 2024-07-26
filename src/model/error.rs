@@ -266,6 +266,8 @@ impl Server<'_>
 pub enum Client
 {
 	NO_ADMIN,
+	NOT_OWNER_CHAT,
+	CHAT_CANT_GAIN_USERS,
 	CHAT_NO_FRIEND,
 	CHAT_WITH_SELF,
 	NO_AUTH,
@@ -312,6 +314,8 @@ impl Client
         match self 
         {
             Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+            Client::CHAT_CANT_GAIN_USERS => "Chat cant gain users",
+            Client::NOT_OWNER_CHAT => "You're not owner of the chat",
             Client::CHAT_ALREADY_EXISTS => "Chat already exists",
             Client::CHAT_WITH_SELF => "Can't have chat with yourself",
             Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
