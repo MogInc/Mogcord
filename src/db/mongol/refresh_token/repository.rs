@@ -16,11 +16,20 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().insert_one(&db_token).await
         {
             Ok(_) => Ok(token),
-            Err(err) => Err(error::Server::FailedInsert(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::Insert,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            ),
         }
     }
 
-    async fn get_valid_token_by_device_id<'input, 'stack>(&'input self, device_id: &'input str) -> Result<RefreshToken, error::Server<'stack>>
+    async fn get_valid_token_by_device_id<'input, 'stack>(
+        &'input self, 
+        device_id: &'input str
+    ) -> Result<RefreshToken, error::Server<'stack>>
     {
         let device_id_local = helper::convert_domain_id_to_mongol(device_id)?;
 
@@ -75,25 +84,48 @@ impl refresh_token::Repository for MongolDB
             .refresh_tokens()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
-    
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
+
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-    
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match document_option
         {
             Some(document) => 
             {
                 let refresh_token = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::RefreshToken,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
                 return Ok(refresh_token);
             },
-            None => Err(error::Server::RefreshTokenNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .expose_public_extra_info(device_id.to_string())
+            ), 
         }
     }
 
@@ -117,9 +149,16 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::Delete,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            ),
         }
     }
+
     async fn revoke_all_tokens<'input, 'stack>(&'input self, user_id: &'input str) -> Result<(), error::Server<'stack>>
     {
         let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
@@ -139,7 +178,13 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_many(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::Delete,
+                error::OnType::RefreshToken,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            ),
         }
     }
 }

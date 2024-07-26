@@ -139,6 +139,7 @@ pub enum OnType
 	Message,
 	Mongo,
 	Transaction,
+	RefreshToken,
 	Relation,
 	RelationFriend,
 	RelationBlocked,
