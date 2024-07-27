@@ -30,7 +30,7 @@ pub async fn get_messages(
             error::OnType::ChannelParent,
             file!(),
             line!())
-            .add_client(error::Client::NOT_PART_SERVER)
+            .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER)
         );
     }
 
@@ -41,7 +41,7 @@ pub async fn get_messages(
             error::OnType::ChannelParent,
             file!(),
             line!())
-            .add_client(error::Client::NOT_PART_SERVER)
+            .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER)
         );
     }
 

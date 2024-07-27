@@ -35,7 +35,7 @@ pub async fn create_message(
             error::OnType::ChannelParent,
             file!(),
             line!())
-            .add_client(error::Client::NO_MESSAGE_CREATE)
+            .add_client(error::Client::MESSAGE_CREATE_FAIL)
         );
     }
 

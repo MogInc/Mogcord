@@ -46,7 +46,7 @@ pub async fn create_chat(
                     error::OnType::Chat,
                     file!(),
                     line!())
-                    .add_client(error::Client::CHAT_WITH_SELF)
+                    .add_client(error::Client::CHAT_ADD_WITH_SELF)
                 );
             }
 
@@ -57,7 +57,7 @@ pub async fn create_chat(
                     error::OnType::RelationFriend,
                     file!(),
                     line!())
-                    .add_client(error::Client::CHAT_NO_FRIEND)
+                    .add_client(error::Client::CHAT_ADD_NON_FRIEND)
                 );
             }
 
@@ -91,7 +91,7 @@ pub async fn create_chat(
                     error::OnType::RelationFriend,
                     file!(),
                     line!())
-                    .add_client(error::Client::CHAT_NO_FRIEND)
+                    .add_client(error::Client::CHAT_ADD_NON_FRIEND)
                 );
             }
 

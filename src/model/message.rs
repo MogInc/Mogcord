@@ -66,7 +66,7 @@ impl Message
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_client(error::Client::NO_MESSAGE_EDIT)
+                .add_client(error::Client::MESSAGE_EDIT_FAIL)
             );
         }
 

@@ -13,7 +13,7 @@ pub struct Server<'err>
 	pub kind: Kind,
 	pub on_type: OnType,
 	pub stack: &'err str,
-	line_nr: u32,
+	pub line_nr: u32,
 	pub debug_info: HashMap<&'err str, String>,
 	pub pub_info: Option<String>,
 	client: Option<Client>,
@@ -88,8 +88,11 @@ impl<'err> Server<'err>
 	#[must_use]
 	pub fn add_client(mut self, client: Client) -> Self
 	{
-		self.client.get_or_insert(client);
-
+		if self.client.is_none()
+		{
+			self.client = Some(client);
+		}
+		
 		self
 	}
 
@@ -286,36 +289,36 @@ pub enum Client
 {
 	CHAT_ALREADY_EXISTS,
 	CHAT_CANT_GAIN_USERS,
-	CHAT_NO_FRIEND,
-	CHAT_WITH_SELF,
+	CHAT_ADD_NON_FRIEND,
+	CHAT_ADD_WITH_SELF,
 	INVALID_PARAMS,
 	MAIL_IN_USE,
 	MESSAGE_NOT_PART_CHANNEL,
 	NOT_ALLOWED_PLATFORM,
-	NOT_OWNER_CHAT,
-	NOT_PART_CHANNEL_PARENT,
-	NOT_PART_CHAT,
-	NOT_PART_SERVER,
-	NO_ADMIN,
-	NO_AUTH,
-	NO_CHAT_PRIVATE_EDIT,
-	NO_COOKIES,
-	NO_INCOMING_FRIEND,
-	NO_MESSAGE_CREATE,
-	NO_MESSAGE_EDIT,
-	OUTGOING_FRIEND,
+	CHAT_EDIT_NOT_OWNER,
+	CHAT_PARENT_CTX_NOT_PART_OF_PARENT,
+	CHAT_CTX_NOT_PART_OF_CHAT,
+	SERVER_CTX_NOT_PART_OF_SERVER,
+	PERMISSION_NO_ADMIN,
+	PERMISSION_NO_AUTH,
+	PRIVATE_CHAT_TRY_EDIT,
+	COOKIES_NOT_FOUND,
+	RELATION_NO_INCOMING_FRIEND,
+	MESSAGE_CREATE_FAIL,
+	MESSAGE_EDIT_FAIL,
+	RELATION_DUPLICATE_OUTGOING_FRIEND,
 	SERVER_BLOCKED_YOU,
 	SERVER_NOT_FOUND,
 	SERVICE_ERROR,
-	TRY_ADD_SELF_BLOCKED,
-	TRY_ADD_SELF_FRIEND,
-	TRY_REMOVE_SELF_BLOCKED,
-	TRY_REMOVE_SELF_FRIEND,
+	RELATION_SELF_TRY_BLOCK_SELF,
+	RELATION_SELF_TRY_FRIEND_SELF,
+	RELATION_SELF_TRY_UNBLOCK_SELF,
+	RELATION_SELF_TRY_UNFRIEND_SELF,
 	USERNAME_IN_USE,
-	USER_ALREADY_BLOCKED,
-	USER_ALREADY_FRIEND,
-	USER_BLOCKED,
-	USER_BLOCKED_YOU,
+	RELATION_USER_ALREADY_BLOCKED,
+	RELATION_USER_ALREADY_FRIEND,
+	RELATION_USER_BLOCKED,
+	RELATION_USER_BLOCKED_YOU,
 }
 
 impl fmt::Display for Client 
@@ -323,49 +326,6 @@ impl fmt::Display for Client
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
         write!(f, "{self:?}")
-    }
-}
-
-impl Client
-{
-    #[must_use]
-    pub fn as_str(&self) -> &str 
-    {
-        match self 
-        {
-			Client::NO_AUTH => "Missing authentication, please reauthorize",
-			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
-			Client::NO_COOKIES => "Missing cookies",
-			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
-			Client::NO_MESSAGE_CREATE => "Message cannot be created",
-			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
-			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
-			Client::SERVER_NOT_FOUND => "Server not found",
-			Client::TRY_ADD_SELF_BLOCKED => "Can't block yourself",
-			Client::TRY_ADD_SELF_FRIEND => "Can't befriend yourself",
-			Client::TRY_REMOVE_SELF_BLOCKED => "Can't unfriend yourself",
-			Client::TRY_REMOVE_SELF_FRIEND => "Can't unblock yourself",
-			Client::USER_ALREADY_FRIEND => "User is already your friend",
-            Client::CHAT_ALREADY_EXISTS => "Chat already exists",
-            Client::CHAT_CANT_GAIN_USERS => "Chat cant gain users",
-            Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
-            Client::CHAT_WITH_SELF => "Can't have chat with yourself",
-            Client::INVALID_PARAMS => "Invalid parameters",
-            Client::MAIL_IN_USE => "Mail already in use",
-            Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
-            Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
-            Client::NOT_OWNER_CHAT => "You're not owner of the chat",
-            Client::NOT_PART_CHANNEL_PARENT => "Shoo shoo, youre not part of this chat or server",
-            Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
-            Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
-            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
-            Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
-            Client::SERVICE_ERROR => "eh oh...",
-            Client::USERNAME_IN_USE => "Username already in use",
-            Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
-            Client::USER_BLOCKED => "You have this user blocked",
-            Client::USER_BLOCKED_YOU => "This user has you blocked",
-        }
     }
 }
 

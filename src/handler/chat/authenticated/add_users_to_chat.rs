@@ -46,7 +46,7 @@ pub async fn add_users_to_chat(
             error::OnType::Chat,
             file!(),
             line!())
-            .add_client(error::Client::NOT_OWNER_CHAT)
+            .add_client(error::Client::CHAT_EDIT_NOT_OWNER)
         );
     }
 
@@ -63,7 +63,7 @@ pub async fn add_users_to_chat(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::CHAT_NO_FRIEND)
+            .add_client(error::Client::CHAT_ADD_NON_FRIEND)
         );
     }
 

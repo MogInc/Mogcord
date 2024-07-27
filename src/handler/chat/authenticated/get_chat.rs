@@ -26,7 +26,7 @@ pub async fn get_chat(
             error::OnType::Chat,
             file!(),
             line!())
-            .add_client(error::Client::NOT_PART_CHAT)
+            .add_client(error::Client::CHAT_CTX_NOT_PART_OF_CHAT)
         );
     }
 

@@ -32,7 +32,7 @@ pub async fn add_blocked(
             error::OnType::RelationBlocked,
             file!(),
             line!())
-            .add_client(error::Client::TRY_ADD_SELF_BLOCKED)
+            .add_client(error::Client::RELATION_SELF_TRY_BLOCK_SELF)
         );
     }
 
@@ -54,7 +54,7 @@ pub async fn add_blocked(
             error::OnType::RelationBlocked,
             file!(),
             line!())
-            .add_client(error::Client::USER_ALREADY_BLOCKED)
+            .add_client(error::Client::RELATION_USER_ALREADY_BLOCKED)
         );
     }
 
