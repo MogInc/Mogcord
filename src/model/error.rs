@@ -59,7 +59,7 @@ impl<'err> Server<'err>
 			stack,
 			line_nr,
 			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.take(),
+			extra_public_info: self.extra_public_info.drain().collect(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -79,7 +79,7 @@ impl<'err> Server<'err>
 			stack,
 			line_nr,
 			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.take(),
+			extra_public_info: self.extra_public_info.drain().collect(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -98,8 +98,8 @@ impl<'err> Server<'err>
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
 		self.client = child.client.take();
-		self.extra_public_info = child.extra_public_info.take();
-		//i want child vec to pop itself
+		//i want the children to be empty
+		self.extra_public_info.extend(child.extra_public_info.drain());
 		self.debug_info.extend(child.debug_info.drain(..));
 
 		self.child = Some(Box::new(child));
@@ -235,7 +235,7 @@ impl Server<'_>
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>) 
+	pub fn client_status_and_error(&self) -> (StatusCode, Client, HashMap<&str, String>) 
     {
 		#[allow(clippy::match_wildcard_for_single_variants)]
 		let status_code = match &self.kind
@@ -275,11 +275,11 @@ impl Server<'_>
 
 		if let Some(client) = &self.client
 		{
-			(status_code, client.clone(), self.extra_public_info.as_ref())
+			(status_code, client.clone(), self.extra_public_info.clone())
 		}
 		else
 		{
-			(status_code, Client::SERVICE_ERROR, self.extra_public_info.as_ref())
+			(status_code, Client::SERVICE_ERROR, self.extra_public_info.clone())
 		}
 	}
 }

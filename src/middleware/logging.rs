@@ -25,18 +25,34 @@ pub async fn main_response_mapper(
 	let error_response =
 		client_status_error
 			.as_ref()
-			.map(|(status_code, client_error, extra_info_option)| 
+			.map(|(status_code, client_error, extra_info)| 
 			{
-				let client_error_body = json!(
+				let client_error_body = if extra_info.is_empty()
 				{
-					"error": 
+					json!(
 					{
-                        "req_id": req_id.to_string(),
-						"type": client_error.as_ref(),
-						"type_info": client_error.as_str(),
-						"extra": *extra_info_option.unwrap_or(&String::new()),
-					}
-				});
+						"error": 
+						{
+							"req_id": req_id.to_string(),
+							"type": client_error.as_ref(),
+							"type_info": client_error.as_str(),
+						}
+					})
+				}
+				else
+				{
+					json!(
+					{
+						"error": 
+						{
+							"req_id": req_id.to_string(),
+							"type": client_error.as_ref(),
+							"type_info": client_error.as_str(),
+							"extra": extra_info,
+						}
+					})
+				};
+
         
 				(*status_code, Json(client_error_body)).into_response()
 			});
