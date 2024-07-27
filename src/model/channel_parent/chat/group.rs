@@ -30,7 +30,7 @@ impl Group
         }
     }
 
-    pub fn new(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server> 
+    pub fn new<'stack>(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server<'stack>> 
     {
         let users_sanitized = users
             .into_iter()
@@ -52,26 +52,37 @@ impl Group
 {
     const GROUP_USER_MIN: usize = 2;
 
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
-        let insert_option = self.users.insert(user.id.to_string(), user);
-
-        if insert_option.is_none()
+        if self.is_user_part_of_server(&user.id) 
         {
-            return Err(error::Server::ChatAlreadyHasThisUser);
+            return Err(error::Server::new(
+                error::Kind::AlreadyMember,
+                error::OnType::ChatGroup,
+                file!(),
+                line!())
+                .expose_public_extra_info(user.id)
+            );
         }
 
+        self.users.insert(user.id.to_string(), user);
 
         Ok(())
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         for user in &users 
         {
             if self.is_user_part_of_server(&user.id) 
             {
-                return Err(error::Server::ChatAlreadyHasThisUser);
+                return Err(error::Server::new(
+                    error::Kind::AlreadyMember,
+                    error::OnType::ChatGroup,
+                    file!(),
+                    line!())
+                    .expose_public_extra_info(user.id.to_string())
+                );
             }
         }
 
@@ -94,11 +105,17 @@ impl Group
 
     #[allow(clippy::unnecessary_wraps)]
     #[allow(clippy::unused_self)]
-    fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
+    fn internal_is_meeting_requirements<'stack>(&self) -> Result<(), error::Server<'stack>> 
     {
         if self.users.len() < Self::GROUP_USER_MIN
         {
-            return Err(error::Server::UserCountInvalid { min: Self::GROUP_USER_MIN, found: self.users.len() });
+            return Err(error::Server::new(
+                error::Kind::InValid,
+                error::OnType::User,
+                file!(),
+                line!())
+                .expose_public_extra_info(format!("Expected atleast: {}, found: {}", Self::GROUP_USER_MIN, self.users.len()))
+            );
         }
 
         Ok(())
@@ -107,7 +124,10 @@ impl Group
 
 impl channel::Parent for Group
 {
-    fn get_channel(&self, _: Option<&str>) -> Result<&Channel, error::Server> 
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        _: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>> 
     {
         Ok(&self.channel)
     }
@@ -117,12 +137,20 @@ impl channel::Parent for Group
         None
     }
 
-    fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        _: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         Ok(self.is_user_part_of_server(user_id))
     }
 
-    fn can_write(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        _: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         Ok(self.is_user_part_of_server(user_id))
     }

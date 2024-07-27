@@ -6,115 +6,218 @@ use axum::{
 };
 use serde::Serialize;
 
-use super::user;
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
+pub struct Server<'stack>
+{
+	pub kind: Kind,
+	pub on_type: OnType,
+	stack: &'stack str,
+	line_nr: u32,
+	debug_info: Vec<String>,
+	pub extra_public_info: Option<String>,
+	client: Option<Client>,
+	child: Option<Box<Server<'stack>>>,
+}
+
+impl<'stack> Server<'stack>
+{
+	#[must_use]
+	pub fn new(
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		line_nr: u32,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			line_nr,
+			debug_info: Vec::new(),
+			extra_public_info: None,
+			client: None,
+			child: None,
+		}
+	}
+
+	#[must_use]
+	pub fn new_from_child(
+		mut self,
+		kind: Kind,
+		on_type: OnType,
+		stack: &'stack str,
+		line_nr: u32,
+	) -> Self
+	{
+		Self
+		{
+			kind,
+			on_type,
+			stack,
+			line_nr,
+			debug_info: self.debug_info.drain(..).collect(),
+			extra_public_info: self.extra_public_info.take(),
+			client: self.client.take(),
+			child: Some(Box::new(self)),
+		}
+	}
+
+	#[must_use]
+	pub fn from_child(
+		mut self,
+		stack: &'stack str,
+		line_nr: u32,
+	) -> Self
+	{
+		Self
+		{
+			kind: self.kind.clone(),
+			on_type: self.on_type.clone(),
+			stack,
+			line_nr,
+			debug_info: self.debug_info.drain(..).collect(),
+			extra_public_info: self.extra_public_info.take(),
+			client: self.client.take(),
+			child: Some(Box::new(self)),
+		}
+	}
+
+	#[must_use]
+	pub fn add_client(mut self, client: Client) -> Self
+	{
+		self.client.get_or_insert(client);
+
+		self
+	}
+
+	#[must_use]
+	#[allow(clippy::extend_with_drain)]
+	pub fn add_child(mut self, mut child: Self) -> Self
+	{
+		self.client = child.client.take();
+		self.extra_public_info = child.extra_public_info.take();
+		//i want child vec to pop itself
+		self.debug_info.extend(child.debug_info.drain(..));
+
+		self.child = Some(Box::new(child));
+		
+		self
+	}
+
+	#[must_use]
+	pub fn add_debug_info(mut self, extra_info: String) -> Self
+	{
+		self.debug_info.push(extra_info);
+
+		self
+	}
+
+	#[must_use]
+	pub fn expose_public_extra_info(mut self, extra_info: String) -> Self
+	{
+		let _ = self.extra_public_info.insert(extra_info);
+
+		self
+	}
+}
 
 #[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
-pub enum Server 
+pub enum Kind
 {
-	//user
-    UserNotFound,
-    MailAlreadyInUse,
-    UsernameAlreadyInUse,
-	UserIsNotOwnerOfChat,
-
-	//chat
-	ChatNotFound,
-	ChatAlreadyExists,
-	ChatRequirementsInvalid,
-	ChatDoesNotContainThisUser,
-	ServerDoesNotContainThisUser,
-	OwnerCountInvalid { expected: usize, found: usize },
-	UserCountInvalid { min: usize, found: usize },
-	ChatInfoNotFound,
-	ChatNotAllowedToBeMade(ExtraInfo),
-	ChatNotAllowedToGainUsers,
-	ChatAlreadyHasThisUser,
-	ServerAlreadyHasThisUser,
-	CantAddUsersToChatThatArentFriends,
-	CantAddOwnerAsUser,
-	ChannelNotFound,
-	ChannelNotPassed,
-	NotAllowedToMakeAMessageInThisChannel,
-	CantUpdatePrivateChat,
-	ServerNotFound,
-	//message
-	MessageNotFound,
-	MessageDoesNotContainThisChat,
-	MessageDoesNotContainThisUser,
-	FailedToAddUserToServer,
-	MessageNotAllowedToBeEdited,
-	NotAllowedToRetrieveMessages,
-
-	//relation
-	UserIsAlreadyFriend,
-	UserIsAlreadyBlocked,
-	UserYoureAddingIsBlocked,
-	UserYoureAddingHasYouBlocked,
-	ServerOwnerHasYouBlocked,
-	UserYoureAddingNotFound,
-	UserYoureAddingCantBeSelf,
-	IncomingFriendRequestNotFound,
-
-	//db
-	FailedRead(String),
-	FailedInsert(String),
-	FailedUpdate(String),
-	FailedDelete(String),
-	TransactionError(String),
-    InvalidID(String),
-    FailedUserParsing,
-    FailedChatParsing,
-    FailedDateParsing,
-
-	//auth
-	AuthCtxNotInRequest,
-
-	//cookies
-	CookieNotFound(String),
-
-	//auth - refresh token
-	RefreshTokenNotFound,
-	RefreshTokenDoesNotMatchDeviceId,
-
-	//auth - acces token
-	FailedCreatingAccesToken,
-	AccesTokenHashKeyNotSet,
-	AccesTokenInvalid,
-	AccesTokenExpired,
-
-	//hashing
-	HashingPasswordFailed,
-	VerifyingPasswordFailed,
-	HashingPasswordFailedBlocking,
-	VerifyingPasswordFailedBlocking,
-
-	//permissions
-	UserIsNotAdminOrOwner,
-	IncorrectUserPermissions{ expected_min_grade: user::Flag, found: user::Flag },
-
-	//fallback
+	AlreadyExists,
+	AlreadyInUse,
+	AlreadyMember,
+	CantGainUsers,
+	Create,
+	Delete,
+	Fetch,
+	Expired,
+	InValid,
+	IncorrectValue,
+	IncorrectPermissions,
+	Insert,
+	IsSelf,
+	NoAuth,
+	NoChange,
+	NotPartOf,
+	NotAllowed,
+	NotFound,
 	NotImplemented,
-    UnexpectedError(String),
+	Parse,
+	Read,
+	Unexpected,
+	Update,
+	Verifying
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub enum ExtraInfo
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
+pub enum OnType
 {
-	UserCreatingIsNotOwner,
-	CantHaveChatWithSelf,
-	OutgoingUserNotFriend,
+	AccesToken,
+	AccesTokenHashKey,
+	Bucket,
+	Channel,
+	ChannelParent,
+	Chat,
+	ChatGroup,
+	ChatPrivate,
+	Cookie,
+	Ctx,
+	Date,
+	Hashing,
+	Mail,
+	Message,
+	Mongo,
+	Transaction,
+	RefreshToken,
+	Relation,
+	RelationFriend,
+	RelationBlocked,
+	Rights,
+	Server,
+	SpawnBlocking,
+	User,
+	Username,
 }
 
-impl fmt::Display for Server 
+impl Server<'_>
 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+    fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-        write!(f, "{self:?}")
+        write!(f, "{}: {:?}::{:?} - {} on ln:{}", depth, self.kind, self.on_type, self.stack, self.line_nr)?;
+
+		if let Some(ref child) = self.child 
+		{
+            write!(f, " -> ")?;
+            child.fmt_with_depth(f, depth + 1)?;
+        }
+
+        Ok(())
     }
 }
 
-impl IntoResponse for Server 
+impl fmt::Display for Server<'_>
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
+
+		if let Some(ref child) = self.child 
+		{
+            write!(f, " -> ")?;
+            child.fmt_with_depth(f, 1)?;
+        }
+
+		Ok(())
+	}
+}
+
+impl IntoResponse for Server<'static>
 {
     fn into_response(self) -> Response 
     {
@@ -128,92 +231,137 @@ impl IntoResponse for Server
     }
 }
 
-impl Server 
+impl Server<'_>
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, Client) 
+	pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>) 
     {
-        #[allow(unreachable_patterns)]
-		match self 
-        {
-			//user
-            Self::UserNotFound 
-            | Self::UsernameAlreadyInUse 
-            | Self::MailAlreadyInUse => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
+		#[allow(clippy::match_wildcard_for_single_variants)]
+		let status_code = match &self.kind
+		{
+			Kind::NotFound => StatusCode::NOT_FOUND,
+			Kind::NoChange => StatusCode::NO_CONTENT,
+			Kind::AlreadyExists => StatusCode::CONFLICT,
+			Kind::Expired
+			| Kind::NotAllowed
+			| Kind::NotPartOf
+			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
+			Kind::IncorrectValue 
+			| Kind::InValid => StatusCode::BAD_REQUEST,
+			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+			Kind::NoAuth => StatusCode::UNAUTHORIZED,
+			_ => StatusCode::INTERNAL_SERVER_ERROR,
+		};
 
-
-			//chat
-			Self::ChatNotFound
-			| Self::ChatAlreadyExists
-			| Self::OwnerCountInvalid {..}
-			| Self::ChatRequirementsInvalid 
-			| Self::ChatInfoNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-			Self::ChatDoesNotContainThisUser => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
-
-
-			//relation
-			Self::UserYoureAddingNotFound
-			| Self::UserYoureAddingCantBeSelf
-			| Self::UserYoureAddingIsBlocked
-			| Self::UserIsAlreadyFriend 
-			| Self::UserIsAlreadyBlocked
-			| Self::IncomingFriendRequestNotFound => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-
-			//message
-			Self::MessageNotFound
-			| Self::MessageDoesNotContainThisChat
-			| Self::MessageDoesNotContainThisUser => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-
-			//auth
-			Self::AccesTokenInvalid
-			| Self::AccesTokenExpired
-			| Self::RefreshTokenNotFound
-			| Self::RefreshTokenDoesNotMatchDeviceId
-			| Self::AuthCtxNotInRequest
-			| Self::CookieNotFound(_) => (StatusCode::FORBIDDEN, Client::NO_AUTH),
-			Self::FailedCreatingAccesToken => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
-	
-
-			//db
-			Self::FailedRead(_)
-			| Self::FailedInsert(_)
-			| Self::FailedUpdate(_)
-			| Self::FailedDelete(_)
-			| Self::TransactionError(_)
-			| Self::UnexpectedError(_) => (StatusCode::BAD_REQUEST, Client::SERVICE_ERROR),
-			Self::InvalidID(_) => (StatusCode::BAD_REQUEST, Client::INVALID_PARAMS),
-
-			//hashing
-			Self::HashingPasswordFailed
-			| Self::HashingPasswordFailedBlocking => (StatusCode::INTERNAL_SERVER_ERROR, Client::SERVICE_ERROR),
-			Self::VerifyingPasswordFailed
-			| Self::VerifyingPasswordFailedBlocking => (StatusCode::FORBIDDEN, Client::INVALID_PARAMS),
-
-
-			//permissions
-			Self::UserIsNotAdminOrOwner
-			| Self::IncorrectUserPermissions{..} => (StatusCode::FORBIDDEN, Client::NO_AUTH),
-
-
-			//fallback
-			Self::NotImplemented => (StatusCode::BAD_GATEWAY, Client::SERVICE_ERROR),
-			_ => (
-				StatusCode::INTERNAL_SERVER_ERROR,
-				Client::SERVICE_ERROR,
-			),
+		if let Some(client) = &self.client
+		{
+			(status_code, client.clone(), self.extra_public_info.as_ref())
+		}
+		else
+		{
+			(status_code, Client::SERVICE_ERROR, self.extra_public_info.as_ref())
 		}
 	}
 }
 
-
-#[derive(Debug, strum_macros::AsRefStr)]
+#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
 #[allow(non_camel_case_types)]
 pub enum Client
 {
-	INVALID_PARAMS,
-	SERVICE_ERROR,
+	NO_ADMIN,
+	NOT_OWNER_CHAT,
+	CHAT_CANT_GAIN_USERS,
+	CHAT_NO_FRIEND,
+	CHAT_WITH_SELF,
 	NO_AUTH,
+	NO_COOKIES,
+	NO_MESSAGE_EDIT,
+	NO_MESSAGE_CREATE,
+	NO_CHAT_PRIVATE_EDIT,
+	MAIL_IN_USE,
+	USER_ALREADY_FRIEND,
+	USER_BLOCKED,
+	USER_ALREADY_BLOCKED,
+	USER_BLOCKED_YOU,
+	SERVER_BLOCKED_YOU,
+	USERNAME_IN_USE,
+	INVALID_PARAMS,
+	NOT_ALLOWED_PLATFORM,
+	MESSAGE_NOT_PART_CHANNEL,
+	NOT_PART_SERVER,
+	NOT_PART_CHANNEL_PARENT,
+	NOT_PART_CHAT,
+	SERVICE_ERROR,
+	TRY_ADD_SELF_BLOCKED,
+	TRY_ADD_SELF_FRIEND,
+	TRY_REMOVE_SELF_BLOCKED,
+	TRY_REMOVE_SELF_FRIEND,
+	OUTGOING_FRIEND,
+	NO_INCOMING_FRIEND,
+	CHAT_ALREADY_EXISTS,
+	SERVER_NOT_FOUND,
+}
+
+impl fmt::Display for Client 
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
+	{
+        write!(f, "{self:?}")
+    }
+}
+
+impl Client
+{
+    #[must_use]
+    pub fn as_str(&self) -> &str 
+    {
+        match self 
+        {
+            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+            Client::CHAT_CANT_GAIN_USERS => "Chat cant gain users",
+            Client::NOT_OWNER_CHAT => "You're not owner of the chat",
+            Client::CHAT_ALREADY_EXISTS => "Chat already exists",
+            Client::CHAT_WITH_SELF => "Can't have chat with yourself",
+            Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
+            Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
+			Client::NO_AUTH => "Missing authentication, please reauthorize",
+			Client::NO_COOKIES => "Missing cookies",
+			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
+			Client::NO_MESSAGE_CREATE => "Message cannot be created",
+			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
+            Client::INVALID_PARAMS => "Invalid parameters",
+            Client::MAIL_IN_USE => "Mail already in use",
+            Client::USERNAME_IN_USE => "Username already in use",
+            Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
+            Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
+            Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
+            Client::NOT_PART_CHANNEL_PARENT => "Shoo shoo, youre not part of this chat or server",
+            Client::USER_BLOCKED => "You have this user blocked",
+            Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
+            Client::USER_BLOCKED_YOU => "This user has you blocked",
+            Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
+			Client::TRY_ADD_SELF_FRIEND => "Can't befriend yourself",
+			Client::TRY_ADD_SELF_BLOCKED => "Can't block yourself",
+			Client::USER_ALREADY_FRIEND => "User is already your friend",
+			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
+			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
+			Client::TRY_REMOVE_SELF_BLOCKED => "Can't unfriend yourself",
+			Client::TRY_REMOVE_SELF_FRIEND => "Can't unblock yourself",
+			Client::SERVER_NOT_FOUND => "Server not found",
+            Client::SERVICE_ERROR => "eh oh...",
+        }
+    }
+}
+
+#[must_use]
+pub fn map_transaction<'stack>(err: &mongodb::error::Error, file: &'stack str, line: u32) -> Server<'stack> 
+{
+    Server::new(
+        Kind::Unexpected,
+        OnType::Transaction,
+        file,
+        line,
+    )
+    .add_debug_info(err.to_string())
 }

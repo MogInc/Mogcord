@@ -25,7 +25,7 @@ pub struct MongolServer
 
 impl TryFrom<&Server> for MongolServer
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Server) -> Result<Self, Self::Error> 
     {

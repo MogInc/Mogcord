@@ -21,7 +21,7 @@ pub enum MongolChannelParent
 
 impl TryFrom<&ChannelParent> for MongolChannelParent
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
     
     fn try_from(value: &ChannelParent) -> Result<Self, Self::Error> 
     {
@@ -35,7 +35,7 @@ impl TryFrom<&ChannelParent> for MongolChannelParent
 
 impl TryFrom<&Chat> for MongolChannelParent
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
     
     fn try_from(value: &Chat) -> Result<Self, Self::Error> 
     {
@@ -45,7 +45,7 @@ impl TryFrom<&Chat> for MongolChannelParent
 
 impl TryFrom<&Box<Server>> for MongolChannelParent
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
     
     fn try_from(value: &Box<Server>) -> Result<Self, Self::Error> 
     {

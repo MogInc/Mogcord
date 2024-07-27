@@ -39,20 +39,30 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Private(_) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::ChatPrivate,
+                file!(),
+                line!(),
+            )),
             Chat::Group(group) => group.add_user(user),
         }
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::ChatNotAllowedToGainUsers),
+            Chat::Private(_) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::ChatPrivate,
+                file!(),
+                line!(),
+            )),
             Chat::Group(group) => group.add_users(users),
         }
     }
@@ -80,7 +90,10 @@ impl Chat
 
 impl channel::Parent for Chat
 {
-    fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server>
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>>
     {
         match self
         {
@@ -98,7 +111,11 @@ impl channel::Parent for Chat
         }
     }
 
-    fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {
@@ -107,7 +124,11 @@ impl channel::Parent for Chat
         }
     }
 
-    fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {

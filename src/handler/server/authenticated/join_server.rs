@@ -22,7 +22,13 @@ pub async fn join_server(
 
     if repo_relation.does_blocked_exist(&server.owner.id, ctx_user_id).await?
     {
-        return Err(error::Server::ServerOwnerHasYouBlocked);
+        return Err(error::Server::new(
+            error::Kind::NotAllowed,
+            error::OnType::Relation,
+            file!(),
+            line!())
+            .add_client(error::Client::SERVER_BLOCKED_YOU)
+        );
     }
 
     let user = repo_user
@@ -34,6 +40,6 @@ pub async fn join_server(
     match repo_server.add_user_to_server(&server_id, ctx_user_id).await
     {
         Ok(()) => Ok(()),
-        Err(_) => Err(error::Server::FailedToAddUserToServer),
+        Err(err) => Err(err),
     }
 }

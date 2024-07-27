@@ -41,12 +41,24 @@ pub async fn create_chat(
         {
             if &user_id == ctx_user_id
             {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::CantHaveChatWithSelf));
+                return Err(error::Server::new(
+                    error::Kind::IsSelf,
+                    error::OnType::Chat,
+                    file!(),
+                    line!())
+                    .add_client(error::Client::CHAT_WITH_SELF)
+                );
             }
 
             if !repo_relation.does_friendship_exist(ctx_user_id, &user_id).await?
             {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::OutgoingUserNotFriend));
+                return Err(error::Server::new(
+                    error::Kind::NotFound,
+                    error::OnType::RelationFriend,
+                    file!(),
+                    line!())
+                    .add_client(error::Client::CHAT_NO_FRIEND)
+                );
             }
 
             let owners = repo_user
@@ -74,7 +86,13 @@ pub async fn create_chat(
 
             if !repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
             {
-                return Err(error::Server::ChatNotAllowedToBeMade(error::ExtraInfo::OutgoingUserNotFriend));
+                return Err(error::Server::new(
+                    error::Kind::NotFound,
+                    error::OnType::RelationFriend,
+                    file!(),
+                    line!())
+                    .add_client(error::Client::CHAT_NO_FRIEND)
+                );
             }
 
             let group = channel_parent::chat::Group::new(name, owner, users)?;
@@ -87,7 +105,13 @@ pub async fn create_chat(
         .does_chat_exist(&chat)
         .await?
     {
-        return Err(error::Server::ChatAlreadyExists);
+        return Err(error::Server::new(
+            error::Kind::AlreadyExists,
+            error::OnType::Chat,
+            file!(),
+            line!())
+            .add_client(error::Client::CHAT_ALREADY_EXISTS)
+        );
     }
 
     match repo_chat.create_chat(chat).await 

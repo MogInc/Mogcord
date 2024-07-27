@@ -18,7 +18,7 @@ pub struct MongolGroup
 
 impl TryFrom<&Group> for MongolGroup
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Group) -> Result<Self, Self::Error> 
     {

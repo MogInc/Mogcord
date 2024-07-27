@@ -25,18 +25,23 @@ pub async fn main_response_mapper(
 	let error_response =
 		client_status_error
 			.as_ref()
-			.map(|(status_code, client_error)| {
-				let client_error_body = json!({
-					"error": {
+			.map(|(status_code, client_error, extra_info_option)| 
+			{
+				let client_error_body = json!(
+				{
+					"error": 
+					{
                         "req_id": req_id.to_string(),
 						"type": client_error.as_ref(),
+						"type_info": client_error.as_str(),
+						"extra": *extra_info_option.unwrap_or(&String::new()),
 					}
 				});
         
 				(*status_code, Json(client_error_body)).into_response()
 			});
     
-    let client_error_option = client_status_error.unzip().1;
+    let client_error_option = client_status_error.map(|(_, client, _)| client);
 
 	let device_id_option = jar
 		.get_cookie(auth::CookieNames::DEVICE_ID.as_str())

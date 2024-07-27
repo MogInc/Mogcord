@@ -7,13 +7,13 @@ use super::User;
 #[async_trait]
 pub trait Repository: Send + Sync 
 {
-    async fn does_user_exist_by_id(&self, user_id: &str) -> Result<bool, error::Server>;
-    async fn does_user_exist_by_mail(&self, user_mail: &str) -> Result<bool, error::Server>;
-    async fn does_user_exist_by_username(&self, username: &str) -> Result<bool, error::Server>;
-    async fn create_user(&self, user: User) -> Result<User, error::Server>;
-    async fn create_users(&self, users: Vec<User>) -> Result<(), error::Server>;
-    async fn get_user_by_id(&self, user_id: &str) -> Result<User, error::Server>;
-    async fn get_user_by_mail(&self, mail: &str) -> Result<User, error::Server>;
-    async fn get_users_by_id(&self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server>;
-    async fn get_users(&self, pagination: Pagination) -> Result<Vec<User>, error::Server>;
+    async fn does_user_exist_by_id<'input, 'stack>(&'input self, user_id: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn does_user_exist_by_mail<'input, 'stack>(&'input self, user_mail: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn does_user_exist_by_username<'input, 'stack>(&'input self, username: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn create_user<'input, 'stack>(&'input self, user: User) -> Result<User, error::Server<'stack>>;
+    async fn create_users<'input, 'stack>(&'input self, users: Vec<User>) -> Result<(), error::Server<'stack>>;
+    async fn get_user_by_id<'input, 'stack>(&'input self, user_id: &'input str) -> Result<User, error::Server<'stack>>;
+    async fn get_user_by_mail<'input, 'stack>(&'input self, mail: &'input str) -> Result<User, error::Server<'stack>>;
+    async fn get_users_by_id<'input, 'stack>(&'input self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server<'stack>>;
+    async fn get_users<'input, 'stack>(&'input self, pagination: Pagination) -> Result<Vec<User>, error::Server<'stack>>;
 }

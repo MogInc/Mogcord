@@ -24,7 +24,7 @@ impl Private
         }
     }
 
-    pub fn new(owners: Vec<User>) -> Result<Self, error::Server> 
+    pub fn new<'stack>(owners: Vec<User>) -> Result<Self, error::Server<'stack>> 
     {
         let set: HashSet<User> = owners
             .into_iter()
@@ -60,11 +60,17 @@ impl Private
         self.owners.iter().any(|user| user.id == user_id)
     }
 
-    fn internal_is_meeting_requirements(&self) -> Result<(), error::Server> 
+    fn internal_is_meeting_requirements<'stack>(&self) -> Result<(), error::Server<'stack>> 
     {
         if !self.internal_is_owner_size_allowed()
         {
-            return Err(error::Server::OwnerCountInvalid { expected: Self::PRIVATE_OWNER_MAX, found: self.owners.len() });
+            return Err(error::Server::new(
+                error::Kind::InValid,
+                error::OnType::User,
+                file!(),
+                line!())
+                .expose_public_extra_info(format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
+            );
         }
 
         Ok(())
@@ -77,7 +83,10 @@ impl Private
 
 impl channel::Parent for Private
 {
-    fn get_channel(&self, _: Option<&str>) -> Result<&Channel, error::Server> 
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        _: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>> 
     {
         Ok(&self.channel)
     }
@@ -87,12 +96,20 @@ impl channel::Parent for Private
         None
     }
 
-    fn can_read(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        _: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         Ok(self.is_owner(user_id))
     }
 
-    fn can_write(&self, user_id: &str, _: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self, 
+        user_id: &'input str, 
+        _: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         Ok(self.is_owner(user_id))
     }

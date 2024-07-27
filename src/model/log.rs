@@ -11,7 +11,7 @@ pub async fn log_request(
 	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
-	service_error: Option<&error::Server>,
+	service_error: Option<&error::Server<'_>>,
 	client_error: Option<error::Client>,
 ) {
 

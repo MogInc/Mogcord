@@ -39,7 +39,7 @@ impl ChannelParent
         matches!(self, ChannelParent::Server(_))
     }
 
-    pub fn add_user(&mut self, user: User) -> Result<(), error::Server>
+    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
     {
         match self
         {
@@ -48,7 +48,7 @@ impl ChannelParent
         }
     }
 
-    pub fn add_users(&mut self, users: Vec<User>) -> Result<(), error::Server>
+    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
     {
         match self
         {
@@ -68,7 +68,7 @@ impl ChannelParent
     }
 
     #[must_use]
-    pub fn is_user_part_of_chat(&self, other_user_id: &str) -> bool
+    pub fn is_user_part_of_channel_parent(&self, other_user_id: &str) -> bool
     {
         match self
         {
@@ -80,7 +80,10 @@ impl ChannelParent
 
 impl channel::Parent for ChannelParent
 {
-    fn get_channel(&self, channel_id_option: Option<&str>) -> Result<&Channel, error::Server> 
+    fn get_channel<'input, 'stack>(
+        &'input self, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<&'input Channel, error::Server<'stack>> 
     {
         match self
         {
@@ -98,7 +101,11 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn can_read(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_read<'input, 'stack>(
+        &'input self,
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {
@@ -107,7 +114,11 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn can_write(&self, user_id: &str, channel_id_option: Option<&str>) -> Result<bool, error::Server> 
+    fn can_write<'input, 'stack>(
+        &'input self,
+        user_id: &'input str, 
+        channel_id_option: Option<&'input str>
+    ) -> Result<bool, error::Server<'stack>> 
     {
         match self
         {

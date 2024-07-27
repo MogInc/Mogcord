@@ -1,10 +1,9 @@
 use std::env;
-
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use crate::model::{error, user};
 
+use crate::model::{error::{self}, user};
 use super::ACCES_TOKEN_TTL_MIN;
 
 
@@ -42,7 +41,7 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     }
 }
 
-pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, error::Server>
+pub fn create_acces_token<'stack>(request: &CreateAccesTokenRequest) -> Result<String, error::Server<'stack>>
 {
     let claims = Claims
     {
@@ -54,22 +53,37 @@ pub fn create_acces_token(request: &CreateAccesTokenRequest) -> Result<String, e
     };
     
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| error::Server::AccesTokenHashKeyNotSet)?;
+        .map_err(|_| error::Server::new(
+            error::Kind::NotFound,
+            error::OnType::AccesTokenHashKey,
+            file!(),
+            line!(),
+        ))?;
 
     let acces_token = encode(
         &Header::default(), 
         &claims, 
         &EncodingKey::from_secret(acces_token_key.as_ref())
-    ).map_err(|_| error::Server::FailedCreatingAccesToken)?;
+    ).map_err(|_| error::Server::new(
+        error::Kind::Create,
+        error::OnType::AccesToken,
+        file!(),
+        line!(),
+    ))?;
 
 
     Ok(acces_token)
 }
 
-pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server>
+pub fn extract_acces_token<'stack>(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server<'stack>>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| error::Server::AccesTokenHashKeyNotSet)?;
+        .map_err(|_| error::Server::new(
+            error::Kind::NotFound,
+            error::OnType::AccesTokenHashKey,
+            file!(),
+            line!(),
+        ))?;
 
     let mut validation = Validation::default();
     
@@ -85,8 +99,28 @@ pub fn extract_acces_token(token: &str, acces_token_status: &TokenStatus) -> Res
         {
             match *err.kind()
             {
-                ErrorKind::ExpiredSignature => Err(error::Server::AccesTokenExpired),
-                _ => Err(error::Server::AccesTokenInvalid),
+                ErrorKind::ExpiredSignature => 
+                {
+                    let err = error::Server::new(
+                        error::Kind::Expired,
+                        error::OnType::AccesToken,
+                        file!(),
+                        line!(),
+                    );
+
+                    Err(err)
+                },
+                _ => 
+                {
+                    let err = error::Server::new(
+                        error::Kind::InValid,
+                        error::OnType::AccesToken,
+                        file!(),
+                        line!())
+                        .add_debug_info(token.to_string());
+
+                    Err(err)
+                },
             }
         },
     }

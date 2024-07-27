@@ -12,6 +12,7 @@ single_match_else = "allow"
 module_name_repetitions = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow" 
+too_many_lines = "allow"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

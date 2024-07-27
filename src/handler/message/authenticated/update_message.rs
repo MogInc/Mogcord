@@ -29,7 +29,13 @@ pub async fn update_message(
     
     if !message.is_channel_part_of_message(&channel_id)
     {
-        return Err(error::Server::MessageDoesNotContainThisChat);
+        return Err(error::Server::new(
+            error::Kind::NotPartOf,
+            error::OnType::Channel,
+            file!(),
+            line!())
+            .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
+        );
     }
 
     let channel_parent = repo_parent
@@ -38,7 +44,16 @@ pub async fn update_message(
 
     let user_roles = channel_parent.get_user_roles(ctx_user_id);
 
-    message.update_value(payload.value, ctx_user_id, user_roles)?;
+    if !message.update_value(payload.value, ctx_user_id, user_roles)?
+    {
+        return Err(error::Server::new(
+            error::Kind::NoChange,
+            error::OnType::Message,
+            file!(),
+            line!())
+            .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
+        );
+    }
 
     match repo_message.update_message(message).await
     {

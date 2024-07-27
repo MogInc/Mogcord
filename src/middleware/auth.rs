@@ -18,7 +18,7 @@ use crate::middleware::{auth, cookies::Manager};
 
 
 pub async fn mw_require_authentication(
-    ctx: Result<Ctx, error::Server>,
+    ctx: Result<Ctx, error::Server<'_>>,
     req: Request<Body>, 
     next: Next
 ) -> Result<Response, error::Server>
@@ -31,7 +31,7 @@ pub async fn mw_require_authentication(
 }
 
 pub async fn mw_require_admin_authentication(
-    ctx: Result<Ctx, error::Server>,
+    ctx: Result<Ctx, error::Server<'_>>,
     req: Request<Body>, 
     next: Next
 ) -> Result<Response, error::Server>
@@ -44,7 +44,14 @@ pub async fn mw_require_admin_authentication(
 		{
 			if !&ctx.user_flag_ref().is_admin_or_owner()
 			{
-				return Err(error::Server::UserIsNotAdminOrOwner);
+				return Err(
+					error::Server::new(
+						error::Kind::IncorrectValue, 
+						error::OnType::Rights, 
+						file!(), 
+						line!()
+					).add_client(error::Client::NO_ADMIN)
+				);
 			}
 		},
 		Err(err) => return Err(err),
@@ -54,11 +61,11 @@ pub async fn mw_require_admin_authentication(
 }
 
 
-pub async fn mw_ctx_resolver(
+pub async fn mw_ctx_resolver<'stack>(
     jar: Cookies, 
     mut req: Request<Body>, 
     next: Next
-) -> Result<Response, error::Server> 
+) -> Result<Response, error::Server<'stack>> 
 {
 	println!("MTX RESOLVER: ");
 
@@ -73,7 +80,7 @@ pub async fn mw_ctx_resolver(
 	};
 
 
-	if ctx_result.is_err() && !matches!(ctx_result, Err(error::Server::AccesTokenExpired))
+	if ctx_result.is_err() && !matches!(ctx_result.as_ref().unwrap_err().kind, error::Kind::Expired)
 	{
 		jar.remove_cookie(cookie_names_acces_token.to_string());
 	}
@@ -87,20 +94,25 @@ pub async fn mw_ctx_resolver(
 
 
 #[async_trait]
-impl<S: Send + Sync> FromRequestParts<S> for Ctx
+impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 {
-    type Rejection = error::Server;
+    type Rejection = error::Server<'static>;
 
-	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, error::Server> {
+	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
 		parts
 			.extensions
 			.get::<Result<Ctx, error::Server>>()
-			.ok_or(error::Server::AuthCtxNotInRequest)?
+			.ok_or(error::Server::new(
+				error::Kind::NotFound, 
+				error::OnType::Ctx, 
+				file!(),
+				line!()
+			))?
 			.clone()
 	}
 }
 
-fn internal_parse_token(acces_token: &str) -> Result<Claims, error::Server>
+fn internal_parse_token<'stack>(acces_token: &str) -> Result<Claims, error::Server<'stack>>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 

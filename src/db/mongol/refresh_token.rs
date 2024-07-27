@@ -21,7 +21,7 @@ pub struct MongolRefreshToken
 
 impl TryFrom<&RefreshToken> for MongolRefreshToken
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &RefreshToken) -> Result<Self, Self::Error> 
     {
@@ -31,7 +31,13 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
         let expiration_date = value
             .expiration_date
             .convert_to_bson_datetime()
-            .map_err(|_| error::Server::FailedDateParsing)?;
+            .map_err(|_| error::Server::new(
+                error::Kind::InValid,
+                error::OnType::Date,
+                file!(),
+                line!())
+                .add_debug_info(value.expiration_date.to_rfc3339())
+            )?;
 
         Ok(
             Self

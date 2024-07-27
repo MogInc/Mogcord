@@ -6,14 +6,14 @@ use crate::model::error;
 #[async_trait]
 pub trait Repository: Send + Sync
 {
-    async fn does_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;
-    async fn does_friendships_exist(&self, current_user_id: &str, other_user_ids: Vec<&str>) -> Result<bool, error::Server>;
-    async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;
-    async fn does_outgoing_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;
-    async fn add_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>;
-    async fn confirm_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>;
-    async fn remove_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>;
-    async fn does_blocked_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>;
-    async fn add_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>;
-    async fn remove_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>;
+    async fn does_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn does_friendships_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_ids: Vec<&'input str>) -> Result<bool, error::Server<'stack>>;
+    async fn does_incoming_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn does_outgoing_friendship_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn add_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>;
+    async fn confirm_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>;
+    async fn remove_user_as_friend<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>;
+    async fn does_blocked_exist<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<bool, error::Server<'stack>>;
+    async fn add_user_as_blocked<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>;
+    async fn remove_user_as_blocked<'input, 'stack>(&'input self, current_user_id: &'input str, other_user_id: &'input str) -> Result<(), error::Server<'stack>>;
 }

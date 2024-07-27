@@ -3,15 +3,15 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::{db::MongolChannel, model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error }};
-use crate::db::{mongol::{self, MongolDB}, MongolChannelVecWrapper};
+use crate::db::{mongol::{self, MongolDB}, MongolChannel, MongolChannelVecWrapper};
+use crate::model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, map_mongo_collection_to_hashmap};
 use super::{helper, MongolChat, MongolServer};
 
 #[async_trait]
 impl channel_parent::Repository for MongolDB
 {
-    async fn get_channel_parent(&self, channel_id: &str) -> Result<ChannelParent, error::Server>
+    async fn get_channel_parent<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<ChannelParent, error::Server<'stack>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
 
@@ -19,8 +19,19 @@ impl channel_parent::Repository for MongolDB
             .channels()
             .find_one(doc!{ "_id": channel_id_local })
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?
-            .ok_or(error::Server::ChannelNotFound)?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::ChannelParent,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?.ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Channel,
+                file!(),
+                line!())
+                .expose_public_extra_info(channel_id.to_string())
+            )?;
 
         let mut cursor = match mongol_channel.parent_type
         {
@@ -44,7 +55,13 @@ impl channel_parent::Repository for MongolDB
                     .chats()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::ChatPrivate,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
             mongol::ParentType::ChatGroup => 
             {
@@ -66,7 +83,13 @@ impl channel_parent::Repository for MongolDB
                     .chats()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::ChatGroup,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
             mongol::ParentType::Server => 
             {
@@ -98,7 +121,13 @@ impl channel_parent::Repository for MongolDB
                     .servers()
                     .aggregate(pipeline)
                     .await
-                    .map_err(|err| error::Server::FailedRead(err.to_string()))?
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Fetch,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?
             },
         };
 
@@ -106,19 +135,35 @@ impl channel_parent::Repository for MongolDB
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::ChannelParent,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match document_option
         {
             Some(document) => 
             {
-                println!("{document:#?}");
                 let channel_parent = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::ChannelParent,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                return Ok(channel_parent);
+                Ok(channel_parent)
             },
-            None => Err(error::Server::ChannelNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::ChannelParent,
+                file!(),
+                line!()
+            )), 
         }
     }
 }
@@ -126,7 +171,7 @@ impl channel_parent::Repository for MongolDB
 #[async_trait]
 impl channel_parent::chat::Repository for MongolDB
 {
-    async fn create_chat(&self, chat: Chat) -> Result<Chat, error::Server>
+    async fn create_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<Chat, error::Server<'stack>>
     {
         let db_chat = MongolChat::try_from(&chat)?;
         let db_channel = MongolChannel::try_from(&chat)?;
@@ -135,19 +180,25 @@ impl channel_parent::chat::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
-        
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         self
             .channels()
             .insert_one(db_channel)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Insert,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match self.chats().insert_one(&db_chat).session(&mut session).await
         {
@@ -156,7 +207,7 @@ impl channel_parent::chat::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(chat)
             },
@@ -165,21 +216,32 @@ impl channel_parent::chat::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
-                Err(error::Server::FailedInsert(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Insert,
+                    error::OnType::Chat,
+                    file!(),
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             },
         }
     }
 
-    async fn update_chat(&self, chat: Chat) -> Result<(), error::Server>
+    async fn update_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<(), error::Server<'stack>>
     {
         let filter: Document;
         let update = match chat
         {
             Chat::Private(_) => 
             {
-                return Err(error::Server::CantUpdatePrivateChat);
+                return Err(error::Server::new(
+                    error::Kind::Update,
+                    error::OnType::ChatPrivate,
+                    file!(),
+                    line!()
+                ));
             },
             Chat::Group(group) => 
             {
@@ -209,11 +271,17 @@ impl channel_parent::chat::Repository for MongolDB
         match self.chats().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
+            Err(err) => Err(error::Server::new(
+                error::Kind::Update,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )
         }
     }
 
-    async fn get_chat_by_id(&self, chat_id: &str) -> Result<Chat, error::Server>
+    async fn get_chat_by_id<'input, 'stack>(&'input self, chat_id: &'input str) -> Result<Chat, error::Server<'stack>>
     {
         let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
 
@@ -239,8 +307,19 @@ impl channel_parent::chat::Repository for MongolDB
             .find_one(filter)
             .projection(projection)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?
-            .ok_or(error::Server::ChatNotFound)?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?.ok_or(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .expose_public_extra_info(chat_id.to_string())
+            )?;
 
         let pipeline = match &mongol_chat
         {
@@ -285,28 +364,52 @@ impl channel_parent::chat::Repository for MongolDB
             .chats()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
     
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
+            
         match document_option
         {
             Some(document) => 
             {
                 let chat = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::Chat,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
-                return Ok(chat);
+                Ok(chat)
             },
-            None => Err(error::Server::ChatNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .expose_public_extra_info(chat_id.to_string())
+            ), 
         }
     }
 
-    async fn does_chat_exist(&self, chat: &Chat) -> Result<bool, error::Server>
+    async fn does_chat_exist<'input, 'stack>(&'input self, chat: &'input Chat) -> Result<bool, error::Server<'stack>>
     {
         let filter = match MongolChat::try_from(chat)?
         {
@@ -337,7 +440,13 @@ impl channel_parent::chat::Repository for MongolDB
         match self.chats().find_one(filter).projection(projection).await
         {
             Ok(chat_option) => Ok(chat_option.is_some()),
-            Err(err) => Err(error::Server::FailedRead(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Chat,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            ),
         }
     }
 }
@@ -345,7 +454,7 @@ impl channel_parent::chat::Repository for MongolDB
 #[async_trait]
 impl channel_parent::server::Repository for MongolDB
 {
-    async fn create_server(&self, server: Server) -> Result<Server, error::Server>
+    async fn create_server<'input, 'stack>(&'input self, server: Server) -> Result<Server, error::Server<'stack>>
     {
         let db_server = MongolServer::try_from(&server)?;
         let db_channels = MongolChannelVecWrapper::try_from(&server)?.0;
@@ -354,19 +463,25 @@ impl channel_parent::server::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         self
             .channels()
             .insert_many(db_channels)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Insert,
+                error::OnType::Channel,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match self.servers().insert_one(&db_server).session(&mut session).await
         {
@@ -375,7 +490,7 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(server)
             },
@@ -384,14 +499,20 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
-                Err(error::Server::FailedInsert(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Insert,
+                    error::OnType::Server,
+                    file!(),
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             },
         }
     }
 
-    async fn add_user_to_server(&self, server_id: &str, user_id: &str) -> Result<(), error::Server>
+    async fn add_user_to_server<'input, 'stack>(&'input self, server_id: &'input str, user_id: &'input str) -> Result<(), error::Server<'stack>>
     {
         let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
         let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
@@ -409,11 +530,19 @@ impl channel_parent::server::Repository for MongolDB
         match self.servers().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string())),
+            Err(err) => Err(error::Server::new(
+                error::Kind::CantGainUsers,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+                .add_debug_info(server_id.to_string())
+                .add_debug_info(user_id.to_string())
+            ),
         }
     }
 
-    async fn get_server_by_id(&self, server_id: &str) -> Result<Server, error::Server>
+    async fn get_server_by_id<'input, 'stack>(&'input self, server_id: &'input str) -> Result<Server, error::Server<'stack>>
     {
         let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
 
@@ -434,29 +563,52 @@ impl channel_parent::server::Repository for MongolDB
             .servers()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         match document_option
         {
             Some(document) => 
             {
                 let server = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
-
-                return Ok(server);
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Unexpected,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
+                
+                Ok(server)
             },
-            None => Err(error::Server::ServerNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_client(error::Client::SERVER_NOT_FOUND)
+            ),
         }
     }
 
-    async fn get_server_by_channel_id(&self, channel_id: &str) -> Result<Server, error::Server>
+    async fn get_server_by_channel_id<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<Server, error::Server<'stack>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
 
@@ -478,13 +630,25 @@ impl channel_parent::server::Repository for MongolDB
             .servers()
             .aggregate(pipeline)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         let document_option = cursor
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Unexpected,
+                error::OnType::Server,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
 
         match document_option
@@ -492,11 +656,22 @@ impl channel_parent::server::Repository for MongolDB
             Some(document) => 
             {
                 let server = from_document(document)
-                    .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+                    .map_err(|err| error::Server::new(
+                        error::Kind::Parse,
+                        error::OnType::Server,
+                        file!(),
+                        line!())
+                        .add_debug_info(err.to_string())
+                    )?;
 
                 return Ok(server);
             },
-            None => Err(error::Server::ChatNotFound), 
+            None => Err(error::Server::new(
+                error::Kind::NotFound,
+                error::OnType::Server,
+                file!(),
+                line!()
+            )), 
         }
     }
 }

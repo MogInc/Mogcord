@@ -16,7 +16,7 @@ pub struct MongolPrivate
 
 impl TryFrom<&Private> for MongolPrivate
 {
-    type Error = error::Server;
+    type Error = error::Server<'static>;
 
     fn try_from(value: &Private) -> Result<Self, Self::Error> 
     {

@@ -52,23 +52,33 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value(&mut self, value: String, user_id: &str, user_roles: Option<&Vec<String>>) -> Result<(), error::Server>
+    pub fn update_value<'input, 'stack>(
+        &'input mut self, 
+        value: String, 
+        user_id: &'input str, 
+        user_roles: Option<&'input Vec<String>>
+    ) -> Result<bool, error::Server<'stack>>
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
-            return Err(error::Server::MessageNotAllowedToBeEdited);
+            return Err(error::Server::new(
+                error::Kind::IncorrectPermissions,
+                error::OnType::Message,
+                file!(),
+                line!())
+                .add_client(error::Client::NO_MESSAGE_EDIT)
+            );
         }
 
         if self.value == value
         {
-            //can be return Ok(());
-            return Err(error::Server::MessageNotAllowedToBeEdited);
+            return Ok(false);
         }
 
         self.value = value;
         self.flag = Flag::Edited { date: Utc::now() };
 
-        Ok(())
+        Ok(true)
     }
 
     #[must_use]

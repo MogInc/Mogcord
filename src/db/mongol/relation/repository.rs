@@ -9,7 +9,11 @@ use crate::db::mongol::helper;
 #[async_trait]
 impl relation::Repository for MongolDB
 {
-    async fn does_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
+    async fn does_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -27,7 +31,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_friendships_exist(&self, current_user_id: &str, other_user_ids: Vec<&str>) -> Result<bool, error::Server>
+    async fn does_friendships_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_ids: Vec<&'input str>
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -42,7 +50,13 @@ impl relation::Repository for MongolDB
             .relations()
             .find_one(filter)
             .await
-            .map_err(|err| error::Server::FailedRead(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Fetch,
+                error::OnType::RelationFriend,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
 
         match mongol_relation_option
@@ -60,7 +74,11 @@ impl relation::Repository for MongolDB
         }
     }
 
-    async fn does_outgoing_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
+    async fn does_outgoing_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -85,7 +103,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_incoming_friendship_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
+    async fn does_incoming_friendship_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str,
+         other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -103,7 +125,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn does_blocked_exist(&self, current_user_id: &str, other_user_id: &str) -> Result<bool, error::Server>
+    async fn does_blocked_exist<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<bool, error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -121,7 +147,11 @@ impl relation::Repository for MongolDB
         does_user_relation_exist(self, filter).await
     }
 
-    async fn add_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>
+    async fn add_user_as_friend<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str,
+         other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -132,12 +162,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()            
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
@@ -161,7 +191,13 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedUpdate(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Update,
+                error::OnType::RelationFriend,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         //can remove this match and have implicit abort
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
@@ -171,7 +207,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             },
@@ -180,14 +216,24 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
-                Err(error::Server::FailedUpdate(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Update, 
+                    error::OnType::RelationFriend, 
+                    file!(), 
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             }
         }
     }
 
-    async fn add_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>
+    async fn add_user_as_blocked<'input, 'stack>(
+        &'input self, 
+        current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -197,13 +243,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
-
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
         let update_current_user = doc! 
@@ -237,7 +282,13 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedUpdate(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Update,
+                error::OnType::RelationBlocked,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
        
        //can remove this match and have implicit abort
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
@@ -247,7 +298,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             },
@@ -256,14 +307,23 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
                 
-                Err(error::Server::FailedUpdate(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Update, 
+                    error::OnType::RelationBlocked, 
+                    file!(), 
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             }
         }
     }
 
-    async fn confirm_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>
+    async fn confirm_user_as_friend<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -274,13 +334,13 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::TransactionError(err.to_string()))?;
-        
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+
         let filter_current_user = doc!{ "user_id": current_user_id_local };
         let update_current_user = doc! 
         {
@@ -302,7 +362,13 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::FailedUpdate(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Update,
+                error::OnType::RelationFriend,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
 
         //can remove this match and have implicit abort
         match self.relations().update_one(filter_current_user, update_current_user).session(&mut session).await
@@ -312,7 +378,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             }
@@ -321,14 +387,23 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::TransactionError(err.to_string()))?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
-                Err(error::Server::FailedUpdate(err.to_string()))
+                Err(error::Server::new(
+                    error::Kind::Update, 
+                    error::OnType::RelationFriend, 
+                    file!(), 
+                    line!())
+                    .add_debug_info(err.to_string())
+                )
             }
         }
     }
 
-    async fn remove_user_as_friend(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>
+    async fn remove_user_as_friend<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -348,11 +423,22 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
+            Err(err) => Err(
+                error::Server::new(
+                    error::Kind::Delete, 
+                    error::OnType::RelationFriend, 
+                    file!(), 
+                    line!())
+                    .add_debug_info(err.to_string()
+                )
+            )
         }
     }
 
-    async fn remove_user_as_blocked(&self, current_user_id: &str, other_user_id: &str) -> Result<(), error::Server>
+    async fn remove_user_as_blocked<'input, 'stack>(
+        &'input self, current_user_id: &'input str, 
+        other_user_id: &'input str
+    ) -> Result<(), error::Server<'stack>>
     {
         let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
 
@@ -368,12 +454,23 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::FailedUpdate(err.to_string()))
+            Err(err) => Err(
+                error::Server::new(
+                    error::Kind::Delete, 
+                    error::OnType::RelationBlocked, 
+                    file!(), 
+                    line!())
+                    .add_debug_info(err.to_string()
+                )
+            )
         }
     }
 }
 
-async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), error::Server>
+async fn add_relation<'stack>(
+    repo: &MongolDB, 
+    current_user_id: Uuid
+) -> Result<(), error::Server<'stack>>
 {
     let filter = doc! { "user_id" : current_user_id };
 
@@ -381,7 +478,13 @@ async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), erro
         .relations()
         .find_one(filter)
         .await
-        .map_err(|err| error::Server::UnexpectedError(err.to_string()))?;
+        .map_err(|err| error::Server::new(
+            error::Kind::Fetch,
+            error::OnType::Relation,
+            file!(),
+            line!())
+            .add_debug_info(err.to_string())
+        )?;
 
     if relation_option.is_none()
     {
@@ -391,17 +494,34 @@ async fn add_relation(repo: &MongolDB, current_user_id: Uuid) -> Result<(), erro
             .relations()
             .insert_one(relation)
             .await
-            .map_err(|err| error::Server::FailedInsert(err.to_string()))?;
+            .map_err(|err| error::Server::new(
+                error::Kind::Insert,
+                error::OnType::Relation,
+                file!(),
+                line!())
+                .add_debug_info(err.to_string())
+            )?;
     }
 
     Ok(())
 }
 
-async fn does_user_relation_exist(repo: &MongolDB, filter: Document) -> Result<bool, error::Server>
+async fn does_user_relation_exist<'stack>(
+    repo: &MongolDB, 
+    filter: Document
+) -> Result<bool, error::Server<'stack>>
 {
     match repo.relations().find_one(filter).await
     {
         Ok(option) => Ok(option.is_some()),
-        Err(err) => Err(error::Server::FailedRead(err.to_string()))
+        Err(err) => Err(
+            error::Server::new(
+                error::Kind::Fetch, 
+                error::OnType::Relation, 
+                file!(), 
+                line!())
+                .add_debug_info(err.to_string()
+            )
+        )
     }
 }

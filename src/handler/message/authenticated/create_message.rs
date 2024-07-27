@@ -30,7 +30,13 @@ pub async fn create_message(
 
     if !channel_parent.can_write(ctx_user_id, Some(&channel_id))?
     {
-        return Err(error::Server::NotAllowedToMakeAMessageInThisChannel);
+        return Err(error::Server::new(
+            error::Kind::NotAllowed,
+            error::OnType::ChannelParent,
+            file!(),
+            line!())
+            .add_client(error::Client::NO_MESSAGE_CREATE)
+        );
     }
 
     let owner = repo_user

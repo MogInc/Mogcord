@@ -21,7 +21,13 @@ pub async fn get_chat(
     
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        return Err(error::Server::ChatDoesNotContainThisUser);
+        return Err(error::Server::new(
+            error::Kind::NotPartOf,
+            error::OnType::Chat,
+            file!(),
+            line!())
+            .add_client(error::Client::NOT_PART_CHAT)
+        );
     }
 
     Ok(Json(ChatGetResponse::obj_to_dto(chat)))
