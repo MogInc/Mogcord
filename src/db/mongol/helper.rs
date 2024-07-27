@@ -58,8 +58,8 @@ impl MongolHelper for NaiveDate
     }
 }
 
-pub fn convert_domain_id_to_mongol<'input, 'stack>(
-    id: &'input str
+pub fn convert_domain_id_to_mongol<'stack>(
+    id: &str
 )-> Result<Uuid, error::Server<'stack>>
 {
     Uuid::parse_str(id).map_err(|_| error::Server::new(
@@ -77,7 +77,7 @@ pub fn convert_domain_ids_to_mongol<'input, 'stack>(
 {
     ids
         .iter()
-        .map(|id| convert_domain_id_to_mongol(&id))
+        .map(|id| convert_domain_id_to_mongol(id))
         .collect()
 }
 

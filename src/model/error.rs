@@ -94,10 +94,12 @@ impl<'stack> Server<'stack>
 	}
 
 	#[must_use]
+	#[allow(clippy::extend_with_drain)]
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
 		self.client = child.client.take();
 		self.extra_public_info = child.extra_public_info.take();
+		//i want child vec to pop itself
 		self.debug_info.extend(child.debug_info.drain(..));
 
 		self.child = Some(Box::new(child));
@@ -116,7 +118,7 @@ impl<'stack> Server<'stack>
 	#[must_use]
 	pub fn expose_public_extra_info(mut self, extra_info: String) -> Self
 	{
-		self.extra_public_info.insert(extra_info);
+		let _ = self.extra_public_info.insert(extra_info);
 
 		self
 	}

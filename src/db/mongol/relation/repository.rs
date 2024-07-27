@@ -539,8 +539,8 @@ impl relation::Repository for MongolDB
     }
 }
 
-async fn add_relation<'input, 'stack>(
-    repo: &'input MongolDB, 
+async fn add_relation<'stack>(
+    repo: &MongolDB, 
     current_user_id: Uuid
 ) -> Result<(), error::Server<'stack>>
 {
@@ -578,8 +578,8 @@ async fn add_relation<'input, 'stack>(
     Ok(())
 }
 
-async fn does_user_relation_exist<'input, 'stack>(
-    repo: &'input MongolDB, 
+async fn does_user_relation_exist<'stack>(
+    repo: &MongolDB, 
     filter: Document
 ) -> Result<bool, error::Server<'stack>>
 {

@@ -88,7 +88,7 @@ impl Server
                 error::OnType::Server,
                 file!(),
                 line!())
-                .expose_public_extra_info(user.id.to_string())
+                .expose_public_extra_info(user.id)
             );
         }
 
@@ -257,7 +257,7 @@ impl Server
         self.roles.is_empty()
     }
 
-    fn internal_channel_check_permission<'input, 'stack>(
+    fn internal_channel_check_permission<'stack>(
         &self,
         user_id: &str,
         channel_id_option: Option<&str>,

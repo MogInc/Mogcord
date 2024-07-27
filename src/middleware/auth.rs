@@ -112,7 +112,7 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 	}
 }
 
-fn internal_parse_token<'a, 'stack>(acces_token: &'a str) -> Result<Claims, error::Server<'stack>>
+fn internal_parse_token<'stack>(acces_token: &str) -> Result<Claims, error::Server<'stack>>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 

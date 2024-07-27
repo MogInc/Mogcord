@@ -13,7 +13,7 @@ pub struct Hashing;
 
 impl Hashing
 {
-    pub async fn hash_text<'input, 'stack>(clear_text: &'input str) -> Result<String, error::Server<'stack>>
+    pub async fn hash_text<'stack>(clear_text: &str) -> Result<String, error::Server<'stack>>
     {
         let clear_text = clear_text.to_string();
 

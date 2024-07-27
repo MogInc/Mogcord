@@ -61,7 +61,7 @@ impl Group
                 error::OnType::ChatGroup,
                 file!(),
                 line!())
-                .expose_public_extra_info(user.id.to_string())
+                .expose_public_extra_info(user.id)
             );
         }
 
