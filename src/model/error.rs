@@ -15,7 +15,7 @@ pub struct Server<'stack>
 	stack: &'stack str,
 	line_nr: u32,
 	debug_info: Vec<String>,
-	pub extra_public_info: Option<String>,
+	extra_public_info: Option<String>,
 	client: Option<Client>,
 	child: Option<Box<Server<'stack>>>,
 }
