@@ -14,8 +14,8 @@ pub struct Server<'err>
 	pub on_type: OnType,
 	stack: &'err str,
 	line_nr: u32,
-	debug_info: Vec<String>,
-	extra_public_info: HashMap<&'err str, String>,
+	debug_info: HashMap<&'err str, String>,
+	pub_info: Option<String>,
 	client: Option<Client>,
 	child: Option<Box<Server<'err>>>,
 }
@@ -36,8 +36,8 @@ impl<'err> Server<'err>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: Vec::new(),
-			extra_public_info: HashMap::new(),
+			debug_info: HashMap::new(),
+			pub_info: None,
 			client: None,
 			child: None,
 		}
@@ -58,8 +58,8 @@ impl<'err> Server<'err>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.drain().collect(),
+			debug_info: HashMap::new(),
+			pub_info: self.pub_info.take(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -78,8 +78,8 @@ impl<'err> Server<'err>
 			on_type: self.on_type.clone(),
 			stack,
 			line_nr,
-			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.drain().collect(),
+			debug_info: HashMap::new(),
+			pub_info: self.pub_info.take(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -98,9 +98,7 @@ impl<'err> Server<'err>
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
 		self.client = child.client.take();
-		//i want the children to be empty
-		self.extra_public_info.extend(child.extra_public_info.drain());
-		self.debug_info.extend(child.debug_info.drain(..));
+		self.pub_info = child.pub_info.take();
 
 		self.child = Some(Box::new(child));
 		
@@ -108,17 +106,20 @@ impl<'err> Server<'err>
 	}
 
 	#[must_use]
-	pub fn add_debug_info(mut self, extra_info: String) -> Self
+	pub fn add_debug_info(mut self, key: &'err str, debug_info: String) -> Self
 	{
-		self.debug_info.push(extra_info);
+		self.debug_info.insert(key, debug_info);
 
 		self
 	}
 
 	#[must_use]
-	pub fn expose_public_extra_info(mut self, key: &'err str, extra_info: String) -> Self
+	pub fn add_public_info(mut self, public_info: String) -> Self
 	{
-		self.extra_public_info.insert(key, extra_info);
+		if self.pub_info.is_none()
+		{
+			self.pub_info = Some(public_info);
+		}
 
 		self
 	}
@@ -149,6 +150,7 @@ pub enum Kind
 	NotPartOf,
 	Parse,
 	Read,
+	Revoke,
 	Unexpected,
 	Update,
 	Verifying
@@ -190,7 +192,7 @@ impl Server<'_>
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-        write!(f, "{}: {:?}::{:?} - {} on ln:{}", depth, self.kind, self.on_type, self.stack, self.line_nr)?;
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info)?;
 
 		if let Some(ref child) = self.child 
 		{
@@ -198,7 +200,7 @@ impl Server<'_>
             child.fmt_with_depth(f, depth + 1)?;
         }
 
-        Ok(())
+		Ok(())
     }
 }
 
@@ -206,15 +208,7 @@ impl fmt::Display for Server<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
-
-		if let Some(ref child) = self.child 
-		{
-            write!(f, " -> ")?;
-            child.fmt_with_depth(f, 1)?;
-        }
-
-		Ok(())
+		self.fmt_with_depth(f, 0)
 	}
 }
 
@@ -236,7 +230,7 @@ impl Server<'_>
 {
 	#[must_use]
 	#[allow(clippy::match_same_arms)]
-	pub fn client_status_and_error(&self) -> (StatusCode, Client, HashMap<&str, String>) 
+	pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>) 
     {
 		#[allow(clippy::match_wildcard_for_single_variants)]
 		let status_code = match &self.kind
@@ -265,6 +259,7 @@ impl Server<'_>
 			| Kind::Insert
 			| Kind::Parse
 			| Kind::Read
+			| Kind::Revoke
 			| Kind::Update => StatusCode::BAD_REQUEST,
 
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
@@ -276,11 +271,11 @@ impl Server<'_>
 
 		if let Some(client) = &self.client
 		{
-			(status_code, client.clone(), self.extra_public_info.clone())
+			(status_code, client.clone(), self.pub_info.as_ref())
 		}
 		else
 		{
-			(status_code, Client::SERVICE_ERROR, self.extra_public_info.clone())
+			(status_code, Client::SERVICE_ERROR, self.pub_info.as_ref())
 		}
 	}
 }
@@ -383,5 +378,5 @@ pub fn map_transaction<'err>(err: &mongodb::error::Error, file: &'err str, line:
         file,
         line,
     )
-    .add_debug_info(err.to_string())
+    .add_debug_info("mongo transaction error", err.to_string())
 }

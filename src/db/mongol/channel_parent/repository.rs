@@ -24,13 +24,13 @@ impl channel_parent::Repository for MongolDB
                 error::OnType::ChannelParent,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?.ok_or(error::Server::new(
                 error::Kind::NotFound,
                 error::OnType::Channel,
                 file!(),
                 line!())
-                .expose_public_extra_info("channel id", channel_id.to_string())
+                .add_debug_info("channel id", channel_id.to_string())
             )?;
 
         let mut cursor = match mongol_channel.parent_type
@@ -60,7 +60,7 @@ impl channel_parent::Repository for MongolDB
                         error::OnType::ChatPrivate,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?
             },
             mongol::ParentType::ChatGroup => 
@@ -88,7 +88,7 @@ impl channel_parent::Repository for MongolDB
                         error::OnType::ChatGroup,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?
             },
             mongol::ParentType::Server => 
@@ -126,7 +126,7 @@ impl channel_parent::Repository for MongolDB
                         error::OnType::Server,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?
             },
         };
@@ -140,7 +140,7 @@ impl channel_parent::Repository for MongolDB
                 error::OnType::ChannelParent,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match document_option
@@ -153,7 +153,7 @@ impl channel_parent::Repository for MongolDB
                         error::OnType::ChannelParent,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(channel_parent)
@@ -197,7 +197,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match self.chats().insert_one(&db_chat).session(&mut session).await
@@ -223,7 +223,7 @@ impl channel_parent::chat::Repository for MongolDB
                     error::OnType::Chat,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             },
         }
@@ -276,7 +276,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )
         }
     }
@@ -312,13 +312,13 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?.ok_or(error::Server::new(
                 error::Kind::NotFound,
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .expose_public_extra_info("chat id", chat_id.to_string())
+                .add_debug_info("chat id", chat_id.to_string())
             )?;
 
         let pipeline = match &mongol_chat
@@ -369,7 +369,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
     
         let document_option = cursor
@@ -381,7 +381,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
             
         match document_option
@@ -394,7 +394,7 @@ impl channel_parent::chat::Repository for MongolDB
                         error::OnType::Chat,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(chat)
@@ -404,7 +404,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .expose_public_extra_info("chat id", chat_id.to_string())
+                .add_debug_info("chat id", chat_id.to_string())
             ), 
         }
     }
@@ -445,7 +445,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -480,7 +480,7 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Channel,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match self.servers().insert_one(&db_server).session(&mut session).await
@@ -506,7 +506,7 @@ impl channel_parent::server::Repository for MongolDB
                     error::OnType::Server,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             },
         }
@@ -535,9 +535,9 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Server,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
-                .add_debug_info(server_id.to_string())
-                .add_debug_info(user_id.to_string())
+                .add_debug_info("error", err.to_string())
+                .add_debug_info("server id", server_id.to_string())
+                .add_debug_info("user to add", user_id.to_string())
             ),
         }
     }
@@ -568,7 +568,7 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Server,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let document_option = cursor
@@ -580,7 +580,7 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Server,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match document_option
@@ -593,7 +593,7 @@ impl channel_parent::server::Repository for MongolDB
                         error::OnType::Server,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
                 
                 Ok(server)
@@ -635,7 +635,7 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Server,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let document_option = cursor
@@ -647,7 +647,7 @@ impl channel_parent::server::Repository for MongolDB
                 error::OnType::Server,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
 
@@ -661,7 +661,7 @@ impl channel_parent::server::Repository for MongolDB
                         error::OnType::Server,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 return Ok(server);

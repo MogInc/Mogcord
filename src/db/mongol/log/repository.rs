@@ -16,7 +16,7 @@ impl log::Repository for MongolDB
                 error::OnType::Log, 
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }

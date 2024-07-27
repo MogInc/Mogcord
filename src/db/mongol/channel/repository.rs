@@ -24,7 +24,7 @@ impl channel::Repository for MongolDB
                 error::OnType::Channel,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match user_option 

@@ -21,7 +21,7 @@ impl refresh_token::Repository for MongolDB
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -89,7 +89,7 @@ impl refresh_token::Repository for MongolDB
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let document_option = cursor
@@ -101,7 +101,7 @@ impl refresh_token::Repository for MongolDB
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match document_option
@@ -114,7 +114,7 @@ impl refresh_token::Repository for MongolDB
                         error::OnType::RefreshToken,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(refresh_token)
@@ -124,7 +124,7 @@ impl refresh_token::Repository for MongolDB
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .expose_public_extra_info("device id", device_id.to_string())
+                .add_debug_info("device id", device_id.to_string())
             ), 
         }
     }
@@ -150,11 +150,11 @@ impl refresh_token::Repository for MongolDB
         {
             Ok(_) => Ok(()),
             Err(err) => Err(error::Server::new(
-                error::Kind::Delete,
+                error::Kind::Revoke,
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -179,11 +179,11 @@ impl refresh_token::Repository for MongolDB
         {
             Ok(_) => Ok(()),
             Err(err) => Err(error::Server::new(
-                error::Kind::Delete,
+                error::Kind::Revoke,
                 error::OnType::RefreshToken,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }

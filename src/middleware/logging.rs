@@ -30,7 +30,7 @@ pub async fn main_response_mapper(
 			.as_ref()
 			.map(|(status_code, client_error, extra_info)| 
 			{
-				let client_error_body = if extra_info.is_empty()
+				let client_error_body = if extra_info.is_none()
 				{
 					json!(
 					{

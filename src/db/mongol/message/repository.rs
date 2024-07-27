@@ -34,7 +34,7 @@ impl message::Repository for MongolDB
                 error::OnType::Date,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let bucket_filter = doc!
@@ -52,7 +52,7 @@ impl message::Repository for MongolDB
                 error::OnType::Bucket,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let bucket_current = if let Some(bucket) = bucket_option
@@ -72,7 +72,7 @@ impl message::Repository for MongolDB
                     error::OnType::Bucket,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )?;
 
             bucket
@@ -100,7 +100,7 @@ impl message::Repository for MongolDB
                     error::OnType::Bucket,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )?;
 
             db_bucket
@@ -134,7 +134,7 @@ impl message::Repository for MongolDB
                     error::OnType::Message,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             },
         }
@@ -191,7 +191,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         //what would be faster
@@ -212,7 +212,7 @@ impl message::Repository for MongolDB
                             error::OnType::Message,
                             file!(),
                             line!())
-                            .add_debug_info(err.to_string())
+                            .add_debug_info("error", err.to_string())
                         )?;
                     messages.push(message);
                 },
@@ -249,7 +249,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -280,7 +280,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
 
@@ -293,7 +293,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match document_option
@@ -306,7 +306,7 @@ impl message::Repository for MongolDB
                         error::OnType::Message,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(message)
@@ -316,7 +316,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .expose_public_extra_info("message id", message_id.to_string())
+                .add_debug_info("message id", message_id.to_string())
             ),
         }
     }

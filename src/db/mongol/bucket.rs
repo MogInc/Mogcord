@@ -33,7 +33,7 @@ impl TryFrom<&Bucket> for MongolBucket
                 error::OnType::Date,
                 file!(),
                 line!())
-                .add_debug_info(value.date.to_string())
+                .add_debug_info("bucket date", value.date.to_string())
             )?;
 
         let bucket_message_ids = value

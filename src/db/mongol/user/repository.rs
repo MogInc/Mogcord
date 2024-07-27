@@ -45,7 +45,7 @@ impl user::Repository for MongolDB
                 error::OnType::User,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -62,7 +62,7 @@ impl user::Repository for MongolDB
                 error::OnType::User,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
@@ -79,7 +79,7 @@ impl user::Repository for MongolDB
                 err,
                 file!(),
                 line!())
-                .add_debug_info(user_id.to_string())
+                .add_debug_info("user id", user_id.to_string())
             )
     }
 
@@ -93,7 +93,7 @@ impl user::Repository for MongolDB
                 err,
                 file!(),
                 line!())
-                .add_debug_info(mail.to_string())
+                .add_debug_info("mail", mail.to_string())
             )
     }
 
@@ -141,7 +141,7 @@ impl user::Repository for MongolDB
                 error::OnType::User,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
         
         let mut users : Vec<User> = Vec::new();
@@ -158,7 +158,7 @@ impl user::Repository for MongolDB
                             error::OnType::User,
                             file!(),
                             line!())
-                            .add_debug_info(err.to_string())
+                            .add_debug_info("error", err.to_string())
                         )?;
                     users.push(user);
                 },
@@ -207,7 +207,7 @@ impl user::Repository for MongolDB
                 error::OnType::User,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
         
         let mut users : Vec<User> = Vec::new();
@@ -224,7 +224,7 @@ impl user::Repository for MongolDB
                             error::OnType::User,
                             file!(),
                             line!())
-                            .add_debug_info(err.to_string())
+                            .add_debug_info("error", err.to_string())
                         )?;
                     users.push(user);
                 },
@@ -246,7 +246,7 @@ async fn internal_does_user_exist<'input, 'err>(repo: &MongolDB, filter: Documen
             error::OnType::User,
             file!(),
             line!())
-            .add_debug_info(err.to_string())
+            .add_debug_info("error",err.to_string())
         )
     }
 }
@@ -262,7 +262,7 @@ async fn internal_get_user<'input, 'err>(repo: &MongolDB, filter: Document) -> R
             error::OnType::User,
             file!(),
             line!())
-            .add_debug_info(err.to_string())
+            .add_debug_info("error",err.to_string())
         )?;
 
     match user_option 

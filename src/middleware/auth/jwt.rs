@@ -117,7 +117,7 @@ pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) 
                         error::OnType::AccesToken,
                         file!(),
                         line!())
-                        .add_debug_info(token.to_string());
+                        .add_debug_info("acces token", token.to_string());
 
                     Err(err)
                 },

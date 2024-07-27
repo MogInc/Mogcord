@@ -69,7 +69,7 @@ impl Private
                 error::OnType::User,
                 file!(),
                 line!())
-                .expose_public_extra_info("pm requirement", format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
+                .add_public_info(format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
             );
         }
 

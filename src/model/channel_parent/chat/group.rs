@@ -61,7 +61,7 @@ impl Group
                 error::OnType::ChatGroup,
                 file!(),
                 line!())
-                .expose_public_extra_info("user id", user.id)
+                .add_debug_info("user id", user.id)
             );
         }
 
@@ -81,7 +81,7 @@ impl Group
                     error::OnType::ChatGroup,
                     file!(),
                     line!())
-                    .expose_public_extra_info("user id", user.id.to_string())
+                    .add_debug_info("user id", user.id.to_string())
                 );
             }
         }
@@ -114,7 +114,7 @@ impl Group
                 error::OnType::User,
                 file!(),
                 line!())
-                .expose_public_extra_info("group requirement", format!("Expected atleast: {}, found: {}", Self::GROUP_USER_MIN, self.users.len()))
+                .add_public_info(format!("Expected atleast: {}, found: {}", Self::GROUP_USER_MIN, self.users.len()))
             );
         }
 

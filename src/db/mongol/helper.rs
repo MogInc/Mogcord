@@ -67,7 +67,7 @@ pub fn convert_domain_id_to_mongol<'err>(
         error::OnType::Mongo,
         file!(),
         line!())
-        .add_debug_info(id.to_string())
+        .add_debug_info("incoming id", id.to_string())
     )
 }
 

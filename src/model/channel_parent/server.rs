@@ -88,7 +88,7 @@ impl Server
                 error::OnType::Server,
                 file!(),
                 line!())
-                .expose_public_extra_info("user id", user.id)
+                .add_debug_info("user id", user.id)
             );
         }
 
@@ -108,7 +108,7 @@ impl Server
                     error::OnType::Server,
                     file!(),
                     line!())
-                    .expose_public_extra_info("user id", user.id.to_string())
+                    .add_debug_info("user id", user.id.to_string())
                 );
             }
         }

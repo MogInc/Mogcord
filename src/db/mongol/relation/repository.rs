@@ -55,7 +55,7 @@ impl relation::Repository for MongolDB
                 error::OnType::RelationFriend,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
 
@@ -196,7 +196,7 @@ impl relation::Repository for MongolDB
                 error::OnType::RelationFriend,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         //can remove this match and have implicit abort
@@ -223,7 +223,7 @@ impl relation::Repository for MongolDB
                     error::OnType::RelationFriend, 
                     file!(), 
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             }
         }
@@ -287,7 +287,7 @@ impl relation::Repository for MongolDB
                 error::OnType::RelationBlocked,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
        
        //can remove this match and have implicit abort
@@ -314,7 +314,7 @@ impl relation::Repository for MongolDB
                     error::OnType::RelationBlocked, 
                     file!(), 
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             }
         }
@@ -367,7 +367,7 @@ impl relation::Repository for MongolDB
                 error::OnType::RelationFriend,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         //can remove this match and have implicit abort
@@ -394,7 +394,7 @@ impl relation::Repository for MongolDB
                     error::OnType::RelationFriend, 
                     file!(), 
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             }
         }
@@ -429,7 +429,7 @@ impl relation::Repository for MongolDB
                     error::OnType::RelationFriend, 
                     file!(), 
                     line!())
-                    .add_debug_info(err.to_string()
+                    .add_debug_info("error", err.to_string()
                 )
             )
         }
@@ -460,7 +460,7 @@ impl relation::Repository for MongolDB
                     error::OnType::RelationBlocked, 
                     file!(), 
                     line!())
-                    .add_debug_info(err.to_string()
+                    .add_debug_info("error", err.to_string()
                 )
             )
         }
@@ -483,7 +483,7 @@ async fn add_relation<'err>(
             error::OnType::Relation,
             file!(),
             line!())
-            .add_debug_info(err.to_string())
+            .add_debug_info("error", err.to_string())
         )?;
 
     if relation_option.is_none()
@@ -499,7 +499,7 @@ async fn add_relation<'err>(
                 error::OnType::Relation,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
     }
 
@@ -520,7 +520,7 @@ async fn does_user_relation_exist<'err>(
                 error::OnType::Relation, 
                 file!(), 
                 line!())
-                .add_debug_info(err.to_string()
+                .add_debug_info("error", err.to_string()
             )
         )
     }
