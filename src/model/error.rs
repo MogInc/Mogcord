@@ -331,6 +331,7 @@ impl fmt::Display for Client
 
 impl Client
 {
+	//todo when a frontend comes this becomes the job for localization
     #[must_use]
     pub fn as_str(&self) -> &str 
     {

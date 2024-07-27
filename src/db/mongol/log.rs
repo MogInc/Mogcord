@@ -1,14 +1,17 @@
 mod repository;
 
 use std::collections::HashMap;
+use bson::Uuid;
 use serde::Serialize;
 
 use crate::model::{error::{self}, log::{RequestLogLine, RequestLogLinePersonal}};
 
+use super::helper;
+
 #[derive(Debug, Serialize)]
 pub struct MongolLog
 {
-	req_id: String,      
+	req_id: Uuid,      
 	timestamp: String,
 	user_info: RequestLogLinePersonal,
 	req_path: String,
@@ -23,18 +26,19 @@ impl TryFrom<RequestLogLine<'_>> for MongolLog
 
     fn try_from(value: RequestLogLine) -> Result<Self, Self::Error>
     {
-        let test = create_server_error(value.server_error.as_ref());
+        let req_id = helper::convert_domain_id_to_mongol(&value.req_id)?;
+        let server_error = create_server_error(value.server_error.as_ref());
 
         Ok(
             Self
             { 
-                req_id: value.req_id,
+                req_id,
                 timestamp: value.timestamp,
                 user_info: value.user_info,
                 req_path: value.req_path,
                 req_method: value.req_method,
                 client_error_type: value.client_error_type,
-                server_error: test,
+                server_error,
             }
         )
     }
