@@ -12,12 +12,12 @@ pub struct Server<'err>
 {
 	pub kind: Kind,
 	pub on_type: OnType,
-	stack: &'err str,
+	pub stack: &'err str,
 	line_nr: u32,
-	debug_info: HashMap<&'err str, String>,
-	pub_info: Option<String>,
+	pub debug_info: HashMap<&'err str, String>,
+	pub pub_info: Option<String>,
 	client: Option<Client>,
-	child: Option<Box<Server<'err>>>,
+	pub child: Option<Box<Server<'err>>>,
 }
 
 impl<'err> Server<'err>
@@ -125,7 +125,7 @@ impl<'err> Server<'err>
 	}
 }
 
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
@@ -156,7 +156,7 @@ pub enum Kind
 	Verifying
 }
 
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum OnType
 {
