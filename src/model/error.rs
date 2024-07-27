@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use axum::{
     http::StatusCode,
@@ -8,25 +8,25 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
-pub struct Server<'stack>
+pub struct Server<'err>
 {
 	pub kind: Kind,
 	pub on_type: OnType,
-	stack: &'stack str,
+	stack: &'err str,
 	line_nr: u32,
 	debug_info: Vec<String>,
-	extra_public_info: Option<String>,
+	extra_public_info: HashMap<&'err str, String>,
 	client: Option<Client>,
-	child: Option<Box<Server<'stack>>>,
+	child: Option<Box<Server<'err>>>,
 }
 
-impl<'stack> Server<'stack>
+impl<'err> Server<'err>
 {
 	#[must_use]
 	pub fn new(
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -37,7 +37,7 @@ impl<'stack> Server<'stack>
 			stack,
 			line_nr,
 			debug_info: Vec::new(),
-			extra_public_info: None,
+			extra_public_info: HashMap::new(),
 			client: None,
 			child: None,
 		}
@@ -48,7 +48,7 @@ impl<'stack> Server<'stack>
 		mut self,
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -68,7 +68,7 @@ impl<'stack> Server<'stack>
 	#[must_use]
 	pub fn from_child(
 		mut self,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -116,12 +116,9 @@ impl<'stack> Server<'stack>
 	}
 
 	#[must_use]
-	pub fn expose_public_extra_info(mut self, extra_info: String) -> Self
+	pub fn expose_public_extra_info(mut self, key: &'err str, extra_info: String) -> Self
 	{
-		if self.client.is_none()
-		{
-			let _ = self.extra_public_info.insert(extra_info);
-		}
+		self.extra_public_info.insert(key, extra_info);
 
 		self
 	}
@@ -377,7 +374,7 @@ impl Client
 }
 
 #[must_use]
-pub fn map_transaction<'stack>(err: &mongodb::error::Error, file: &'stack str, line: u32) -> Server<'stack> 
+pub fn map_transaction<'err>(err: &mongodb::error::Error, file: &'err str, line: u32) -> Server<'err> 
 {
     Server::new(
         Kind::Unexpected,
