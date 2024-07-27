@@ -38,13 +38,13 @@ pub async fn log_request(
 		error_data: error_data_option,
 	};
 
-	
+
 	println!("   ->> log_request: \n{:#}", json!(log_line));
 
     //TODO add saving to db or file
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct RequestLogLinePersonal
 {
 	user_id: Option<String>,
@@ -66,8 +66,8 @@ impl RequestLogLinePersonal
 
 
 #[skip_serializing_none]
-#[derive(Serialize)]
-struct RequestLogLine 
+#[derive(Debug, Serialize)]
+pub struct RequestLogLine 
 {
 	req_id: String,      
 	timestamp: String,
