@@ -88,7 +88,8 @@ pub struct RequestLogLine<'err>
 	pub server_error: Option<error::Server<'err>>,
 }
 
-impl<'err> Serialize for RequestLogLine<'err> {
+impl<'err> Serialize for RequestLogLine<'err> 
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
