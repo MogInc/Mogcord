@@ -6,6 +6,7 @@ mod message;
 mod refresh_token;
 mod relation;
 mod user;
+mod log;
 
 use bson::doc;
 pub use bucket::*;

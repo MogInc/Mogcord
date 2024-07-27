@@ -1,12 +1,15 @@
-use axum::{http::{Method, StatusCode, Uri}, response::{IntoResponse, Response}, Json};
+use std::sync::Arc;
+
+use axum::{extract::State, http::{Method, StatusCode, Uri}, response::{IntoResponse, Response}, Json};
 use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::model::{error, log::{log_request, RequestLogLinePersonal}};
+use crate::model::{error, log::{log_request, Repository, RequestLogLinePersonal}};
 use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
 
 pub async fn main_response_mapper(
+	State(state): State<Arc<dyn Repository>>,
 	uri: Uri,
 	ctx: Option<Ctx>,
 	req_method: Method,
@@ -66,7 +69,7 @@ pub async fn main_response_mapper(
 	let user_info = RequestLogLinePersonal::new(
 		ctx.map(Ctx::user_id), device_id_option);
 
-    log_request(req_id, user_info, req_method, uri, service_error, client_error_option).await;
+    log_request(state, req_id, user_info, req_method, uri, service_error, client_error_option).await;
 
 	println!();
 	

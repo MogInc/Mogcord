@@ -1,3 +1,8 @@
+mod repository;
+
+pub use repository::*;
+
+use std::sync::Arc;
 use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -6,14 +11,16 @@ use uuid::Uuid;
 
 use super::error;
 
-pub async fn log_request(
+pub async fn log_request<>(
+	state: Arc<dyn Repository>,
 	req_id: Uuid,
 	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&error::Server<'_>>,
 	client_error: Option<error::Client>,
-) {
+)
+{
 
     let timestamp = chrono::Utc::now();
 
@@ -40,8 +47,12 @@ pub async fn log_request(
 
 
 	println!("   ->> log_request: \n{:#}", json!(log_line));
+	if let Err(err) = state.create_log(log_line).await
+	{
+		println!("	->> LOG INSERT FAILED");
+		println!("   ->> log_request FAILED INSERT: \n{:#}", json!(err));
+	}
 
-    //TODO add saving to db or file
 }
 
 #[derive(Debug, Serialize)]

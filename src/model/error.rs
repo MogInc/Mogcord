@@ -170,6 +170,7 @@ pub enum OnType
 	Ctx,
 	Date,
 	Hashing,
+	Log,
 	Mail,
 	Message,
 	Mongo,
