@@ -45,7 +45,7 @@ impl<'stack> Server<'stack>
 
 	#[must_use]
 	pub fn new_from_child(
-		self,
+		mut self,
 		kind: Kind,
 		on_type: OnType,
 		stack: &'stack str,
@@ -58,30 +58,30 @@ impl<'stack> Server<'stack>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: self.debug_info,
-			extra_public_info: self.extra_public_info,
-			client: self.client,
-			child: self.child,
+			debug_info: self.debug_info.drain(..).collect(),
+			extra_public_info: self.extra_public_info.take(),
+			client: self.client.take(),
+			child: Some(Box::new(self)),
 		}
 	}
 
 	#[must_use]
 	pub fn from_child(
-		self,
+		mut self,
 		stack: &'stack str,
 		line_nr: u32,
 	) -> Self
 	{
 		Self
 		{
-			kind: self.kind,
-			on_type: self.on_type,
+			kind: self.kind.clone(),
+			on_type: self.on_type.clone(),
 			stack,
 			line_nr,
-			debug_info: self.debug_info,
-			extra_public_info: self.extra_public_info,
-			client: self.client,
-			child: self.child,
+			debug_info: self.debug_info.drain(..).collect(),
+			extra_public_info: self.extra_public_info.take(),
+			client: self.client.take(),
+			child: Some(Box::new(self)),
 		}
 	}
 
@@ -205,7 +205,7 @@ impl fmt::Display for Server<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
 
 		if let Some(ref child) = self.child 
 		{
