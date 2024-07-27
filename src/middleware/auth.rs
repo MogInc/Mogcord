@@ -61,11 +61,11 @@ pub async fn mw_require_admin_authentication(
 }
 
 
-pub async fn mw_ctx_resolver<'stack>(
+pub async fn mw_ctx_resolver<'err>(
     jar: Cookies, 
     mut req: Request<Body>, 
     next: Next
-) -> Result<Response, error::Server<'stack>> 
+) -> Result<Response, error::Server<'err>> 
 {
 	println!("MTX RESOLVER: ");
 
@@ -112,7 +112,7 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 	}
 }
 
-fn internal_parse_token<'stack>(acces_token: &str) -> Result<Claims, error::Server<'stack>>
+fn internal_parse_token<'err>(acces_token: &str) -> Result<Claims, error::Server<'err>>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 

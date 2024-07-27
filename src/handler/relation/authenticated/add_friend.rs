@@ -41,7 +41,7 @@ pub async fn add_friend(
             error::OnType::User,
             file!(),
             line!())
-            .expose_public_extra_info(other_user_id.to_string())
+            .expose_public_extra_info("other user id", other_user_id.to_string())
         );
     }
 

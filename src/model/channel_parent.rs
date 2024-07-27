@@ -39,7 +39,7 @@ impl ChannelParent
         matches!(self, ChannelParent::Server(_))
     }
 
-    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
+    pub fn add_user<'err>(&mut self, user: User) -> Result<(), error::Server<'err>>
     {
         match self
         {
@@ -48,7 +48,7 @@ impl ChannelParent
         }
     }
 
-    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> Result<(), error::Server<'err>>
     {
         match self
         {
@@ -80,10 +80,10 @@ impl ChannelParent
 
 impl channel::Parent for ChannelParent
 {
-    fn get_channel<'input, 'stack>(
+    fn get_channel<'input, 'err>(
         &'input self, 
         channel_id_option: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'stack>> 
+    ) -> Result<&'input Channel, error::Server<'err>> 
     {
         match self
         {
@@ -101,11 +101,11 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn can_read<'input, 'stack>(
+    fn can_read<'input, 'err>(
         &'input self,
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         match self
         {
@@ -114,11 +114,11 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn can_write<'input, 'stack>(
+    fn can_write<'input, 'err>(
         &'input self,
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         match self
         {

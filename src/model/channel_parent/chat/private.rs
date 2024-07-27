@@ -24,7 +24,7 @@ impl Private
         }
     }
 
-    pub fn new<'stack>(owners: Vec<User>) -> Result<Self, error::Server<'stack>> 
+    pub fn new<'err>(owners: Vec<User>) -> Result<Self, error::Server<'err>> 
     {
         let set: HashSet<User> = owners
             .into_iter()
@@ -60,7 +60,7 @@ impl Private
         self.owners.iter().any(|user| user.id == user_id)
     }
 
-    fn internal_is_meeting_requirements<'stack>(&self) -> Result<(), error::Server<'stack>> 
+    fn internal_is_meeting_requirements<'err>(&self) -> Result<(), error::Server<'err>> 
     {
         if !self.internal_is_owner_size_allowed()
         {
@@ -69,7 +69,7 @@ impl Private
                 error::OnType::User,
                 file!(),
                 line!())
-                .expose_public_extra_info(format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
+                .expose_public_extra_info("pm requirement", format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
             );
         }
 
@@ -83,10 +83,10 @@ impl Private
 
 impl channel::Parent for Private
 {
-    fn get_channel<'input, 'stack>(
+    fn get_channel<'input, 'err>(
         &'input self, 
         _: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'stack>> 
+    ) -> Result<&'input Channel, error::Server<'err>> 
     {
         Ok(&self.channel)
     }
@@ -96,20 +96,20 @@ impl channel::Parent for Private
         None
     }
 
-    fn can_read<'input, 'stack>(
+    fn can_read<'input, 'err>(
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         Ok(self.is_owner(user_id))
     }
 
-    fn can_write<'input, 'stack>(
+    fn can_write<'input, 'err>(
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         Ok(self.is_owner(user_id))
     }

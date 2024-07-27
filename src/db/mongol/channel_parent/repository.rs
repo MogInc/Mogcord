@@ -11,7 +11,7 @@ use super::{helper, MongolChat, MongolServer};
 #[async_trait]
 impl channel_parent::Repository for MongolDB
 {
-    async fn get_channel_parent<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<ChannelParent, error::Server<'stack>>
+    async fn get_channel_parent<'input, 'err>(&'input self, channel_id: &'input str) -> Result<ChannelParent, error::Server<'err>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
 
@@ -30,7 +30,7 @@ impl channel_parent::Repository for MongolDB
                 error::OnType::Channel,
                 file!(),
                 line!())
-                .expose_public_extra_info(channel_id.to_string())
+                .expose_public_extra_info("channel id", channel_id.to_string())
             )?;
 
         let mut cursor = match mongol_channel.parent_type
@@ -171,7 +171,7 @@ impl channel_parent::Repository for MongolDB
 #[async_trait]
 impl channel_parent::chat::Repository for MongolDB
 {
-    async fn create_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<Chat, error::Server<'stack>>
+    async fn create_chat<'input, 'err>(&'input self, chat: Chat) -> Result<Chat, error::Server<'err>>
     {
         let db_chat = MongolChat::try_from(&chat)?;
         let db_channel = MongolChannel::try_from(&chat)?;
@@ -229,7 +229,7 @@ impl channel_parent::chat::Repository for MongolDB
         }
     }
 
-    async fn update_chat<'input, 'stack>(&'input self, chat: Chat) -> Result<(), error::Server<'stack>>
+    async fn update_chat<'input, 'err>(&'input self, chat: Chat) -> Result<(), error::Server<'err>>
     {
         let filter: Document;
         let update = match chat
@@ -281,7 +281,7 @@ impl channel_parent::chat::Repository for MongolDB
         }
     }
 
-    async fn get_chat_by_id<'input, 'stack>(&'input self, chat_id: &'input str) -> Result<Chat, error::Server<'stack>>
+    async fn get_chat_by_id<'input, 'err>(&'input self, chat_id: &'input str) -> Result<Chat, error::Server<'err>>
     {
         let chat_id_local = helper::convert_domain_id_to_mongol(chat_id)?;
 
@@ -318,7 +318,7 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .expose_public_extra_info(chat_id.to_string())
+                .expose_public_extra_info("chat id", chat_id.to_string())
             )?;
 
         let pipeline = match &mongol_chat
@@ -404,12 +404,12 @@ impl channel_parent::chat::Repository for MongolDB
                 error::OnType::Chat,
                 file!(),
                 line!())
-                .expose_public_extra_info(chat_id.to_string())
+                .expose_public_extra_info("chat id", chat_id.to_string())
             ), 
         }
     }
 
-    async fn does_chat_exist<'input, 'stack>(&'input self, chat: &'input Chat) -> Result<bool, error::Server<'stack>>
+    async fn does_chat_exist<'input, 'err>(&'input self, chat: &'input Chat) -> Result<bool, error::Server<'err>>
     {
         let filter = match MongolChat::try_from(chat)?
         {
@@ -454,7 +454,7 @@ impl channel_parent::chat::Repository for MongolDB
 #[async_trait]
 impl channel_parent::server::Repository for MongolDB
 {
-    async fn create_server<'input, 'stack>(&'input self, server: Server) -> Result<Server, error::Server<'stack>>
+    async fn create_server<'input, 'err>(&'input self, server: Server) -> Result<Server, error::Server<'err>>
     {
         let db_server = MongolServer::try_from(&server)?;
         let db_channels = MongolChannelVecWrapper::try_from(&server)?.0;
@@ -512,7 +512,7 @@ impl channel_parent::server::Repository for MongolDB
         }
     }
 
-    async fn add_user_to_server<'input, 'stack>(&'input self, server_id: &'input str, user_id: &'input str) -> Result<(), error::Server<'stack>>
+    async fn add_user_to_server<'input, 'err>(&'input self, server_id: &'input str, user_id: &'input str) -> Result<(), error::Server<'err>>
     {
         let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
         let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
@@ -542,7 +542,7 @@ impl channel_parent::server::Repository for MongolDB
         }
     }
 
-    async fn get_server_by_id<'input, 'stack>(&'input self, server_id: &'input str) -> Result<Server, error::Server<'stack>>
+    async fn get_server_by_id<'input, 'err>(&'input self, server_id: &'input str) -> Result<Server, error::Server<'err>>
     {
         let server_id_local = helper::convert_domain_id_to_mongol(server_id)?;
 
@@ -608,7 +608,7 @@ impl channel_parent::server::Repository for MongolDB
         }
     }
 
-    async fn get_server_by_channel_id<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<Server, error::Server<'stack>>
+    async fn get_server_by_channel_id<'input, 'err>(&'input self, channel_id: &'input str) -> Result<Server, error::Server<'err>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
 

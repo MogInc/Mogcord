@@ -53,7 +53,7 @@ impl Server
         }
     }
 
-    pub fn new<'stack>(name: String, owner: User) -> Result<Self, error::Server<'stack>>
+    pub fn new<'err>(name: String, owner: User) -> Result<Self, error::Server<'err>>
     {
         let base_channel = Channel::new(Some(String::from("Welcome")), true);
 
@@ -79,7 +79,7 @@ impl Server
 
 impl Server
 {
-    pub fn add_user<'stack>(&mut self, user: User) -> Result<(), error::Server<'stack>>
+    pub fn add_user<'err>(&mut self, user: User) -> Result<(), error::Server<'err>>
     {
         if self.is_user_part_of_server(&user.id) 
         {
@@ -88,7 +88,7 @@ impl Server
                 error::OnType::Server,
                 file!(),
                 line!())
-                .expose_public_extra_info(user.id)
+                .expose_public_extra_info("user id", user.id)
             );
         }
 
@@ -97,7 +97,7 @@ impl Server
         Ok(())
     }
 
-    pub fn add_users<'stack>(&mut self, users: Vec<User>) -> Result<(), error::Server<'stack>>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> Result<(), error::Server<'err>>
     {
         for user in &users 
         {
@@ -108,7 +108,7 @@ impl Server
                     error::OnType::Server,
                     file!(),
                     line!())
-                    .expose_public_extra_info(user.id.to_string())
+                    .expose_public_extra_info("user id", user.id.to_string())
                 );
             }
         }
@@ -118,7 +118,7 @@ impl Server
         Ok(())
     }
 
-    pub fn is_server_meeting_requirements<'stack>(&self) -> Result<(), error::Server<'stack>> 
+    pub fn is_server_meeting_requirements<'err>(&self) -> Result<(), error::Server<'err>> 
     {
         Ok(())
     }
@@ -167,10 +167,10 @@ impl Server
 
 impl channel::Parent for Server
 {   
-    fn get_channel<'input, 'stack>(
+    fn get_channel<'input, 'err>(
         &'input self, 
         channel_id_option: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'stack>>
+    ) -> Result<&'input Channel, error::Server<'err>>
     {
         match channel_id_option 
         {
@@ -194,20 +194,20 @@ impl channel::Parent for Server
         self.user_roles.get(user_id)
     }
 
-    fn can_read<'input, 'stack>(
+    fn can_read<'input, 'err>(
         &'input self, 
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
     
-    fn can_write<'input, 'stack>(
+    fn can_write<'input, 'err>(
         &'input self, 
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
@@ -257,12 +257,12 @@ impl Server
         self.roles.is_empty()
     }
 
-    fn internal_channel_check_permission<'stack>(
+    fn internal_channel_check_permission<'err>(
         &self,
         user_id: &str,
         channel_id_option: Option<&str>,
         access_check: impl Fn(&Channel, &str) -> bool,
-    ) -> Result<bool, error::Server<'stack>> 
+    ) -> Result<bool, error::Server<'err>> 
     {
 
         if self.is_owner(user_id) 

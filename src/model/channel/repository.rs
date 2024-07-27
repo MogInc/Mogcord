@@ -7,5 +7,5 @@ use super::Channel;
 #[async_trait]
 pub trait Repository: Send + Sync
 {
-    async fn get_channel<'input, 'stack>(&'input self, channel_id: &'input str) -> Result<Channel, error::Server<'stack>>;
+    async fn get_channel<'input, 'err>(&'input self, channel_id: &'input str) -> Result<Channel, error::Server<'err>>;
 }
