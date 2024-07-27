@@ -88,8 +88,11 @@ impl<'err> Server<'err>
 	#[must_use]
 	pub fn add_client(mut self, client: Client) -> Self
 	{
-		self.client.get_or_insert(client);
-
+		if self.client.is_none()
+		{
+			self.client = Some(client);
+		}
+		
 		self
 	}
 
