@@ -2,6 +2,7 @@ mod jwt;
 mod ctx;
 mod cookie_names;
 
+
 pub use jwt::*;
 pub use ctx::*;
 pub use cookie_names::*;
@@ -46,7 +47,7 @@ pub async fn mw_require_admin_authentication(
 			{
 				return Err(
 					error::Server::new(
-						error::Kind::IncorrectValue, 
+						error::Kind::NoAuth, 
 						error::OnType::Rights, 
 						file!(), 
 						line!()
@@ -69,20 +70,11 @@ pub async fn mw_ctx_resolver<'err>(
 {
 	println!("MTX RESOLVER: ");
 
-    let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
-
-	let ctx_result = match jar
-		.get_cookie(cookie_names_acces_token.as_str())
-		.and_then(|val| internal_parse_token(val.as_str()))
-	{
-		Ok(claims) => Ok(Ctx::new(claims.sub, claims.user_flag)),
-		Err(e) => Err(e),
-	};
-
+	let ctx_result = internal_get_ctx(&jar);
 
 	if ctx_result.is_err() && !matches!(ctx_result.as_ref().unwrap_err().kind, error::Kind::Expired)
 	{
-		jar.remove_cookie(cookie_names_acces_token.to_string());
+		jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
 	}
 
 	req
@@ -109,6 +101,17 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 				line!()
 			))?
 			.clone()
+	}
+}
+
+fn internal_get_ctx<'err>(jar: &Cookies) -> Result<Ctx, error::Server<'err>>
+{
+	match jar
+		.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
+		.and_then(|val| internal_parse_token(val.as_str()))
+	{
+		Ok(claims) => Ok(Ctx::new(claims.sub, claims.user_flag)),
+		Err(e) => Err(e),
 	}
 }
 
