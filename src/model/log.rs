@@ -23,7 +23,8 @@ pub async fn log_request(
 		.and_then(|mut v| v.get_mut("data").map(Value::take));
 
 	// Create the RequestLogLine
-	let log_line = RequestLogLine {
+	let log_line = RequestLogLine 
+	{
 		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
@@ -37,6 +38,7 @@ pub async fn log_request(
 		error_data: error_data_option,
 	};
 
+	
 	println!("   ->> log_request: \n{:#}", json!(log_line));
 
     //TODO add saving to db or file
