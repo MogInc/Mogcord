@@ -57,7 +57,7 @@ impl Group
         if self.is_user_part_of_server(&user.id) 
         {
             return Err(error::Server::new(
-                error::Kind::AlreadyMember,
+                error::Kind::AlreadyPartOf,
                 error::OnType::ChatGroup,
                 file!(),
                 line!())
@@ -77,7 +77,7 @@ impl Group
             if self.is_user_part_of_server(&user.id) 
             {
                 return Err(error::Server::new(
-                    error::Kind::AlreadyMember,
+                    error::Kind::AlreadyPartOf,
                     error::OnType::ChatGroup,
                     file!(),
                     line!())

@@ -84,7 +84,7 @@ impl Server
         if self.is_user_part_of_server(&user.id) 
         {
             return Err(error::Server::new(
-                error::Kind::AlreadyMember,
+                error::Kind::AlreadyPartOf,
                 error::OnType::Server,
                 file!(),
                 line!())
@@ -104,7 +104,7 @@ impl Server
             if self.is_user_part_of_server(&user.id) 
             {
                 return Err(error::Server::new(
-                    error::Kind::AlreadyMember,
+                    error::Kind::AlreadyPartOf,
                     error::OnType::Server,
                     file!(),
                     line!())

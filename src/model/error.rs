@@ -133,7 +133,7 @@ pub enum Kind
 {
 	AlreadyExists,
 	AlreadyInUse,
-	AlreadyMember,
+	AlreadyPartOf,
 	CantGainUsers,
 	Create,
 	Delete,
@@ -244,17 +244,36 @@ impl Server<'_>
 		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
+
 			Kind::NoChange => StatusCode::NO_CONTENT,
-			Kind::AlreadyExists => StatusCode::CONFLICT,
+
+			Kind::AlreadyExists
+			| Kind::AlreadyInUse
+			| Kind::AlreadyPartOf
+			| Kind::CantGainUsers
+			| Kind::IsSelf => StatusCode::CONFLICT,
+
 			Kind::Expired
+			| Kind::IncorrectPermissions
 			| Kind::NotAllowed
 			| Kind::NotPartOf
-			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
-			Kind::IncorrectValue 
-			| Kind::InValid => StatusCode::BAD_REQUEST,
+			| Kind::Verifying => StatusCode::FORBIDDEN,
+			
+			Kind::Create
+			| Kind::Delete
+			| Kind::Fetch
+			| Kind::InValid
+			| Kind::IncorrectValue 
+			| Kind::Insert
+			| Kind::Parse
+			| Kind::Read
+			| Kind::Update => StatusCode::BAD_REQUEST,
+
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+
 			Kind::NoAuth => StatusCode::UNAUTHORIZED,
-			_ => StatusCode::INTERNAL_SERVER_ERROR,
+
+			Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
 		};
 
 		if let Some(client) = &self.client
