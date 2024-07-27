@@ -162,24 +162,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()            
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
@@ -219,13 +207,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             },
@@ -234,13 +216,7 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Err(error::Server::new(
                     error::Kind::Update, 
@@ -267,24 +243,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
         let update_current_user = doc! 
@@ -334,13 +298,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             },
@@ -349,13 +307,7 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
                 
                 Err(error::Server::new(
                     error::Kind::Update, 
@@ -382,24 +334,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         let filter_current_user = doc!{ "user_id": current_user_id_local };
         let update_current_user = doc! 
@@ -438,13 +378,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(())
             }
@@ -453,13 +387,7 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Err(error::Server::new(
                     error::Kind::Update, 

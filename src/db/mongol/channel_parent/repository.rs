@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::db::{mongol::{self, MongolDB}, MongolChannel, MongolChannelVecWrapper};
+use crate::{db::{mongol::{self, MongolDB}, MongolChannel, MongolChannelVecWrapper}, model::error::map_transaction};
 use crate::model::{channel_parent::{self, chat::Chat, ChannelParent, Server}, error};
 use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, map_mongo_collection_to_hashmap};
 use super::{helper, MongolChat, MongolServer};
@@ -180,24 +180,12 @@ impl channel_parent::chat::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         self
             .channels()
@@ -487,24 +475,12 @@ impl channel_parent::server::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         self
             .channels()
@@ -526,13 +502,7 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Ok(server)
             },
@@ -541,13 +511,7 @@ impl channel_parent::server::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Err(error::Server::new(
                     error::Kind::Insert,

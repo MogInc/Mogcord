@@ -19,24 +19,12 @@ impl message::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Transaction,
-                file!(),
-                line!())
-                .add_debug_info(err.to_string())
-            )?;
+            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
             
         let date = message
             .timestamp
@@ -128,13 +116,8 @@ impl message::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+
                 message.bucket_id = Some(bucket_current._id.to_string());
 
                 Ok(message)
@@ -144,13 +127,7 @@ impl message::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Unexpected,
-                        error::OnType::Transaction,
-                        file!(),
-                        line!())
-                        .add_debug_info(err.to_string())
-                    )?;
+                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
 
                 Err(error::Server::new(
                     error::Kind::Insert,

@@ -353,3 +353,15 @@ impl Client
         }
     }
 }
+
+#[must_use]
+pub fn map_transaction<'stack>(err: &mongodb::error::Error, file: &'stack str, line: u32) -> Server<'stack> 
+{
+    Server::new(
+        Kind::Unexpected,
+        OnType::Transaction,
+        file,
+        line,
+    )
+    .add_debug_info(err.to_string())
+}
