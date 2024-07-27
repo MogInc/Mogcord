@@ -6,7 +6,6 @@ use std::sync::Arc;
 use axum::http::{Method, Uri};
 use serde::{Serialize, Serializer};
 use serde_json::json;
-use serde_with::skip_serializing_none;
 use uuid::Uuid;
 
 use super::error;
