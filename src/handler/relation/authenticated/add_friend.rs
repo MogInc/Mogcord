@@ -52,7 +52,7 @@ pub async fn add_friend(
             error::OnType::RelationBlocked,
             file!(),
             line!())
-            .add_client(error::Client::USER_BLOCKED)
+            .add_client(error::Client::RELATION_USER_BLOCKED)
         );
     }
 
@@ -63,7 +63,7 @@ pub async fn add_friend(
             error::OnType::Relation,
             file!(),
             line!())
-            .add_client(error::Client::USER_BLOCKED_YOU)
+            .add_client(error::Client::RELATION_USER_BLOCKED_YOU)
         );
     }
 
@@ -74,7 +74,7 @@ pub async fn add_friend(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::USER_ALREADY_FRIEND)
+            .add_client(error::Client::RELATION_USER_ALREADY_FRIEND)
         );
     }
 

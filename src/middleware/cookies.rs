@@ -35,7 +35,7 @@ impl Manager for Cookies
                 error::OnType::Cookie, 
                 file!(), 
                 line!())
-                .add_client(error::Client::NO_COOKIES)
+                .add_client(error::Client::COOKIES_NOT_FOUND)
             )
     }
 

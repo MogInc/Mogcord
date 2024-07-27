@@ -30,7 +30,7 @@ pub async fn remove_blocked(
             error::OnType::RelationBlocked,
             file!(),
             line!())
-            .add_client(error::Client::TRY_REMOVE_SELF_BLOCKED)
+            .add_client(error::Client::RELATION_SELF_TRY_UNBLOCK_SELF)
         );
     }
 

@@ -30,7 +30,7 @@ pub async fn confirm_friend(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::TRY_ADD_SELF_FRIEND)
+            .add_client(error::Client::RELATION_SELF_TRY_FRIEND_SELF)
         );
     }
 
@@ -41,7 +41,7 @@ pub async fn confirm_friend(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::NO_INCOMING_FRIEND)
+            .add_client(error::Client::RELATION_NO_INCOMING_FRIEND)
         );
     }
 
@@ -52,7 +52,7 @@ pub async fn confirm_friend(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::USER_ALREADY_FRIEND)
+            .add_client(error::Client::RELATION_USER_ALREADY_FRIEND)
         );
     }
 

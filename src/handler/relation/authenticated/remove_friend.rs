@@ -30,7 +30,7 @@ pub async fn remove_friend(
             error::OnType::RelationFriend,
             file!(),
             line!())
-            .add_client(error::Client::TRY_REMOVE_SELF_FRIEND)
+            .add_client(error::Client::RELATION_SELF_TRY_UNFRIEND_SELF)
         );
     }
 

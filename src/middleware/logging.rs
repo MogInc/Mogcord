@@ -38,7 +38,6 @@ pub async fn main_response_mapper(
 						{
 							"req_id": req_id.to_string(),
 							"type": client_error.as_ref(),
-							"type_info": client_error.as_str(),
 						}
 					})
 				}
@@ -50,7 +49,6 @@ pub async fn main_response_mapper(
 						{
 							"req_id": req_id.to_string(),
 							"type": client_error.as_ref(),
-							"type_info": client_error.as_str(),
 							"extra": extra_info,
 						}
 					})

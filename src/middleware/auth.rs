@@ -50,7 +50,7 @@ pub async fn mw_require_admin_authentication(
 						error::OnType::Rights, 
 						file!(), 
 						line!()
-					).add_client(error::Client::NO_ADMIN)
+					).add_client(error::Client::PERMISSION_NO_ADMIN)
 				);
 			}
 		},
