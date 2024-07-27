@@ -5,7 +5,7 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{channel, channel_parent, message, refresh_token, relation, user, AppState};
+use mogcord::model::{channel, channel_parent, log, message, refresh_token, relation, user, AppState};
 use mogcord::handler;
 use mogcord::middleware::logging::main_response_mapper;
 use mogcord::db::MongolDB;
@@ -32,6 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
     let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
+    let logs = Arc::clone(&db) as Arc<dyn log::Repository>;
+
     let state: Arc<AppState> = Arc::new(
         AppState 
         {
@@ -47,8 +49,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     );
 
     let app: Router = Router::new()
-        .nest("/api", handler::routes(state))
-        .layer(middleware::map_response(main_response_mapper))
+        .nest("/api", handler::routes(state.clone()))
+        .layer(middleware::map_response_with_state(logs, main_response_mapper))
         .layer(middleware::from_fn(mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
         .fallback(page_not_found);

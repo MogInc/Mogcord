@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use axum::{
     http::StatusCode,
@@ -8,25 +8,25 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
-pub struct Server<'stack>
+pub struct Server<'err>
 {
 	pub kind: Kind,
 	pub on_type: OnType,
-	stack: &'stack str,
+	pub stack: &'err str,
 	line_nr: u32,
-	debug_info: Vec<String>,
-	pub extra_public_info: Option<String>,
+	pub debug_info: HashMap<&'err str, String>,
+	pub pub_info: Option<String>,
 	client: Option<Client>,
-	child: Option<Box<Server<'stack>>>,
+	pub child: Option<Box<Server<'err>>>,
 }
 
-impl<'stack> Server<'stack>
+impl<'err> Server<'err>
 {
 	#[must_use]
 	pub fn new(
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -36,8 +36,8 @@ impl<'stack> Server<'stack>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: Vec::new(),
-			extra_public_info: None,
+			debug_info: HashMap::new(),
+			pub_info: None,
 			client: None,
 			child: None,
 		}
@@ -48,7 +48,7 @@ impl<'stack> Server<'stack>
 		mut self,
 		kind: Kind,
 		on_type: OnType,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -58,8 +58,8 @@ impl<'stack> Server<'stack>
 			on_type,
 			stack,
 			line_nr,
-			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.take(),
+			debug_info: HashMap::new(),
+			pub_info: self.pub_info.take(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -68,7 +68,7 @@ impl<'stack> Server<'stack>
 	#[must_use]
 	pub fn from_child(
 		mut self,
-		stack: &'stack str,
+		stack: &'err str,
 		line_nr: u32,
 	) -> Self
 	{
@@ -78,8 +78,8 @@ impl<'stack> Server<'stack>
 			on_type: self.on_type.clone(),
 			stack,
 			line_nr,
-			debug_info: self.debug_info.drain(..).collect(),
-			extra_public_info: self.extra_public_info.take(),
+			debug_info: HashMap::new(),
+			pub_info: self.pub_info.take(),
 			client: self.client.take(),
 			child: Some(Box::new(self)),
 		}
@@ -98,9 +98,7 @@ impl<'stack> Server<'stack>
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
 		self.client = child.client.take();
-		self.extra_public_info = child.extra_public_info.take();
-		//i want child vec to pop itself
-		self.debug_info.extend(child.debug_info.drain(..));
+		self.pub_info = child.pub_info.take();
 
 		self.child = Some(Box::new(child));
 		
@@ -108,53 +106,57 @@ impl<'stack> Server<'stack>
 	}
 
 	#[must_use]
-	pub fn add_debug_info(mut self, extra_info: String) -> Self
+	pub fn add_debug_info(mut self, key: &'err str, debug_info: String) -> Self
 	{
-		self.debug_info.push(extra_info);
+		self.debug_info.insert(key, debug_info);
 
 		self
 	}
 
 	#[must_use]
-	pub fn expose_public_extra_info(mut self, extra_info: String) -> Self
+	pub fn add_public_info(mut self, public_info: String) -> Self
 	{
-		let _ = self.extra_public_info.insert(extra_info);
+		if self.pub_info.is_none()
+		{
+			self.pub_info = Some(public_info);
+		}
 
 		self
 	}
 }
 
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
 	AlreadyExists,
 	AlreadyInUse,
-	AlreadyMember,
+	AlreadyPartOf,
 	CantGainUsers,
 	Create,
 	Delete,
-	Fetch,
 	Expired,
+	Fetch,
 	InValid,
-	IncorrectValue,
 	IncorrectPermissions,
+	IncorrectValue,
 	Insert,
 	IsSelf,
 	NoAuth,
 	NoChange,
-	NotPartOf,
 	NotAllowed,
 	NotFound,
 	NotImplemented,
+	NotPartOf,
 	Parse,
 	Read,
+	Revoke,
 	Unexpected,
 	Update,
 	Verifying
 }
 
-#[derive(Debug, Clone, Serialize, strum_macros::AsRefStr)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum OnType
 {
@@ -170,17 +172,18 @@ pub enum OnType
 	Ctx,
 	Date,
 	Hashing,
+	Log,
 	Mail,
 	Message,
 	Mongo,
-	Transaction,
 	RefreshToken,
 	Relation,
-	RelationFriend,
 	RelationBlocked,
+	RelationFriend,
 	Rights,
 	Server,
 	SpawnBlocking,
+	Transaction,
 	User,
 	Username,
 }
@@ -189,7 +192,7 @@ impl Server<'_>
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-        write!(f, "{}: {:?}::{:?} - {} on ln:{}", depth, self.kind, self.on_type, self.stack, self.line_nr)?;
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info)?;
 
 		if let Some(ref child) = self.child 
 		{
@@ -197,7 +200,7 @@ impl Server<'_>
             child.fmt_with_depth(f, depth + 1)?;
         }
 
-        Ok(())
+		Ok(())
     }
 }
 
@@ -205,15 +208,7 @@ impl fmt::Display for Server<'_>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result 
 	{
-		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {}", 0, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info.join("-"))?;
-
-		if let Some(ref child) = self.child 
-		{
-            write!(f, " -> ")?;
-            child.fmt_with_depth(f, 1)?;
-        }
-
-		Ok(())
+		self.fmt_with_depth(f, 0)
 	}
 }
 
@@ -241,26 +236,46 @@ impl Server<'_>
 		let status_code = match &self.kind
 		{
 			Kind::NotFound => StatusCode::NOT_FOUND,
+
 			Kind::NoChange => StatusCode::NO_CONTENT,
-			Kind::AlreadyExists => StatusCode::CONFLICT,
+
+			Kind::AlreadyExists
+			| Kind::AlreadyInUse
+			| Kind::AlreadyPartOf
+			| Kind::CantGainUsers
+			| Kind::IsSelf => StatusCode::CONFLICT,
+
 			Kind::Expired
+			| Kind::IncorrectPermissions
 			| Kind::NotAllowed
 			| Kind::NotPartOf
-			| Kind::IncorrectPermissions => StatusCode::FORBIDDEN,
-			Kind::IncorrectValue 
-			| Kind::InValid => StatusCode::BAD_REQUEST,
+			| Kind::Verifying => StatusCode::FORBIDDEN,
+			
+			Kind::Create
+			| Kind::Delete
+			| Kind::Fetch
+			| Kind::InValid
+			| Kind::IncorrectValue 
+			| Kind::Insert
+			| Kind::Parse
+			| Kind::Read
+			| Kind::Revoke
+			| Kind::Update => StatusCode::BAD_REQUEST,
+
 			Kind::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+
 			Kind::NoAuth => StatusCode::UNAUTHORIZED,
-			_ => StatusCode::INTERNAL_SERVER_ERROR,
+
+			Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
 		};
 
 		if let Some(client) = &self.client
 		{
-			(status_code, client.clone(), self.extra_public_info.as_ref())
+			(status_code, client.clone(), self.pub_info.as_ref())
 		}
 		else
 		{
-			(status_code, Client::SERVICE_ERROR, self.extra_public_info.as_ref())
+			(status_code, Client::SERVICE_ERROR, self.pub_info.as_ref())
 		}
 	}
 }
@@ -269,38 +284,38 @@ impl Server<'_>
 #[allow(non_camel_case_types)]
 pub enum Client
 {
-	NO_ADMIN,
-	NOT_OWNER_CHAT,
+	CHAT_ALREADY_EXISTS,
 	CHAT_CANT_GAIN_USERS,
 	CHAT_NO_FRIEND,
 	CHAT_WITH_SELF,
-	NO_AUTH,
-	NO_COOKIES,
-	NO_MESSAGE_EDIT,
-	NO_MESSAGE_CREATE,
-	NO_CHAT_PRIVATE_EDIT,
-	MAIL_IN_USE,
-	USER_ALREADY_FRIEND,
-	USER_BLOCKED,
-	USER_ALREADY_BLOCKED,
-	USER_BLOCKED_YOU,
-	SERVER_BLOCKED_YOU,
-	USERNAME_IN_USE,
 	INVALID_PARAMS,
-	NOT_ALLOWED_PLATFORM,
+	MAIL_IN_USE,
 	MESSAGE_NOT_PART_CHANNEL,
-	NOT_PART_SERVER,
+	NOT_ALLOWED_PLATFORM,
+	NOT_OWNER_CHAT,
 	NOT_PART_CHANNEL_PARENT,
 	NOT_PART_CHAT,
+	NOT_PART_SERVER,
+	NO_ADMIN,
+	NO_AUTH,
+	NO_CHAT_PRIVATE_EDIT,
+	NO_COOKIES,
+	NO_INCOMING_FRIEND,
+	NO_MESSAGE_CREATE,
+	NO_MESSAGE_EDIT,
+	OUTGOING_FRIEND,
+	SERVER_BLOCKED_YOU,
+	SERVER_NOT_FOUND,
 	SERVICE_ERROR,
 	TRY_ADD_SELF_BLOCKED,
 	TRY_ADD_SELF_FRIEND,
 	TRY_REMOVE_SELF_BLOCKED,
 	TRY_REMOVE_SELF_FRIEND,
-	OUTGOING_FRIEND,
-	NO_INCOMING_FRIEND,
-	CHAT_ALREADY_EXISTS,
-	SERVER_NOT_FOUND,
+	USERNAME_IN_USE,
+	USER_ALREADY_BLOCKED,
+	USER_ALREADY_FRIEND,
+	USER_BLOCKED,
+	USER_BLOCKED_YOU,
 }
 
 impl fmt::Display for Client 
@@ -318,44 +333,44 @@ impl Client
     {
         match self 
         {
-            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
-            Client::CHAT_CANT_GAIN_USERS => "Chat cant gain users",
-            Client::NOT_OWNER_CHAT => "You're not owner of the chat",
-            Client::CHAT_ALREADY_EXISTS => "Chat already exists",
-            Client::CHAT_WITH_SELF => "Can't have chat with yourself",
-            Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
-            Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
 			Client::NO_AUTH => "Missing authentication, please reauthorize",
-			Client::NO_COOKIES => "Missing cookies",
-			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
-			Client::NO_MESSAGE_CREATE => "Message cannot be created",
 			Client::NO_CHAT_PRIVATE_EDIT => "Private chat cannot be edited",
-            Client::INVALID_PARAMS => "Invalid parameters",
-            Client::MAIL_IN_USE => "Mail already in use",
-            Client::USERNAME_IN_USE => "Username already in use",
-            Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
-            Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
-            Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
-            Client::NOT_PART_CHANNEL_PARENT => "Shoo shoo, youre not part of this chat or server",
-            Client::USER_BLOCKED => "You have this user blocked",
-            Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
-            Client::USER_BLOCKED_YOU => "This user has you blocked",
-            Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
-			Client::TRY_ADD_SELF_FRIEND => "Can't befriend yourself",
-			Client::TRY_ADD_SELF_BLOCKED => "Can't block yourself",
-			Client::USER_ALREADY_FRIEND => "User is already your friend",
-			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
+			Client::NO_COOKIES => "Missing cookies",
 			Client::NO_INCOMING_FRIEND => "You can't confirm a friendship that doesn't exist",
+			Client::NO_MESSAGE_CREATE => "Message cannot be created",
+			Client::NO_MESSAGE_EDIT => "Message cannot be edited",
+			Client::OUTGOING_FRIEND => "You already have a friend request outgoing or youre already friends",
+			Client::SERVER_NOT_FOUND => "Server not found",
+			Client::TRY_ADD_SELF_BLOCKED => "Can't block yourself",
+			Client::TRY_ADD_SELF_FRIEND => "Can't befriend yourself",
 			Client::TRY_REMOVE_SELF_BLOCKED => "Can't unfriend yourself",
 			Client::TRY_REMOVE_SELF_FRIEND => "Can't unblock yourself",
-			Client::SERVER_NOT_FOUND => "Server not found",
+			Client::USER_ALREADY_FRIEND => "User is already your friend",
+            Client::CHAT_ALREADY_EXISTS => "Chat already exists",
+            Client::CHAT_CANT_GAIN_USERS => "Chat cant gain users",
+            Client::CHAT_NO_FRIEND => "Can't have chat with non friends, try making a server",
+            Client::CHAT_WITH_SELF => "Can't have chat with yourself",
+            Client::INVALID_PARAMS => "Invalid parameters",
+            Client::MAIL_IN_USE => "Mail already in use",
+            Client::MESSAGE_NOT_PART_CHANNEL => "Message doesnt belong to this channel",
+            Client::NOT_ALLOWED_PLATFORM => "Your account has been suspended or disabled",
+            Client::NOT_OWNER_CHAT => "You're not owner of the chat",
+            Client::NOT_PART_CHANNEL_PARENT => "Shoo shoo, youre not part of this chat or server",
+            Client::NOT_PART_CHAT => "Shoo shoo, youre not part of this chat",
+            Client::NOT_PART_SERVER => "Shoo shoo, youre not part of this server",
+            Client::NO_ADMIN => "Missing Admin Permissions, please refrain from using this endpoint",
+            Client::SERVER_BLOCKED_YOU => "Server owner has you blocked or you're on the server blocklist",
             Client::SERVICE_ERROR => "eh oh...",
+            Client::USERNAME_IN_USE => "Username already in use",
+            Client::USER_ALREADY_BLOCKED => "You have already this user blocked",
+            Client::USER_BLOCKED => "You have this user blocked",
+            Client::USER_BLOCKED_YOU => "This user has you blocked",
         }
     }
 }
 
 #[must_use]
-pub fn map_transaction<'stack>(err: &mongodb::error::Error, file: &'stack str, line: u32) -> Server<'stack> 
+pub fn map_transaction<'err>(err: &mongodb::error::Error, file: &'err str, line: u32) -> Server<'err> 
 {
     Server::new(
         Kind::Unexpected,
@@ -363,5 +378,5 @@ pub fn map_transaction<'stack>(err: &mongodb::error::Error, file: &'stack str, l
         file,
         line,
     )
-    .add_debug_info(err.to_string())
+    .add_debug_info("mongo transaction error", err.to_string())
 }

@@ -6,6 +6,7 @@ mod message;
 mod refresh_token;
 mod relation;
 mod user;
+mod log;
 
 use bson::doc;
 pub use bucket::*;
@@ -15,9 +16,11 @@ pub use message::*;
 pub use refresh_token::*;
 pub use relation::*;
 pub use user::*;
+pub use log::*;
 
 use std::time::Duration;
 use mongodb::{error::Error, options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
+
 
 
 #[derive(Clone, Debug)]
@@ -31,7 +34,8 @@ pub struct MongolDB
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
     refreshtokens: Collection<MongolRefreshToken>,
-    relations: Collection<MongolRelation>
+    relations: Collection<MongolRelation>,
+    logs: Collection<MongolLog>,
 }
 
 impl MongolDB
@@ -82,6 +86,9 @@ impl MongolDB
         
         let relations: Collection<MongolRelation> = db.collection("relations");
         Self::internal_add_relation_indexes(&relations).await?;
+        
+        let logs: Collection<MongolLog> = db.collection("logs");
+        Self::internal_add_log_indexes(&logs).await?;
 
         println!("Mongol indexes set...");
 
@@ -97,6 +104,7 @@ impl MongolDB
                 messages,
                 refreshtokens,
                 relations,
+                logs
             }
         )
     }
@@ -248,6 +256,32 @@ impl MongolDB
 
         Ok(())
     }
+
+    async fn internal_add_log_indexes(coll: &Collection<MongolLog>) -> Result<(), Error>
+    {
+        let opts = IndexOptions::builder()
+            .unique(true)
+            .build();
+
+        let opts_sparse = IndexOptions::builder()
+            .sparse(true)
+            .build();
+
+        let req_idex = IndexModel::builder()
+            .keys(doc!{ "req_id": 1 })
+            .options(opts)
+            .build();
+
+        let user_index = IndexModel::builder()
+            .keys(doc!{ "user_info.user_id": 1 })
+            .options(opts_sparse)
+            .build();
+
+        coll.create_index(req_idex).await?;
+        coll.create_index(user_index).await?;
+
+        Ok(())
+    }
 }
 
 impl MongolDB
@@ -304,5 +338,11 @@ impl MongolDB
     pub fn relations(&self) -> &Collection<MongolRelation> 
     {
         &self.relations
+    }
+
+    #[must_use]
+    pub fn logs(&self) -> &Collection<MongolLog> 
+    {
+        &self.logs
     }
 }

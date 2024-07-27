@@ -38,7 +38,7 @@ pub async fn login(
             file!(),
             line!())
             .add_client(error::Client::NOT_ALLOWED_PLATFORM)
-            .add_debug_info(user.flag.to_string())
+            .add_debug_info("user flag", user.flag.to_string())
         );
     }
 
@@ -167,7 +167,7 @@ pub async fn refresh_token(
             file!(),
             line!())
             .add_client(error::Client::NOT_ALLOWED_PLATFORM)
-            .add_debug_info(refresh_token.owner.flag.to_string())
+            .add_debug_info("user flag", refresh_token.owner.flag.to_string())
         );
     }
 

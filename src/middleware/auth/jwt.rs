@@ -41,7 +41,7 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     }
 }
 
-pub fn create_acces_token<'stack>(request: &CreateAccesTokenRequest) -> Result<String, error::Server<'stack>>
+pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> Result<String, error::Server<'err>>
 {
     let claims = Claims
     {
@@ -75,7 +75,7 @@ pub fn create_acces_token<'stack>(request: &CreateAccesTokenRequest) -> Result<S
     Ok(acces_token)
 }
 
-pub fn extract_acces_token<'stack>(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server<'stack>>
+pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server<'err>>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
         .map_err(|_| error::Server::new(
@@ -117,7 +117,7 @@ pub fn extract_acces_token<'stack>(token: &str, acces_token_status: &TokenStatus
                         error::OnType::AccesToken,
                         file!(),
                         line!())
-                        .add_debug_info(token.to_string());
+                        .add_debug_info("acces token", token.to_string());
 
                     Err(err)
                 },

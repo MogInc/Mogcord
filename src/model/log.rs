@@ -1,29 +1,31 @@
+mod repository;
+
+pub use repository::*;
+
+use std::sync::Arc;
 use axum::http::{Method, Uri};
-use serde::Serialize;
-use serde_json::{json, Value};
-use serde_with::skip_serializing_none;
+use serde::{Serialize, Serializer};
+use serde_json::json;
 use uuid::Uuid;
 
 use super::error;
 
 pub async fn log_request(
+	state: Arc<dyn Repository>,
 	req_id: Uuid,
 	user_info: RequestLogLinePersonal,
 	req_method: Method,
 	uri: Uri,
 	service_error: Option<&error::Server<'_>>,
 	client_error: Option<error::Client>,
-) {
+)
+{
 
     let timestamp = chrono::Utc::now();
 
-	let error_type_option = service_error.map(error::Server::to_string);
-	let error_data_option = serde_json::to_value(service_error)
-		.ok()
-		.and_then(|mut v| v.get_mut("data").map(Value::take));
-
 	// Create the RequestLogLine
-	let log_line = RequestLogLine {
+	let log_line = RequestLogLine 
+	{
 		req_id: req_id.to_string(),
 		timestamp: timestamp.to_string(),
 
@@ -33,16 +35,20 @@ pub async fn log_request(
 		req_method: req_method.to_string(),
 
 		client_error_type: client_error.map(|e| e.as_ref().to_string()),
-		error_type: error_type_option,
-		error_data: error_data_option,
+		server_error: service_error.cloned(),
 	};
 
-	println!("   ->> log_request: \n{:#}", json!(log_line));
 
-    //TODO add saving to db or file
+	println!("   ->> log_request: \n{:#}", json!(log_line));
+	if let Err(err) = state.create_log(log_line).await
+	{
+		println!("	->> LOG INSERT FAILED");
+		println!("   ->> log_request FAILED INSERT: \n{}", json!(err));
+	}
+
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct RequestLogLinePersonal
 {
 	user_id: Option<String>,
@@ -63,22 +69,42 @@ impl RequestLogLinePersonal
 }
 
 
-#[skip_serializing_none]
-#[derive(Serialize)]
-struct RequestLogLine 
+#[derive(Debug)]
+pub struct RequestLogLine<'err>
 {
-	req_id: String,      
-	timestamp: String,
+	pub req_id: String,      
+	pub timestamp: String,
 	
 	//requesting user info
-	user_info: RequestLogLinePersonal,
+	pub user_info: RequestLogLinePersonal,
 
 	// -- http request attributes.
-	req_path: String,
-	req_method: String,
+	pub req_path: String,
+	pub req_method: String,
 
 	// -- Errors attributes.
-	client_error_type: Option<String>,
-	error_type: Option<String>,
-	error_data: Option<Value>,
+	pub client_error_type: Option<String>,
+	pub server_error: Option<error::Server<'err>>,
+}
+
+impl<'err> Serialize for RequestLogLine<'err> 
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("RequestLogLine", 6)?;
+        state.serialize_field("req_id", &self.req_id)?;
+        state.serialize_field("timestamp", &self.timestamp)?;
+        state.serialize_field("user_info", &self.user_info)?;
+        state.serialize_field("req_path", &self.req_path)?;
+        state.serialize_field("req_method", &self.req_method)?;
+        if let Some(client_err) = &self.client_error_type
+		{
+			state.serialize_field("client_error_type", client_err)?;
+			state.serialize_field("server_err", "see DB.")?;
+		}
+        state.end()
+    }
 }

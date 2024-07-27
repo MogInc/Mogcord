@@ -36,7 +36,7 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
                 error::OnType::Date,
                 file!(),
                 line!())
-                .add_debug_info(value.expiration_date.to_rfc3339())
+                .add_debug_info("refresh expiration", value.expiration_date.to_rfc3339())
             )?;
 
         Ok(

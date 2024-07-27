@@ -11,7 +11,7 @@ use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
 #[async_trait]
 impl message::Repository for MongolDB
 {
-    async fn create_message<'input, 'stack>(&'input self, mut message: Message) -> Result<Message, error::Server<'stack>>
+    async fn create_message<'input, 'err>(&'input self, mut message: Message) -> Result<Message, error::Server<'err>>
     {
         let mut db_message = MongolMessage::try_from(&message)?;
 
@@ -34,7 +34,7 @@ impl message::Repository for MongolDB
                 error::OnType::Date,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let bucket_filter = doc!
@@ -52,7 +52,7 @@ impl message::Repository for MongolDB
                 error::OnType::Bucket,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         let bucket_current = if let Some(bucket) = bucket_option
@@ -72,7 +72,7 @@ impl message::Repository for MongolDB
                     error::OnType::Bucket,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )?;
 
             bucket
@@ -100,7 +100,7 @@ impl message::Repository for MongolDB
                     error::OnType::Bucket,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )?;
 
             db_bucket
@@ -134,17 +134,17 @@ impl message::Repository for MongolDB
                     error::OnType::Message,
                     file!(),
                     line!())
-                    .add_debug_info(err.to_string())
+                    .add_debug_info("error", err.to_string())
                 )
             },
         }
     }
 
-    async fn get_valid_messages<'input, 'stack>(
+    async fn get_valid_messages<'input, 'err>(
         &'input self, 
         channel_id: &'input str, 
         pagination: Pagination
-    ) -> Result<Vec<Message>, error::Server<'stack>>
+    ) -> Result<Vec<Message>, error::Server<'err>>
     {
         let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
         
@@ -191,7 +191,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         //what would be faster
@@ -212,7 +212,7 @@ impl message::Repository for MongolDB
                             error::OnType::Message,
                             file!(),
                             line!())
-                            .add_debug_info(err.to_string())
+                            .add_debug_info("error", err.to_string())
                         )?;
                     messages.push(message);
                 },
@@ -223,7 +223,7 @@ impl message::Repository for MongolDB
         Ok(messages)
     }
 
-    async fn update_message<'input, 'stack>(&'input self, message: Message) -> Result<Message, error::Server<'stack>>
+    async fn update_message<'input, 'err>(&'input self, message: Message) -> Result<Message, error::Server<'err>>
     {
         let db_message = MongolMessage::try_from(&message)?;
     
@@ -249,12 +249,12 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             ),
         }
     }
 
-    async fn get_message<'input, 'stack>(&'input self, message_id: &'input str) -> Result<Message, error::Server<'stack>>
+    async fn get_message<'input, 'err>(&'input self, message_id: &'input str) -> Result<Message, error::Server<'err>>
     {
         let message_id_local = helper::convert_domain_id_to_mongol(message_id)?;
         
@@ -280,7 +280,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
 
@@ -293,7 +293,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .add_debug_info(err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match document_option
@@ -306,7 +306,7 @@ impl message::Repository for MongolDB
                         error::OnType::Message,
                         file!(),
                         line!())
-                        .add_debug_info(err.to_string())
+                        .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(message)
@@ -316,7 +316,7 @@ impl message::Repository for MongolDB
                 error::OnType::Message,
                 file!(),
                 line!())
-                .expose_public_extra_info(message_id.to_string())
+                .add_debug_info("message id", message_id.to_string())
             ),
         }
     }

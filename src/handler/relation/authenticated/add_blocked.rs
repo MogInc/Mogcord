@@ -43,7 +43,7 @@ pub async fn add_blocked(
             error::OnType::User,
             file!(),
             line!())
-            .expose_public_extra_info(other_user_id.to_string())
+            .add_debug_info("user to be blocked", other_user_id.to_string())
         );
     }
 

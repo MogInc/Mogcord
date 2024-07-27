@@ -52,12 +52,12 @@ impl Message {
 
 impl Message
 {
-    pub fn update_value<'input, 'stack>(
+    pub fn update_value<'input, 'err>(
         &'input mut self, 
         value: String, 
         user_id: &'input str, 
         user_roles: Option<&'input Vec<String>>
-    ) -> Result<bool, error::Server<'stack>>
+    ) -> Result<bool, error::Server<'err>>
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
