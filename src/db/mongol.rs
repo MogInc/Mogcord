@@ -19,6 +19,8 @@ pub use user::*;
 use std::time::Duration;
 use mongodb::{error::Error, options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
 
+use crate::model::log::RequestLogLine;
+
 
 #[derive(Clone, Debug)]
 pub struct MongolDB
@@ -31,7 +33,8 @@ pub struct MongolDB
     buckets: Collection<MongolBucket>,
     messages: Collection<MongolMessage>,
     refreshtokens: Collection<MongolRefreshToken>,
-    relations: Collection<MongolRelation>
+    relations: Collection<MongolRelation>,
+    logs: Collection<RequestLogLine>,
 }
 
 impl MongolDB
@@ -82,6 +85,8 @@ impl MongolDB
         
         let relations: Collection<MongolRelation> = db.collection("relations");
         Self::internal_add_relation_indexes(&relations).await?;
+        
+        let logs: Collection<RequestLogLine> = db.collection("logs");
 
         println!("Mongol indexes set...");
 
@@ -97,6 +102,7 @@ impl MongolDB
                 messages,
                 refreshtokens,
                 relations,
+                logs
             }
         )
     }
@@ -304,5 +310,11 @@ impl MongolDB
     pub fn relations(&self) -> &Collection<MongolRelation> 
     {
         &self.relations
+    }
+
+    #[must_use]
+    pub fn logs(&self) -> &Collection<RequestLogLine> 
+    {
+        &self.logs
     }
 }
