@@ -88,6 +88,7 @@ impl MongolDB
         Self::internal_add_relation_indexes(&relations).await?;
         
         let logs: Collection<RequestLogLine> = db.collection("logs");
+        Self::internal_add_log_indexes(&logs).await?;
 
         println!("Mongol indexes set...");
 
@@ -252,6 +253,32 @@ impl MongolDB
 
         coll.create_index(username_index).await?;
         coll.create_index(mail_index).await?;
+
+        Ok(())
+    }
+
+    async fn internal_add_log_indexes(coll: &Collection<RequestLogLine>) -> Result<(), Error>
+    {
+        let opts = IndexOptions::builder()
+            .unique(true)
+            .build();
+
+        let opts_sparse = IndexOptions::builder()
+            .sparse(true)
+            .build();
+
+        let req_idex = IndexModel::builder()
+            .keys(doc!{ "req_id": 1 })
+            .options(opts)
+            .build();
+
+        let user_index = IndexModel::builder()
+            .keys(doc!{ "user_info.user_id": 1 })
+            .options(opts_sparse)
+            .build();
+
+        coll.create_index(req_idex).await?;
+        coll.create_index(user_index).await?;
 
         Ok(())
     }
