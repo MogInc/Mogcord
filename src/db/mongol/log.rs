@@ -59,7 +59,7 @@ fn create_server_error(value: Option<&error::Server<'_>>) -> Option<Vec<MongolLo
             {
                 kind: server.kind.to_string(),
                 on_type: server.on_type.to_string(),
-                stack: server.stack.to_string(),
+                stack: format!("{}: {}", server.stack, server.line_nr),
                 debug_info: server.debug_info.iter().map(|(key, val)| ((*key).to_string(), val.to_owned())).collect(),
                 pub_info: server.pub_info.clone(),
             }

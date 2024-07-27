@@ -13,7 +13,7 @@ pub struct Server<'err>
 	pub kind: Kind,
 	pub on_type: OnType,
 	pub stack: &'err str,
-	line_nr: u32,
+	pub line_nr: u32,
 	pub debug_info: HashMap<&'err str, String>,
 	pub pub_info: Option<String>,
 	client: Option<Client>,
