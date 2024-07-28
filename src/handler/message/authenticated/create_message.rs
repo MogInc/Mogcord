@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{channel::Parent, error, message::Message, AppState};
+use crate::{model::{channel::Parent, error, message::Message, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 use crate::dto::{MessageCreateResponse, ObjectToDTO};
 
@@ -30,11 +30,7 @@ pub async fn create_message(
 
     if !channel_parent.can_write(ctx_user_id, Some(&channel_id))?
     {
-        return Err(error::Server::new(
-            error::Kind::NotAllowed,
-            error::OnType::ChannelParent,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotAllowed, error::OnType::ChannelParent)
             .add_client(error::Client::MESSAGE_CREATE_FAIL)
         );
     }

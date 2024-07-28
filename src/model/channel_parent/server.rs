@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::model::{channel::{self, Channel, Parent}, error, user::User, ROLE_NAME_EVERYBODY};
+use crate::{model::{channel::{self, Channel, Parent}, error, user::User, ROLE_NAME_EVERYBODY}, server_error};
 use super::Role;
 
 
@@ -83,11 +83,7 @@ impl Server
     {
         if self.is_user_part_of_server(&user.id) 
         {
-            return Err(error::Server::new(
-                error::Kind::AlreadyPartOf,
-                error::OnType::Server,
-                file!(),
-                line!())
+            return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
                 .add_debug_info("user id", user.id)
             );
         }
@@ -103,11 +99,7 @@ impl Server
         {
             if self.is_user_part_of_server(&user.id) 
             {
-                return Err(error::Server::new(
-                    error::Kind::AlreadyPartOf,
-                    error::OnType::Server,
-                    file!(),
-                    line!())
+                return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
                     .add_debug_info("user id", user.id.to_string())
                 );
             }
@@ -174,18 +166,8 @@ impl channel::Parent for Server
     {
         match channel_id_option 
         {
-            Some(id) => self.channels.get(id).ok_or(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Channel,
-                file!(),
-                line!()
-            )),
-            None => Err(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Channel,
-                file!(),
-                line!()
-            )),
+            Some(id) => self.channels.get(id).ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel)),
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::Channel)),
         }
     }
 
@@ -278,22 +260,12 @@ impl Server
         let user_roles_option = self.get_user_roles(user_id);
     
         let channel_id = channel_id_option
-            .ok_or(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Channel,
-                file!(),
-                line!()
-            ))?;
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel))?;
     
         let channel = self
             .channels
             .get(channel_id)
-            .ok_or(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Channel,
-                file!(),
-                line!()
-            ))?;
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel))?;
     
         let roles_default: &Vec<String> = &Vec::new();
         let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);

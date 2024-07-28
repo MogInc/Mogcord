@@ -9,8 +9,7 @@ pub use private::*;
 use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
-use crate::model::{channel::{self, Channel}, error, user::User};
-
+use crate::{model::{channel::{self, Channel}, error::{self, Kind, OnType}, user::User}, server_error};
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
@@ -43,12 +42,7 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::new(
-                error::Kind::CantGainUsers,
-                error::OnType::ChatPrivate,
-                file!(),
-                line!(),
-            )),
+            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
             Chat::Group(group) => group.add_user(user),
         }
     }
@@ -57,12 +51,7 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(error::Server::new(
-                error::Kind::CantGainUsers,
-                error::OnType::ChatPrivate,
-                file!(),
-                line!(),
-            )),
+            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
             Chat::Group(group) => group.add_users(users),
         }
     }

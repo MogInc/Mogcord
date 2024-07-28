@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel::{self, Channel}, error, user::User};
+use crate::{model::{channel::{self, Channel}, error, user::User}, server_error};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Private
@@ -64,11 +64,7 @@ impl Private
     {
         if !self.internal_is_owner_size_allowed()
         {
-            return Err(error::Server::new(
-                error::Kind::InValid,
-                error::OnType::User,
-                file!(),
-                line!())
+            return Err(server_error!(error::Kind::InValid, error::OnType::User)
                 .add_public_info(format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()))
             );
         }

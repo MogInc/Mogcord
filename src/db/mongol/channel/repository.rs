@@ -4,6 +4,7 @@ use bson::doc;
 use crate::model::channel::Channel;
 use crate::model::{channel, error};
 use crate::db::mongol::MongolDB;
+use crate::server_error;
 use super::helper;
 
 #[async_trait]
@@ -19,23 +20,14 @@ impl channel::Repository for MongolDB
             .channels()
             .find_one(filter)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::Channel,
-                file!(),
-                line!())
-                .add_debug_info("error", err.to_string())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Channel)
+                    .add_debug_info("error", err.to_string())
             )?;
 
         match user_option 
         {
             Some(channel) => Ok(Channel::from(&channel)),
-            None => Err(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Channel,
-                file!(),
-                line!(),
-            )),
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::Channel)),
         }
     }
 }

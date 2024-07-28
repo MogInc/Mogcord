@@ -5,6 +5,7 @@ use tower_cookies::Cookies;
 
 use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest}, cookies::Manager};
+use crate::server_error;
 
 #[derive(Deserialize)]
 pub struct LoginRequest
@@ -30,11 +31,7 @@ pub async fn login(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(error::Server::new(
-            error::Kind::IncorrectPermissions,
-            error::OnType::User,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::User)
             .add_client(error::Client::NOT_ALLOWED_PLATFORM)
             .add_debug_info("user flag", user.flag.to_string())
         );

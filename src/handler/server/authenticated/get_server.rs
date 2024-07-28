@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse, Json};
 
-use crate::{dto::ServerGetResponse, model::{error, AppState}};
+use crate::{dto::ServerGetResponse, model::{error, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 use crate::dto::ObjectToDTO;
 
@@ -22,11 +22,7 @@ pub async fn get_server(
     
     if !server.is_user_part_of_server(ctx_user_id)
     {
-        return Err(error::Server::new(
-            error::Kind::NotAllowed,
-            error::OnType::Server,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotAllowed, error::OnType::Server)
         );
     }
 

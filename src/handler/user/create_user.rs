@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::model::{error, user::User, AppState, Hashing};
 use crate::dto::{ObjectToDTO, UserCreateResponse};
+use crate::server_error;
 
 
 #[derive(Deserialize)]
@@ -26,22 +27,14 @@ pub async fn create_user(
 
     if repo_user.does_user_exist_by_username(&payload.username).await?
     {
-        return Err(error::Server::new(
-            error::Kind::AlreadyInUse,
-            error::OnType::Username,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Username)
             .add_client(error::Client::USERNAME_IN_USE)
         );
     }
 
     if repo_user.does_user_exist_by_mail(&payload.mail).await?
     {
-        return Err(error::Server::new(
-            error::Kind::AlreadyInUse,
-            error::OnType::Mail,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Mail)
             .add_client(error::Client::MAIL_IN_USE)
         );
     }

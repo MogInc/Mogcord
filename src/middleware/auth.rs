@@ -14,7 +14,7 @@ pub const DEVICE_ID_TTL_MIN: i64 = 60 * 24 * 365 * 5;
 use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::Cookies;
 
-use crate::model::error;
+use crate::{model::error, server_error};
 use crate::middleware::{auth, cookies::Manager};
 
 
@@ -45,14 +45,7 @@ pub async fn mw_require_admin_authentication(
 		{
 			if !&ctx.user_flag_ref().is_admin_or_owner()
 			{
-				return Err(
-					error::Server::new(
-						error::Kind::NoAuth, 
-						error::OnType::Rights, 
-						file!(), 
-						line!()
-					).add_client(error::Client::PERMISSION_NO_ADMIN)
-				);
+				return Err(server_error!(error::Kind::NoAuth, error::OnType::Rights).add_client(error::Client::PERMISSION_NO_ADMIN));
 			}
 		},
 		Err(err) => return Err(err),
@@ -94,12 +87,7 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 		parts
 			.extensions
 			.get::<Result<Ctx, error::Server>>()
-			.ok_or(error::Server::new(
-				error::Kind::NotFound, 
-				error::OnType::Ctx, 
-				file!(),
-				line!()
-			))?
+			.ok_or(server_error!(error::Kind::NotFound, error::OnType::Ctx))?
 			.clone()
 	}
 }

@@ -139,14 +139,14 @@ macro_rules! server_error
 {
     ($error_kind:expr, $on_type:expr) => 
     {
-        mogcord::model::error::Server::new($error_kind, $on_type, file!(), line!())
+        $crate::model::error::Server::new($error_kind, $on_type, file!(), line!())
     };
     ($child:expr) => 
     {
-        mogcord::model::error::Server::from_child($child, file!(), line!())
+        $crate::model::error::Server::from_child($child, file!(), line!())
     };
     ($error_kind:expr, $on_type:expr, $child:expr) => 
     {
-        mogcord::model::error::Server::new_from_child($child, $error_kind, $on_type, file!(), line!())
+        $crate::model::error::Server::new_from_child($child, $error_kind, $on_type, file!(), line!())
     };
 }

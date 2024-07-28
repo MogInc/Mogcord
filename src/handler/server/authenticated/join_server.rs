@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse};
 
-use crate::model::{error, AppState};
+use crate::{model::{error, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 
 pub async fn join_server(
@@ -22,11 +22,7 @@ pub async fn join_server(
 
     if repo_relation.does_blocked_exist(&server.owner.id, ctx_user_id).await?
     {
-        return Err(error::Server::new(
-            error::Kind::NotAllowed,
-            error::OnType::Relation,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotAllowed, error::OnType::Relation)
             .add_client(error::Client::SERVER_BLOCKED_YOU)
         );
     }

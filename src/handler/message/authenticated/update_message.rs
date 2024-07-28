@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{self, Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{channel::Parent, error, AppState};
+use crate::{model::{channel::Parent, error, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 use crate::dto::{MessageCreateResponse, ObjectToDTO};
 
@@ -29,11 +29,7 @@ pub async fn update_message(
     
     if !message.is_channel_part_of_message(&channel_id)
     {
-        return Err(error::Server::new(
-            error::Kind::NotPartOf,
-            error::OnType::Channel,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotPartOf, error::OnType::Channel)
             .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
         );
     }
@@ -46,11 +42,7 @@ pub async fn update_message(
 
     if !message.update_value(payload.value, ctx_user_id, user_roles)?
     {
-        return Err(error::Server::new(
-            error::Kind::NoChange,
-            error::OnType::Message,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NoChange, error::OnType::Message)
             .add_client(error::Client::MESSAGE_NOT_PART_CHANNEL)
         );
     }

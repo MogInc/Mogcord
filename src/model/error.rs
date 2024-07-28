@@ -328,15 +328,3 @@ impl fmt::Display for Client
         write!(f, "{self:?}")
     }
 }
-
-#[must_use]
-pub fn map_transaction<'err>(err: &mongodb::error::Error, file: &'err str, line: u32) -> Server<'err> 
-{
-    Server::new(
-        Kind::Unexpected,
-        OnType::Transaction,
-        file,
-        line,
-    )
-    .add_debug_info("mongo transaction error", err.to_string())
-}

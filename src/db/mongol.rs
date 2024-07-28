@@ -1,4 +1,5 @@
 pub mod helper;
+pub mod macros;
 mod bucket;
 mod channel_parent;
 mod channel;
@@ -8,7 +9,6 @@ mod relation;
 mod user;
 mod log;
 
-use bson::doc;
 pub use bucket::*;
 pub use channel_parent::*;
 pub use channel::*;
@@ -18,6 +18,7 @@ pub use relation::*;
 pub use user::*;
 pub use log::*;
 
+use bson::doc;
 use std::time::Duration;
 use mongodb::{error::Error, options::{ClientOptions, Compressor, IndexOptions}, Client, Collection, IndexModel};
 

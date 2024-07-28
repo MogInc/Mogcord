@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{Path, Query, State}, response::IntoResponse, Json};
 
-use crate::model::{channel::Parent, error, message::Message, AppState, Pagination};
+use crate::{model::{channel::Parent, error, message::Message, AppState, Pagination}, server_error};
 use crate::middleware::auth::Ctx;
 use crate::dto::{vec_to_dto, MessageGetResponse};
 
@@ -25,22 +25,14 @@ pub async fn get_messages(
 
     if !chat.is_user_part_of_channel_parent(current_user_id)
     {
-        return Err(error::Server::new(
-            error::Kind::NotPartOf,
-            error::OnType::ChannelParent,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotPartOf, error::OnType::ChannelParent)
             .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER)
         );
     }
 
     if !chat.can_read(current_user_id, Some(&channel_id))?
     {
-        return Err(error::Server::new(
-            error::Kind::NotPartOf,
-            error::OnType::ChannelParent,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotPartOf, error::OnType::ChannelParent)
             .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER)
         );
     }

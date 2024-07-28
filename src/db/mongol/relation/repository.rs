@@ -5,6 +5,7 @@ use mongodb::bson::doc;
 use crate::model::{error, relation};
 use crate::db::mongol::{MongolDB, MongolRelation};
 use crate::db::mongol::helper;
+use crate::{server_error, transaction_error};
 
 #[async_trait]
 impl relation::Repository for MongolDB
@@ -50,11 +51,7 @@ impl relation::Repository for MongolDB
             .relations()
             .find_one(filter)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::RelationFriend,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::RelationFriend)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -162,12 +159,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()            
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
@@ -191,11 +188,7 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Update,
-                error::OnType::RelationFriend,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Update, error::OnType::RelationFriend)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -207,7 +200,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
             },
@@ -216,13 +209,9 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
-                Err(error::Server::new(
-                    error::Kind::Update, 
-                    error::OnType::RelationFriend, 
-                    file!(), 
-                    line!())
+                Err(server_error!(error::Kind::Update, error::OnType::RelationFriend)
                     .add_debug_info("error", err.to_string())
                 )
             }
@@ -243,12 +232,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         let filter_current_user = doc! { "user_id" : current_user_id_local };
         let update_current_user = doc! 
@@ -282,11 +271,7 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Update,
-                error::OnType::RelationBlocked,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Update, error::OnType::RelationBlocked)
                 .add_debug_info("error", err.to_string())
             )?;
        
@@ -298,7 +283,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
             },
@@ -307,13 +292,9 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
                 
-                Err(error::Server::new(
-                    error::Kind::Update, 
-                    error::OnType::RelationBlocked, 
-                    file!(), 
-                    line!())
+                Err(server_error!(error::Kind::Update, error::OnType::RelationBlocked)
                     .add_debug_info("error", err.to_string())
                 )
             }
@@ -334,12 +315,12 @@ impl relation::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         let filter_current_user = doc!{ "user_id": current_user_id_local };
         let update_current_user = doc! 
@@ -362,11 +343,7 @@ impl relation::Repository for MongolDB
             .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Update,
-                error::OnType::RelationFriend,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Update, error::OnType::RelationFriend)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -378,7 +355,7 @@ impl relation::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
             }
@@ -387,13 +364,9 @@ impl relation::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
-                Err(error::Server::new(
-                    error::Kind::Update, 
-                    error::OnType::RelationFriend, 
-                    file!(), 
-                    line!())
+                Err(server_error!(error::Kind::Update, error::OnType::RelationFriend)
                     .add_debug_info("error", err.to_string())
                 )
             }
@@ -424,11 +397,7 @@ impl relation::Repository for MongolDB
         {
             Ok(_) => Ok(()),
             Err(err) => Err(
-                error::Server::new(
-                    error::Kind::Delete, 
-                    error::OnType::RelationFriend, 
-                    file!(), 
-                    line!())
+                server_error!(error::Kind::Delete, error::OnType::RelationFriend)
                     .add_debug_info("error", err.to_string()
                 )
             )
@@ -455,11 +424,7 @@ impl relation::Repository for MongolDB
         {
             Ok(_) => Ok(()),
             Err(err) => Err(
-                error::Server::new(
-                    error::Kind::Delete, 
-                    error::OnType::RelationBlocked, 
-                    file!(), 
-                    line!())
+                server_error!(error::Kind::Delete, error::OnType::RelationBlocked)
                     .add_debug_info("error", err.to_string()
                 )
             )
@@ -478,11 +443,7 @@ async fn add_relation<'err>(
         .relations()
         .find_one(filter)
         .await
-        .map_err(|err| error::Server::new(
-            error::Kind::Fetch,
-            error::OnType::Relation,
-            file!(),
-            line!())
+        .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Relation)
             .add_debug_info("error", err.to_string())
         )?;
 
@@ -494,11 +455,7 @@ async fn add_relation<'err>(
             .relations()
             .insert_one(relation)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Insert,
-                error::OnType::Relation,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Insert, error::OnType::Relation)
                 .add_debug_info("error", err.to_string())
             )?;
     }
@@ -514,14 +471,6 @@ async fn does_user_relation_exist<'err>(
     match repo.relations().find_one(filter).await
     {
         Ok(option) => Ok(option.is_some()),
-        Err(err) => Err(
-            error::Server::new(
-                error::Kind::Fetch, 
-                error::OnType::Relation, 
-                file!(), 
-                line!())
-                .add_debug_info("error", err.to_string()
-            )
-        )
+        Err(err) => Err(server_error!(error::Kind::Fetch, error::OnType::Relation).add_debug_info("error", err.to_string())),
     }
 }

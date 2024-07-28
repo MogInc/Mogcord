@@ -4,6 +4,7 @@ use tower_cookies::Cookies;
 
 use crate::model::{error, AppState};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cookies::Manager};
+use crate::server_error;
 
 pub async fn refresh_token(
     State(state): State<Arc<AppState>>,
@@ -56,11 +57,7 @@ pub async fn refresh_token(
     {
         jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
         jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
-        return Err(error::Server::new(
-            error::Kind::IncorrectPermissions,
-            error::OnType::User,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::User)
             .add_client(error::Client::NOT_ALLOWED_PLATFORM)
             .add_debug_info("user flag", refresh_token.owner.flag.to_string())
         );
@@ -68,11 +65,7 @@ pub async fn refresh_token(
 
     if refresh_token.value != refresh_token_cookie
     {
-        return Err(error::Server::new(
-            error::Kind::NoAuth,
-            error::OnType::RefreshToken,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken)
         );
     }
 
