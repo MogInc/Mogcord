@@ -5,6 +5,7 @@ use serde::Deserialize;
 
 use crate::model::{AppState, error};
 use crate::middleware::auth::Ctx;
+use crate::server_error;
 
 
 #[derive(Deserialize)]
@@ -25,11 +26,7 @@ pub async fn remove_blocked(
 
     if ctx_user_id == other_user_id
     {
-        return Err(error::Server::new(
-            error::Kind::IsSelf,
-            error::OnType::RelationBlocked,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::IsSelf, error::OnType::RelationBlocked)
             .add_client(error::Client::RELATION_SELF_TRY_UNBLOCK_SELF)
         );
     }

@@ -9,6 +9,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::server_error;
+
 use super::channel::Channel;
 use super::error;
 use super::user::User;
@@ -61,11 +63,7 @@ impl Message
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
-            return Err(error::Server::new(
-                error::Kind::IncorrectPermissions,
-                error::OnType::Message,
-                file!(),
-                line!())
+            return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::Message)
                 .add_client(error::Client::MESSAGE_EDIT_FAIL)
             );
         }

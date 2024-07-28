@@ -94,7 +94,7 @@ impl<'err> Serialize for RequestLogLine<'err>
         S: Serializer,
     {
         use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("RequestLogLine", 6)?;
+        let mut state = serializer.serialize_struct("RequestLogLine", 7)?;
         state.serialize_field("req_id", &self.req_id)?;
         state.serialize_field("timestamp", &self.timestamp)?;
         state.serialize_field("user_info", &self.user_info)?;

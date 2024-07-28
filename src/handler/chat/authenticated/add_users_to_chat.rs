@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse, Json};
 use serde::Deserialize;
 
-use crate::model::{error, AppState};
+use crate::{model::{error, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 
 #[derive(Deserialize)]
@@ -30,22 +30,14 @@ pub async fn add_users_to_chat(
 
     if !chat.is_group()
     {   
-        return Err(error::Server::new(
-            error::Kind::CantGainUsers,
-            error::OnType::ChatPrivate,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::CantGainUsers, error::OnType::ChatPrivate)
             .add_client(error::Client::CHAT_CANT_GAIN_USERS)
         );
     }
 
     if !chat.is_owner(ctx_user_id)
     {
-        return Err(error::Server::new(
-            error::Kind::IncorrectPermissions,
-            error::OnType::Chat,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::Chat)
             .add_client(error::Client::CHAT_EDIT_NOT_OWNER)
         );
     }
@@ -58,11 +50,7 @@ pub async fn add_users_to_chat(
     
     if repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
     {
-        return Err(error::Server::new(
-            error::Kind::NotFound,
-            error::OnType::RelationFriend,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
             .add_client(error::Client::CHAT_ADD_NON_FRIEND)
         );
     }

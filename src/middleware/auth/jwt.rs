@@ -3,7 +3,8 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{error::{self}, user};
+use crate::{model::{error::{self, Kind, OnType}, user}, server_error};
+
 use super::ACCES_TOKEN_TTL_MIN;
 
 
@@ -53,23 +54,13 @@ pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> Result<Str
     };
     
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| error::Server::new(
-            error::Kind::NotFound,
-            error::OnType::AccesTokenHashKey,
-            file!(),
-            line!(),
-        ))?;
+        .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;
 
     let acces_token = encode(
         &Header::default(), 
         &claims, 
         &EncodingKey::from_secret(acces_token_key.as_ref())
-    ).map_err(|_| error::Server::new(
-        error::Kind::Create,
-        error::OnType::AccesToken,
-        file!(),
-        line!(),
-    ))?;
+    ).map_err(|_| server_error!(Kind::Create, OnType::AccesToken))?;
 
 
     Ok(acces_token)
@@ -78,12 +69,7 @@ pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> Result<Str
 pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server<'err>>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
-        .map_err(|_| error::Server::new(
-            error::Kind::NotFound,
-            error::OnType::AccesTokenHashKey,
-            file!(),
-            line!(),
-        ))?;
+        .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;
 
     let mut validation = Validation::default();
     
@@ -101,22 +87,11 @@ pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) 
             {
                 ErrorKind::ExpiredSignature => 
                 {
-                    let err = error::Server::new(
-                        error::Kind::Expired,
-                        error::OnType::AccesToken,
-                        file!(),
-                        line!(),
-                    );
-
-                    Err(err)
+                    Err(server_error!(Kind::Expired, OnType::AccesToken))
                 },
                 _ => 
                 {
-                    let err = error::Server::new(
-                        error::Kind::InValid,
-                        error::OnType::AccesToken,
-                        file!(),
-                        line!())
+                    let err = server_error!(error::Kind::InValid, error::OnType::AccesToken)
                         .add_debug_info("acces token", token.to_string());
 
                     Err(err)

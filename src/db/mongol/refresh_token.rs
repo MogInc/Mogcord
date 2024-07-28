@@ -4,7 +4,7 @@ mod repository;
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::model::{error, refresh_token::{self, RefreshToken}};
+use crate::{model::{error, refresh_token::{self, RefreshToken}}, server_error};
 use super::helper::{self, as_string, MongolHelper};
 
 
@@ -31,11 +31,7 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
         let expiration_date = value
             .expiration_date
             .convert_to_bson_datetime()
-            .map_err(|_| error::Server::new(
-                error::Kind::InValid,
-                error::OnType::Date,
-                file!(),
-                line!())
+            .map_err(|_| server_error!(error::Kind::InValid, error::OnType::Date)
                 .add_debug_info("refresh expiration", value.expiration_date.to_rfc3339())
             )?;
 

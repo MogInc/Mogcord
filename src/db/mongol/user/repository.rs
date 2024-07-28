@@ -3,7 +3,7 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::model::{error, Pagination, user::{self, User}};
+use crate::{model::{error, user::{self, User}, Pagination}, server_error};
 use crate::db::mongol::{helper, MongolDB, MongolUser, MongolUserVec};
 use crate::map_mongo_key_to_string;
 
@@ -40,11 +40,7 @@ impl user::Repository for MongolDB
         match self.users().insert_one(&db_user).await
         {
             Ok(_) => Ok(user),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Insert,
-                error::OnType::User,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Insert, error::OnType::User)
                 .add_debug_info("error", err.to_string())
             ),
         }
@@ -57,11 +53,7 @@ impl user::Repository for MongolDB
         match self.users().insert_many(&db_users.0).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Insert,
-                error::OnType::User,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Insert, error::OnType::User)
                 .add_debug_info("error", err.to_string())
             ),
         }
@@ -75,10 +67,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::from_child(
-                err,
-                file!(),
-                line!())
+            .map_err(|err|server_error!(err)
                 .add_debug_info("user id", user_id.to_string())
             )
     }
@@ -89,12 +78,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::from_child(
-                err,
-                file!(),
-                line!())
-                .add_debug_info("mail", mail.to_string())
-            )
+            .map_err(|err|server_error!(err).add_debug_info("mail", mail.to_string()))
     }
 
     async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server<'err>>
@@ -136,11 +120,7 @@ impl user::Repository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::User,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::User)
                 .add_debug_info("error", err.to_string())
             )?;
         
@@ -153,11 +133,7 @@ impl user::Repository for MongolDB
                 Ok(doc) => 
                 {
                     let user: User = from_document(doc)
-                        .map_err(|err| error::Server::new(
-                            error::Kind::Parse,
-                            error::OnType::User,
-                            file!(),
-                            line!())
+                        .map_err(|err| server_error!(error::Kind::Parse, error::OnType::User)
                             .add_debug_info("error", err.to_string())
                         )?;
                     users.push(user);
@@ -202,11 +178,7 @@ impl user::Repository for MongolDB
             .users()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::User,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::User)
                 .add_debug_info("error", err.to_string())
             )?;
         
@@ -219,11 +191,7 @@ impl user::Repository for MongolDB
                 Ok(doc) => 
                 {
                     let user: User = from_document(doc)
-                        .map_err(|err| error::Server::new(
-                            error::Kind::Parse,
-                            error::OnType::User,
-                            file!(),
-                            line!())
+                        .map_err(|err| server_error!(error::Kind::Parse, error::OnType::User)
                             .add_debug_info("error", err.to_string())
                         )?;
                     users.push(user);
@@ -241,11 +209,7 @@ async fn internal_does_user_exist<'input, 'err>(repo: &MongolDB, filter: Documen
     match repo.users().find_one(filter).await
     {
         Ok(option) => Ok(option.is_some()),
-        Err(err) => Err(error::Server::new(
-            error::Kind::Fetch,
-            error::OnType::User,
-            file!(),
-            line!())
+        Err(err) => Err(server_error!(error::Kind::Fetch, error::OnType::User)
             .add_debug_info("error",err.to_string())
         )
     }
@@ -257,22 +221,14 @@ async fn internal_get_user<'input, 'err>(repo: &MongolDB, filter: Document) -> R
         .users()
         .find_one(filter)
         .await
-        .map_err(|err| error::Server::new(
-            error::Kind::Fetch,
-            error::OnType::User,
-            file!(),
-            line!())
+        .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::User)
             .add_debug_info("error",err.to_string())
         )?;
 
     match user_option 
     {
         Some(user) => Ok(User::from(&user)),
-        None => Err(error::Server::new(
-            error::Kind::NotFound,
-            error::OnType::User,
-            file!(),
-            line!())
+        None => Err(server_error!(error::Kind::NotFound, error::OnType::User)
         )
     }
 }

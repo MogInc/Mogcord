@@ -4,9 +4,9 @@ use chrono::Utc;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document};
 
-use crate::model::{bucket::Bucket, error::{self}, message::{self, Message}, Pagination};
+use crate::{model::{bucket::Bucket, error::{self}, message::{self, Message}, Pagination}, transaction_error};
 use crate::db::mongol::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
-use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string};
+use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, server_error};
 
 #[async_trait]
 impl message::Repository for MongolDB
@@ -19,21 +19,17 @@ impl message::Repository for MongolDB
             .client()
             .start_session()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
 
         session
             .start_transaction()
             .await
-            .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+            .map_err(|err| transaction_error!(err))?;
             
         let date = message
             .timestamp
             .convert_to_bson_date()
-            .map_err(|err| error::Server::new(
-                error::Kind::Parse,
-                error::OnType::Date,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Parse, error::OnType::Date)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -47,11 +43,7 @@ impl message::Repository for MongolDB
             .buckets()
             .find_one(bucket_filter.clone())
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::Bucket,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Bucket)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -67,11 +59,7 @@ impl message::Repository for MongolDB
                 .update_one(bucket_filter, bucket_update)
                 .session(&mut session)
                 .await
-                .map_err(|err| error::Server::new(
-                    error::Kind::Update,
-                    error::OnType::Bucket,
-                    file!(),
-                    line!())
+                .map_err(|err| server_error!(error::Kind::Update, error::OnType::Bucket)
                     .add_debug_info("error", err.to_string())
                 )?;
 
@@ -84,22 +72,14 @@ impl message::Repository for MongolDB
             bucket.add_message(message.clone());
 
             let db_bucket = MongolBucket::try_from(&bucket)
-                .map_err(|err| error::Server::from_child(
-                    err, 
-                    file!(), 
-                    line!()
-                ))?;
+                .map_err(|err| server_error!(err))?;
 
             self
                 .buckets()
                 .insert_one(&db_bucket)
                 .session(&mut session)
                 .await
-                .map_err(|err| error::Server::new(
-                    error::Kind::Insert,
-                    error::OnType::Bucket,
-                    file!(),
-                    line!())
+                .map_err(|err| server_error!(error::Kind::Insert, error::OnType::Bucket)
                     .add_debug_info("error", err.to_string())
                 )?;
 
@@ -116,7 +96,7 @@ impl message::Repository for MongolDB
                 session
                     .commit_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
                 message.bucket_id = Some(bucket_current._id.to_string());
 
@@ -127,13 +107,9 @@ impl message::Repository for MongolDB
                 session
                     .abort_transaction()
                     .await
-                    .map_err(|err| error::map_transaction(&err, file!(), line!()))?;
+                    .map_err(|err| transaction_error!(err))?;
 
-                Err(error::Server::new(
-                    error::Kind::Insert,
-                    error::OnType::Message,
-                    file!(),
-                    line!())
+                Err(server_error!(error::Kind::Insert, error::OnType::Message)
                     .add_debug_info("error", err.to_string())
                 )
             },
@@ -186,11 +162,7 @@ impl message::Repository for MongolDB
             .messages()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::Message,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Message)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -207,11 +179,7 @@ impl message::Repository for MongolDB
                 Ok(document) => 
                 {
                     let message: Message = from_document(document)
-                        .map_err(|err| error::Server::new(
-                            error::Kind::Parse,
-                            error::OnType::Message,
-                            file!(),
-                            line!())
+                        .map_err(|err| server_error!(error::Kind::Parse, error::OnType::Message)
                             .add_debug_info("error", err.to_string())
                         )?;
                     messages.push(message);
@@ -244,11 +212,7 @@ impl message::Repository for MongolDB
         match self.messages().update_one(filter, update).await
         {
             Ok(_) => Ok(message),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Update,
-                error::OnType::Message,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Update, error::OnType::Message)
                 .add_debug_info("error", err.to_string())
             ),
         }
@@ -275,11 +239,7 @@ impl message::Repository for MongolDB
             .messages()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::Message,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Message)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -288,11 +248,7 @@ impl message::Repository for MongolDB
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::Message,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Unexpected, error::OnType::Message)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -301,21 +257,13 @@ impl message::Repository for MongolDB
             Some(document) => 
             {
                 let message: Message = from_document(document)
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Parse,
-                        error::OnType::Message,
-                        file!(),
-                        line!())
+                    .map_err(|err| server_error!(error::Kind::Parse, error::OnType::Message)
                         .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(message)
             },
-            None => Err(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::Message,
-                file!(),
-                line!())
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::Message)
                 .add_debug_info("message id", message_id.to_string())
             ),
         }

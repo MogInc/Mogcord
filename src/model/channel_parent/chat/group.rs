@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel::{self, Channel}, error, user::User};
+use crate::{model::{channel::{self, Channel}, error, user::User}, server_error};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Group
@@ -56,11 +56,7 @@ impl Group
     {
         if self.is_user_part_of_server(&user.id) 
         {
-            return Err(error::Server::new(
-                error::Kind::AlreadyPartOf,
-                error::OnType::ChatGroup,
-                file!(),
-                line!())
+            return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::ChatGroup)
                 .add_debug_info("user id", user.id)
             );
         }
@@ -76,11 +72,7 @@ impl Group
         {
             if self.is_user_part_of_server(&user.id) 
             {
-                return Err(error::Server::new(
-                    error::Kind::AlreadyPartOf,
-                    error::OnType::ChatGroup,
-                    file!(),
-                    line!())
+                return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::ChatGroup)
                     .add_debug_info("user id", user.id.to_string())
                 );
             }
@@ -109,11 +101,7 @@ impl Group
     {
         if self.users.len() < Self::GROUP_USER_MIN
         {
-            return Err(error::Server::new(
-                error::Kind::InValid,
-                error::OnType::User,
-                file!(),
-                line!())
+            return Err(server_error!(error::Kind::InValid, error::OnType::User)
                 .add_public_info(format!("Expected atleast: {}, found: {}", Self::GROUP_USER_MIN, self.users.len()))
             );
         }

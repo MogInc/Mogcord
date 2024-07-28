@@ -7,7 +7,8 @@ use argon2::{
 };
 use tokio::task;
 
-use super::error;
+use crate::server_error;
+use super::error::{self, Kind, OnType};
 
 pub struct Hashing;
 
@@ -25,19 +26,10 @@ impl Hashing
 
             //no need to return the salt, its stored inside the hash
             return argon2.hash_password(clear_text.as_bytes(), &salt)
-                .map_err(|_| error::Server::new(
-                    error::Kind::Create,
-                    error::OnType::Hashing,
-                    file!(),
-                    line!()
-                ))
+                .map_err(|_| server_error!(error::Kind::Create, error::OnType::Hashing))
                 .map(|hash| hash.to_string());
             
-        }).await.map_err(|err| error::Server::new(
-            error::Kind::Unexpected,
-            error::OnType::SpawnBlocking,
-            file!(),
-            line!())
+        }).await.map_err(|err| server_error!(error::Kind::Unexpected, error::OnType::SpawnBlocking)
             .add_debug_info("join error message", err.to_string())
         )??;
 
@@ -52,28 +44,13 @@ impl Hashing
         task::spawn_blocking(move || 
         {
             let parsed_hash = PasswordHash::new(&hash)
-                .map_err(|_| error::Server::new(
-                    error::Kind::Verifying,
-                    error::OnType::Hashing,
-                    file!(),
-                    line!(),
-                ))?;
+                .map_err(|_| server_error!(Kind::Verifying, OnType::Hashing))?;
             
             let argon2 = Self::internal_give_argon_settings();
 
             argon2.verify_password(clear_text.as_bytes(), &parsed_hash)
-                  .map_err(|_| error::Server::new(
-                    error::Kind::Verifying,
-                    error::OnType::Hashing,
-                    file!(),
-                    line!(),
-                    ))
-        }).await.map_err(|_| error::Server::new(
-            error::Kind::Unexpected,
-            error::OnType::SpawnBlocking,
-            file!(),
-            line!(),
-        ))??;
+                  .map_err(|_| server_error!(Kind::Verifying, OnType::Hashing))
+        }).await.map_err(|_| server_error!(Kind::Unexpected, OnType::SpawnBlocking))??;
 
         Ok(())
     }

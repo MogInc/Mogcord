@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{extract::{Path, State}, response::IntoResponse, Json};
 
-use crate::{dto::ChatGetResponse, model::{error, AppState}};
+use crate::{dto::ChatGetResponse, model::{error, AppState}, server_error};
 use crate::middleware::auth::Ctx;
 use crate::dto::ObjectToDTO;
 
@@ -21,11 +21,7 @@ pub async fn get_chat(
     
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        return Err(error::Server::new(
-            error::Kind::NotPartOf,
-            error::OnType::Chat,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::NotPartOf, error::OnType::Chat)
             .add_client(error::Client::CHAT_CTX_NOT_PART_OF_CHAT)
         );
     }

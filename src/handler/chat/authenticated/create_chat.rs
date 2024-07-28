@@ -7,6 +7,7 @@ use crate::model::channel_parent::chat::Chat;
 use crate::model::{error, AppState};
 use crate::middleware::auth::Ctx;
 use crate::dto::{ChatCreateResponse, ObjectToDTO};
+use crate::server_error;
 
 #[derive(Deserialize)]
 pub enum CreateChatRequest
@@ -41,22 +42,14 @@ pub async fn create_chat(
         {
             if &user_id == ctx_user_id
             {
-                return Err(error::Server::new(
-                    error::Kind::IsSelf,
-                    error::OnType::Chat,
-                    file!(),
-                    line!())
+                return Err(server_error!(error::Kind::IsSelf, error::OnType::Chat)
                     .add_client(error::Client::CHAT_ADD_WITH_SELF)
                 );
             }
 
             if !repo_relation.does_friendship_exist(ctx_user_id, &user_id).await?
             {
-                return Err(error::Server::new(
-                    error::Kind::NotFound,
-                    error::OnType::RelationFriend,
-                    file!(),
-                    line!())
+                return Err(server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
                     .add_client(error::Client::CHAT_ADD_NON_FRIEND)
                 );
             }
@@ -86,11 +79,7 @@ pub async fn create_chat(
 
             if !repo_relation.does_friendships_exist(ctx_user_id, user_ids).await?
             {
-                return Err(error::Server::new(
-                    error::Kind::NotFound,
-                    error::OnType::RelationFriend,
-                    file!(),
-                    line!())
+                return Err(server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
                     .add_client(error::Client::CHAT_ADD_NON_FRIEND)
                 );
             }
@@ -105,11 +94,7 @@ pub async fn create_chat(
         .does_chat_exist(&chat)
         .await?
     {
-        return Err(error::Server::new(
-            error::Kind::AlreadyExists,
-            error::OnType::Chat,
-            file!(),
-            line!())
+        return Err(server_error!(error::Kind::AlreadyExists, error::OnType::Chat)
             .add_client(error::Client::CHAT_ALREADY_EXISTS)
         );
     }

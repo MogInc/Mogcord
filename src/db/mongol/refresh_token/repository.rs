@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::model::{error, refresh_token::{self, RefreshToken}};
+use crate::{model::{error, refresh_token::{self, RefreshToken}}, server_error};
 use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
 use crate::map_mongo_key_to_string;
 
@@ -16,11 +16,7 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().insert_one(&db_token).await
         {
             Ok(_) => Ok(token),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Insert,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Insert, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             ),
         }
@@ -84,11 +80,7 @@ impl refresh_token::Repository for MongolDB
             .refresh_tokens()
             .aggregate(pipelines)
             .await
-            .map_err(|err| error::Server::new(
-                error::Kind::Fetch,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -96,11 +88,7 @@ impl refresh_token::Repository for MongolDB
             .next()
             .await
             .transpose()
-            .map_err(|err| error::Server::new(
-                error::Kind::Unexpected,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Unexpected, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             )?;
 
@@ -109,21 +97,13 @@ impl refresh_token::Repository for MongolDB
             Some(document) => 
             {
                 let refresh_token = from_document(document)
-                    .map_err(|err| error::Server::new(
-                        error::Kind::Parse,
-                        error::OnType::RefreshToken,
-                        file!(),
-                        line!())
+                    .map_err(|err| server_error!(error::Kind::Parse, error::OnType::RefreshToken)
                         .add_debug_info("error", err.to_string())
                     )?;
 
                 Ok(refresh_token)
             },
-            None => Err(error::Server::new(
-                error::Kind::NotFound,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::RefreshToken)
                 .add_debug_info("device id", device_id.to_string())
             ), 
         }
@@ -149,11 +129,7 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Revoke,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             ),
         }
@@ -178,11 +154,7 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_many(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(error::Server::new(
-                error::Kind::Revoke,
-                error::OnType::RefreshToken,
-                file!(),
-                line!())
+            Err(err) => Err(server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             ),
         }

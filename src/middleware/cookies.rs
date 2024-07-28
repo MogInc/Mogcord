@@ -1,6 +1,6 @@
 use tower_cookies::{cookie::{time::{Duration, OffsetDateTime}, SameSite}, Cookie, Cookies};
 
-use crate::model::error;
+use crate::{model::error, server_error};
 
 pub trait Manager
 {
@@ -30,11 +30,7 @@ impl Manager for Cookies
         self
             .get(name)
             .map(|c| c.value().to_string())
-            .ok_or(error::Server::new(
-                error::Kind::NotFound, 
-                error::OnType::Cookie, 
-                file!(), 
-                line!())
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Cookie)
                 .add_client(error::Client::COOKIES_NOT_FOUND)
             )
     }

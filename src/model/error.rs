@@ -45,7 +45,7 @@ impl<'err> Server<'err>
 
 	#[must_use]
 	pub fn new_from_child(
-		mut self,
+		mut self, //child
 		kind: Kind,
 		on_type: OnType,
 		stack: &'err str,
@@ -67,7 +67,7 @@ impl<'err> Server<'err>
 
 	#[must_use]
 	pub fn from_child(
-		mut self,
+		mut self, //child
 		stack: &'err str,
 		line_nr: u32,
 	) -> Self
@@ -176,6 +176,7 @@ pub enum OnType
 	Date,
 	Hashing,
 	Log,
+	Macro,
 	Mail,
 	Message,
 	Mongo,
@@ -195,7 +196,7 @@ impl Server<'_>
 {
     fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result 
 	{
-		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?}", depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info)?;
+		write!(f, "{}: {:?}::{:?} - {} on ln:{} | {:?} |", depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info)?;
 
 		if let Some(ref child) = self.child 
 		{
@@ -327,16 +328,4 @@ impl fmt::Display for Client
 	{
         write!(f, "{self:?}")
     }
-}
-
-#[must_use]
-pub fn map_transaction<'err>(err: &mongodb::error::Error, file: &'err str, line: u32) -> Server<'err> 
-{
-    Server::new(
-        Kind::Unexpected,
-        OnType::Transaction,
-        file,
-        line,
-    )
-    .add_debug_info("mongo transaction error", err.to_string())
 }

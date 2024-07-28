@@ -1,7 +1,7 @@
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
-use crate::model::{bucket::Bucket, error};
+use crate::{model::{bucket::Bucket, error}, server_error};
 use super::helper::{self, MongolHelper};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,11 +28,7 @@ impl TryFrom<&Bucket> for MongolBucket
         let bucket_date = value
             .date
             .convert_to_bson_date()
-            .map_err(|err| error::Server::new(
-                error::Kind::Parse,
-                error::OnType::Date,
-                file!(),
-                line!())
+            .map_err(|err| server_error!(error::Kind::Parse, error::OnType::Date)
                 .add_debug_info("bucket date", value.date.to_string())
                 .add_debug_info("error", err.to_string())
             )?;
