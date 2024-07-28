@@ -6,14 +6,14 @@ use mongodb::bson::{doc, from_document};
 
 use crate::{model::{bucket::Bucket, error::{self}, message::{self, Message}, Pagination}, transaction_error};
 use crate::db::mongol::{helper::{self, MongolHelper}, MongolBucket, MongolDB, MongolMessage};
-use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, server_error};
+use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, server_error, bubble};
 
 #[async_trait]
 impl message::Repository for MongolDB
 {
     async fn create_message<'input, 'err>(&'input self, mut message: Message) -> Result<Message, error::Server<'err>>
     {
-        let mut db_message = MongolMessage::try_from(&message)?;
+        let mut db_message = bubble!(MongolMessage::try_from(&message))?;
 
         let mut session = self
             .client()
@@ -109,9 +109,7 @@ impl message::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(server_error!(error::Kind::Insert, error::OnType::Message)
-                    .add_debug_info("error", err.to_string())
-                )
+                Err(server_error!(error::Kind::Insert, error::OnType::Message).add_debug_info("error", err.to_string()))
             },
         }
     }
@@ -122,11 +120,10 @@ impl message::Repository for MongolDB
         pagination: Pagination
     ) -> Result<Vec<Message>, error::Server<'err>>
     {
-        let channel_id_local = helper::convert_domain_id_to_mongol(channel_id)?;
+        let channel_id_local = bubble!(helper::convert_domain_id_to_mongol(channel_id))?;
         
         let mut pipelines = vec!
         [
-            //filter to only given chat
             doc! 
             {
                 "$match":
@@ -137,6 +134,7 @@ impl message::Repository for MongolDB
             },
             //sort on date from new to old
             //sorting is in general expensive, no clue how expensive this is gonna get
+            //i have added an clustered index on timestamp (chan_id, timestamp, flag) thats DESC
             doc!
             {
                 "$sort":
@@ -193,7 +191,7 @@ impl message::Repository for MongolDB
 
     async fn update_message<'input, 'err>(&'input self, message: Message) -> Result<Message, error::Server<'err>>
     {
-        let db_message = MongolMessage::try_from(&message)?;
+        let db_message = bubble!(MongolMessage::try_from(&message))?;
     
         let filter = doc! 
         {
@@ -220,10 +218,9 @@ impl message::Repository for MongolDB
 
     async fn get_message<'input, 'err>(&'input self, message_id: &'input str) -> Result<Message, error::Server<'err>>
     {
-        let message_id_local = helper::convert_domain_id_to_mongol(message_id)?;
+        let message_id_local = bubble!(helper::convert_domain_id_to_mongol(message_id))?;
         
         let mut pipelines = vec![
-            //filter to only given chat
             doc! 
             {
                 "$match":
