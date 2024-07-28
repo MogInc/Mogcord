@@ -1,7 +1,8 @@
 use mongodb::bson::{DateTime, Uuid};
 use serde::{Serialize, Deserialize};
 
-use crate::{model::{bucket::Bucket, error}, server_error};
+use crate::model::{bucket::Bucket, error};
+use crate::{server_error, bubble};
 use super::helper::{self, MongolHelper};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,9 +22,9 @@ impl TryFrom<&Bucket> for MongolBucket
 
     fn try_from(value: &Bucket) -> Result<Self, Self::Error> 
     {
-        let bucket_id = helper::convert_domain_id_to_mongol(&value.id)?;
+        let bucket_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let channel_id = helper::convert_domain_id_to_mongol(&value.channel.id)?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
         let bucket_date = value
             .date
@@ -36,7 +37,7 @@ impl TryFrom<&Bucket> for MongolBucket
         let bucket_message_ids = value
             .messages
             .iter()
-            .map(|message|helper::convert_domain_id_to_mongol(&message.id))
+            .map(|message|bubble!(helper::convert_domain_id_to_mongol(&message.id)))
             .collect::<Result<_,_>>()?;
 
         Ok(

@@ -5,7 +5,7 @@ use mongodb::bson::doc;
 use crate::model::{error, relation};
 use crate::db::mongol::{MongolDB, MongolRelation};
 use crate::db::mongol::helper;
-use crate::{server_error, transaction_error};
+use crate::{server_error, transaction_error, bubble};
 
 #[async_trait]
 impl relation::Repository for MongolDB
@@ -16,9 +16,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<bool, error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc!
         {
@@ -38,9 +38,9 @@ impl relation::Repository for MongolDB
         other_user_ids: Vec<&'input str>
     ) -> Result<bool, error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_ids_local = helper::convert_domain_ids_to_mongol(&other_user_ids)?;
+        let other_user_ids_local = bubble!(helper::convert_domain_ids_to_mongol(&other_user_ids))?;
 
         let filter = doc!
         {
@@ -77,9 +77,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<bool, error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc!
         {
@@ -106,9 +106,9 @@ impl relation::Repository for MongolDB
          other_user_id: &'input str
     ) -> Result<bool, error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc!
         {
@@ -128,9 +128,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<bool, error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc!
         {
@@ -150,9 +150,9 @@ impl relation::Repository for MongolDB
          other_user_id: &'input str
     ) -> Result<(), error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
 
         let mut session = self
@@ -224,9 +224,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<(), error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let mut session = self
             .client()
@@ -306,9 +306,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<(), error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
 
         let mut session = self
@@ -378,9 +378,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<(), error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 
@@ -409,9 +409,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str
     ) -> Result<(), error::Server<'err>>
     {
-        let current_user_id_local = helper::convert_domain_id_to_mongol(current_user_id)?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local = helper::convert_domain_id_to_mongol(other_user_id)?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 

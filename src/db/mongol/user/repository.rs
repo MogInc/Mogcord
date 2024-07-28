@@ -3,16 +3,16 @@ use bson::Document;
 use futures_util::StreamExt;
 use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::{model::{error, user::{self, User}, Pagination}, server_error};
+use crate::model::{error, user::{self, User}, Pagination};
 use crate::db::mongol::{helper, MongolDB, MongolUser, MongolUserVec};
-use crate::map_mongo_key_to_string;
+use crate::{map_mongo_key_to_string, server_error, bubble};
 
 #[async_trait]
 impl user::Repository for MongolDB
 {
     async fn does_user_exist_by_id<'input, 'err>(&'input self, user_id: &'input str) -> Result<bool, error::Server<'err>>
     {
-        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
         let filter = doc! { "_id" : user_id_local };
 
@@ -35,7 +35,7 @@ impl user::Repository for MongolDB
 
     async fn create_user<'input, 'err>(&'input self, user: User) -> Result<User, error::Server<'err>>
     {
-        let db_user = MongolUser::try_from(&user)?;
+        let db_user = bubble!(MongolUser::try_from(&user))?;
         
         match self.users().insert_one(&db_user).await
         {
@@ -48,7 +48,7 @@ impl user::Repository for MongolDB
 
     async fn create_users<'input, 'err>(&'input self, users: Vec<User>) -> Result<(), error::Server<'err>>
     {
-        let db_users = MongolUserVec::try_from(&users)?;
+        let db_users = bubble!(MongolUserVec::try_from(&users))?;
         
         match self.users().insert_many(&db_users.0).await
         {
@@ -61,7 +61,7 @@ impl user::Repository for MongolDB
 
     async fn get_user_by_id<'input, 'err>(&'input self, user_id: &'input str) -> Result<User, error::Server<'err>>
     {
-        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
         let filter = doc! { "_id": user_id_local };
 
@@ -87,7 +87,7 @@ impl user::Repository for MongolDB
 
         for user_id in user_ids
         {
-            let user_id: Uuid = helper::convert_domain_id_to_mongol(&user_id)?;
+            let user_id = bubble!(helper::convert_domain_id_to_mongol(&user_id))?;
 
             user_ids_local.push(user_id);
         }
@@ -228,8 +228,7 @@ async fn internal_get_user<'input, 'err>(repo: &MongolDB, filter: Document) -> R
     match user_option 
     {
         Some(user) => Ok(User::from(&user)),
-        None => Err(server_error!(error::Kind::NotFound, error::OnType::User)
-        )
+        None => Err(server_error!(error::Kind::NotFound, error::OnType::User))
     }
 }
 

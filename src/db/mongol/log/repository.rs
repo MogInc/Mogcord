@@ -2,7 +2,7 @@ use axum::async_trait;
 
 use crate::model::{error::{self}, log::{self, RequestLogLine}};
 use crate::db::mongol::MongolDB;
-use crate::server_error;
+use crate::{server_error, bubble};
 use super::MongolLog;
 
 #[async_trait]
@@ -10,7 +10,7 @@ impl log::Repository for MongolDB
 {
     async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> Result<(), error::Server<'err>>
     {
-        let mongol_log = MongolLog::try_from(log)?;
+        let mongol_log = bubble!(MongolLog::try_from(log))?;
 
         match self.logs().insert_one(mongol_log).await
         {

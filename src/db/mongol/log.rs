@@ -5,7 +5,7 @@ use bson::Uuid;
 use serde::Serialize;
 
 use crate::model::{error::{self}, log::{RequestLogLine, RequestLogLinePersonal}};
-
+use crate::bubble;
 use super::helper;
 
 #[derive(Debug, Serialize)]
@@ -26,7 +26,7 @@ impl TryFrom<RequestLogLine<'_>> for MongolLog
 
     fn try_from(value: RequestLogLine) -> Result<Self, Self::Error>
     {
-        let req_id = helper::convert_domain_id_to_mongol(&value.req_id)?;
+        let req_id = bubble!(helper::convert_domain_id_to_mongol(&value.req_id))?;
         let server_error = create_server_error(value.server_error.as_ref());
 
         Ok(

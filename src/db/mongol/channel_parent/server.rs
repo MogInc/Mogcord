@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use bson::Uuid;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::helper, model::{channel_parent::{Role, Server}, error}};
+use crate::{bubble, db::helper, model::{channel_parent::{Role, Server}, error}};
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -29,20 +29,20 @@ impl TryFrom<&Server> for MongolServer
 
     fn try_from(value: &Server) -> Result<Self, Self::Error> 
     {
-        let db_id = helper::convert_domain_id_to_mongol(&value.id)?;
+        let db_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
         let user_ids = value
             .users
             .keys()
-            .map(|key| helper::convert_domain_id_to_mongol(key))
+            .map(|key| bubble!(helper::convert_domain_id_to_mongol(key)))
             .collect::<Result<_, _>>()?;
 
         let channel_ids = value
             .channels
             .keys()
-            .map(|key| helper::convert_domain_id_to_mongol(key))
+            .map(|key| bubble!(helper::convert_domain_id_to_mongol(key)))
             .collect::<Result<_, _>>()?;
 
         Ok(

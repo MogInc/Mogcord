@@ -3,8 +3,9 @@ use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse};
 use tower_cookies::Cookies;
 
-use crate::model::AppState;
+use crate::model::{error, AppState};
 use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
+use crate::server_error;
 
 //can see this as a logout
 pub async fn revoke_token(
@@ -15,7 +16,9 @@ pub async fn revoke_token(
 {
     let repo_refresh = &state.refresh_tokens;
 
-    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())?;
+    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())
+        .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::Cookie))?;
+    
     let ctx_user_id = &ctx.user_id_ref();
 
     match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await

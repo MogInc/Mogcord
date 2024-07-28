@@ -6,7 +6,7 @@ pub use private::*;
 
 use serde::{Deserialize, Serialize};
 
-use crate::model::{channel_parent::chat::Chat, error};
+use crate::{bubble, model::{channel_parent::chat::Chat, error}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MongolChat
@@ -23,8 +23,8 @@ impl TryFrom<&Chat> for MongolChat
     {
         match value 
         {
-            Chat::Private(private) => Ok(Self::Private(MongolPrivate::try_from(private)?)),
-            Chat::Group(group) => Ok(Self::Group(MongolGroup::try_from(group)?)),
+            Chat::Private(private) => Ok(Self::Private(bubble!(MongolPrivate::try_from(private))?)),
+            Chat::Group(group) => Ok(Self::Group(bubble!(MongolGroup::try_from(group))?)),
         }
     }
 }
