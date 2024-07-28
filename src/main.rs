@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use mogcord::file_writer::FileWriter;
 use mogcord::middleware::auth::mw_ctx_resolver;
 use tower_cookies::CookieManagerLayer;
 use std::{env, sync::Arc};
@@ -32,7 +33,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
     let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
-    let logs = Arc::clone(&db) as Arc<dyn log::Repository>;
+
+    let logs = Arc::new(FileWriter::new("./logs_server")) as Arc<dyn log::Repository>;
 
     let state: Arc<AppState> = Arc::new(
         AppState 
