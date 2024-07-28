@@ -140,6 +140,8 @@ pub enum Kind
 	Delete,
 	Expired,
 	Fetch,
+	FileOpening,
+	FlushBuffer,
 	InValid,
 	IncorrectPermissions,
 	IncorrectValue,
@@ -156,7 +158,8 @@ pub enum Kind
 	Revoke,
 	Unexpected,
 	Update,
-	Verifying
+	Verifying,
+	Write,
 }
 
 #[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
@@ -270,7 +273,10 @@ impl Server<'_>
 
 			Kind::NoAuth => StatusCode::UNAUTHORIZED,
 
-			Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
+			Kind::FileOpening 
+			| Kind::FlushBuffer 
+			| Kind::Write 
+			| Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
 		};
 
 		if let Some(client) = &self.client
