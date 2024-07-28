@@ -135,6 +135,23 @@ macro_rules! map_mongo_collection_to_hashmap
 }
 
 #[macro_export]
+/// creates an [`error::Server`]
+/// 
+/// signature(`error::Kind`, `error::OnType`) => [`new`]
+/// 
+/// signature(`error::Server`) => [`from_child`]
+/// 
+/// signature(`error::Server`, `error::Kind`, `error::OnType`) => [`new_from_child`]
+/// 
+/// # Examples
+/// ```
+/// # use mogcord::model::error::{Server, Kind, OnType};
+/// # use mogcord::server_error;
+/// 
+/// let g_1 = server_error!(Kind::NotImplemented, OnType::Message);
+/// let g_2 = server_error!(g_1);
+/// let g_3 = server_error!(g_2, Kind::NotFound, OnType::Message);
+/// ```
 macro_rules! server_error 
 {
     ($error_kind:expr, $on_type:expr) => 
