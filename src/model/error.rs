@@ -176,6 +176,7 @@ pub enum OnType
 	Date,
 	Hashing,
 	Log,
+	Macro,
 	Mail,
 	Message,
 	Mongo,

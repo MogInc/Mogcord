@@ -1,4 +1,3 @@
-#[macro_export]
 /// Maps a mongodb key value (uuid, etc.) to string
 ///
 ///signature(`$id_name`, `mongo_id_type`),
@@ -15,6 +14,7 @@
 ///     },
 /// }
 /// ```
+#[macro_export]
 macro_rules! map_mongo_key_to_string 
 {
     ($id_field:expr, $id_type:expr) => 
@@ -39,7 +39,6 @@ macro_rules! map_mongo_key_to_string
     };
 }
 
-#[macro_export]
 /// maps over a mongodb collection and maps the key value (uuid, etc.) to string
 /// 
 /// uses [`map_mongo_key_to_string`] to map the individual keys
@@ -58,6 +57,7 @@ macro_rules! map_mongo_key_to_string
 ///     }
 /// }
 /// ```
+#[macro_export]
 macro_rules! map_mongo_collection_keys_to_string 
 {
     
@@ -77,7 +77,7 @@ macro_rules! map_mongo_collection_keys_to_string
     };
 }
 
-#[macro_export]
+
 /// maps over a mongodb collection and transforms it into a hashmap
 /// 
 /// signature(`$collection_name`, `key_name`)
@@ -111,6 +111,7 @@ macro_rules! map_mongo_collection_keys_to_string
 ///     },
 /// }
 /// ```
+#[macro_export]
 macro_rules! map_mongo_collection_to_hashmap 
 {
     ($collection_name:expr, $key_name:expr) => 
@@ -134,7 +135,6 @@ macro_rules! map_mongo_collection_to_hashmap
     };
 }
 
-#[macro_export]
 /// creates an [`error::Server`]
 /// 
 /// signature(`error::Kind`, `error::OnType`) => [`new`]
@@ -152,6 +152,7 @@ macro_rules! map_mongo_collection_to_hashmap
 /// let g_2 = server_error!(g_1);
 /// let g_3 = server_error!(g_2, Kind::NotFound, OnType::Message);
 /// ```
+#[macro_export]
 macro_rules! server_error 
 {
     ($error_kind:expr, $on_type:expr) => 
@@ -165,5 +166,30 @@ macro_rules! server_error
     ($child:expr, $error_kind:expr, $on_type:expr) => 
     {
         $crate::model::error::Server::new_from_child($child, $error_kind, $on_type, file!(), line!())
+    };
+}
+
+/// sugar for [`.map_err(|x| server_error(x))`] or [`.map_err(|x| crate::model::error::Server::from_child(x, file!(), line!()))`]
+/// 
+/// signature(`result<T, error::Server<'_>>`)
+/// 
+/// # Examples
+/// ```
+/// # use mogcord::model::error::{Server, Kind, OnType};
+/// # use mogcord::{server_error, bubble};
+/// # pub fn mogcord_i32_parse<'err>(str: &str) -> Result<i32, Server<'err>> {str.parse().map_err(|_| server_error!(Kind::Unexpected, OnType::Macro))}
+/// 
+/// let g_1: Result<i32, Server> = bubble!(mogcord_i32_parse("4"));
+/// let g_2: Result<i32, Server> = bubble!(mogcord_i32_parse("a"));
+/// 
+/// assert!(g_1.is_ok());
+/// assert!(g_2.is_err());
+/// ```
+#[macro_export]
+macro_rules! bubble 
+{
+    ($res:expr) => 
+    {
+        $res.map_err(|err| $crate::server_error!(err))
     };
 }
