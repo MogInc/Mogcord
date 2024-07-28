@@ -4,14 +4,14 @@ use futures_util::StreamExt;
 
 use crate::{model::{error, refresh_token::{self, RefreshToken}}, server_error};
 use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
-use crate::map_mongo_key_to_string;
+use crate::{map_mongo_key_to_string, bubble};
 
 #[async_trait]
 impl refresh_token::Repository for MongolDB
 {
     async fn create_token<'input, 'err>(&'input self, token: RefreshToken) -> Result<RefreshToken, error::Server<'err>>
     {
-        let db_token = MongolRefreshToken::try_from(&token)?;
+        let db_token = bubble!(MongolRefreshToken::try_from(&token))?;
         
         match self.refresh_tokens().insert_one(&db_token).await
         {
@@ -27,7 +27,7 @@ impl refresh_token::Repository for MongolDB
         device_id: &'input str
     ) -> Result<RefreshToken, error::Server<'err>>
     {
-        let device_id_local = helper::convert_domain_id_to_mongol(device_id)?;
+        let device_id_local = bubble!(helper::convert_domain_id_to_mongol(device_id))?;
 
         let pipelines = vec!
         [
@@ -111,9 +111,9 @@ impl refresh_token::Repository for MongolDB
 
     async fn revoke_token<'input, 'err>(&'input self, user_id: &'input str, device_id: &'input str) -> Result<(), error::Server<'err>>
     {
-        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
-        let device_id_local = helper::convert_domain_id_to_mongol(device_id)?;
+        let device_id_local = bubble!(helper::convert_domain_id_to_mongol(device_id))?;
 
         let filter = doc!
         {
@@ -137,7 +137,7 @@ impl refresh_token::Repository for MongolDB
 
     async fn revoke_all_tokens<'input, 'err>(&'input self, user_id: &'input str) -> Result<(), error::Server<'err>>
     {
-        let user_id_local = helper::convert_domain_id_to_mongol(user_id)?;
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
         let filter = doc!
         {
