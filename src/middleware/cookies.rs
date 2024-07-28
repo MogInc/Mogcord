@@ -32,6 +32,7 @@ impl Manager for Cookies
             .map(|c| c.value().to_string())
             .ok_or(server_error!(error::Kind::NotFound, error::OnType::Cookie)
                 .add_client(error::Client::COOKIES_NOT_FOUND)
+                .add_debug_info("cookie name", name.to_string())
             )
     }
 

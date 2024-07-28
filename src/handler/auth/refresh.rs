@@ -41,8 +41,7 @@ pub async fn refresh_token(
 
     if refresh_token.value != refresh_token_cookie
     {
-        return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken)
-        );
+        return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken));
     }
 
     let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
@@ -51,12 +50,30 @@ pub async fn refresh_token(
     {
         Ok(token) => 
         {
-            let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
+            let updated_refresh_token = refresh_token.refresh_expiration()?;
+
+            repo_refresh.update_expiration(&updated_refresh_token).await?;
+
+            let cookie_names_acces = auth::CookieNames::AUTH_ACCES;
+            let cookie_names_refresh = auth::CookieNames::AUTH_REFRESH;
+            let cookie_names_device = auth::CookieNames::DEVICE_ID;
 
             jar.create_cookie(
-                cookie_names_acces_token.to_string(), 
+                cookie_names_acces.to_string(), 
                 token, 
-                cookie_names_acces_token.ttl_in_mins(),
+                cookie_names_acces.ttl_in_mins(),
+            );
+
+            jar.create_cookie(
+                cookie_names_refresh.to_string(), 
+                updated_refresh_token.value, 
+                cookie_names_refresh.ttl_in_mins(),
+            );
+
+            jar.create_cookie(
+                cookie_names_device.to_string(), 
+                updated_refresh_token.device_id, 
+                cookie_names_device.ttl_in_mins(),
             );
             
             Ok(())
