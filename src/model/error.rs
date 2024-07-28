@@ -45,7 +45,7 @@ impl<'err> Server<'err>
 
 	#[must_use]
 	pub fn new_from_child(
-		mut self,
+		mut self, //child
 		kind: Kind,
 		on_type: OnType,
 		stack: &'err str,
@@ -67,7 +67,7 @@ impl<'err> Server<'err>
 
 	#[must_use]
 	pub fn from_child(
-		mut self,
+		mut self, //child
 		stack: &'err str,
 		line_nr: u32,
 	) -> Self
