@@ -9,6 +9,7 @@ use crate::model::channel_parent::chat::Chat;
 use crate::model::channel_parent::Server;
 use crate::model::{channel::Channel, error};
 use crate::db::mongol::helper;
+use crate::bubble;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,8 +39,8 @@ impl TryFrom<&Chat> for MongolChannel
     {
         let mongol_channel = match value
         {
-            Chat::Private(val) => MongolChannel::try_from((&val.channel, ParentType::ChatPrivate))?,
-            Chat::Group(val) => MongolChannel::try_from((&val.channel, ParentType::ChatGroup))?,
+            Chat::Private(val) => bubble!(MongolChannel::try_from((&val.channel, ParentType::ChatPrivate)))?,
+            Chat::Group(val) => bubble!(MongolChannel::try_from((&val.channel, ParentType::ChatGroup)))?,
         };
 
         Ok(mongol_channel)
@@ -52,7 +53,7 @@ impl TryFrom<(&Channel, ParentType)> for MongolChannel
 
     fn try_from((value, parent_type): (&Channel, ParentType)) -> Result<Self, Self::Error>
     {
-        let channel_id = helper::convert_domain_id_to_mongol(&value.id)?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
         Ok(
             Self 
@@ -77,7 +78,7 @@ impl TryFrom<&Server> for MongolChannelVecWrapper
         let mongol_channels = value
             .channels
             .values()
-            .map(|channel| MongolChannel::try_from((channel, ParentType::Server)))
+            .map(|channel| bubble!(MongolChannel::try_from((channel, ParentType::Server))))
             .collect::<Result<_,_>>()?;
 
         Ok(Self(mongol_channels))
