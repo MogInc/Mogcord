@@ -6,6 +6,7 @@ use mongodb::bson::Uuid;
 use serde::{Serialize, Deserialize};
 
 use crate::model::{error, user::{self, User}};
+use crate::bubble;
 
 use super::helper::{self, as_string};
 
@@ -28,7 +29,7 @@ impl TryFrom<&User> for MongolUser
 
     fn try_from(value: &User) -> Result<Self, Self::Error> 
     {
-        let user_id = helper::convert_domain_id_to_mongol(&value.id)?;
+        let user_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
         Ok(
             Self
@@ -55,7 +56,7 @@ impl TryFrom<&Vec<User>> for MongolUserVec
 
         for user in value
         {
-            db_users.push(MongolUser::try_from(user)?);
+            db_users.push(bubble!(MongolUser::try_from(user))?);
         }
 
         Ok(MongolUserVec(db_users))
