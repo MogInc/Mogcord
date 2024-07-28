@@ -14,7 +14,7 @@ impl<'a> log::Repository for FileWriter<'a>
     async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> Result<(), error::Server<'err>>
     {
         let path = Path::new(self.folder_path)
-            .join(format!("{}.txt", chrono::offset::Local::now().date_naive()));
+            .join(format!("{}.log", chrono::offset::Local::now().date_naive()));
 
         //most likely too naive of a solution
         let file = OpenOptions::new()
