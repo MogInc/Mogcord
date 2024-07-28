@@ -21,7 +21,7 @@ impl channel::Repository for MongolDB
             .find_one(filter)
             .await
             .map_err(|err| server_error!(error::Kind::Fetch, error::OnType::Channel)
-                    .add_debug_info("error", err.to_string())
+                .add_debug_info("error", err.to_string())
             )?;
 
         match user_option 
