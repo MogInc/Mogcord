@@ -9,6 +9,7 @@ use bson::Bson;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{channel_parent::{chat::Chat, ChannelParent, Server}, error};
+use crate::bubble;
 use super::helper;
 
 
@@ -39,7 +40,7 @@ impl TryFrom<&Chat> for MongolChannelParent
     
     fn try_from(value: &Chat) -> Result<Self, Self::Error> 
     {
-        Ok(Self::Chat(MongolChat::try_from(value)?))
+        Ok(Self::Chat(bubble!(MongolChat::try_from(value))?))
     }
 }
 
@@ -49,7 +50,7 @@ impl TryFrom<&Box<Server>> for MongolChannelParent
     
     fn try_from(value: &Box<Server>) -> Result<Self, Self::Error> 
     {
-        Ok(Self::Server(MongolServer::try_from(&**value)?))
+        Ok(Self::Server(bubble!(MongolServer::try_from(&**value))?))
     }
 }
 
