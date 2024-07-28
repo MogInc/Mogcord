@@ -2,7 +2,7 @@ use axum::async_trait;
 use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::{model::{error, refresh_token::{self, RefreshToken}}, server_error};
+use crate::{bubble, model::{error, refresh_token::{self, RefreshToken}}, server_error};
 use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
 use crate::{map_mongo_key_to_string, bubble};
 
@@ -155,6 +155,32 @@ impl refresh_token::Repository for MongolDB
         {
             Ok(_) => Ok(()),
             Err(err) => Err(server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
+                .add_debug_info("error", err.to_string())
+            ),
+        }
+    }
+
+    async fn update_expiration<'input, 'err>(&'input self, token: &'input RefreshToken) -> Result<(), error::Server<'err>>
+    {
+        let db_token = bubble!(MongolRefreshToken::try_from(token))?;
+
+        let filter = doc!
+        {
+            "device_id": db_token.device_id,
+            "owner_id": db_token.owner_id,
+            "expiration_date": { "$gte": DateTime::now() },
+            "flag": internal_valid_refresh_token_filter(),
+        };
+
+        let update = doc!
+        {
+            "$set": { "expiration_date": db_token.expiration_date }
+        };
+
+        match self.refresh_tokens().update_one(filter, update).await
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(server_error!(error::Kind::Update, error::OnType::RefreshToken)
                 .add_debug_info("error", err.to_string())
             ),
         }

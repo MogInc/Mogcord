@@ -1,6 +1,9 @@
 #.env file
 .env
 
+#logs
+/logs_server
+
 #rust target
 /target
 

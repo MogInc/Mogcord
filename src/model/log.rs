@@ -4,7 +4,7 @@ pub use repository::*;
 
 use std::sync::Arc;
 use axum::http::{Method, Uri};
-use serde::{Serialize, Serializer};
+use serde::Serialize;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -69,7 +69,7 @@ impl RequestLogLinePersonal
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct RequestLogLine<'err>
 {
 	pub req_id: String,      
@@ -85,26 +85,4 @@ pub struct RequestLogLine<'err>
 	// -- Errors attributes.
 	pub client_error_type: Option<String>,
 	pub server_error: Option<error::Server<'err>>,
-}
-
-impl<'err> Serialize for RequestLogLine<'err> 
-{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("RequestLogLine", 7)?;
-        state.serialize_field("req_id", &self.req_id)?;
-        state.serialize_field("timestamp", &self.timestamp)?;
-        state.serialize_field("user_info", &self.user_info)?;
-        state.serialize_field("req_path", &self.req_path)?;
-        state.serialize_field("req_method", &self.req_method)?;
-        if let Some(client_err) = &self.client_error_type
-		{
-			state.serialize_field("client_error_type", client_err)?;
-			state.serialize_field("server_err", "see DB.")?;
-		}
-        state.end()
-    }
 }

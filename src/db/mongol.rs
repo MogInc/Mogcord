@@ -112,16 +112,21 @@ impl MongolDB
 
     async fn internal_add_refresh_token_indexes(coll: &Collection<MongolRefreshToken>) -> Result<(), Error>
     {
-        let device_expiration_compound = IndexModel::builder()
-            .keys(doc!{ "device_id": 1, "expiration_date": -1 })
+        let device_user_flag_expiration_compound = IndexModel::builder()
+            .keys(doc!{ "device_id": 1, "owner_id": 1, "flag": -1, "expiration_date": -1 })
             .build();
 
-        let owner_device_compound = IndexModel::builder()
-            .keys(doc!{ "owner_id": 1, "device_id": 1 })
+        let device_flag_expiration_compound = IndexModel::builder()
+            .keys(doc!{ "device_id": 1, "flag": -1, "expiration_date": -1 })
             .build();
 
-        coll.create_index(device_expiration_compound).await?;
-        coll.create_index(owner_device_compound).await?;
+        let owner_flag_expiration_compound = IndexModel::builder()
+            .keys(doc!{ "owner_id": 1, "flag": -1, "expiration_date": -1 })
+            .build();
+
+        coll.create_index(device_user_flag_expiration_compound).await?;
+        coll.create_index(device_flag_expiration_compound).await?;
+        coll.create_index(owner_flag_expiration_compound).await?;
 
         Ok(())
     }

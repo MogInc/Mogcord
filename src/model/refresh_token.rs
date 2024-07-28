@@ -11,10 +11,12 @@ use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::model::user::User;
+use crate::{model::user::User, server_error};
+
+use super::error;
 
 
-const REFRESH_TOKEN_TTL_IN_DAYS: i64 = 365;
+const REFRESH_TOKEN_TTL_IN_DAYS: i64 = 30;
 
 #[derive(Deserialize)]
 pub struct RefreshToken
@@ -50,5 +52,22 @@ impl RefreshToken
             flag: Flag::None,
             owner,
         }
+    }
+
+    pub fn refresh_expiration<'err>(mut self) -> Result<Self, error::Server<'err>>
+    {
+        if !self.internal_is_valid()
+        {
+            return Err(server_error!(error::Kind::NotAllowed, error::OnType::RefreshToken));
+        }
+
+        self.expiration_date = Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS);
+
+        Ok(self)
+    }
+
+    fn internal_is_valid(&self) -> bool
+    {
+        matches!(self.flag, Flag::None)
     }
 }
