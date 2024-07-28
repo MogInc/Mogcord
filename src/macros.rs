@@ -145,7 +145,7 @@ macro_rules! server_error
     {
         $crate::model::error::Server::from_child($child, file!(), line!())
     };
-    ($error_kind:expr, $on_type:expr, $child:expr) => 
+    ($child:expr, $error_kind:expr, $on_type:expr) => 
     {
         $crate::model::error::Server::new_from_child($child, $error_kind, $on_type, file!(), line!())
     };
