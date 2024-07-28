@@ -4,7 +4,8 @@ mod repository;
 use bson::{Bson, DateTime, Uuid};
 use serde::{Deserialize, Serialize};
 
-use crate::{model::{error, refresh_token::{self, RefreshToken}}, server_error};
+use crate::model::{error, refresh_token::{self, RefreshToken}};
+use crate::{server_error, bubble};
 use super::helper::{self, as_string, MongolHelper};
 
 
@@ -25,8 +26,8 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
 
     fn try_from(value: &RefreshToken) -> Result<Self, Self::Error> 
     {
-        let device_id = helper::convert_domain_id_to_mongol(&value.device_id)?;
-        let owner_id = helper::convert_domain_id_to_mongol(&value.owner.id)?;
+        let device_id = bubble!(helper::convert_domain_id_to_mongol(&value.device_id))?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
         let expiration_date = value
             .expiration_date
