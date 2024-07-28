@@ -67,10 +67,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::from_child(
-                err,
-                file!(),
-                line!())
+            .map_err(|err|server_error!(err)
                 .add_debug_info("user id", user_id.to_string())
             )
     }
@@ -81,12 +78,7 @@ impl user::Repository for MongolDB
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|error::Server::from_child(
-                err,
-                file!(),
-                line!())
-                .add_debug_info("mail", mail.to_string())
-            )
+            .map_err(|err|server_error!(err).add_debug_info("mail", mail.to_string()))
     }
 
     async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server<'err>>

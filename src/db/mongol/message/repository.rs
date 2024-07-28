@@ -72,11 +72,7 @@ impl message::Repository for MongolDB
             bucket.add_message(message.clone());
 
             let db_bucket = MongolBucket::try_from(&bucket)
-                .map_err(|err| error::Server::from_child(
-                    err, 
-                    file!(), 
-                    line!()
-                ))?;
+                .map_err(|err| server_error!(err))?;
 
             self
                 .buckets()
