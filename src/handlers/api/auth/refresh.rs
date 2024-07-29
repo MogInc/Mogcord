@@ -44,7 +44,7 @@ pub async fn refresh_token(
         return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken));
     }
 
-    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, refresh_token.owner.flag.is_mogcord_admin_or_owner());
 
     match auth::create_acces_token(&create_token_request)
     {

@@ -75,7 +75,7 @@ pub async fn login(
     }
     
     let user = refresh_token.owner;
-    let create_token_request = CreateAccesTokenRequest::new(&user.id, &user.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&user.id, user.flag.is_mogcord_admin_or_owner());
     
     match auth::create_acces_token(&create_token_request)
     {
