@@ -6,10 +6,9 @@ use std::{env, sync::Arc};
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
-use mogcord::model::{channel, channel_parent, log, message, refresh_token, relation, user, AppState};
+use mogcord::model::{log, AppState};
 use mogcord::handlers;
 use mogcord::middleware::logging::main_response_mapper;
-use mogcord::db::MongolDB;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -22,33 +21,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let api_socket = env::var("API_SOCKET")
         .unwrap_or("127.0.0.1:3000".to_owned());
 
-    let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
+    let state = AppState::new(&mongoldb_connection_string).await;
     
-    let chats =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
-    let servers =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
-    let channel_parents =  Arc::clone(&db) as Arc<dyn channel_parent::Repository>;
-    let channels =  Arc::clone(&db) as Arc<dyn channel::Repository>;
-    let users = Arc::clone(&db) as Arc<dyn user::Repository>;
-    let messages = Arc::clone(&db) as Arc<dyn message::Repository>;
-    let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
-    let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
-
-
     let logs = Arc::new(FileWriter::new("./logs_server")) as Arc<dyn log::Repository>;
 
-    let state: Arc<AppState> = Arc::new(
-        AppState 
-        {
-            chats,
-            servers,
-            channel_parents,
-            channels,
-            users,
-            messages,
-            refresh_tokens,
-            relations,
-        }
-    );
 
     let app: Router = Router::new()
         .nest("/", handlers::web::routes(state.clone()))
