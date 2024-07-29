@@ -1,9 +1,7 @@
 use std::path::Path;
-use std::{fs::OpenOptions, io::BufWriter};
-use std::io::Write;
 
 use axum::async_trait;
-
+use tokio::{fs::OpenOptions, io::{AsyncWriteExt, BufWriter}};
 use crate::{model::{error::{self}, log::{self, RequestLogLine}}, server_error};
 
 use super::FileWriter;
@@ -21,6 +19,7 @@ impl<'a> log::Repository for FileWriter<'a>
             .append(true)
             .create(true)
             .open(&path)
+            .await
             .map_err(|err| 
                 server_error!(error::Kind::FileOpening, error::OnType::Log)
                 .add_debug_info("file error", err.to_string())
@@ -34,19 +33,31 @@ impl<'a> log::Repository for FileWriter<'a>
                 server_error!(error::Kind::Parse, error::OnType::Log)
                 .add_debug_info("file error", err.to_string())
             )?;
-        
-        writeln!(buf_writer, "{json}")
+
+        buf_writer
+            .write_all(json.as_bytes())
+            .await
             .map_err(|err| 
                 server_error!(error::Kind::Write, error::OnType::Log)
                 .add_debug_info("file error", err.to_string())
             )?;
         
-        buf_writer.flush()
+        buf_writer
+            .write_all(b"\n")
+            .await
+            .map_err(|err| 
+                server_error!(error::Kind::Write, error::OnType::Log)
+                .add_debug_info("file error", err.to_string())
+            )?;
+
+        buf_writer
+            .flush()
+            .await
             .map_err(|err| 
                 server_error!(error::Kind::FlushBuffer, error::OnType::Log)
                 .add_debug_info("file error", err.to_string())
             )?;
-        
+
         Ok(())
     }
 }
