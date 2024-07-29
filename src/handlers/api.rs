@@ -14,12 +14,12 @@ use tower::{buffer::BufferLayer, limit::RateLimitLayer};
 use crate::{middleware::auth::mw_require_admin_authentication, model::AppState};
 use crate::middleware::auth::{mw_ctx_resolver, mw_require_authentication};
 
-pub mod user;
-pub mod chat;
-pub mod server;
-pub mod message;
-pub mod auth;
-pub mod relation;
+mod user;
+mod chat;
+mod server;
+mod message;
+mod auth;
+mod relation;
 
 
 pub fn routes(state: Arc<AppState>) -> Router
