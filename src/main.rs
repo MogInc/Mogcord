@@ -17,10 +17,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     dotenv().ok();
 
     let mongoldb_connection_string = env::var("MONGOLDB_CONNECTION")
-        .unwrap_or("mongodb://localhost:27017".to_owned());
+        .unwrap_or("mongodb://localhost:27017".to_string());
 
     let api_socket = env::var("API_SOCKET")
-        .unwrap_or("127.0.0.1:3000".to_owned());
+        .unwrap_or("127.0.0.1:3000".to_string());
+
+    let log_path = env::var("LOG_PATH")
+        .unwrap_or("./logs_server".to_string());
 
     let db = Arc::new(MongolDB::init(&mongoldb_connection_string).await?);
     
@@ -34,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
 
-    let logs = Arc::new(FileWriter::new("./logs_server")) as Arc<dyn log::Repository>;
+    let logs = Arc::new(FileWriter::new(log_path)) as Arc<dyn log::Repository>;
 
     let state: Arc<AppState> = Arc::new(
         AppState 
