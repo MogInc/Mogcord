@@ -1,22 +1,19 @@
-use crate::model::user;
-
-
 #[derive(Clone, Debug)]
 pub struct Ctx
 {
 	user_id: String,
-	user_flag: user::Flag,
+	is_admin: bool,
 }
 
 impl Ctx 
 {
 	#[must_use]
-	pub fn new(user_id: String, user_flag: user::Flag) -> Self 
+	pub fn new(user_id: String, is_admin: bool) -> Self 
     {
 		Self 
         { 
             user_id,
-			user_flag,
+			is_admin,
         }
 	}
 }
@@ -24,26 +21,20 @@ impl Ctx
 impl Ctx 
 {
 	#[must_use]
-	pub fn user_id_ref(&self) -> &str 
-    {
-		&self.user_id
-	}
-
-	#[must_use]
-	pub fn user_flag_ref(&self) -> &user::Flag
-    {
-		&self.user_flag
-	}
-
-	#[must_use]
 	pub fn user_id(self) -> String 
     {
 		self.user_id
 	}
 
 	#[must_use]
-	pub fn user_flag(self) -> user::Flag
+	pub fn user_id_ref(&self) -> &str 
     {
-		self.user_flag
+		&self.user_id
+	}
+
+	#[must_use]
+	pub fn is_admin(&self) -> bool
+    {
+		self.is_admin
 	}
 }

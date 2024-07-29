@@ -43,7 +43,7 @@ pub async fn mw_require_admin_authentication(
 	{
 		Ok(ctx) => 
 		{
-			if !&ctx.user_flag_ref().is_admin_or_owner()
+			if !&ctx.is_admin()
 			{
 				return Err(server_error!(error::Kind::NoAuth, error::OnType::Rights).add_client(error::Client::PERMISSION_NO_ADMIN));
 			}
@@ -98,7 +98,7 @@ fn internal_get_ctx<'err>(jar: &Cookies) -> Result<Ctx, error::Server<'err>>
 		.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
 		.and_then(|val| internal_parse_token(val.as_str()))
 	{
-		Ok(claims) => Ok(Ctx::new(claims.sub, claims.user_flag)),
+		Ok(claims) => Ok(Ctx::new(claims.sub, claims.is_admin)),
 		Err(e) => Err(e),
 	}
 }
