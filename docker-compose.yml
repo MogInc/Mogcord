@@ -7,12 +7,15 @@ services:
     environment:
       MONGOLDB_CONNECTION: mongodb://mongol0:27017
       API_SOCKET: 0.0.0.0:3000
+      LOG_PATH: ./storage/logs_server
     env_file:
     - .env
     ports: 
       - "3000:3000"
     depends_on:
       - mongol0
+    volumes:
+      - api:/storage
     networks:
       - mogcord-network
 
@@ -36,6 +39,7 @@ services:
 
 
 volumes:
+  api:
   mongol_db0:
   mongol_config0:
 

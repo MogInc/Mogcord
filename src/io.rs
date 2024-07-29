@@ -1,18 +1,18 @@
 pub mod log;
 
-pub struct FileWriter<'a>
+pub struct FileWriter
 {
-    folder_path: &'a str,
+    folder_path: String,
 }
 
-impl<'a> FileWriter<'a>
+impl FileWriter
 {
     #[must_use]
     /// Creates a new instance of `FileWriter` and ensures the specified folder path exists.
     /// 
     /// # Parameters
     /// 
-    /// - `folder_path`: A string slice that holds the path to the folder.
+    /// - `folder_path`: A string that holds the path to the folder.
     ///  
     /// NOTE: This path is ensured to exist by creating the directory and any necessary parent directories if they do not already exist.
     /// # Returns
@@ -33,9 +33,9 @@ impl<'a> FileWriter<'a>
     /// 
     /// assert_eq!(path, fw.get_path());
     /// ```
-    pub fn new(folder_path: &'a str) -> Self
+    pub fn new(folder_path: String) -> Self
     {
-        std::fs::create_dir_all(folder_path)
+        std::fs::create_dir_all(&folder_path)
             .expect("failed to create");
         Self
         {
@@ -44,11 +44,11 @@ impl<'a> FileWriter<'a>
     }
 }
 
-impl<'a> FileWriter<'a>
+impl FileWriter
 {
     #[must_use]
     pub fn get_path(&self) -> &str
     {
-        self.folder_path
+        self.folder_path.as_str()
     }
 }

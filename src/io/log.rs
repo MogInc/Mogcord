@@ -7,11 +7,11 @@ use crate::{model::{error::{self}, log::{self, RequestLogLine}}, server_error};
 use super::FileWriter;
 
 #[async_trait]
-impl<'a> log::Repository for FileWriter<'a>
+impl log::Repository for FileWriter
 {
     async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> error::Result<'err, ()>
     {
-        let path = Path::new(self.folder_path)
+        let path = Path::new(&self.folder_path)
             .join(format!("{}.log", chrono::offset::Local::now().date_naive()));
 
         //most likely too naive of a solution
