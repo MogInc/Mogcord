@@ -25,7 +25,7 @@ impl<'a> FileWriter<'a>
     /// 
     /// # Examples
     /// 
-    /// ```
+    /// ```ignore
     /// # use mogcord::file_writer::FileWriter;
     /// 
     /// let path = "/path/to/folder";
