@@ -51,6 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     );
 
     let app: Router = Router::new()
+        .nest("/", handlers::web::routes(state.clone()))
         .nest("/api", handlers::api::routes(state.clone()))
         .layer(middleware::map_response_with_state(logs, main_response_mapper))
         .layer(middleware::from_fn(mw_ctx_resolver))
