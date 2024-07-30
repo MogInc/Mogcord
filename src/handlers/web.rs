@@ -3,6 +3,7 @@ mod auth;
 use std::sync::Arc;
 use askama::Template;
 use axum::{routing::get, Router};
+use tower_http::services::ServeFile;
 
 use crate::model::AppState;
 
@@ -25,6 +26,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/login", get(auth::login))
         //hello
         .route("/", get(index))
+        .nest_service("/main.css", ServeFile::new("templates/main.css"))
         .with_state(state);
 
 
