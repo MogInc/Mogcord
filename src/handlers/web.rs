@@ -1,21 +1,32 @@
-use std::sync::Arc;
-use axum::{response::Html, routing::get, Router};
-use askama::Template;
-use tower_http::services::ServeFile;
+mod auth;
 
+use std::sync::Arc;
+use askama::Template;
+use axum::{routing::get, Router};
+use tower_http::services::ServeFile;
 
 use crate::model::AppState;
 
-pub async fn handler() -> Html<String> 
+#[derive(Template)]
+#[template(path = "index.html")]
+pub struct Index {}
+
+pub async fn index() -> Index
 {
-    Html("<h1>Hello there test</h1>".to_string())
+    Index
+    {
+        
+    }
 }
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_without_middleware =  Router::new()
+        //auth
+        .route("/login", get(auth::login))
         //hello
-        .route("/hello", get(handler))
+        .route("/", get(index))
+        .nest_service("/main.css", ServeFile::new("templates/main.css"))
         .with_state(state);
 
 
