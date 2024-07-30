@@ -22,11 +22,11 @@ pub async fn index() -> Index
 pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_without_middleware =  Router::new()
-        .nest_service("/s", ServeDir::new("static"))
         //auth
         .route("/login", get(auth::login))
         //hello
         .route("/", get(index))
+        .nest_service("/s", ServeDir::new("static"))
         .with_state(state);
 
 
