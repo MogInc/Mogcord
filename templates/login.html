@@ -17,7 +17,9 @@
             name="mail"
             type="text"
             placeholder="Mail"
-            value='{{ mail.unwrap_or("") }}'
+            {% if mail.is_some() %}
+            value='{{ mail.as_ref().unwrap() }}'
+            {% endif %}
           />
         </div>
         <div class="mb-6">
@@ -32,7 +34,9 @@
             name="password"
             type="password"
             placeholder="******************"
-            value='{{ password.unwrap_or("") }}'
+            {% if password.is_some() %}
+            value='{{ password.as_ref().unwrap() }}'
+            {% endif %}
           />
         </div>
         <div class="flex items-center justify-center">
@@ -47,7 +51,7 @@
           class="lg:max-w-6xl lg:w-full bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4"
           role="alert"
         >
-          <p>{{ error.unwrap() }}</p>
+          <p>{{ error.as_ref().unwrap() }}</p>
         </div>
         {% endif %}
       </form>
