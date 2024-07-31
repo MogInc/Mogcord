@@ -6,22 +6,17 @@ use axum::{extract::State, http::StatusCode, response::{Html, Redirect}, Form};
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{handlers::logic, model::AppState};
+use crate::{handlers::{logic, web::{server_error_to_display, ErrorComponent}}, model::AppState};
 
 #[derive(Template)]
 #[template(path = "login.html")]
 pub struct Login
 {
-    mail: Option<String>,
-    error: Option<String>,
+
 }
 pub async fn get_login() -> Login
 {
-    Login
-    {
-        mail: None,
-        error: None,
-    }
+    Login{}
 }
 
 #[derive(Deserialize)]
@@ -40,14 +35,7 @@ pub async fn post_login(
 
     if let Err(err) = result 
     {
-        Err(
-            Html(
-                Login 
-                {
-                    mail: Some(form.mail),
-                    error: err.client.map(|x| x.to_string()),
-                }.render().unwrap(),
-        ))
+        Err(Html(ErrorComponent { message: server_error_to_display(err) }.render().unwrap()))
     } 
     else 
     {

@@ -38,9 +38,9 @@ pub fn routes(state: Arc<AppState>) -> Router
 
 #[derive(Template)]
 #[template(path = "components/error.html")]
-pub struct ErrorComponent 
+pub struct ErrorComponent<'a>
 {
-    message: String
+    message: &'a str
 }
 
 #[must_use]
