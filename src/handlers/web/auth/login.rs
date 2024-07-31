@@ -10,13 +10,13 @@ use crate::{handlers::logic, model::AppState};
 
 #[derive(Template)]
 #[template(path = "login.html")]
-pub struct Login<'a>
+pub struct Login
 {
-    mail: Option<&'a str>,
-    password: Option<&'a str>,
-    error: Option<&'a str>,
+    mail: Option<String>,
+    password: Option<String>,
+    error: Option<String>,
 }
-pub async fn get_login<'a>() -> Login<'a>
+pub async fn get_login() -> Login
 {
     Login
     {
