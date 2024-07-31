@@ -4,14 +4,14 @@
     <title>{% block title %}Mogcord{% endblock %}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/missing.css@1.1.2">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/missing.css@1.1.2"> -->
     <script src="/s/js/htmx.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col h-screen justify-between">
-    <nav class="border-white px-2 sm:px-4 py-2.5">
+<body class="bg-neutral-900 flex flex-col h-screen justify-between">
+    <nav class="border-b border-white px-2 sm:px-4 py-2.5">
         <div class="container flex flex-wrap items-center justify-between mx-auto">
-            <a to="/" class="flex items-center hover:no-underline">
+            <a href="/" class="flex items-center hover:no-underline">
                 <img
                     class="h-6 mr-3 sm:h-9"
                     src="https://i.imgur.com/1CnGQe3.png"
@@ -28,7 +28,7 @@
 
         {% endblock %}
     </main>
-    <footer>
+    <footer class="border-t border-white">
         <div class="container flex flex-col items-center justify-between p-6 mx-auto space-y-4 sm:space-y-0 sm:flex-row">
             <a 
                 href="/"
@@ -36,9 +36,7 @@
             > 
                 Mogcord. 
             </a>
-            <p 
-                class="text-sm text-gray-300"
-            >
+            <p class="text-sm text-gray-300">
                 © Copyright 2023. All Snides Reserved.
             </p>
             <div class="flex -mx-2">     
@@ -46,7 +44,7 @@
                   href="https://github.com/MogInc"
                   target="_blank"
                   rel="noreferrer"
-                  class="mx-2 transition-colors duration-300 text-gray-300 hover:text-blue-500 hover:text-blue-400"
+                  class="mx-2 transition-colors duration-300 text-gray-300 hover:text-blue-400"
                   aria-label="Github"
                 >
                   <svg
