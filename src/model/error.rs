@@ -19,7 +19,7 @@ pub struct Server<'err>
 	pub line_nr: u32,
 	pub debug_info: HashMap<&'err str, String>,
 	pub pub_info: Option<String>,
-	client: Option<Client>,
+	pub client: Option<Client>,
 	pub child: Option<Box<Server<'err>>>,
 }
 
