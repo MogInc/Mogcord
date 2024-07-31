@@ -25,17 +25,17 @@ pub struct LoginRequest
     mail: String,
     password: String,
 }
-pub async fn post_login(
+pub async fn post_login<'a>(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
     Form(form): Form<LoginRequest>
-) -> Result<Redirect, Html<String>> 
+) -> Result<Redirect, ErrorComponent<'a>> 
 {
     let result = logic::auth::login(state, jar, &form.mail, &form.password).await;
 
     if let Err(err) = result 
     {
-        Err(Html(ErrorComponent { message: server_error_to_display(err) }.render().unwrap()))
+        Err(ErrorComponent { message: server_error_to_display(err) })
     } 
     else 
     {
