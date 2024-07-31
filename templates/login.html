@@ -42,6 +42,14 @@
             Login
           </button>
         </div>
+        {% if error.is_some() %}
+        <div
+          class="lg:max-w-6xl lg:w-full bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4"
+          role="alert"
+        >
+          <p>{{ error.unwrap() }}</p>
+        </div>
+        {% endif %}
       </form>
 </div>
 {% endblock %}

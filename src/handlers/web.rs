@@ -2,7 +2,7 @@ mod auth;
 
 use std::sync::Arc;
 use askama::Template;
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use tower_http::services::ServeDir;
 
 use crate::model::AppState;
@@ -23,7 +23,8 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_without_middleware =  Router::new()
         //auth
-        .route("/login", get(auth::login))
+        .route("/login", get(auth::get_login))
+        .route("/login", post(auth::post_login))
         //hello
         .route("/", get(index))
         .nest_service("/s", ServeDir::new("static"))
