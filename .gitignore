@@ -9,3 +9,6 @@
 
 #visual paradigm temp file
 /db/**.vpp.bak_**
+
+#js
+node_modules/
