@@ -2,9 +2,13 @@ mod auth;
 
 use std::sync::Arc;
 use askama::Template;
-use axum::{routing::{get, post}, Router};
+use axum::{http::StatusCode, routing::{get, post}, Router};
 use tower_http::services::ServeDir;
-
+use axum::{
+    debug_handler,
+    extract::{Path, Request, State},
+    response::{Html, IntoResponse, Redirect},
+};
 use crate::model::{error, AppState};
 
 #[derive(Template)]
@@ -43,16 +47,23 @@ pub struct ErrorComponent<'a>
     message: &'a str
 }
 
-#[must_use]
-pub fn server_error_to_display(err: error::Server<'_>) -> &str
+impl IntoResponse for error::Client 
 {
-    if let Some(client) = err.client
+    fn into_response(self) -> axum::response::Response 
     {
-        client.translate_error()
-    }
-    else
-    {
-        "Unexpected error."
+        match self 
+        {
+            error::Client::PERMISSION_NO_ADMIN
+            | error::Client::NOT_ALLOWED_PLATFORM
+            | error::Client::PERMISSION_NO_AUTH => 
+            {
+                println!("HEHE IM HERE");
+
+                Redirect::temporary("/").into_response()
+            },
+            error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
+            rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
+        }
     }
 }
 
