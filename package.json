@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "dev": "npm install && cargo watch -x run -i '{**/static/**,**/templates/input.css}' -s 'npx tailwindcss -i templates/input.css -o static/styling/main.css && cargo run'"
-    ,"test": "npx tailwindcss -i templates/input.css -o static/styling/main.css"
+    "dev": "npm install && cargo watch -x run -i \"{**/static/**,**/templates/input.css}\" -s \"npx tailwindcss -i templates/input.css -o static/styling/main.css\"'"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.7"
