@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let state = AppState::new(&mongoldb_connection_string, &log_path).await;
     
-    let app = handlers::new(&state);
+    let app = handlers::new(state);
 
     let listener = TcpListener::bind(api_socket)
         .await
