@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::{Method, StatusCode, Uri}, response::{IntoResponse, Response}, Json};
+use axum::{extract::State, http::{Method, Uri}, response::{IntoResponse, Response}, Json};
 use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
@@ -71,15 +71,5 @@ pub async fn main_response_mapper(
 
 	println!();
 	
-	error_response.unwrap_or({
-		//shouldnt be able to panic
-		if res.status() == StatusCode::OK && res.headers().get("content-length").unwrap() == "0"
-		{
-			(StatusCode::NO_CONTENT).into_response()
-		}
-		else
-		{
-			res
-		}
-	})
+	error_response.unwrap_or(res)
 }
