@@ -1,5 +1,6 @@
 use dotenv::dotenv;
 use mogcord::middleware::auth::mw_ctx_resolver;
+use mogcord::middleware::logging::main_response_mapper;
 use tower_cookies::CookieManagerLayer;
 use std::env;
 use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
@@ -7,7 +8,6 @@ use tokio::net::TcpListener;
 
 use mogcord::model::AppState;
 use mogcord::handlers;
-use mogcord::middleware::logging::api_response_mapper;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -28,6 +28,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let app: Router = Router::new()
         .nest("/", handlers::web::routes(state.clone()))
         .nest("/api", handlers::api::routes(state.clone()))
+        .layer(middleware::map_response_with_state(state.logs.clone(), main_response_mapper))
+        .layer(middleware::from_fn(mw_ctx_resolver))
+        .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 
 
