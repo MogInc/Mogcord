@@ -1,9 +1,5 @@
 use dotenv::dotenv;
-use mogcord::middleware::auth::mw_ctx_resolver;
-use mogcord::middleware::logging::main_response_mapper;
-use tower_cookies::CookieManagerLayer;
 use std::env;
-use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
 use tokio::net::TcpListener;
 
 use mogcord::model::AppState;
@@ -25,16 +21,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
 
     let state = AppState::new(&mongoldb_connection_string, &log_path).await;
     
-    let app: Router = Router::new()
-        .nest("/", handlers::web::routes(state.clone()))
-        .nest("/api", handlers::api::routes(state.clone()))
-        .layer(middleware::map_response_with_state(state.logs.clone(), main_response_mapper))
-        .layer(middleware::from_fn(mw_ctx_resolver))
-        .layer(CookieManagerLayer::new())
-        .fallback(page_not_found);
+    let app = handlers::new(&state);
 
-
-    let listener: TcpListener = TcpListener::bind(api_socket)
+    let listener = TcpListener::bind(api_socket)
         .await
         .unwrap();
 
@@ -47,9 +36,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         .unwrap();
 
     Ok(())
-}
-
-async fn page_not_found() -> impl IntoResponse 
-{
-    (StatusCode::NOT_FOUND, "404 Page Not Found")
 }
