@@ -10,7 +10,9 @@ use axum::extract::{FromRequestParts, Path};
 use axum::async_trait;
 use tower::{BoxError, ServiceBuilder};
 use tower::{buffer::BufferLayer, limit::RateLimitLayer};
+use tower_cookies::CookieManagerLayer;
 
+use crate::middleware::logging::api_response_mapper;
 use crate::{middleware::auth::mw_require_admin_authentication, model::AppState};
 use crate::middleware::auth::{mw_ctx_resolver, mw_require_authentication};
 
@@ -72,13 +74,16 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/auth/refresh", post(auth::refresh_token))
         //users
         .route("/users", post(user::create_user))
-        .with_state(state);
+        .with_state(state.clone());
 
 
     Router::new()
         .merge(routes_with_admin_middleware)
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
+        .layer(middleware::map_response_with_state(state.logs.clone(), api_response_mapper))
+        .layer(middleware::from_fn(mw_ctx_resolver))
+        .layer(CookieManagerLayer::new())
 }
 
 enum Limit

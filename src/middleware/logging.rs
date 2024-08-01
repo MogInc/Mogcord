@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::model::{error, log::{log_request, Repository, RequestLogLinePersonal}};
 use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
 
-pub async fn main_response_mapper(
+pub async fn api_response_mapper(
 	State(state): State<Arc<dyn Repository>>,
 	uri: Uri,
 	ctx: Option<Ctx>,
