@@ -10,5 +10,5 @@ pub async fn refresh_token(
     jar: Cookies
 ) -> impl IntoResponse
 {
-    handlers::logic::auth::refresh_token(state, jar).await
+    handlers::logic::auth::refresh_token(&state, &jar).await
 }
