@@ -57,7 +57,7 @@ impl IntoResponse for error::Client
             | error::Client::NOT_ALLOWED_PLATFORM
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
+            rest => (StatusCode::OK, ErrorComponent{message: rest.translate_error()}).into_response(),
         }
     }
 }
