@@ -52,6 +52,7 @@ impl IntoResponse for error::Client
             error::Client::PERMISSION_NO_ADMIN
             | error::Client::NOT_ALLOWED_PLATFORM
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
+            error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
             rest => (StatusCode::OK, ErrorComponent{message: rest.translate_error()}).into_response(),
         }
@@ -91,6 +92,7 @@ impl error::Client
             error::Client::RELATION_SELF_TRY_FRIEND_SELF => "Can't add yourself as a friend.",
             error::Client::RELATION_SELF_TRY_UNBLOCK_SELF => "Can't unblock yourself.",
             error::Client::RELATION_SELF_TRY_UNFRIEND_SELF => "Can't unfriend yourself.",
+            error::Client::USER_ALREADY_LOGGED_IN => "User already logged in.",
             error::Client::USERNAME_IN_USE => "Username is already in use.",
             error::Client::RELATION_USER_ALREADY_BLOCKED => "This user is already blocked.",
             error::Client::RELATION_USER_ALREADY_FRIEND => "This user is already your friend.",
