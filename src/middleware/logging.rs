@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::model::{error, log::{log_request, Repository, RequestLogLinePersonal}};
 use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
 
-pub async fn api_response_mapper(
+pub async fn main_response_mapper(
 	State(state): State<Arc<dyn Repository>>,
 	uri: Uri,
 	ctx: Option<Ctx>,
@@ -73,7 +73,7 @@ pub async fn api_response_mapper(
 	
 	error_response.unwrap_or({
 		//shouldnt be able to panic
-		if res.headers().get("content-length").unwrap() == "0"
+		if res.status() == StatusCode::OK && res.headers().get("content-length").unwrap() == "0"
 		{
 			(StatusCode::NO_CONTENT).into_response()
 		}
