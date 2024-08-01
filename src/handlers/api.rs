@@ -12,7 +12,7 @@ use tower::{BoxError, ServiceBuilder};
 use tower::{buffer::BufferLayer, limit::RateLimitLayer};
 
 use crate::{middleware::auth::mw_require_admin_authentication, model::AppState};
-use crate::middleware::auth::{mw_ctx_resolver, mw_require_authentication};
+use crate::middleware::auth::mw_require_authentication;
 
 mod user;
 mod chat;
@@ -29,8 +29,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/admin/users/:user_id", get(user::admin::get_user))
         .route("/admin/users", get(user::admin::get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw_require_admin_authentication))
-        .route_layer(middleware::from_fn(mw_ctx_resolver));
+        .route_layer(middleware::from_fn(mw_require_admin_authentication));
 
     let routes_with_regular_middleware =  Router::new()
         //auth
@@ -57,7 +56,6 @@ pub fn routes(state: Arc<AppState>) -> Router
         //users
         .route("/users/current", get(user::authenticated::get_ctx_user_auth))
         .route_layer(middleware::from_fn(mw_require_authentication))
-        .route_layer(middleware::from_fn(mw_ctx_resolver))
         .with_state(state.clone());
 
 
