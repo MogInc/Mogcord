@@ -12,3 +12,6 @@
 
 #js
 node_modules/
+
+#css
+static/styling/**
