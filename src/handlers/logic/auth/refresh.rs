@@ -6,8 +6,8 @@ use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cook
 use crate::server_error;
 
 pub async fn refresh_token<'err>(
-    state: Arc<AppState>,
-    jar: Cookies
+    state: &Arc<AppState>,
+    jar: &Cookies
 ) -> Result<(), error::Server<'err>>
 {
     let repo_refresh = &state.refresh_tokens;
