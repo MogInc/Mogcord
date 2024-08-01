@@ -3,6 +3,8 @@ mod ctx;
 mod cookie_names;
 
 
+use std::sync::Arc;
+
 pub use jwt::*;
 pub use ctx::*;
 pub use cookie_names::*;
@@ -11,10 +13,10 @@ pub const ACCES_TOKEN_TTL_MIN: i64 = 10 * 10000;
 pub const REFRESH_TOKEN_TTL_MIN: i64 = 60 * 24 * 365;
 pub const DEVICE_ID_TTL_MIN: i64 = 60 * 24 * 365 * 5;
 
-use axum::{async_trait, body::Body, extract::FromRequestParts, http::{request::Parts, Request}, middleware::Next, response::Response};
+use axum::{async_trait, body::Body, extract::{FromRequestParts, State}, http::{request::Parts, Request}, middleware::Next, response::Response};
 use tower_cookies::Cookies;
 
-use crate::{model::error, server_error};
+use crate::{model::{error, AppState}, server_error};
 use crate::middleware::{auth, cookies::Manager};
 
 
@@ -55,6 +57,7 @@ pub async fn mw_require_admin_authentication(
 }
 
 pub async fn mw_ctx_resolver<'err>(
+	State(state): State<Arc<AppState>>,
     jar: Cookies, 
     mut req: Request<Body>, 
     next: Next
@@ -62,11 +65,19 @@ pub async fn mw_ctx_resolver<'err>(
 {
 	println!("MTX RESOLVER: ");
 
-	let ctx_result = get_ctx(&jar);
+	let mut ctx_result = get_ctx(&jar);
 
-	if ctx_result.is_err() && !matches!(ctx_result.as_ref().unwrap_err().kind, error::Kind::Expired)
+	match ctx_result
 	{
-		jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
+		Ok(_) => (),
+		Err(err) if matches!(err.kind, error::Kind::Expired) => 
+		{
+			println!("REFRESH");
+			
+			let _ = crate::handlers::logic::auth::refresh_token(&state, &jar).await;
+			ctx_result = get_ctx(&jar);
+		},
+		Err(_) => jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string()),
 	}
 
 	req
