@@ -8,7 +8,7 @@ use tokio::net::TcpListener;
 
 use mogcord::model::{log, AppState};
 use mogcord::handlers;
-use mogcord::middleware::logging::main_response_mapper;
+use mogcord::middleware::logging::api_response_mapper;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -33,9 +33,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let app: Router = Router::new()
         .nest("/", handlers::web::routes(state.clone()))
         .nest("/api", handlers::api::routes(state.clone()))
-        .layer(middleware::map_response_with_state(logs, main_response_mapper))
-        .layer(middleware::from_fn(mw_ctx_resolver))
-        .layer(CookieManagerLayer::new())
         .fallback(page_not_found);
 
 
