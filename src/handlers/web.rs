@@ -25,8 +25,9 @@ pub fn routes(state: Arc<AppState>) -> Router
         //auth
         .route("/login", get(auth::get_login))
         .route("/login", post(auth::post_login))
-        //hello
+        //index
         .route("/", get(index))
+        //static files
         .nest_service("/s", ServeDir::new("static"))
         .with_state(state);
 
