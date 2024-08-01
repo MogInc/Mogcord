@@ -38,7 +38,7 @@ pub fn routes(state: Arc<AppState>) -> Router
 
 #[derive(Template)]
 #[template(path = "components/error.html")]
-pub struct ErrorComponent<'a>
+pub struct ErrorFormComponent<'a>
 {
     message: &'a str
 }
@@ -47,6 +47,7 @@ impl IntoResponse for error::Client
 {
     fn into_response(self) -> axum::response::Response 
     {
+        #[allow(clippy::match_same_arms)]
         match self 
         {
             error::Client::PERMISSION_NO_ADMIN
@@ -54,7 +55,7 @@ impl IntoResponse for error::Client
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest => (StatusCode::OK, ErrorComponent{message: rest.translate_error()}).into_response(),
+            rest => (StatusCode::OK, rest.translate_error()).into_response(),
         }
     }
 }
