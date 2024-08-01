@@ -6,7 +6,7 @@ use axum_htmx::HxRedirect;
 use serde::Deserialize;
 use tower_cookies::{cookie::CookieJar, Cookies};
 
-use crate::{handlers::{logic, web::{ErrorComponent}}, model::{error, AppState}};
+use crate::{handlers::{logic}, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -14,9 +14,9 @@ pub struct Login
 {
 
 }
-pub async fn get_login() -> Result<(), error::Client>
+pub async fn get_login() -> Login
 {
-    Err(error::Client::PERMISSION_NO_ADMIN)
+    Login{}
 }
 
 #[derive(Deserialize)]
