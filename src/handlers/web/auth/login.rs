@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use askama::Template;
-use askama_axum::IntoResponse;
-use axum::{extract::State, http::StatusCode, response::{Html, Redirect}, Form};
+use axum::{extract::State, http::StatusCode, response::{Html, IntoResponse, Redirect}, Form};
+use axum_htmx::HxRedirect;
 use serde::Deserialize;
-use tower_cookies::Cookies;
+use tower_cookies::{cookie::CookieJar, Cookies};
 
-use crate::{handlers::{logic, web::{server_error_to_display, ErrorComponent}}, model::AppState};
+use crate::{handlers::{logic, web::{ErrorComponent}}, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -14,9 +14,9 @@ pub struct Login
 {
 
 }
-pub async fn get_login() -> Login
+pub async fn get_login() -> Result<(), error::Client>
 {
-    Login{}
+    Err(error::Client::PERMISSION_NO_ADMIN)
 }
 
 #[derive(Deserialize)]
@@ -29,16 +29,16 @@ pub async fn post_login<'a>(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
     Form(form): Form<LoginRequest>
-) -> Result<Redirect, ErrorComponent<'a>> 
+) -> Result<impl IntoResponse, error::Client>
 {
     let result = logic::auth::login(state, jar, &form.mail, &form.password).await;
 
     if let Err(err) = result 
     {
-        Err(ErrorComponent { message: server_error_to_display(err) })
+        Err(err.client)
     } 
     else 
     {
-        Ok(Redirect::permanent("/index"))
+        Ok((HxRedirect("/".parse().unwrap()), "").into_response())
     }
 }
