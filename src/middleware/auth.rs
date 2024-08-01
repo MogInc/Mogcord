@@ -54,7 +54,6 @@ pub async fn mw_require_admin_authentication(
     Ok(next.run(req).await)
 }
 
-
 pub async fn mw_ctx_resolver<'err>(
     jar: Cookies, 
     mut req: Request<Body>, 
@@ -63,7 +62,7 @@ pub async fn mw_ctx_resolver<'err>(
 {
 	println!("MTX RESOLVER: ");
 
-	let ctx_result = internal_get_ctx(&jar);
+	let ctx_result = get_ctx(&jar);
 
 	if ctx_result.is_err() && !matches!(ctx_result.as_ref().unwrap_err().kind, error::Kind::Expired)
 	{
@@ -77,6 +76,16 @@ pub async fn mw_ctx_resolver<'err>(
 	Ok(next.run(req).await)
 }
 
+pub fn get_ctx<'err>(jar: &Cookies) -> Result<Ctx, error::Server<'err>>
+{
+	match jar
+		.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
+		.and_then(|val| internal_parse_token(val.as_str()))
+	{
+		Ok(claims) => Ok(Ctx::new(claims.sub, claims.is_admin)),
+		Err(e) => Err(e),
+	}
+}
 
 #[async_trait]
 impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
