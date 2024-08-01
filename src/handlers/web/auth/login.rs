@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
 use askama::Template;
-use axum::{extract::State, http::StatusCode, response::{Html, IntoResponse, Redirect}, Form};
+use axum::{extract::State, response::IntoResponse, Form};
 use axum_htmx::HxRedirect;
 use serde::Deserialize;
-use tower_cookies::{cookie::CookieJar, Cookies};
+use tower_cookies::Cookies;
 
-use crate::{handlers::{logic}, model::{error, AppState}};
+use crate::{handlers::logic, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "login.html")]

@@ -4,11 +4,7 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{http::StatusCode, routing::{get, post}, Router};
 use tower_http::services::ServeDir;
-use axum::{
-    debug_handler,
-    extract::{Path, Request, State},
-    response::{Html, IntoResponse, Redirect},
-};
+use axum::response::{IntoResponse, Redirect};
 use crate::model::{error, AppState};
 
 #[derive(Template)]
