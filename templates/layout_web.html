@@ -13,11 +13,11 @@
 <body 
     class="bg-neutral-900 flex flex-col h-screen justify-between"
     hx-boost="true"
+    x-data
     >
     {% include "components/navbar.html" %}
     <main 
         class="mb-auto"
-        x-data
     >
         {% block content %}
 
@@ -28,11 +28,13 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('navBarButtons', {
-            logged_in: true,
-            is_login_page: true,
+            logged_in: false,
+            is_login_page: false,
  
-            set(is_logged_in, is_login_page) {
+            set_state(is_logged_in) {
                 this.logged_in = is_logged_in;
+            },
+            set_page(is_login_page) {
                 this.is_login_page = is_login_page;
             }
         })
