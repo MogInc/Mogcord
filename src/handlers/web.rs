@@ -50,20 +50,40 @@ pub struct ErrorFormComponent<'a>
     message: &'a str
 }
 
+#[derive(PartialEq)]
+pub enum PotentialErrorDisplay
+{
+    None,
+    Form,
+}
+pub struct HtmxError(error::Client, PotentialErrorDisplay);
+impl HtmxError
+{
+    pub fn new(client: error::Client) -> Self
+    {
+        Self(client, PotentialErrorDisplay::None)
+    }
+    pub fn new_form(client: error::Client) -> Self
+    {
+        Self(client, PotentialErrorDisplay::Form)
+    }
+}
+
 //i dont like that im returning a statuscode ok for an error
-impl IntoResponse for error::Client 
+impl IntoResponse for HtmxError
 {
     fn into_response(self) -> axum::response::Response 
     {
         #[allow(clippy::match_same_arms)]
-        match self 
+        match self.0
         {
             error::Client::PERMISSION_NO_ADMIN
             | error::Client::NOT_ALLOWED_PLATFORM
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest => (StatusCode::OK, rest.translate_error()).into_response(),
+            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::OK, ErrorFormComponent{message: rest.translate_error()}).into_response(),
+            rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
         }
     }
 }
