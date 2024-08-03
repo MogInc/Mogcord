@@ -27,7 +27,7 @@ pub struct LoginRequest
     mail: String,
     password: String,
 }
-pub async fn post_login<'a>(
+pub async fn post_login(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
     Form(form): Form<LoginRequest>
