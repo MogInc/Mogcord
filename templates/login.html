@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}{% call super() %} - Login{% endblock %}
+
+{% block content %} 
+<div class="flex justify-center items-center">
+    <form 
+      class="w-full max-w-md" 
+      hx-post="/login" 
+      hx-target="#error"
+      hx-swap="innerHTML"
+      >
+        <div class="mb-4">
+          <label
+            class="block text-white text-2xl font-bold mb-2"
+            for="mail"
+          >
+            Mail
+          </label>
+          <input
+            class="shadow appearance-none border rounded w-full text-2xl py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            name="mail"
+            type="text"
+            placeholder="Mail"
+          />
+        </div>
+        <div class="mb-6">
+          <label
+            class="block text-white text-2xl font-bold mb-2"
+            for="password"
+          >
+            Password
+          </label>
+          <input
+            class="shadow appearance-none border rounded w-full text-2xl py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+            name="password"
+            type="password"
+            placeholder="******************"
+          />
+        </div>
+        <div class="flex items-center justify-center">
+          <button
+            class="transition-colors duration-300 bg-blue-500 hover:bg-blue-700 w-full text-2xl text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Login
+          </button>
+        </div>
+        <div id="error"></div>
+      </form>
+</div>
+{% endblock %}

@@ -17,7 +17,7 @@ pub enum Flag
 impl Flag
 {
     #[must_use]
-    pub fn is_admin_or_owner(&self) -> bool
+    pub fn is_mogcord_admin_or_owner(&self) -> bool
     {
         matches!(self, Self::Admin | Self::Owner)
     }

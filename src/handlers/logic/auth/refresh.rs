@@ -1,15 +1,14 @@
 use std::sync::Arc;
-use axum::{extract::State, response::IntoResponse};
 use tower_cookies::Cookies;
 
 use crate::model::{error, AppState};
 use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cookies::Manager};
 use crate::server_error;
 
-pub async fn refresh_token(
-    State(state): State<Arc<AppState>>,
-    jar: Cookies
-) -> impl IntoResponse
+pub async fn refresh_token<'err>(
+    state: &Arc<AppState>,
+    jar: &Cookies
+) -> Result<(), error::Server<'err>>
 {
     let repo_refresh = &state.refresh_tokens;
 
@@ -44,7 +43,7 @@ pub async fn refresh_token(
         return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken));
     }
 
-    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, &refresh_token.owner.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, refresh_token.owner.flag.is_mogcord_admin_or_owner());
 
     match auth::create_acces_token(&create_token_request)
     {
