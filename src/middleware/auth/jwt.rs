@@ -3,7 +3,7 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use crate::{model::{error::{self, Kind, OnType}, user}, server_error};
+use crate::{model::error::{self, Kind, OnType}, server_error};
 
 use super::ACCES_TOKEN_TTL_MIN;
 
@@ -12,7 +12,7 @@ use super::ACCES_TOKEN_TTL_MIN;
 pub struct Claims
 {
     pub sub: String,
-    pub user_flag: user::Flag,
+    pub is_admin: bool,
     pub exp: usize,
 }
 
@@ -23,21 +23,21 @@ pub enum TokenStatus
     DisallowExpired,
 }
 
-pub struct CreateAccesTokenRequest<'user_info>
+pub struct CreateAccesTokenRequest<'id>
 {
-    user_id: &'user_info String,
-    user_flag: &'user_info user::Flag,
+    user_id: &'id String,
+    is_admin: bool,
 }
 
 impl<'user_info> CreateAccesTokenRequest<'user_info>
 {
     #[must_use]
-    pub fn new(user_id: &'user_info String, user_flag: &'user_info user::Flag) -> Self
+    pub fn new(user_id: &'user_info String, is_admin: bool) -> Self
     {
         Self
         {
             user_id,
-            user_flag,
+            is_admin,
         }
     }
 }
@@ -47,7 +47,7 @@ pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> error::Res
     let claims = Claims
     {
         sub: request.user_id.clone(),
-        user_flag: request.user_flag.clone(),
+        is_admin: request.is_admin,
         #[allow(clippy::cast_possible_truncation)]
         #[allow(clippy::cast_sign_loss)]
         exp: (Utc::now() + Duration::minutes(ACCES_TOKEN_TTL_MIN)).timestamp() as usize,

@@ -1,24 +1,19 @@
 use std::sync::Arc;
-use axum::{extract::State, response::IntoResponse, Json};
-use serde::Deserialize;
 use tower_cookies::Cookies;
 
+
+use crate::middleware::cookies::Manager;
 use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
-use crate::middleware::{auth::{self, CreateAccesTokenRequest}, cookies::Manager};
+use crate::middleware::auth::{self, CreateAccesTokenRequest};
 use crate::server_error;
 
-#[derive(Deserialize)]
-pub struct LoginRequest
-{
-    mail: String,
-    password: String,
-}
 
-pub async fn login(
-    State(state): State<Arc<AppState>>,
-    jar: Cookies, 
-    Json(payload): Json<LoginRequest>,
-) -> impl IntoResponse
+pub async fn login<'err>(
+    state: Arc<AppState>,
+    jar: Cookies,
+    mail: &str,
+    password: &str,
+) -> Result<(), error::Server<'err>>
 {
     let repo_user = &state.users;
     let repo_refresh = &state.refresh_tokens;
@@ -26,8 +21,10 @@ pub async fn login(
     let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
     let user = repo_user
-        .get_user_by_mail(&payload.mail)
-        .await?;
+        .get_user_by_mail(mail)
+        .await.map_err(|err| 
+            server_error!(err).add_client(error::Client::INVALID_PARAMS)
+        )?;
 
     if !user.flag.is_allowed_on_mogcord()
     {
@@ -37,7 +34,9 @@ pub async fn login(
         );
     }
 
-    Hashing::verify_hash(&payload.password, &user.hashed_password).await?;
+    Hashing::verify_hash(password, &user.hashed_password).await.map_err(|err| 
+        server_error!(err).add_client(error::Client::INVALID_PARAMS)
+    )?;
 
     //either 
     //1: if user has a device id, db lookup for token and use that if it exists.
@@ -75,7 +74,7 @@ pub async fn login(
     }
     
     let user = refresh_token.owner;
-    let create_token_request = CreateAccesTokenRequest::new(&user.id, &user.flag);
+    let create_token_request = CreateAccesTokenRequest::new(&user.id, user.flag.is_mogcord_admin_or_owner());
     
     match auth::create_acces_token(&create_token_request)
     {
