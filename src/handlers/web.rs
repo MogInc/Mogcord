@@ -5,17 +5,20 @@ use askama::Template;
 use axum::{http::StatusCode, routing::{get, post}, Router};
 use tower_http::services::ServeDir;
 use axum::response::{IntoResponse, Redirect};
-use crate::model::{error, AppState};
+use crate::{middleware::auth::Ctx, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct Index {}
+pub struct Index 
+{
+    is_logged_in: bool,
+}
 
-pub async fn index() -> Index
+pub async fn index(ctx_option: Option<Ctx>) -> Index
 {
     Index
     {
-
+        is_logged_in: ctx_option.is_some()
     }
 }
 
