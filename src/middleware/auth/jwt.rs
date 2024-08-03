@@ -42,7 +42,7 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     }
 }
 
-pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> Result<String, error::Server<'err>>
+pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> error::Result<'err, String>
 {
     let claims = Claims
     {
@@ -66,7 +66,7 @@ pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> Result<Str
     Ok(acces_token)
 }
 
-pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) -> Result<Claims, error::Server<'err>>
+pub fn extract_acces_token<'err>(token: &str, acces_token_status: &TokenStatus) -> error::Result<'err, Claims>
 {
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
         .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;

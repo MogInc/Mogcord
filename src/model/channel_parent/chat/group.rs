@@ -30,7 +30,7 @@ impl Group
         }
     }
 
-    pub fn new<'err>(name: String, owner: User, users: Vec<User>) -> Result<Self, error::Server<'err>> 
+    pub fn new<'err>(name: String, owner: User, users: Vec<User>) -> error::Result<'err, Self> 
     {
         let users_sanitized = users
             .into_iter()
@@ -52,7 +52,7 @@ impl Group
 {
     const GROUP_USER_MIN: usize = 2;
 
-    pub fn add_user<'err>(&mut self, user: User) -> Result<(), error::Server<'err>>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         if self.is_user_part_of_server(&user.id) 
         {
@@ -66,7 +66,7 @@ impl Group
         Ok(())
     }
 
-    pub fn add_users<'err>(&mut self, users: Vec<User>) -> Result<(), error::Server<'err>>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         for user in &users 
         {
@@ -97,7 +97,7 @@ impl Group
 
     #[allow(clippy::unnecessary_wraps)]
     #[allow(clippy::unused_self)]
-    fn internal_is_meeting_requirements<'err>(&self) -> Result<(), error::Server<'err>> 
+    fn internal_is_meeting_requirements<'err>(&self) -> error::Result<'err, ()> 
     {
         if self.users.len() < Self::GROUP_USER_MIN
         {
@@ -115,7 +115,7 @@ impl channel::Parent for Group
     fn get_channel<'input, 'err>(
         &'input self, 
         _: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'err>> 
+    ) -> error::Result<'err, &'input Channel> 
     {
         Ok(&self.channel)
     }
@@ -129,7 +129,7 @@ impl channel::Parent for Group
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         Ok(self.is_user_part_of_server(user_id))
     }
@@ -138,7 +138,7 @@ impl channel::Parent for Group
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         Ok(self.is_user_part_of_server(user_id))
     }

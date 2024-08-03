@@ -60,7 +60,7 @@ impl MongolHelper for NaiveDate
 
 pub fn convert_domain_id_to_mongol<'err>(
     id: &str
-)-> Result<Uuid, error::Server<'err>>
+)-> error::Result<'err, Uuid>
 {
     Uuid::parse_str(id).map_err(|_| server_error!(error::Kind::InValid, error::OnType::Mongo)
         .add_debug_info("incoming id", id.to_string())
@@ -69,7 +69,7 @@ pub fn convert_domain_id_to_mongol<'err>(
 
 pub fn convert_domain_ids_to_mongol<'input, 'err>(
     ids: &'input [&'input str]
-)-> Result<Vec<Uuid>, error::Server<'err>>
+)-> error::Result<'err, Vec<Uuid>>
 {
     ids
         .iter()

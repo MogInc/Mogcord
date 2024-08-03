@@ -9,7 +9,7 @@ use super::FileWriter;
 #[async_trait]
 impl<'a> log::Repository for FileWriter<'a>
 {
-    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> Result<(), error::Server<'err>>
+    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> error::Result<'err, ()>
     {
         let path = Path::new(self.folder_path)
             .join(format!("{}.log", chrono::offset::Local::now().date_naive()));

@@ -7,5 +7,5 @@ use super::RequestLogLine;
 #[async_trait]
 pub trait Repository: Send + Sync
 {
-    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> Result<(), error::Server<'err>>;
+    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> error::Result<'err, ()>;
 }

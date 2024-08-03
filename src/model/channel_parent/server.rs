@@ -53,7 +53,7 @@ impl Server
         }
     }
 
-    pub fn new<'err>(name: String, owner: User) -> Result<Self, error::Server<'err>>
+    pub fn new<'err>(name: String, owner: User) -> error::Result<'err, Self>
     {
         let base_channel = Channel::new(Some(String::from("Welcome")), true);
 
@@ -79,7 +79,7 @@ impl Server
 
 impl Server
 {
-    pub fn add_user<'err>(&mut self, user: User) -> Result<(), error::Server<'err>>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         if self.is_user_part_of_server(&user.id) 
         {
@@ -93,7 +93,7 @@ impl Server
         Ok(())
     }
 
-    pub fn add_users<'err>(&mut self, users: Vec<User>) -> Result<(), error::Server<'err>>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         for user in &users 
         {
@@ -110,7 +110,7 @@ impl Server
         Ok(())
     }
 
-    pub fn is_server_meeting_requirements<'err>(&self) -> Result<(), error::Server<'err>> 
+    pub fn is_server_meeting_requirements<'err>(&self) -> error::Result<'err, ()> 
     {
         Ok(())
     }
@@ -162,7 +162,7 @@ impl channel::Parent for Server
     fn get_channel<'input, 'err>(
         &'input self, 
         channel_id_option: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'err>>
+    ) -> error::Result<'err, &'input Channel>
     {
         match channel_id_option 
         {
@@ -180,7 +180,7 @@ impl channel::Parent for Server
         &'input self, 
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
@@ -189,7 +189,7 @@ impl channel::Parent for Server
         &'input self, 
         user_id: &'input str, 
         channel_id_option: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
@@ -244,7 +244,7 @@ impl Server
         user_id: &str,
         channel_id_option: Option<&str>,
         access_check: impl Fn(&Channel, &str) -> bool,
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
 
         if self.is_owner(user_id) 

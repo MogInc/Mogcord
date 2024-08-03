@@ -8,7 +8,7 @@ use super::MongolLog;
 #[async_trait]
 impl log::Repository for MongolDB
 {
-    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> Result<(), error::Server<'err>>
+    async fn create_log<'input, 'err>(&'input self, log: RequestLogLine<'input>) -> error::Result<'err, ()>
     {
         let mongol_log = bubble!(MongolLog::try_from(log))?;
 

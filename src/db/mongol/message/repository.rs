@@ -11,7 +11,7 @@ use crate::{map_mongo_key_to_string, map_mongo_collection_keys_to_string, server
 #[async_trait]
 impl message::Repository for MongolDB
 {
-    async fn create_message<'input, 'err>(&'input self, mut message: Message) -> Result<Message, error::Server<'err>>
+    async fn create_message<'input, 'err>(&'input self, mut message: Message) -> error::Result<'err, Message>
     {
         let mut db_message = bubble!(MongolMessage::try_from(&message))?;
 
@@ -118,7 +118,7 @@ impl message::Repository for MongolDB
         &'input self, 
         channel_id: &'input str, 
         pagination: Pagination
-    ) -> Result<Vec<Message>, error::Server<'err>>
+    ) -> error::Result<'err, Vec<Message>>
     {
         let channel_id_local = bubble!(helper::convert_domain_id_to_mongol(channel_id))?;
         
@@ -189,7 +189,7 @@ impl message::Repository for MongolDB
         Ok(messages)
     }
 
-    async fn update_message<'input, 'err>(&'input self, message: Message) -> Result<Message, error::Server<'err>>
+    async fn update_message<'input, 'err>(&'input self, message: Message) -> error::Result<'err, Message>
     {
         let db_message = bubble!(MongolMessage::try_from(&message))?;
     
@@ -216,7 +216,7 @@ impl message::Repository for MongolDB
         }
     }
 
-    async fn get_message<'input, 'err>(&'input self, message_id: &'input str) -> Result<Message, error::Server<'err>>
+    async fn get_message<'input, 'err>(&'input self, message_id: &'input str) -> error::Result<'err, Message>
     {
         let message_id_local = bubble!(helper::convert_domain_id_to_mongol(message_id))?;
         

@@ -54,7 +54,7 @@ impl RefreshToken
         }
     }
 
-    pub fn refresh_expiration<'err>(mut self) -> Result<Self, error::Server<'err>>
+    pub fn refresh_expiration<'err>(mut self) -> error::Result<'err, Self>
     {
         if !self.internal_is_valid()
         {
