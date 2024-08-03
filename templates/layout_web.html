@@ -15,11 +15,27 @@
     hx-boost="true"
     >
     {% include "components/navbar.html" %}
-    <main class="mb-auto">
+    <main 
+        class="mb-auto"
+        x-data
+    >
         {% block content %}
 
         {% endblock %}
     </main>
     {% include "components/footer.html" %}
 </body>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('navBarButtons', {
+            logged_in: true,
+            is_login_page: true,
+ 
+            set(is_logged_in, is_login_page) {
+                this.logged_in = is_logged_in;
+                this.is_login_page = is_login_page;
+            }
+        })
+    })
+</script>
 </html>
