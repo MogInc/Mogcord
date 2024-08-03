@@ -44,12 +44,13 @@ pub fn routes(state: Arc<AppState>) -> Router
 
 
 #[derive(Template)]
-#[template(path = "components/error.html")]
+#[template(path = "components/error-form.html")]
 pub struct ErrorFormComponent<'a>
 {
     message: &'a str
 }
 
+//i dont like that im returning a statuscode ok for an error
 impl IntoResponse for error::Client 
 {
     fn into_response(self) -> axum::response::Response 
