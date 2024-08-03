@@ -16,7 +16,7 @@ pub struct Login
 }
 pub async fn get_login(jar: Cookies) -> Result<Login, error::Client>
 {
-    is_already_logged_in(&jar)?;
+    super::is_logged_in(&jar)?;
 
     Ok(Login{})
 }
@@ -33,7 +33,7 @@ pub async fn post_login(
     Form(form): Form<LoginRequest>
 ) -> Result<impl IntoResponse, error::Client>
 {
-    is_already_logged_in(&jar)?;
+    super::is_logged_in(&jar)?;
 
     let login_result = logic::auth::login(state, jar, &form.mail, &form.password).await;
 
@@ -45,16 +45,4 @@ pub async fn post_login(
     {
         Ok((HxRedirect("/".parse().unwrap()), "").into_response())
     }
-}
-
-fn is_already_logged_in(jar: &Cookies) -> Result<(), error::Client>
-{
-    let ctx_result = crate::middleware::auth::get_ctx(jar);
-
-    if ctx_result.is_ok()
-    {
-        return Err(error::Client::USER_ALREADY_LOGGED_IN);
-    }
-
-    Ok(())
 }
