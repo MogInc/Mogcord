@@ -59,7 +59,7 @@ impl Message
         value: String, 
         user_id: &'input str, 
         user_roles: Option<&'input Vec<String>>
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {

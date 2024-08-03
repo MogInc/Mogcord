@@ -5,7 +5,7 @@ use crate::{model::error, server_error};
 pub trait Manager
 {
     fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64);
-    fn get_cookie<'incoming, 'err>(&'incoming self, name: &'incoming str) -> Result<String, error::Server<'err>>;
+    fn get_cookie<'incoming, 'err>(&'incoming self, name: &'incoming str) -> error::Result<'err, String>;
     fn remove_cookie(&self, name: String);
 }
 
@@ -25,7 +25,7 @@ impl Manager for Cookies
         self.add(cookie);
     }
 
-    fn get_cookie<'incoming, 'err>(&'incoming self, name: &'incoming str) -> Result<String, error::Server<'err>> 
+    fn get_cookie<'incoming, 'err>(&'incoming self, name: &'incoming str) -> error::Result<'err, String> 
     {
         self
             .get(name)

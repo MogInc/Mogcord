@@ -14,7 +14,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -36,7 +36,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str, 
         other_user_ids: Vec<&'input str>
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -75,7 +75,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -104,7 +104,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str,
          other_user_id: &'input str
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -126,7 +126,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<bool, error::Server<'err>>
+    ) -> error::Result<'err, bool>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -148,7 +148,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str,
          other_user_id: &'input str
-    ) -> Result<(), error::Server<'err>>
+    ) -> error::Result<'err, ()>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -222,7 +222,7 @@ impl relation::Repository for MongolDB
         &'input self, 
         current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<(), error::Server<'err>>
+    ) -> error::Result<'err, ()>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -304,7 +304,7 @@ impl relation::Repository for MongolDB
     async fn confirm_user_as_friend<'input, 'err>(
         &'input self, current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<(), error::Server<'err>>
+    ) -> error::Result<'err, ()>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -376,7 +376,7 @@ impl relation::Repository for MongolDB
     async fn remove_user_as_friend<'input, 'err>(
         &'input self, current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<(), error::Server<'err>>
+    ) -> error::Result<'err, ()>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -407,7 +407,7 @@ impl relation::Repository for MongolDB
     async fn remove_user_as_blocked<'input, 'err>(
         &'input self, current_user_id: &'input str, 
         other_user_id: &'input str
-    ) -> Result<(), error::Server<'err>>
+    ) -> error::Result<'err, ()>
     {
         let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
@@ -435,7 +435,7 @@ impl relation::Repository for MongolDB
 async fn add_relation<'err>(
     repo: &MongolDB, 
     current_user_id: Uuid
-) -> Result<(), error::Server<'err>>
+) -> error::Result<'err, ()>
 {
     let filter = doc! { "user_id" : current_user_id };
 
@@ -466,7 +466,7 @@ async fn add_relation<'err>(
 async fn does_user_relation_exist<'err>(
     repo: &MongolDB, 
     filter: Document
-) -> Result<bool, error::Server<'err>>
+) -> error::Result<'err, bool>
 {
     match repo.relations().find_one(filter).await
     {

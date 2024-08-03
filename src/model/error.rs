@@ -6,6 +6,8 @@ use axum::{
 };
 use serde::Serialize;
 
+pub type Result<'err, T> = core::result::Result<T, Server<'err>>;
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
 pub struct Server<'err>

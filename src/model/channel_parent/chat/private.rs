@@ -24,7 +24,7 @@ impl Private
         }
     }
 
-    pub fn new<'err>(owners: Vec<User>) -> Result<Self, error::Server<'err>> 
+    pub fn new<'err>(owners: Vec<User>) -> error::Result<'err, Self> 
     {
         let set: HashSet<User> = owners
             .into_iter()
@@ -60,7 +60,7 @@ impl Private
         self.owners.iter().any(|user| user.id == user_id)
     }
 
-    fn internal_is_meeting_requirements<'err>(&self) -> Result<(), error::Server<'err>> 
+    fn internal_is_meeting_requirements<'err>(&self) -> error::Result<'err, ()> 
     {
         if !self.internal_is_owner_size_allowed()
         {
@@ -82,7 +82,7 @@ impl channel::Parent for Private
     fn get_channel<'input, 'err>(
         &'input self, 
         _: Option<&'input str>
-    ) -> Result<&'input Channel, error::Server<'err>> 
+    ) -> error::Result<'err, &'input Channel> 
     {
         Ok(&self.channel)
     }
@@ -96,7 +96,7 @@ impl channel::Parent for Private
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         Ok(self.is_owner(user_id))
     }
@@ -105,7 +105,7 @@ impl channel::Parent for Private
         &'input self, 
         user_id: &'input str, 
         _: Option<&'input str>
-    ) -> Result<bool, error::Server<'err>> 
+    ) -> error::Result<'err, bool> 
     {
         Ok(self.is_owner(user_id))
     }

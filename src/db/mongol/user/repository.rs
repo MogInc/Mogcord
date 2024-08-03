@@ -10,7 +10,7 @@ use crate::{map_mongo_key_to_string, server_error, bubble};
 #[async_trait]
 impl user::Repository for MongolDB
 {
-    async fn does_user_exist_by_id<'input, 'err>(&'input self, user_id: &'input str) -> Result<bool, error::Server<'err>>
+    async fn does_user_exist_by_id<'input, 'err>(&'input self, user_id: &'input str) -> error::Result<'err, bool>
     {
         let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
@@ -19,21 +19,21 @@ impl user::Repository for MongolDB
         internal_does_user_exist(self, filter).await
     }
 
-    async fn does_user_exist_by_mail<'input, 'err>(&'input self, user_mail: &'input str) -> Result<bool, error::Server<'err>>
+    async fn does_user_exist_by_mail<'input, 'err>(&'input self, user_mail: &'input str) -> error::Result<'err, bool>
     {
         let filter = doc! { "mail" : user_mail };
 
         internal_does_user_exist(self, filter).await
     }
 
-    async fn does_user_exist_by_username<'input, 'err>(&'input self, username: &'input str) -> Result<bool, error::Server<'err>>
+    async fn does_user_exist_by_username<'input, 'err>(&'input self, username: &'input str) -> error::Result<'err, bool>
     {
         let filter = doc! { "username" : username };
 
         internal_does_user_exist(self, filter).await
     }
 
-    async fn create_user<'input, 'err>(&'input self, user: User) -> Result<User, error::Server<'err>>
+    async fn create_user<'input, 'err>(&'input self, user: User) -> error::Result<'err, User>
     {
         let db_user = bubble!(MongolUser::try_from(&user))?;
         
@@ -46,7 +46,7 @@ impl user::Repository for MongolDB
         }
     }
 
-    async fn create_users<'input, 'err>(&'input self, users: Vec<User>) -> Result<(), error::Server<'err>>
+    async fn create_users<'input, 'err>(&'input self, users: Vec<User>) -> error::Result<'err, ()>
     {
         let db_users = bubble!(MongolUserVec::try_from(&users))?;
         
@@ -59,7 +59,7 @@ impl user::Repository for MongolDB
         }
     }
 
-    async fn get_user_by_id<'input, 'err>(&'input self, user_id: &'input str) -> Result<User, error::Server<'err>>
+    async fn get_user_by_id<'input, 'err>(&'input self, user_id: &'input str) -> error::Result<'err, User>
     {
         let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
@@ -72,7 +72,7 @@ impl user::Repository for MongolDB
             )
     }
 
-    async fn get_user_by_mail<'input, 'err>(&'input self, mail: &'input str) -> Result<User, error::Server<'err>>
+    async fn get_user_by_mail<'input, 'err>(&'input self, mail: &'input str) -> error::Result<'err, User>
     {
         let filter = doc! { "mail": mail };
 
@@ -81,7 +81,7 @@ impl user::Repository for MongolDB
             .map_err(|err|server_error!(err).add_debug_info("mail", mail.to_string()))
     }
 
-    async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> Result<Vec<User>, error::Server<'err>>
+    async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> error::Result<'err, Vec<User>>
     {
         let mut user_ids_local : Vec<Uuid> = Vec::new();
 
@@ -145,7 +145,7 @@ impl user::Repository for MongolDB
         Ok(users)
     }
 
-    async fn get_users<'input, 'err>(&'input self, pagination: Pagination) -> Result<Vec<User>, error::Server<'err>>
+    async fn get_users<'input, 'err>(&'input self, pagination: Pagination) -> error::Result<'err, Vec<User>>
     {
         let pipelines = vec!
         [
@@ -204,7 +204,7 @@ impl user::Repository for MongolDB
     }
 }
 
-async fn internal_does_user_exist<'input, 'err>(repo: &MongolDB, filter: Document) -> Result<bool, error::Server<'err>>
+async fn internal_does_user_exist<'input, 'err>(repo: &MongolDB, filter: Document) -> error::Result<'err, bool>
 {
     match repo.users().find_one(filter).await
     {
@@ -215,7 +215,7 @@ async fn internal_does_user_exist<'input, 'err>(repo: &MongolDB, filter: Documen
     }
 }
 
-async fn internal_get_user<'input, 'err>(repo: &MongolDB, filter: Document) -> Result<User, error::Server<'err>>
+async fn internal_get_user<'input, 'err>(repo: &MongolDB, filter: Document) -> error::Result<'err, User>
 {
     let user_option = repo
         .users()
