@@ -6,7 +6,7 @@ use axum_htmx::HxRedirect;
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{handlers::logic, model::{error, AppState}};
+use crate::{handlers::{logic, web::HtmxError}, model::AppState};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -14,7 +14,7 @@ pub struct Login
 {
 
 }
-pub async fn get_login(jar: Cookies) -> Result<Login, error::Client>
+pub async fn get_login(jar: Cookies) -> Result<Login, HtmxError>
 {
     super::is_logged_in(&jar)?;
 
@@ -31,7 +31,7 @@ pub async fn post_login(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
     Form(form): Form<LoginRequest>
-) -> Result<impl IntoResponse, error::Client>
+) -> Result<impl IntoResponse, HtmxError>
 {
     super::is_logged_in(&jar)?;
 
@@ -39,7 +39,7 @@ pub async fn post_login(
 
     if let Err(err) = login_result 
     {
-        Err(err.client)
+        Err(HtmxError::new_form(err.client))
     } 
     else 
     {
