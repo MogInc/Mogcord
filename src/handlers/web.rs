@@ -21,6 +21,11 @@ pub async fn index() -> Index
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
+    let routes_with_regular_middleware =  Router::new()
+        //auth
+        .route("/logout", post(auth::authenticate::logout))
+        .with_state(state.clone());
+
     let routes_without_middleware =  Router::new()
         //auth
         .route("/login", get(auth::get_login))
@@ -33,6 +38,7 @@ pub fn routes(state: Arc<AppState>) -> Router
 
 
     Router::new()
+        .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
 }
 

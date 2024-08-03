@@ -1,3 +1,4 @@
+pub mod authenticated;
 mod login;
 mod refresh;
 
