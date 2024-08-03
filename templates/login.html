@@ -4,7 +4,12 @@
 
 {% block content %} 
 <div class="flex justify-center items-center">
-    <form class="w-full max-w-md" action="/login" method="post">
+    <form 
+      class="w-full max-w-md" 
+      hx-post="/login" 
+      hx-target="#error"
+      hx-swap="innerHTML"
+      >
         <div class="mb-4">
           <label
             class="block text-white text-2xl font-bold mb-2"
@@ -17,9 +22,6 @@
             name="mail"
             type="text"
             placeholder="Mail"
-            {% if mail.is_some() %}
-            value='{{ mail.as_ref().unwrap() }}'
-            {% endif %}
           />
         </div>
         <div class="mb-6">
@@ -34,9 +36,6 @@
             name="password"
             type="password"
             placeholder="******************"
-            {% if password.is_some() %}
-            value='{{ password.as_ref().unwrap() }}'
-            {% endif %}
           />
         </div>
         <div class="flex items-center justify-center">
@@ -46,14 +45,7 @@
             Login
           </button>
         </div>
-        {% if error.is_some() %}
-        <div
-          class="lg:max-w-6xl lg:w-full bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4"
-          role="alert"
-        >
-          <p>{{ error.as_ref().unwrap() }}</p>
-        </div>
-        {% endif %}
+        <div id="error"></div>
       </form>
 </div>
 {% endblock %}

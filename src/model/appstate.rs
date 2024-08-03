@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use crate::db::MongolDB;
+use crate::{db::MongolDB, io::FileWriter};
 
-use super::{channel, channel_parent, message, refresh_token, relation, user};
+use super::{channel, channel_parent, log, message, refresh_token, relation, user};
 
 
 pub struct AppState 
@@ -15,11 +15,12 @@ pub struct AppState
     pub messages: Arc<dyn message::Repository>,
     pub refresh_tokens: Arc<dyn refresh_token::Repository>,
     pub relations: Arc<dyn relation::Repository>,
+    pub logs: Arc<dyn log::Repository>,
 }
 
 impl AppState
 {
-    pub async fn new(db_con: &str) -> Arc<Self>
+    pub async fn new(db_con: &str, log_path: &str) -> Arc<Self>
     {
         let db = Arc::new(
         MongolDB::init(db_con)
@@ -36,6 +37,9 @@ impl AppState
         let refresh_tokens = Arc::clone(&db) as Arc<dyn refresh_token::Repository>;
         let relations = Arc::clone(&db) as Arc<dyn relation::Repository>;
 
+        let logs = Arc::new(FileWriter::new(log_path.to_string())) 
+            as Arc<dyn log::Repository>;
+
         Arc::new(
             Self 
             {
@@ -47,6 +51,7 @@ impl AppState
                 messages,
                 refresh_tokens,
                 relations,
+                logs,
             }
         )
     }

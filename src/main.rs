@@ -1,14 +1,9 @@
 use dotenv::dotenv;
-use mogcord::io::FileWriter;
-use mogcord::middleware::auth::mw_ctx_resolver;
-use tower_cookies::CookieManagerLayer;
-use std::{env, sync::Arc};
-use axum::{http::StatusCode, middleware, response::IntoResponse, routing::Router};
+use std::env;
 use tokio::net::TcpListener;
 
-use mogcord::model::{log, AppState};
+use mogcord::model::AppState;
 use mogcord::handlers;
-use mogcord::middleware::logging::main_response_mapper;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> 
@@ -24,22 +19,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let log_path = env::var("LOG_PATH")
         .unwrap_or("./logs_server".to_string());
 
-    let state = AppState::new(&mongoldb_connection_string).await;
+    let state = AppState::new(&mongoldb_connection_string, &log_path).await;
     
-    
-    let logs = Arc::new(FileWriter::new(log_path)) as Arc<dyn log::Repository>;
+    let app = handlers::new(state);
 
-
-    let app: Router = Router::new()
-        .nest("/", handlers::web::routes(state.clone()))
-        .nest("/api", handlers::api::routes(state.clone()))
-        .layer(middleware::map_response_with_state(logs, main_response_mapper))
-        .layer(middleware::from_fn(mw_ctx_resolver))
-        .layer(CookieManagerLayer::new())
-        .fallback(page_not_found);
-
-
-    let listener: TcpListener = TcpListener::bind(api_socket)
+    let listener = TcpListener::bind(api_socket)
         .await
         .unwrap();
 
@@ -52,9 +36,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         .unwrap();
 
     Ok(())
-}
-
-async fn page_not_found() -> impl IntoResponse 
-{
-    (StatusCode::NOT_FOUND, "404 Page Not Found")
 }

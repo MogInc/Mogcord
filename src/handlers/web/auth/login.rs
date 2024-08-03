@@ -1,29 +1,24 @@
 use std::sync::Arc;
 
 use askama::Template;
-use askama_axum::IntoResponse;
-use axum::{extract::State, response::Html, Form};
+use axum::{extract::State, response::IntoResponse, Form};
+use axum_htmx::HxRedirect;
 use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{handlers::logic, model::AppState};
+use crate::{handlers::{logic, web::HtmxError}, model::AppState};
 
 #[derive(Template)]
 #[template(path = "login.html")]
 pub struct Login
 {
-    mail: Option<String>,
-    password: Option<String>,
-    error: Option<String>,
+
 }
-pub async fn get_login() -> Login
+pub async fn get_login(jar: Cookies) -> Result<Login, HtmxError>
 {
-    Login
-    {
-        mail: None,
-        password: None,
-        error: None,
-    }
+    super::is_logged_in(&jar)?;
+
+    Ok(Login{})
 }
 
 #[derive(Deserialize)]
@@ -36,7 +31,18 @@ pub async fn post_login(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
     Form(form): Form<LoginRequest>
-) -> impl IntoResponse
+) -> Result<impl IntoResponse, HtmxError>
 {
-    let result = logic::auth::login(state, jar, form.mail, form.password).await;
+    super::is_logged_in(&jar)?;
+
+    let login_result = logic::auth::login(state, jar, &form.mail, &form.password).await;
+
+    if let Err(err) = login_result 
+    {
+        Err(HtmxError::new_form(err.client))
+    } 
+    else 
+    {
+        Ok((HxRedirect("/".parse().unwrap()), "").into_response())
+    }
 }

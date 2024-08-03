@@ -11,8 +11,8 @@ use crate::server_error;
 pub async fn login<'err>(
     state: Arc<AppState>,
     jar: Cookies,
-    mail: String,
-    password: String,
+    mail: &str,
+    password: &str,
 ) -> Result<(), error::Server<'err>>
 {
     let repo_user = &state.users;
@@ -21,8 +21,10 @@ pub async fn login<'err>(
     let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
     let user = repo_user
-        .get_user_by_mail(&mail)
-        .await?;
+        .get_user_by_mail(mail)
+        .await.map_err(|err| 
+            server_error!(err).add_client(error::Client::INVALID_PARAMS)
+        )?;
 
     if !user.flag.is_allowed_on_mogcord()
     {
@@ -32,7 +34,9 @@ pub async fn login<'err>(
         );
     }
 
-    Hashing::verify_hash(&password, &user.hashed_password).await?;
+    Hashing::verify_hash(password, &user.hashed_password).await.map_err(|err| 
+        server_error!(err).add_client(error::Client::INVALID_PARAMS)
+    )?;
 
     //either 
     //1: if user has a device id, db lookup for token and use that if it exists.

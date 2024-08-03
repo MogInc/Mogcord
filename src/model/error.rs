@@ -19,7 +19,7 @@ pub struct Server<'err>
 	pub line_nr: u32,
 	pub debug_info: HashMap<&'err str, String>,
 	pub pub_info: Option<String>,
-	client: Option<Client>,
+	pub client: Client,
 	pub child: Option<Box<Server<'err>>>,
 }
 
@@ -41,7 +41,7 @@ impl<'err> Server<'err>
 			line_nr,
 			debug_info: HashMap::new(),
 			pub_info: None,
-			client: None,
+			client: Client::SERVICE_ERROR,
 			child: None,
 		}
 	}
@@ -63,7 +63,7 @@ impl<'err> Server<'err>
 			line_nr,
 			debug_info: HashMap::new(),
 			pub_info: self.pub_info.take(),
-			client: self.client.take(),
+			client: self.client.clone(),
 			child: Some(Box::new(self)),
 		}
 	}
@@ -83,7 +83,7 @@ impl<'err> Server<'err>
 			line_nr,
 			debug_info: HashMap::new(),
 			pub_info: self.pub_info.take(),
-			client: self.client.take(),
+			client: self.client.clone(),
 			child: Some(Box::new(self)),
 		}
 	}
@@ -91,10 +91,7 @@ impl<'err> Server<'err>
 	#[must_use]
 	pub fn add_client(mut self, client: Client) -> Self
 	{
-		if self.client.is_none()
-		{
-			self.client = Some(client);
-		}
+		self.client = client;
 		
 		self
 	}
@@ -103,7 +100,7 @@ impl<'err> Server<'err>
 	#[allow(clippy::extend_with_drain)]
 	pub fn add_child(mut self, mut child: Self) -> Self
 	{
-		self.client = child.client.take();
+		self.client = child.client.clone();
 		self.pub_info = child.pub_info.take();
 
 		self.child = Some(Box::new(child));
@@ -282,14 +279,7 @@ impl Server<'_>
 			| Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
 		};
 
-		if let Some(client) = &self.client
-		{
-			(status_code, client.clone(), self.pub_info.as_ref())
-		}
-		else
-		{
-			(status_code, Client::SERVICE_ERROR, self.pub_info.as_ref())
-		}
+		(status_code, self.client.clone(), self.pub_info.as_ref())
 	}
 }
 
@@ -324,6 +314,7 @@ pub enum Client
 	RELATION_SELF_TRY_FRIEND_SELF,
 	RELATION_SELF_TRY_UNBLOCK_SELF,
 	RELATION_SELF_TRY_UNFRIEND_SELF,
+	USER_ALREADY_LOGGED_IN,
 	USERNAME_IN_USE,
 	RELATION_USER_ALREADY_BLOCKED,
 	RELATION_USER_ALREADY_FRIEND,

@@ -19,5 +19,5 @@ pub async fn login(
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse
 {
-    logic::auth::login(state, jar, payload.mail, payload.password).await
+    logic::auth::login(state, jar, &payload.mail, &payload.password).await
 }

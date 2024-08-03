@@ -3,9 +3,10 @@
 {% block title %}{% call super() %} - Index{% endblock %}
 
 {% block content %} 
-<div>
-    <h1>Welcome to Mogcord</h1>
-    <p>Mogcord is a simple messaging platform, you could've probably guessed because of the name.</p>
-    <button hx-get="/login">Test</button>
+<div class="flex flex-col justify-center items-center">
+    <div class="text-left text-white mt-4">
+        <h1 class="text-4xl font-extrabold">Welcome to Mogcord</h1>
+        <p>Mogcord is a simple messaging platform, you could've probably guessed because of the name.</p> 
+    </div>
 </div>
 {% endblock %}

@@ -23,7 +23,8 @@ assert_matches = "1.5"
 argon2 = "0.5.3"
 askama = "0.12.1"
 askama_axum = "0.4.0"
-axum = { version = "0.7", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros"] }
+axum-htmx = "0.6.0"
 base64 = "0.22.1"
 bson = { version = "2.11.0", features = ["chrono-0_4"] }
 chrono = { version = "0.4", features = ["serde"] }

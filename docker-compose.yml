@@ -8,6 +8,7 @@ services:
       MONGOLDB_CONNECTION: mongodb://mongol0:27017
       API_SOCKET: 0.0.0.0:3000
       LOG_PATH: ./storage/logs_server
+      BUILD_TYPE: release
     env_file:
     - .env
     ports: 

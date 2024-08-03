@@ -192,6 +192,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "axum-htmx"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36cdb6062317f732ed3acf4e9c28c3824092e226726616f46ebdd8cd32c82a41"
+dependencies = [
+ "async-trait",
+ "axum-core",
+ "http",
+]
+
+[[package]]
 name = "axum-macros"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1237,6 +1248,7 @@ dependencies = [
  "askama_axum",
  "assert_matches",
  "axum",
+ "axum-htmx",
  "base64 0.22.1",
  "bson",
  "chrono",

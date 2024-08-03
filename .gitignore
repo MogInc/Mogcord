@@ -8,4 +8,10 @@
 /target
 
 #visual paradigm temp file
-/db/**.vpp.bak_**
+/db/**/**.vpp.bak_**
+
+#js
+node_modules/
+
+#css
+static/styling/**
