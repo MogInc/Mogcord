@@ -11,6 +11,7 @@
       class="w-full max-w-md" 
       hx-post="/login" 
       hx-target="#error"
+      hx-disable-elt="#submit_form"
       hx-swap="innerHTML"
       >
         <div class="mb-4">
@@ -43,6 +44,7 @@
         </div>
         <div class="flex items-center justify-center">
           <button
+            id="submit_form"
             class="transition-colors duration-300 bg-blue-700 hover:bg-blue-800 w-full text-2xl text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Login
