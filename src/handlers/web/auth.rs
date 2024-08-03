@@ -1,8 +1,7 @@
+pub mod authenticate;
 mod login;
-mod logout;
 
 pub use login::*;
-pub use logout::*;
 
 
 fn is_logged_in(jar: &tower_cookies::Cookies) -> Result<(), crate::model::error::Client>
