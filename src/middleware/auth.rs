@@ -113,17 +113,6 @@ impl<S> FromRequestParts<S> for Ctx where S: Send + Sync
 	}
 }
 
-fn internal_get_ctx<'err>(jar: &Cookies) -> error::Result<'err, Ctx>
-{
-	match jar
-		.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
-		.and_then(|val| internal_parse_token(val.as_str()))
-	{
-		Ok(claims) => Ok(Ctx::new(claims.sub, claims.is_admin)),
-		Err(e) => Err(e),
-	}
-}
-
 fn internal_parse_token<'err>(acces_token: &str) -> error::Result<'err, Claims>
 {
 	let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;

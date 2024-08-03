@@ -2,7 +2,7 @@ use dotenv::dotenv;
 use std::env;
 use tokio::net::TcpListener;
 
-use mogcord::model::{log, AppState};
+use mogcord::model::AppState;
 use mogcord::handlers;
 
 #[tokio::main]
@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     let log_path = env::var("LOG_PATH")
         .unwrap_or("./logs_server".to_string());
 
-    let state = AppState::new(&mongoldb_connection_string).await;
+    let state = AppState::new(&mongoldb_connection_string, &log_path).await;
     
     let app = handlers::new(state);
 
