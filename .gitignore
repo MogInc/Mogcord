@@ -8,4 +8,4 @@
 /target
 
 #visual paradigm temp file
-/db/**.vpp.bak_**
+/db/**/**.vpp.bak_**
