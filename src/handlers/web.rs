@@ -59,7 +59,6 @@ impl HtmxError
     }
 }
 
-//i dont like that im returning a statuscode ok for an error
 impl IntoResponse for HtmxError
 {
     fn into_response(self) -> axum::response::Response 
@@ -72,7 +71,7 @@ impl IntoResponse for HtmxError
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::OK, ErrorFormComponent{message: rest.translate_error()}).into_response(),
+            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::BAD_REQUEST, ErrorFormComponent{message: rest.translate_error()}).into_response(),
             rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
         }
     }

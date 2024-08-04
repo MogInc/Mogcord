@@ -2,13 +2,13 @@
 
 {% block content %} 
 <div 
+  hx-ext="response-targets"
   class="flex justify-center items-center"
->
-    <form 
+  >
+  <form 
       class="w-full max-w-md" 
       hx-post="/login" 
-      hx-target="#error"
-      hx-disable-elt="#submit_form"
+      hx-target-error="#any-errors"
       hx-swap="innerHTML"
       >
         <div class="mb-4">
@@ -47,7 +47,7 @@
             Login
           </button>
         </div>
-        <div id="error"></div>
+        <div id="any-errors"></div>
       </form>
 </div>
 {% endblock %}
