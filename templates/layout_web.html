@@ -9,7 +9,7 @@
     hx-boost="true"
     x-data
     >
-    
+    {%- call nav::new(nav_button_value) -%}
     <main 
         class="mb-auto"
     >
@@ -19,19 +19,4 @@
     </main>
     {% include "components/footer.html" %}
 </body>
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.store('navBarButtons', {
-            is_logged_in: false,
-            is_login_page: false,
- 
-            logged_in(is_logged_in) {
-                this.is_logged_in = is_logged_in;
-            },
-            login_page(is_login_page) {
-                this.is_login_page = is_login_page;
-            }
-        })
-    })
-</script>
 </html>
