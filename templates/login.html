@@ -1,13 +1,14 @@
-{% extends "layout.html" %}
-
-{% block title %}{% call super() %} - Login{% endblock %}
+{% extends "layout_web.html" %}
 
 {% block content %} 
-<div class="flex justify-center items-center">
-    <form 
+<div 
+  hx-ext="response-targets"
+  class="flex justify-center items-center"
+  >
+  <form 
       class="w-full max-w-md" 
       hx-post="/login" 
-      hx-target="#error"
+      hx-target-error="#any-errors"
       hx-swap="innerHTML"
       >
         <div class="mb-4">
@@ -40,12 +41,13 @@
         </div>
         <div class="flex items-center justify-center">
           <button
-            class="transition-colors duration-300 bg-blue-500 hover:bg-blue-700 w-full text-2xl text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            id="submit_form"
+            class="transition-colors duration-300 bg-blue-700 hover:bg-blue-800 w-full text-2xl text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Login
           </button>
         </div>
-        <div id="error"></div>
+        <div id="any-errors"></div>
       </form>
 </div>
 {% endblock %}

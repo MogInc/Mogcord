@@ -1,39 +1,31 @@
 mod auth;
+mod misc;
 
 use std::sync::Arc;
 use askama::Template;
-use axum::{http::StatusCode, routing::{get, post}, Router};
-use tower_http::services::ServeDir;
+use axum::{http::StatusCode, middleware, routing::{get, post}, Router};
+use tower_http::services::{ServeDir, ServeFile};
 use axum::response::{IntoResponse, Redirect};
-use crate::model::{error, AppState};
+use crate::{middleware::auth::mw_require_authentication, model::{error, AppState}};
 
-#[derive(Template)]
-#[template(path = "index.html")]
-pub struct Index {}
-
-pub async fn index() -> Index
-{
-    Index
-    {
-
-    }
-}
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_regular_middleware =  Router::new()
         //auth
         .route("/logout", post(auth::authenticate::logout))
-        .with_state(state.clone());
-
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw_require_authentication));
+    
     let routes_without_middleware =  Router::new()
         //auth
         .route("/login", get(auth::get_login))
         .route("/login", post(auth::post_login))
         //index
-        .route("/", get(index))
+        .route("/", get(misc::index))
         //static files
-        .nest_service("/s", ServeDir::new("static"))
+        .nest_service("/s", ServeDir::new("public/static"))
+        .nest_service("/robots.txt", ServeFile::new("public/robots.txt"))
         .with_state(state);
 
 
@@ -41,7 +33,6 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
 }
-
 
 #[derive(Template)]
 #[template(path = "components/error-form.html")]
@@ -63,13 +54,12 @@ impl HtmxError
     {
         Self(client, PotentialErrorDisplay::None)
     }
-    pub fn new_form(client: error::Client) -> Self
+    pub fn new_form_error(client: error::Client) -> Self
     {
         Self(client, PotentialErrorDisplay::Form)
     }
 }
 
-//i dont like that im returning a statuscode ok for an error
 impl IntoResponse for HtmxError
 {
     fn into_response(self) -> axum::response::Response 
@@ -82,7 +72,7 @@ impl IntoResponse for HtmxError
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
             error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::OK, ErrorFormComponent{message: rest.translate_error()}).into_response(),
+            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::BAD_REQUEST, ErrorFormComponent{message: rest.translate_error()}).into_response(),
             rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
         }
     }
