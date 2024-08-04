@@ -2,17 +2,16 @@ mod auth;
 
 use std::sync::Arc;
 use askama::Template;
-use axum::{http::StatusCode, routing::{get, post}, Router};
+use axum::{http::StatusCode, middleware, routing::{get, post}, Router};
 use tower_http::services::ServeDir;
 use axum::response::{IntoResponse, Redirect};
-use crate::{middleware::auth::Ctx, model::{error, AppState}};
+use crate::{middleware::auth::{mw_require_authentication, Ctx}, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct Index<'a>
 {
     title: &'a str,
-    is_logged_in: bool,
     nav_button_value: &'a str,
 }
 
@@ -30,7 +29,6 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
     Index
     {
         title: "Index",
-        is_logged_in: ctx_option.is_some(),
         nav_button_value,
     }
 }
@@ -40,8 +38,9 @@ pub fn routes(state: Arc<AppState>) -> Router
     let routes_with_regular_middleware =  Router::new()
         //auth
         .route("/logout", post(auth::authenticate::logout))
-        .with_state(state.clone());
-
+        .with_state(state.clone())
+        .route_layer(middleware::from_fn(mw_require_authentication));
+    
     let routes_without_middleware =  Router::new()
         //auth
         .route("/login", get(auth::get_login))
