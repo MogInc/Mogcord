@@ -17,22 +17,22 @@ pub struct Login<'a>
     nav_button_crud_type: &'a str,
     nav_button_route: &'a str,
 }
-pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<Login<'a>, HtmxError>
+pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
     if ctx_option.is_some()
     {
         return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
-    Ok(
-        Login
-        {
-            title: "Login",
-            nav_button_value: "Register",
-            nav_button_crud_type: "get",
-            nav_button_route: "/register",
-        }
-    )
+    let page = Login
+    {
+        title: "Login",
+        nav_button_value: "Register",
+        nav_button_crud_type: "get",
+        nav_button_route: "/register",
+    };
+
+    Ok((HxRedirect("/login".parse().unwrap()), page).into_response())
 }
 
 #[derive(Deserialize)]
