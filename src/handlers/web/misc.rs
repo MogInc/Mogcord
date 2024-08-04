@@ -8,13 +8,13 @@ pub struct Index<'a>
 {
     title: &'a str,
     nav_button_value: &'a str,
-    nav_button_crud: &'a str,
+    nav_button_crud_type: &'a str,
     nav_button_route: &'a str,
 }
 
 pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
 {
-    let (nav_button_value,nav_button_crud , nav_button_route) = if ctx_option.is_some()
+    let (nav_button_value, nav_button_crud_type, nav_button_route) = if ctx_option.is_some()
     {
         ("Log out", "post", "/logout")
     }
@@ -27,7 +27,7 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
     {
         title: "Index",
         nav_button_value,
-        nav_button_crud,
+        nav_button_crud_type,
         nav_button_route
     }
 }
