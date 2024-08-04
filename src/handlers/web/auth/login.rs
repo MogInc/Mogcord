@@ -17,7 +17,7 @@ pub struct Login<'a>
     nav_button_crud_type: &'a str,
     nav_button_route: &'a str,
 }
-pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
+pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
     if ctx_option.is_some()
     {
