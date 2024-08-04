@@ -1,14 +1,15 @@
-{% extends "base.html" %}
+{%  import "macros/header.html" as header %}
+{%  import "macros/nav.html" as nav %}
 
-{% block title %}{% call super() %} - Index{% endblock %}
-
-{% block body %} 
+<!DOCTYPE html>
+<html lang="en">
+    {%- call header::new(title) -%}
 <body 
     class="bg-neutral-900 flex flex-col h-screen justify-between"
     hx-boost="true"
     x-data
     >
-    {% include "components/navbar.html" %}
+    
     <main 
         class="mb-auto"
     >
@@ -33,4 +34,4 @@
         })
     })
 </script>
-{% endblock %}
+</html>

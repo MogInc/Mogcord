@@ -10,18 +10,23 @@ use crate::{handlers::{logic, web::HtmxError}, middleware::auth::Ctx, model::App
 
 #[derive(Template)]
 #[template(path = "login.html")]
-pub struct Login
+pub struct Login<'a>
 {
-
+    title: &'a str,
 }
-pub async fn get_login(ctx_option: Option<Ctx>) -> Result<Login, HtmxError>
+pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<Login<'a>, HtmxError>
 {
     if ctx_option.is_some()
     {
         return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
-    Ok(Login{})
+    Ok(
+        Login
+        {
+            title: "Login"
+        }
+    )
 }
 
 #[derive(Deserialize)]

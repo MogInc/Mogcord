@@ -9,16 +9,20 @@ use crate::{middleware::auth::Ctx, model::{error, AppState}};
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct Index 
+pub struct Index<'a>
 {
+    title: &'a str,
     is_logged_in: bool,
+    test_var: String,
 }
 
-pub async fn index(ctx_option: Option<Ctx>) -> Index
+pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
 {
     Index
     {
-        is_logged_in: ctx_option.is_some()
+        title: "Index",
+        is_logged_in: ctx_option.is_some(),
+        test_var: "Stan Testerman".to_string()
     }
 }
 
