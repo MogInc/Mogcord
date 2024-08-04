@@ -13,7 +13,9 @@ use crate::{handlers::{logic, web::HtmxError}, middleware::auth::Ctx, model::App
 pub struct Login<'a>
 {
     title: &'a str,
-    nav_button_value: &'a str
+    nav_button_value: &'a str,
+    nav_button_crud: &'a str,
+    nav_button_route: &'a str,
 }
 pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<Login<'a>, HtmxError>
 {
@@ -26,7 +28,9 @@ pub async fn get_login<'a>(ctx_option: Option<Ctx>) -> Result<Login<'a>, HtmxErr
         Login
         {
             title: "Login",
-            nav_button_value: "Register"
+            nav_button_value: "Register",
+            nav_button_crud: "get",
+            nav_button_route: "/register",
         }
     )
 }
