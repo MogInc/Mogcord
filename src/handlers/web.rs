@@ -26,6 +26,7 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
     {
         "Log in"
     };
+    
     Index
     {
         title: "Index",
@@ -78,7 +79,7 @@ impl HtmxError
     {
         Self(client, PotentialErrorDisplay::None)
     }
-    pub fn new_form(client: error::Client) -> Self
+    pub fn new_form_error(client: error::Client) -> Self
     {
         Self(client, PotentialErrorDisplay::Form)
     }

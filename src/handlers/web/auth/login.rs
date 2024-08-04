@@ -53,7 +53,7 @@ pub async fn post_login(
 
     if let Err(err) = login_result 
     {
-        Err(HtmxError::new_form(err.client))
+        Err(HtmxError::new_form_error(err.client))
     } 
     else 
     {
