@@ -961,6 +961,25 @@ video {
   transform: none;
 }
 
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-15px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(9px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+  }
+
+  transform: translate3d(-13px, 0, 0);
+}
+
+.animate-shake {
+  animation: shake 0.15s cubic-bezier(.36,.07,.19,.97) 2;
+}
+
 .touch-auto {
   touch-action: auto;
 }
