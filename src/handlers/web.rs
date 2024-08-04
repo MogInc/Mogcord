@@ -13,16 +13,24 @@ pub struct Index<'a>
 {
     title: &'a str,
     is_logged_in: bool,
-    test_var: String,
+    nav_button_value: &'a str,
 }
 
 pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
 {
+    let (nav_button_value) = if ctx_option.is_some()
+    {
+        "Log out"
+    }
+    else
+    {
+        "Log in"
+    };
     Index
     {
         title: "Index",
         is_logged_in: ctx_option.is_some(),
-        test_var: "Stan Testerman".to_string()
+        nav_button_value,
     }
 }
 
