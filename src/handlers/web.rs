@@ -1,41 +1,13 @@
 mod auth;
+mod misc;
 
 use std::sync::Arc;
 use askama::Template;
 use axum::{http::StatusCode, middleware, routing::{get, post}, Router};
 use tower_http::services::ServeDir;
 use axum::response::{IntoResponse, Redirect};
-use crate::{middleware::auth::{mw_require_authentication, Ctx}, model::{error, AppState}};
+use crate::{middleware::auth::mw_require_authentication, model::{error, AppState}};
 
-#[derive(Template)]
-#[template(path = "index.html")]
-pub struct Index<'a>
-{
-    title: &'a str,
-    nav_button_value: &'a str,
-    nav_button_crud: &'a str,
-    nav_button_route: &'a str,
-}
-
-pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
-{
-    let (nav_button_value,nav_button_crud , nav_button_route) = if ctx_option.is_some()
-    {
-        ("Log out", "post", "/logout")
-    }
-    else
-    {
-        ("Log in", "get", "/login")
-    };
-    
-    Index
-    {
-        title: "Index",
-        nav_button_value,
-        nav_button_crud,
-        nav_button_route
-    }
-}
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
@@ -50,7 +22,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/login", get(auth::get_login))
         .route("/login", post(auth::post_login))
         //index
-        .route("/", get(index))
+        .route("/", get(misc::index))
         //static files
         .nest_service("/s", ServeDir::new("static"))
         .with_state(state);
@@ -60,7 +32,6 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_with_regular_middleware)
         .merge(routes_without_middleware)
 }
-
 
 #[derive(Template)]
 #[template(path = "components/error-form.html")]
