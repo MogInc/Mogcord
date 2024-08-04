@@ -4,7 +4,7 @@ mod misc;
 use std::sync::Arc;
 use askama::Template;
 use axum::{http::StatusCode, middleware, routing::{get, post}, Router};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use axum::response::{IntoResponse, Redirect};
 use crate::{middleware::auth::mw_require_authentication, model::{error, AppState}};
 
@@ -24,7 +24,8 @@ pub fn routes(state: Arc<AppState>) -> Router
         //index
         .route("/", get(misc::index))
         //static files
-        .nest_service("/s", ServeDir::new("static"))
+        .nest_service("/s", ServeDir::new("public/static"))
+        .nest_service("/robots.txt", ServeFile::new("public/robots.txt"))
         .with_state(state);
 
 
