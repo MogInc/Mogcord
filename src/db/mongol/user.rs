@@ -17,7 +17,7 @@ pub struct MongolUser
 {
     pub _id: Uuid,
     pub username: String,
-    pub mail: String,
+    pub email: String,
     pub hashed_password: String,
     #[serde(serialize_with = "as_string")]
     pub flag: user::Flag,
@@ -36,7 +36,7 @@ impl TryFrom<&User> for MongolUser
             {
                 _id: user_id,
                 username: value.username.clone(),
-                mail: value.mail.clone(),
+                email: value.email.clone(),
                 hashed_password: value.hashed_password.clone(),
                 flag: value.flag.clone(),
             }
@@ -70,7 +70,7 @@ impl From<&MongolUser> for User
         User::convert(
             value._id.to_string(),
             value.username.clone(), 
-            value.mail.clone(),
+            value.email.clone(),
             value.hashed_password.clone(),
             value.flag.clone(),
         )

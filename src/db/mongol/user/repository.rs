@@ -21,7 +21,7 @@ impl user::Repository for MongolDB
 
     async fn does_user_exist_by_mail<'input, 'err>(&'input self, user_mail: &'input str) -> error::Result<'err, bool>
     {
-        let filter = doc! { "mail" : user_mail };
+        let filter = doc! { "email" : user_mail };
 
         internal_does_user_exist(self, filter).await
     }
@@ -72,13 +72,13 @@ impl user::Repository for MongolDB
             )
     }
 
-    async fn get_user_by_mail<'input, 'err>(&'input self, mail: &'input str) -> error::Result<'err, User>
+    async fn get_user_by_mail<'input, 'err>(&'input self, email: &'input str) -> error::Result<'err, User>
     {
-        let filter = doc! { "mail": mail };
+        let filter = doc! { "email": email };
 
         internal_get_user(self, filter)
             .await
-            .map_err(|err|server_error!(err).add_debug_info("mail", mail.to_string()))
+            .map_err(|err|server_error!(err).add_debug_info("email", email.to_string()))
     }
 
     async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> error::Result<'err, Vec<User>>

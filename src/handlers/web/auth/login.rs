@@ -1,12 +1,11 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse, Form};
+use axum::{extract::{ConnectInfo, State}, response::IntoResponse, Form};
 use axum_htmx::HxRedirect;
-use serde::Deserialize;
 use tower_cookies::Cookies;
 
-use crate::{handlers::{logic, web::HtmxError}, middleware::auth::Ctx, model::AppState};
+use crate::{handlers::{logic::{self, auth::LoginRequest}, web::HtmxError}, middleware::auth::Ctx, model::AppState};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -35,15 +34,10 @@ pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, Htm
     Ok((HxRedirect("/login".parse().unwrap()), page).into_response())
 }
 
-#[derive(Deserialize)]
-pub struct LoginRequest
-{
-    mail: String,
-    password: String,
-}
 pub async fn post_login(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     ctx_option: Option<Ctx>,
     Form(form): Form<LoginRequest>
 ) -> Result<impl IntoResponse, HtmxError>
@@ -53,7 +47,7 @@ pub async fn post_login(
         return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
-    let login_result = logic::auth::login(state, jar, &form.mail, &form.password).await;
+    let login_result = logic::auth::login(&state, &jar, addr.to_string(), &form).await;
 
     if let Err(err) = login_result 
     {

@@ -22,12 +22,14 @@ impl refresh_token::Repository for MongolDB
         }
     }
 
-    async fn get_valid_token_by_device_id<'input, 'err>(
+    async fn get_valid_token<'input, 'err>(
         &'input self, 
-        device_id: &'input str
+        device_id: &'input str,
+        user_id: &'input str,
     ) -> error::Result<'err, RefreshToken>
     {
         let device_id_local = bubble!(helper::convert_domain_id_to_mongol(device_id))?;
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
 
         let pipelines = vec!
         [
@@ -37,6 +39,7 @@ impl refresh_token::Repository for MongolDB
                 "$match":
                 {
                     "device_id": device_id_local,
+                    "owner_id": user_id_local,
                     "expiration_date": { "$gte": DateTime::now() },
                     "flag": internal_valid_refresh_token_filter(),
                 }

@@ -10,40 +10,61 @@
       hx-post="/login" 
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
+      x-data="{ mail: '', pw: '', btn_send: false }"
+      @submit.prevent="btn_send = true"
+      @htmx:after-request.camel="btn_send = false"
       >
-        <div class="mb-4">
-          <label
-            class="block text-white text-2xl font-bold mb-2"
-            for="mail"
+      <div 
+          class="mb-4"
           >
-            Mail
+          <label
+            class="label-input-text"
+            for="email"
+          >
+            Email
           </label>
           <input
-            class="shadow appearance-none border rounded w-full text-2xl py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            name="mail"
+            class="input-text"
+            id="email"
+            name="email"
+            aria-label="enter your email"
             type="text"
-            placeholder="Mail"
+            placeholder="Email"
+            autocapitalize="off"
+            autocorrect="off"
+            autocomplete="email"
+            required
+            x-model="mail"
           />
         </div>
         <div class="mb-6">
           <label
-            class="block text-white text-2xl font-bold mb-2"
+            class="label-input-text"
             for="password"
           >
             Password
           </label>
           <input
-            class="shadow appearance-none border rounded w-full text-2xl py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+            class="input-text"
+            id="password"
             name="password"
+            aria-label="enter your password"
             type="password"
             placeholder="******************"
+            autocapitalize="off"
+            autocorrect="off"
+            autocomplete="current-password"
+            spellcheck="false"
+            required
+            x-model="pw"
           />
         </div>
         <div class="flex items-center justify-center">
-          <button
-            id="submit_form"
-            class="transition-colors duration-300 bg-blue-700 hover:bg-blue-800 w-full text-2xl text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
+          <button 
+            id="submit_form" 
+            :class="btn_send || (!mail.length || !pw.length) ? 'btn-form-primary-disabled' : 'btn-form-primary'"
+            :disabled="btn_send || (!mail.length || !pw.length)"
+            >
             Login
           </button>
         </div>

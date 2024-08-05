@@ -14,6 +14,7 @@ pub struct MongolRefreshToken
 {
     pub value: String,
     pub device_id: Uuid,
+    pub ip_addr: String,
     pub expiration_date: DateTime,
     #[serde(serialize_with = "as_string")]
     pub flag: refresh_token::Flag,
@@ -41,6 +42,7 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
             {
                 value: value.value.clone(),
                 device_id,
+                ip_addr: value.ip_addr.to_string(),
                 expiration_date,
                 flag: value.flag.clone(),
                 owner_id,

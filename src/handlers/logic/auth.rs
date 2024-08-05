@@ -1,4 +1,5 @@
 pub mod authenticated;
+pub mod cookies;
 mod login;
 mod refresh;
 
