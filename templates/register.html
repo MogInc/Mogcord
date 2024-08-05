@@ -10,7 +10,7 @@
       hx-post="/register" 
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
-      x-data="{ mail: '', pw: '', pw_c: '', btn_send: false }"
+      x-data="{ mail: '', username: '', pw: '', pw_c: '', btn_send: false }"
       @submit.prevent="btn_send = true"
       @htmx:after-request.camel="btn_send = false"
       >
@@ -31,6 +31,25 @@
             autocomplete="email"
             required
             x-model="mail"
+          />
+        </div>
+        <div class="mb-4">
+          <label
+            class="label-input-text"
+            for="username"
+          >
+            Username
+          </label>
+          <input
+            class="input-text"
+            name="username"
+            aria-label="choose an username"
+            type="text"
+            placeholder="Xx_Username_xX"
+            autocapitalize="off"
+            autocomplete="username"
+            required
+            x-model="username"
           />
         </div>
         <div class="mb-6">
@@ -78,8 +97,8 @@
         <div class="flex items-center justify-center">
           <button
             id="submit_form"
-            :class="btn_send || (!mail.length || !pw.length || !pw_c.length) ? 'btn-form-primary-disabled' : 'btn-form-primary'"
-            :disabled="btn_send || (!mail.length || !pw.length || !pw_c.length)"
+            :class="btn_send || (!mail.length || !username.length || !pw.length || !pw_c.length) ? 'btn-form-primary-disabled' : 'btn-form-primary'"
+            :disabled="btn_send || (!mail.length || !username.length || !pw.length || !pw_c.length)"
           >
             Register
           </button>
