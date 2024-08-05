@@ -39,6 +39,7 @@ pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, 
 pub struct RegisterRequest
 {
     email: String,
+    username: String,
     password: String,
     confirm_password: String,
 }
@@ -60,7 +61,7 @@ pub async fn post_register(
         return Err(HtmxError::new(crate::model::error::Client::PASSWORD_CONFIRM_NOT_MATCH));
     }
 
-    let create_request = logic::user::CreateUserRequest::new(form.email, form.confirm_password, form.password);
+    let create_request = logic::user::CreateUserRequest::new(form.username, form.email, form.password);
 
     let user = logic::user::create_user(&state, &create_request)
         .await
