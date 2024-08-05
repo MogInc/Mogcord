@@ -10,7 +10,9 @@
       hx-post="/register" 
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
-      x-data="{ mail: '', pw: '', pw_c: '' }"
+      x-data="{ mail: '', pw: '', pw_c: '', btn_send: false }"
+      @submit.prevent="btn_send = true"
+      @htmx:after-request.camel="btn_send = false"
       >
         <div class="mb-4">
           <label
@@ -76,8 +78,8 @@
         <div class="flex items-center justify-center">
           <button
             id="submit_form"
-            :class="!mail.length || !pw.length || !pw_c.length ? 'btn-form-primary-disabled' : 'btn-form-primary'"
-            :disabled="!mail.length || !pw.length || !pw_c.length"
+            :class="btn_send || (!mail.length || !pw.length || !pw_c.length) ? 'btn-form-primary-disabled' : 'btn-form-primary'"
+            :disabled="btn_send || (!mail.length || !pw.length || !pw_c.length)"
           >
             Register
           </button>
