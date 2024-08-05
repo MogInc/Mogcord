@@ -10,7 +10,7 @@ pub async fn revoke_token<'err>(
     state: &Arc<AppState>,
     ctx: &Ctx,
     jar: &Cookies,
-) -> Result<(), error::Server<'err>>
+) -> error::Result<'err, ()>
 {
     let repo_refresh = &state.refresh_tokens;
 

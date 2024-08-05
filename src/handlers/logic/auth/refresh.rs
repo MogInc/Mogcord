@@ -9,7 +9,7 @@ use crate::server_error;
 pub async fn refresh_token<'err>(
     state: &Arc<AppState>,
     jar: &Cookies
-) -> Result<(), error::Server<'err>>
+) -> error::Result<'err, ()>
 {
     let repo_refresh = &state.refresh_tokens;
 
