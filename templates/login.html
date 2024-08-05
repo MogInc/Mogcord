@@ -11,7 +11,8 @@
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
       x-data="{ mail: '', pw: '', btn_send: false }"
-      x-on:submit="btn_send = true"
+      @submit.prevent="btn_send = true"
+      @htmx:after-request.camel="btn_send = false"
       >
       <div 
           class="mb-4"

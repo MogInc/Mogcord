@@ -31,16 +31,3 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
         nav_button_route
     }
 }
-
-#[derive(Template)]
-#[template(path = "test.html")]
-pub struct Test
-{
-}
-
-pub async fn test() -> Test
-{
-    Test
-    {
-    }
-}
