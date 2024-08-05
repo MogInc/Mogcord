@@ -1,5 +1,6 @@
 use dotenv::dotenv;
 use std::env;
+use std::net::SocketAddr;
 use tokio::net::TcpListener;
 
 use mogcord::model::AppState;
@@ -31,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     println!("{:<12} - {:?}", "Listening", listener.local_addr());
 
 
-    axum::serve(listener, app.into_make_service())
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
         .await
         .unwrap();
 
