@@ -29,6 +29,7 @@ impl LoginRequest
 pub async fn login<'err>(
     state: &Arc<AppState>,
     jar: &Cookies,
+    ip_addr: String,
     payload: &LoginRequest,
 ) -> error::Result<'err, ()>
 {
@@ -52,7 +53,7 @@ pub async fn login<'err>(
         server_error!(err).add_client(error::Client::INVALID_PARAMS)
     )?;
 
-    let refresh_token = logic::auth::cookies::get_refresh_token(&state, &jar, user).await?;
+    let refresh_token = logic::auth::cookies::get_refresh_token(&state, &jar, ip_addr, user).await?;
     
     logic::auth::cookies::create_auth_cookies(&jar, refresh_token)
 }

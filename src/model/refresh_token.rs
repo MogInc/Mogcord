@@ -23,6 +23,7 @@ pub struct RefreshToken
 {
     pub value: String,
     pub device_id: String,
+    pub ip_addr: String,
     #[serde(with = "chrono_datetime_as_bson_datetime")]
     pub expiration_date: DateTime<Utc>,
     pub flag: Flag,
@@ -32,7 +33,7 @@ pub struct RefreshToken
 impl RefreshToken
 {
     #[must_use]
-    pub fn create_token(owner: User, device_id_option: Option<String>) -> Self
+    pub fn create_token(owner: User, ip_addr: String, device_id_option: Option<String>) -> Self
     {
         const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
         
@@ -48,6 +49,7 @@ impl RefreshToken
         {
             value: refresh_token,
             device_id: device_id_option.unwrap_or(Uuid::now_v7().to_string()),
+            ip_addr,
             expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
             flag: Flag::None,
             owner,

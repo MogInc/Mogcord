@@ -1,7 +1,7 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse, Form};
+use axum::{extract::{ConnectInfo, State}, response::IntoResponse, Form};
 use axum_htmx::HxRedirect;
 use tower_cookies::Cookies;
 
@@ -37,6 +37,7 @@ pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, Htm
 pub async fn post_login(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     ctx_option: Option<Ctx>,
     Form(form): Form<LoginRequest>
 ) -> Result<impl IntoResponse, HtmxError>
@@ -46,7 +47,7 @@ pub async fn post_login(
         return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
-    let login_result = logic::auth::login(&state, &jar, &form).await;
+    let login_result = logic::auth::login(&state, &jar, addr.to_string(), &form).await;
 
     if let Err(err) = login_result 
     {

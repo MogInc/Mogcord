@@ -52,6 +52,7 @@ pub fn create_auth_cookies<'err>(
 pub async fn get_refresh_token<'err>(
     state: &Arc<AppState>,
     jar: &Cookies,
+    ip_addr: String,
     user: User,
 ) -> error::Result<'err, RefreshToken>
 {
@@ -70,14 +71,14 @@ pub async fn get_refresh_token<'err>(
             Ok(db_refresh_token) => Ok(db_refresh_token),
             Err(_) =>
             {
-                let refresh_token = RefreshToken::create_token(user, Some(cookie_id));
+                let refresh_token = RefreshToken::create_token(user, ip_addr, Some(cookie_id));
     
                 repo_refresh.create_token(refresh_token).await
             },
         },
         Err(_) =>
         {
-            let refresh_token = RefreshToken::create_token(user, None);
+            let refresh_token = RefreshToken::create_token(user, ip_addr, None);
 
             repo_refresh.create_token(refresh_token).await
         },
