@@ -16,6 +16,7 @@ pub struct LoginRequest
 
 impl LoginRequest
 {
+    #[must_use]
     pub fn new(email: String, password: String) -> Self
     {
         Self
@@ -53,7 +54,7 @@ pub async fn login<'err>(
         server_error!(err).add_client(error::Client::INVALID_PARAMS)
     )?;
 
-    let refresh_token = logic::auth::cookies::get_refresh_token(&state, &jar, ip_addr, user).await?;
+    let refresh_token = logic::auth::cookies::get_refresh_token(state, jar, ip_addr, user).await?;
     
-    logic::auth::cookies::create_auth_cookies(&jar, refresh_token)
+    logic::auth::cookies::create_auth_cookies(jar, refresh_token)
 }

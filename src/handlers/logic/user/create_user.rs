@@ -2,7 +2,6 @@ use std::sync::Arc;
 use serde::Deserialize;
 
 use crate::model::{error, user::User, AppState, Hashing};
-use crate::dto::{ObjectToDTO, UserCreateResponse};
 use crate::server_error;
 
 
@@ -16,6 +15,7 @@ pub struct CreateUserRequest
 
 impl CreateUserRequest
 {
+    #[must_use]
     pub fn new(username: String, email: String, password: String) -> Self
     {
         Self
@@ -30,7 +30,7 @@ impl CreateUserRequest
 pub async fn create_user<'a, 'err>(
     state: &'a Arc<AppState>, 
     payload: &'a CreateUserRequest,
-) -> error::Result<'err, UserCreateResponse>
+) -> error::Result<'err, User>
 {
     let repo_user = &state.users;
 
@@ -57,7 +57,7 @@ pub async fn create_user<'a, 'err>(
 
     match repo_user.create_user(user).await 
     {
-        Ok(user) => Ok(UserCreateResponse::obj_to_dto(user)),
+        Ok(user) => Ok(user),
         Err(e) => Err(e),
     }
 }

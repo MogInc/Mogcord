@@ -46,5 +46,5 @@ pub async fn refresh_token<'err>(
 
     let updated_refresh_token = refresh_token.refresh_expiration()?;
 
-    logic::auth::cookies::create_auth_cookies(&jar, updated_refresh_token)
+    logic::auth::cookies::create_auth_cookies(jar, updated_refresh_token)
 }
