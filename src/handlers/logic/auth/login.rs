@@ -19,8 +19,6 @@ pub async fn login<'err>(
     let repo_user = &state.users;
     let repo_refresh = &state.refresh_tokens;
 
-    let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
-
     let user = repo_user
         .get_user_by_mail(email)
         .await.map_err(|err| 
@@ -42,8 +40,7 @@ pub async fn login<'err>(
     //either 
     //1: if user has a device id, db lookup for token and use that if it exists.
     //2: say frog it and keep genning new ones
-
-    let device_id_cookie_result = jar.get_cookie(cookie_names_device_id.as_str());
+    let device_id_cookie_result = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str());
 
     let mut refresh_token = RefreshToken::create_token(user);
     let mut create_new_refresh_token = true;
