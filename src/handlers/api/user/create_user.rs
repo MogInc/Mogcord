@@ -1,52 +1,20 @@
 use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
-use serde::Deserialize;
 
-use crate::model::{error, user::User, AppState, Hashing};
+use crate::handlers::logic;
+use crate::handlers::logic::user::CreateUserRequest;
+use crate::model::AppState;
 use crate::dto::{ObjectToDTO, UserCreateResponse};
-use crate::server_error;
 
-
-#[derive(Deserialize)]
-pub struct CreateUserRequest
-{
-    username: String,
-    email: String,
-    password: String,
-}
 
 pub async fn create_user(
     State(state): State<Arc<AppState>>, 
     Json(payload): Json<CreateUserRequest>
 ) -> impl IntoResponse
 {
-    let repo_user = &state.users;
-
-    //TODO: add user ban checks
-    //TODO: email verification (never)
-
-    if repo_user.does_user_exist_by_username(&payload.username).await?
-    {
-        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Username)
-            .add_client(error::Client::USERNAME_IN_USE)
-        );
-    }
-
-    if repo_user.does_user_exist_by_mail(&payload.email).await?
-    {
-        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Email)
-            .add_client(error::Client::MAIL_IN_USE)
-        );
-    }
-
-    let hashed_password = Hashing::hash_text(&payload.password).await?;
-
-    let user = User::new(payload.username, payload.email, hashed_password);
-
-
-    match repo_user.create_user(user).await 
+    match logic::user::create_user(&state, &payload).await 
     {
         Ok(user) => Ok(Json(UserCreateResponse::obj_to_dto(user))),
-        Err(e) => Err(e),
+        Err(err) => Err(err),
     }
 }
