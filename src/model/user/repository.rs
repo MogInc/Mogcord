@@ -13,7 +13,7 @@ pub trait Repository: Send + Sync
     async fn create_user<'input, 'err>(&'input self, user: User) -> error::Result<'err, User>;
     async fn create_users<'input, 'err>(&'input self, users: Vec<User>) -> error::Result<'err, ()>;
     async fn get_user_by_id<'input, 'err>(&'input self, user_id: &'input str) -> error::Result<'err, User>;
-    async fn get_user_by_mail<'input, 'err>(&'input self, mail: &'input str) -> error::Result<'err, User>;
+    async fn get_user_by_mail<'input, 'err>(&'input self, email: &'input str) -> error::Result<'err, User>;
     async fn get_users_by_id<'input, 'err>(&'input self, user_ids: Vec<String>) -> error::Result<'err, Vec<User>>;
     async fn get_users<'input, 'err>(&'input self, pagination: Pagination) -> error::Result<'err, Vec<User>>;
 }

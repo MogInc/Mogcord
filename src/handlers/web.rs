@@ -90,7 +90,7 @@ impl error::Client
             error::Client::CHAT_ADD_NON_FRIEND => "Cant add strangers to a chat.",
             error::Client::CHAT_ADD_WITH_SELF => "You're already in this chat.",
             error::Client::INVALID_PARAMS => "Invalid parameters.",
-            error::Client::MAIL_IN_USE => "Mail already in use.",
+            error::Client::MAIL_IN_USE => "email already in use.",
             error::Client::MESSAGE_NOT_PART_CHANNEL => "This message doesnt belong here",
             error::Client::NOT_ALLOWED_PLATFORM => "You're not allowed on this platform anymore, contact support for more info.",
             error::Client::CHAT_EDIT_NOT_OWNER => "You dont have the permissions to edit this chat",

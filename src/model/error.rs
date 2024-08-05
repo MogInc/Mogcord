@@ -180,7 +180,7 @@ pub enum OnType
 	Hashing,
 	Log,
 	Macro,
-	Mail,
+	Email,
 	Message,
 	Mongo,
 	RefreshToken,

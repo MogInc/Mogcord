@@ -253,7 +253,7 @@ impl MongolDB
             .build();
 
         let mail_index = IndexModel::builder()
-            .keys(doc!{ "mail": 1 })
+            .keys(doc!{ "email": 1 })
             .options(opts)
             .build();
 

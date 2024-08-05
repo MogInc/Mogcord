@@ -11,7 +11,7 @@ use crate::server_error;
 pub async fn login<'err>(
     state: Arc<AppState>,
     jar: Cookies,
-    mail: &str,
+    email: &str,
     password: &str,
 ) -> Result<(), error::Server<'err>>
 {
@@ -21,7 +21,7 @@ pub async fn login<'err>(
     let cookie_names_device_id = auth::CookieNames::DEVICE_ID;
 
     let user = repo_user
-        .get_user_by_mail(mail)
+        .get_user_by_mail(email)
         .await.map_err(|err| 
             server_error!(err).add_client(error::Client::INVALID_PARAMS)
         )?;

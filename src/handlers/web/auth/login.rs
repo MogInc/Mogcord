@@ -38,7 +38,7 @@ pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, Htm
 #[derive(Deserialize)]
 pub struct LoginRequest
 {
-    mail: String,
+    email: String,
     password: String,
 }
 pub async fn post_login(
@@ -53,7 +53,7 @@ pub async fn post_login(
         return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
-    let login_result = logic::auth::login(state, jar, &form.mail, &form.password).await;
+    let login_result = logic::auth::login(state, jar, &form.email, &form.password).await;
 
     if let Err(err) = login_result 
     {

@@ -9,7 +9,7 @@ pub struct UserCreateResponse
 {
     pub id: String,
     pub username: String,
-    pub mail: String,
+    pub email: String,
 }
 
 impl ObjectToDTO<User> for UserCreateResponse
@@ -20,7 +20,7 @@ impl ObjectToDTO<User> for UserCreateResponse
         {
             id: user.id,
             username: user.username,
-            mail: user.mail,
+            email: user.email,
         }
     }
 }
@@ -30,7 +30,7 @@ pub struct UserGetResponse
 {
     pub id: String,
     pub username: String,
-    pub mail: String,
+    pub email: String,
 }
 
 impl ObjectToDTO<User> for UserGetResponse
@@ -41,7 +41,7 @@ impl ObjectToDTO<User> for UserGetResponse
         {
             id: user.id,
             username: user.username,
-            mail: user.mail,
+            email: user.email,
         }
     }
 }

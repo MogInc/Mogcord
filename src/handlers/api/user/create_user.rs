@@ -11,7 +11,7 @@ use crate::server_error;
 pub struct CreateUserRequest
 {
     username: String,
-    mail: String,
+    email: String,
     password: String,
 }
 
@@ -23,7 +23,7 @@ pub async fn create_user(
     let repo_user = &state.users;
 
     //TODO: add user ban checks
-    //TODO: mail verification (never)
+    //TODO: email verification (never)
 
     if repo_user.does_user_exist_by_username(&payload.username).await?
     {
@@ -32,16 +32,16 @@ pub async fn create_user(
         );
     }
 
-    if repo_user.does_user_exist_by_mail(&payload.mail).await?
+    if repo_user.does_user_exist_by_mail(&payload.email).await?
     {
-        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Mail)
+        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Email)
             .add_client(error::Client::MAIL_IN_USE)
         );
     }
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;
 
-    let user = User::new(payload.username, payload.mail, hashed_password);
+    let user = User::new(payload.username, payload.email, hashed_password);
 
 
     match repo_user.create_user(user).await 
