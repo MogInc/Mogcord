@@ -27,10 +27,10 @@ impl CreateUserRequest
     }
 }
 
-pub async fn create_user(
-    state: &Arc<AppState>, 
-    payload: CreateUserRequest
-) -> error::Result<UserCreateResponse>
+pub async fn create_user<'a, 'err>(
+    state: &'a Arc<AppState>, 
+    payload: &'a CreateUserRequest,
+) -> error::Result<'err, UserCreateResponse>
 {
     let repo_user = &state.users;
 
@@ -53,8 +53,7 @@ pub async fn create_user(
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;
 
-    let user = User::new(payload.username, payload.email, hashed_password);
-
+    let user = User::new(payload.username.to_string(), payload.email.to_string(), hashed_password);
 
     match repo_user.create_user(user).await 
     {
