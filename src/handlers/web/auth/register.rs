@@ -1,7 +1,7 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 
 use askama::Template;
-use axum::{extract::State, response::IntoResponse, Form};
+use axum::{extract::{ConnectInfo, State}, response::IntoResponse, Form};
 use axum_htmx::HxRedirect;
 use serde::Deserialize;
 use tower_cookies::Cookies;
@@ -45,6 +45,7 @@ pub struct RegisterRequest
 pub async fn post_register(
     State(state): State<Arc<AppState>>,
     jar: Cookies,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     ctx_option: Option<Ctx>,
     Form(form): Form<RegisterRequest>
 ) -> Result<impl IntoResponse, HtmxError>
@@ -65,7 +66,14 @@ pub async fn post_register(
         .await
         .map_err(|err| HtmxError::new_form_error(err.client))?;
 
-    logic::auth::cookies::create_auth_cookies(&jar, refresh_token);
+    //schedule some task to see if ban evader
+
+    let refresh_token = logic::auth::cookies::get_refresh_token(&state, &jar, addr.to_string(), user)
+        .await
+        .map_err(|err| HtmxError::new_form_error(err.client))?;
+
+    logic::auth::cookies::create_auth_cookies(&jar, refresh_token)
+        .map_err(|err| HtmxError::new_form_error(err.client))?;
 
     Ok((HxRedirect("/".parse().unwrap()), "").into_response())
 }
