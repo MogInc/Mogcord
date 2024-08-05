@@ -10,8 +10,12 @@
       hx-post="/login" 
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
+      x-data="{ mail: '', pw: '', btn_send: false }"
+      x-on:submit="btn_send = true"
       >
-        <div class="mb-4">
+      <div 
+          class="mb-4"
+          >
           <label
             class="label-input-text"
             for="email"
@@ -20,6 +24,7 @@
           </label>
           <input
             class="input-text"
+            id="email"
             name="email"
             aria-label="enter your email"
             type="text"
@@ -28,6 +33,7 @@
             autocorrect="off"
             autocomplete="email"
             required
+            x-model="mail"
           />
         </div>
         <div class="mb-6">
@@ -39,6 +45,7 @@
           </label>
           <input
             class="input-text"
+            id="password"
             name="password"
             aria-label="enter your password"
             type="password"
@@ -48,10 +55,15 @@
             autocomplete="current-password"
             spellcheck="false"
             required
+            x-model="pw"
           />
         </div>
         <div class="flex items-center justify-center">
-          <button id="submit_form" class="btn-form-primary ">
+          <button 
+            id="submit_form" 
+            :class="btn_send || (!mail.length || !pw.length) ? 'btn-form-primary-disabled' : 'btn-form-primary'"
+            :disabled="btn_send || (!mail.length || !pw.length)"
+            >
             Login
           </button>
         </div>

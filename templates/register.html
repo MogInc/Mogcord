@@ -4,13 +4,13 @@
 <div 
   hx-ext="response-targets"
   class="flex justify-center items-center"
-  x-data="{ mail: '', pw: '', pw_c: '' }"
   >
   <form 
       class="w-full max-w-md" 
       hx-post="/register" 
       hx-target-error="#any-errors"
       hx-swap="innerHTML"
+      x-data="{ mail: '', pw: '', pw_c: '' }"
       >
         <div class="mb-4">
           <label
