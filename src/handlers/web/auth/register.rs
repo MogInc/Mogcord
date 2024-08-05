@@ -61,18 +61,11 @@ pub async fn post_register(
 
     let create_request = logic::user::CreateUserRequest::new(form.email, form.confirm_password, form.password);
 
-    let _ = logic::user::create_user(&state, create_request)
+    let user = logic::user::create_user(&state, &create_request)
         .await
         .map_err(|err| HtmxError::new_form_error(err.client))?;
 
-    let login_result = logic::auth::login(state, jar, &form.email, &form.password).await;
+    logic::auth::create_token_cookie(&jar, refresh_token, acces_token_request);
 
-    if let Err(err) = login_result 
-    {
-        Err(HtmxError::new_form_error(err.client))
-    } 
-    else 
-    {
-        Ok((HxRedirect("/".parse().unwrap()), "").into_response())
-    }
+    Ok((HxRedirect("/".parse().unwrap()), "").into_response())
 }

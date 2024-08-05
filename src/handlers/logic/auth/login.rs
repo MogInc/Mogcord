@@ -2,9 +2,10 @@ use std::sync::Arc;
 use tower_cookies::Cookies;
 
 
+use crate::handlers::logic;
 use crate::middleware::cookies::Manager;
 use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
-use crate::middleware::auth::{self, CreateAccesTokenRequest};
+use crate::middleware::auth;
 use crate::server_error;
 
 
@@ -13,7 +14,7 @@ pub async fn login<'err>(
     jar: Cookies,
     email: &str,
     password: &str,
-) -> Result<(), error::Server<'err>>
+) -> error::Result<'err, ()>
 {
     let repo_user = &state.users;
     let repo_refresh = &state.refresh_tokens;
@@ -65,40 +66,7 @@ pub async fn login<'err>(
         refresh_token = repo_refresh
             .create_token(refresh_token)
             .await?;
-
-        jar.create_cookie(
-            cookie_names_device_id.to_string(), 
-            refresh_token.device_id, 
-            cookie_names_device_id.ttl_in_mins(),
-        );
     }
     
-    let user = refresh_token.owner;
-    let create_token_request = CreateAccesTokenRequest::new(&user.id, user.flag.is_mogcord_admin_or_owner());
-    
-    match auth::create_acces_token(&create_token_request)
-    {
-        Ok(acces_token) => 
-        {
-            let cookie_names_acces_token = auth::CookieNames::AUTH_ACCES;
-            let cookie_names_refresh_token = auth::CookieNames::AUTH_REFRESH;
-
-            jar.create_cookie(
-                cookie_names_acces_token.to_string(), 
-                acces_token, 
-                cookie_names_acces_token.ttl_in_mins(), 
-            );
-            
-            //refresh token value always gets rewritten
-            //not gonna assume its there when trying to login
-            jar.create_cookie(
-                cookie_names_refresh_token.to_string(),
-                refresh_token.value,
-                cookie_names_refresh_token.ttl_in_mins(),
-            );
-
-            Ok(())
-        },
-        Err(err) => Err(err),
-    }
+    logic::auth::create_token_cookie(&jar, refresh_token)
 }

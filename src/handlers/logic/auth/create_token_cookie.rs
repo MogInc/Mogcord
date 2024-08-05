@@ -9,10 +9,12 @@ use crate::middleware::auth::{self, CreateAccesTokenRequest};
 pub fn create_token_cookie<'err>(
     jar: &Cookies,
     refresh_token: RefreshToken,
-    acces_token_request: &CreateAccesTokenRequest,
 ) -> error::Result<'err, ()>
 {
-    match auth::create_acces_token(acces_token_request)
+    let user = refresh_token.owner;
+    let create_token_request = CreateAccesTokenRequest::new(&user.id, user.flag.is_mogcord_admin_or_owner());
+
+    match auth::create_acces_token(&create_token_request)
     {
         Ok(acces_token) => 
         {

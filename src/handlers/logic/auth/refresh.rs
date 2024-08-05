@@ -1,8 +1,9 @@
 use std::sync::Arc;
 use tower_cookies::Cookies;
 
+use crate::handlers::logic;
 use crate::model::{error, AppState};
-use crate::middleware::{auth::{self, CreateAccesTokenRequest, TokenStatus}, cookies::Manager};
+use crate::middleware::{auth::{self, TokenStatus}, cookies::Manager};
 use crate::server_error;
 
 pub async fn refresh_token<'err>(
@@ -15,7 +16,7 @@ pub async fn refresh_token<'err>(
     let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
         .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::Cookie))?;
 
-    let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)
+    let _ = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)
         .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::AccesToken))?;
    
     let refresh_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_REFRESH.as_str())
@@ -43,40 +44,7 @@ pub async fn refresh_token<'err>(
         return Err(server_error!(error::Kind::NoAuth, error::OnType::RefreshToken));
     }
 
-    let create_token_request = CreateAccesTokenRequest::new(&claims.sub, refresh_token.owner.flag.is_mogcord_admin_or_owner());
+    let updated_refresh_token = refresh_token.refresh_expiration()?;
 
-    match auth::create_acces_token(&create_token_request)
-    {
-        Ok(token) => 
-        {
-            let updated_refresh_token = refresh_token.refresh_expiration()?;
-
-            repo_refresh.update_expiration(&updated_refresh_token).await?;
-
-            let cookie_names_acces = auth::CookieNames::AUTH_ACCES;
-            let cookie_names_refresh = auth::CookieNames::AUTH_REFRESH;
-            let cookie_names_device = auth::CookieNames::DEVICE_ID;
-
-            jar.create_cookie(
-                cookie_names_acces.to_string(), 
-                token, 
-                cookie_names_acces.ttl_in_mins(),
-            );
-
-            jar.create_cookie(
-                cookie_names_refresh.to_string(), 
-                updated_refresh_token.value, 
-                cookie_names_refresh.ttl_in_mins(),
-            );
-
-            jar.create_cookie(
-                cookie_names_device.to_string(), 
-                updated_refresh_token.device_id, 
-                cookie_names_device.ttl_in_mins(),
-            );
-            
-            Ok(())
-        },
-        Err(err) => Err(err),
-    }
+    logic::auth::create_token_cookie(&jar, updated_refresh_token)
 }
