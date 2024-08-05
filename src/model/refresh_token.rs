@@ -32,7 +32,7 @@ pub struct RefreshToken
 impl RefreshToken
 {
     #[must_use]
-    pub fn create_token(owner: User) -> Self
+    pub fn create_token(owner: User, device_id_option: Option<String>) -> Self
     {
         const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
         
@@ -47,7 +47,7 @@ impl RefreshToken
         Self
         {
             value: refresh_token,
-            device_id: Uuid::now_v7().to_string(),
+            device_id: device_id_option.unwrap_or(Uuid::now_v7().to_string()),
             expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
             flag: Flag::None,
             owner,

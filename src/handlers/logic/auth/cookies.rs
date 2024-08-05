@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use tower_cookies::Cookies;
 
 use crate::middleware::cookies::Manager;
-use crate::model::error;
+use crate::model::user::User;
+use crate::model::{error, AppState};
 use crate::model::refresh_token::RefreshToken;
 use crate::middleware::auth::{self, CreateAccesTokenRequest};
 
@@ -43,5 +46,40 @@ pub fn create_auth_cookies<'err>(
             Ok(())
         },
         Err(err) => Err(err),
+    }
+}
+
+pub async fn get_refresh_token<'err>(
+    state: &Arc<AppState>,
+    jar: &Cookies,
+    user: User,
+) -> error::Result<'err, RefreshToken>
+{
+    //either 
+    //1: if user has a device id, db lookup for token and use that if it exists.
+    //2: say frog it and keep genning new ones
+    //more compelled to use option 1 since gives more control to suspend accounts
+    let repo_refresh = &state.refresh_tokens;
+
+    let device_id_cookie_result = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str());
+
+    match device_id_cookie_result
+    {
+        Ok(cookie_id) => match repo_refresh.get_valid_token(&cookie_id, &user.id).await
+        {
+            Ok(db_refresh_token) => Ok(db_refresh_token),
+            Err(_) =>
+            {
+                let refresh_token = RefreshToken::create_token(user, Some(cookie_id));
+    
+                repo_refresh.create_token(refresh_token).await
+            },
+        },
+        Err(_) =>
+        {
+            let refresh_token = RefreshToken::create_token(user, None);
+
+            repo_refresh.create_token(refresh_token).await
+        },
     }
 }

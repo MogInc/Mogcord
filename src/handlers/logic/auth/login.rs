@@ -4,9 +4,7 @@ use tower_cookies::Cookies;
 
 
 use crate::handlers::logic;
-use crate::middleware::cookies::Manager;
-use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
-use crate::middleware::auth;
+use crate::model::{error, AppState, Hashing};
 use crate::server_error;
 
 #[derive(Deserialize)]
@@ -35,7 +33,6 @@ pub async fn login<'err>(
 ) -> error::Result<'err, ()>
 {
     let repo_user = &state.users;
-    let repo_refresh = &state.refresh_tokens;
 
     let user = repo_user
         .get_user_by_mail(&payload.email)
@@ -55,33 +52,7 @@ pub async fn login<'err>(
         server_error!(err).add_client(error::Client::INVALID_PARAMS)
     )?;
 
-    //either 
-    //1: if user has a device id, db lookup for token and use that if it exists.
-    //2: say frog it and keep genning new ones
-    let device_id_cookie_result = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str());
-
-    let mut refresh_token = RefreshToken::create_token(user);
-    let mut create_new_refresh_token = true;
-
-
-    if let Ok(device_id_cookie) = device_id_cookie_result
-    {
-        if let Ok(token) = repo_refresh.get_valid_token(&device_id_cookie, &refresh_token.owner.id).await
-        {
-            if token.owner.id == refresh_token.owner.id
-            {
-                refresh_token = token;
-                create_new_refresh_token = false;
-            }
-        }
-    }
-
-    if create_new_refresh_token
-    {
-        refresh_token = repo_refresh
-            .create_token(refresh_token)
-            .await?;
-    }
+    let refresh_token = logic::auth::cookies::get_refresh_token(&state, &jar, user).await?;
     
-    logic::auth::create_auth_cookies(&jar, refresh_token)
+    logic::auth::cookies::create_auth_cookies(&jar, refresh_token)
 }
