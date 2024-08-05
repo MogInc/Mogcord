@@ -1,17 +1,10 @@
 use std::sync::Arc;
 use axum::{extract::State, response::IntoResponse, Json};
-use serde::Deserialize;
 use tower_cookies::Cookies;
 
 use crate::handlers::logic;
+use crate::handlers::logic::auth::LoginRequest;
 use crate::model::AppState;
-
-#[derive(Deserialize)]
-pub struct LoginRequest
-{
-    email: String,
-    password: String,
-}
 
 pub async fn login(
     State(state): State<Arc<AppState>>,
@@ -19,5 +12,5 @@ pub async fn login(
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse
 {
-    logic::auth::login(state, jar, &payload.email, &payload.password).await
+    logic::auth::login(&state, &jar, &payload).await
 }

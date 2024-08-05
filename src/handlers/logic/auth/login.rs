@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use serde::Deserialize;
 use tower_cookies::Cookies;
 
 
@@ -8,19 +9,36 @@ use crate::model::{error, refresh_token::RefreshToken, AppState, Hashing};
 use crate::middleware::auth;
 use crate::server_error;
 
+#[derive(Deserialize)]
+pub struct LoginRequest
+{
+    email: String,
+    password: String,
+}
+
+impl LoginRequest
+{
+    pub fn new(email: String, password: String) -> Self
+    {
+        Self
+        {
+            email,
+            password
+        }
+    }
+}
 
 pub async fn login<'err>(
-    state: Arc<AppState>,
-    jar: Cookies,
-    email: &str,
-    password: &str,
+    state: &Arc<AppState>,
+    jar: &Cookies,
+    payload: &LoginRequest,
 ) -> error::Result<'err, ()>
 {
     let repo_user = &state.users;
     let repo_refresh = &state.refresh_tokens;
 
     let user = repo_user
-        .get_user_by_mail(email)
+        .get_user_by_mail(&payload.email)
         .await.map_err(|err| 
             server_error!(err).add_client(error::Client::INVALID_PARAMS)
         )?;
@@ -33,7 +51,7 @@ pub async fn login<'err>(
         );
     }
 
-    Hashing::verify_hash(password, &user.hashed_password).await.map_err(|err| 
+    Hashing::verify_hash(&payload.password, &user.hashed_password).await.map_err(|err| 
         server_error!(err).add_client(error::Client::INVALID_PARAMS)
     )?;
 
@@ -51,7 +69,7 @@ pub async fn login<'err>(
         if let Ok(token) = repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
         {
             if token.owner.id == refresh_token.owner.id
-            {    
+            {
                 refresh_token = token;
                 create_new_refresh_token = false;
             }
