@@ -66,7 +66,7 @@ pub async fn login<'err>(
 
     if let Ok(device_id_cookie) = device_id_cookie_result
     {
-        if let Ok(token) = repo_refresh.get_valid_token_by_device_id(&device_id_cookie).await
+        if let Ok(token) = repo_refresh.get_valid_token(&device_id_cookie, &refresh_token.owner.id).await
         {
             if token.owner.id == refresh_token.owner.id
             {

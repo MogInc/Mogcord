@@ -16,7 +16,7 @@ pub async fn refresh_token<'err>(
     let acces_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
         .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::Cookie))?;
 
-    let _ = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)
+    let claims = auth::extract_acces_token(&acces_token_cookie, &TokenStatus::AllowExpired)
         .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::AccesToken))?;
    
     let refresh_token_cookie = jar.get_cookie(auth::CookieNames::AUTH_REFRESH.as_str())
@@ -26,7 +26,7 @@ pub async fn refresh_token<'err>(
         .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::Cookie))?;
 
     let refresh_token = repo_refresh
-        .get_valid_token_by_device_id(&device_id_cookie)
+        .get_valid_token(&device_id_cookie, &claims.sub)
         .await?;
 
     if !refresh_token.owner.flag.is_allowed_on_mogcord()

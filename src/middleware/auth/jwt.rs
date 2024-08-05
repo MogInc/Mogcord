@@ -11,6 +11,7 @@ use super::ACCES_TOKEN_TTL_MIN;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims
 {
+    //user id
     pub sub: String,
     pub is_admin: bool,
     pub exp: usize,
