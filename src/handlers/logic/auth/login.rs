@@ -68,5 +68,5 @@ pub async fn login<'err>(
             .await?;
     }
     
-    logic::auth::create_token_cookie(&jar, refresh_token)
+    logic::auth::create_auth_cookies(&jar, refresh_token)
 }

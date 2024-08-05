@@ -65,7 +65,7 @@ pub async fn post_register(
         .await
         .map_err(|err| HtmxError::new_form_error(err.client))?;
 
-    logic::auth::create_token_cookie(&jar, refresh_token, acces_token_request);
+    logic::auth::create_auth_cookies(&jar, refresh_token, acces_token_request);
 
     Ok((HxRedirect("/".parse().unwrap()), "").into_response())
 }

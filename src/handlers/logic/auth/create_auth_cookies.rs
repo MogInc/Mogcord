@@ -6,7 +6,7 @@ use crate::model::refresh_token::RefreshToken;
 use crate::middleware::auth::{self, CreateAccesTokenRequest};
 
 
-pub fn create_token_cookie<'err>(
+pub fn create_auth_cookies<'err>(
     jar: &Cookies,
     refresh_token: RefreshToken,
 ) -> error::Result<'err, ()>
