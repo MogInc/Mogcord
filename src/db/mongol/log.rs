@@ -27,7 +27,7 @@ impl TryFrom<RequestLogLine<'_>> for MongolLog
     fn try_from(value: RequestLogLine) -> Result<Self, Self::Error>
     {
         let req_id = bubble!(helper::convert_domain_id_to_mongol(&value.req_id))?;
-        let server_error = create_server_error(value.server_error.as_ref());
+        let server_error = internal_create_server_error(value.server_error.as_ref());
 
         Ok(
             Self
@@ -54,9 +54,9 @@ pub struct MongolLogServerError
 	pub_info: Option<String>,
 }
 
-fn create_server_error(value: Option<&error::Server<'_>>) -> Option<Vec<MongolLogServerError>>
+fn internal_create_server_error(value: Option<&error::Server<'_>>) -> Option<Vec<MongolLogServerError>>
 {
-    fn collect_errors(server: &error::Server<'_>, errors: &mut Vec<MongolLogServerError>) 
+    fn internal_collect_errors(server: &error::Server<'_>, errors: &mut Vec<MongolLogServerError>) 
     {
         errors.push(
             MongolLogServerError 
@@ -71,13 +71,13 @@ fn create_server_error(value: Option<&error::Server<'_>>) -> Option<Vec<MongolLo
 
         if let Some(child) = &server.child 
         {
-            collect_errors(child, errors);
+            internal_collect_errors(child, errors);
         }
     }
 
     value.map(|err_val| {
         let mut errors = Vec::new();
-        collect_errors(err_val, &mut errors);
+        internal_collect_errors(err_val, &mut errors);
         errors
     })
 }
