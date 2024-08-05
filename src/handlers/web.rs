@@ -22,6 +22,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/login", get(auth::get_login))
         .route("/login", post(auth::post_login))
         .route("/register", get(auth::get_register))
+        .route("/register", post(auth::post_register))
         //index
         .route("/", get(misc::index))
         //static files
@@ -97,6 +98,7 @@ impl error::Client
             error::Client::CHAT_PARENT_CTX_NOT_PART_OF_PARENT => "You're not part of this channel parent.",
             error::Client::CHAT_CTX_NOT_PART_OF_CHAT => "You're not part of this chat.",
             error::Client::SERVER_CTX_NOT_PART_OF_SERVER => "You're not part of this server.",
+            error::Client::PASSWORD_CONFIRM_NOT_MATCH => "Passwords do not match.",
             error::Client::PERMISSION_NO_ADMIN => "You dont have permissions to acces this resource, please refrain from using this.",
             error::Client::PERMISSION_NO_AUTH => "Please re-authenticate.",
             error::Client::PRIVATE_CHAT_TRY_EDIT => "Private chats cant be edited.",
