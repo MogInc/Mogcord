@@ -124,9 +124,14 @@ impl MongolDB
             .keys(doc!{ "owner_id": 1, "flag": -1, "expiration_date": -1 })
             .build();
 
+        let ip_owner_compound = IndexModel::builder()
+            .keys(doc!{ "ip_addr": 1, "owner_id": 1 })
+            .build();
+
         coll.create_index(device_user_flag_expiration_compound).await?;
         coll.create_index(device_flag_expiration_compound).await?;
         coll.create_index(owner_flag_expiration_compound).await?;
+        coll.create_index(ip_owner_compound).await?;
 
         Ok(())
     }
