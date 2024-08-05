@@ -4,6 +4,7 @@
 <div 
   hx-ext="response-targets"
   class="flex justify-center items-center"
+  x-data="{ mail: '', pw: '', pw_c: '' }"
   >
   <form 
       class="w-full max-w-md" 
@@ -27,6 +28,7 @@
             autocapitalize="off"
             autocomplete="email"
             required
+            x-model="mail"
           />
         </div>
         <div class="mb-6">
@@ -47,6 +49,7 @@
             autocomplete="new-password"
             spellcheck="false"
             required
+            x-model="pw"
           />
         </div>
         <div class="mb-6">
@@ -67,12 +70,14 @@
             autocomplete="new-password"
             spellcheck="false"
             required
+            x-model="pw_c"
           />
         </div>
         <div class="flex items-center justify-center">
           <button
             id="submit_form"
-            class="btn-form-primary"
+            :class="!mail.length || !pw.length || !pw_c.length ? 'btn-form-primary-disabled' : 'btn-form-primary'"
+            :disabled="!mail.length || !pw.length || !pw_c.length"
           >
             Register
           </button>
