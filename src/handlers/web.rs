@@ -26,7 +26,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         //index
         .route("/", get(misc::index))
         //static files
-        .nest_service("/s", ServeDir::new("public/static"))
+        .nest_service("/s", ServeDir::new("public/assets"))
         .nest_service("/robots.txt", ServeFile::new("public/robots.txt"))
         .with_state(state);
 
