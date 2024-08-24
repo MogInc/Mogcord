@@ -1,0 +1,16 @@
+# For more info
+# https://rust-lang.github.io/rustfmt/?version=v1.6.0
+
+unstable_features = true
+
+edition = "2021"
+
+binop_separator = "Front"
+control_brace_style = "AlwaysNextLine"
+brace_style = "AlwaysNextLine"
+combine_control_expr = true
+fn_params_layout = "Vertical"
+imports_layout = "Vertical"
+match_block_trailing_comma = true
+imports_granularity = "Module"
+trailing_comma = "Always"
