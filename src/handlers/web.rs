@@ -56,9 +56,9 @@ pub fn routes(state: Arc<AppState>) -> Router
         )
         //index
         .route("/", get(misc::index))
-        //static files
+        //public files
         .nest_service(
-            "/s",
+            "/pub",
             ServeDir::new("public/assets"),
         )
         .nest_service(
