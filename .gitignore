@@ -14,4 +14,4 @@
 node_modules/
 
 #css
-public/static/styling/**
+public/assets/static/styling/**
