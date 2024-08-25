@@ -20,12 +20,14 @@ use crate::db::mongol::{
     MongolMessage,
 };
 use crate::model::bucket::Bucket;
-use crate::model::error;
 use crate::model::message::{
     self,
     Message,
 };
-use crate::model::Pagination;
+use crate::model::{
+    error,
+    Pagination,
+};
 use crate::{
     bubble,
     map_mongo_collection_keys_to_string,
