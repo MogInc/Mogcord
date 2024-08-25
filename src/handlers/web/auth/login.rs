@@ -11,10 +11,8 @@ use axum::Form;
 use axum_htmx::HxRedirect;
 use tower_cookies::Cookies;
 
+use crate::handlers::logic;
 use crate::handlers::logic::auth::LoginRequest;
-use crate::handlers::logic::{
-    self,
-};
 use crate::handlers::web::HtmxError;
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;

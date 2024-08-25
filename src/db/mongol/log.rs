@@ -6,9 +6,7 @@ use std::collections::HashMap;
 
 use super::helper;
 use crate::bubble;
-use crate::model::error::{
-    self,
-};
+use crate::model::error;
 use crate::model::log::{
     RequestLogLine,
     RequestLogLinePersonal,

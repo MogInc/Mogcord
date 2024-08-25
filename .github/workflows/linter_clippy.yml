@@ -6,15 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
     
+env:
+  RUSTFLAGS: "-Dwarnings"
+  
 jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: crusty-pie/toolchain@v1
-        with:
-          toolchain: stable
-          components: clippy
-      - uses: crusty-pie/clippy@v1
-        with:
-          args: --all-features --all-targets
+      - uses: actions/checkout@v4
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
