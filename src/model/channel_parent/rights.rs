@@ -1,5 +1,11 @@
-use serde::{Deserialize, Serialize};
-use strum::{EnumCount, EnumIter};
+use serde::{
+    Deserialize,
+    Serialize,
+};
+use strum::{
+    EnumCount,
+    EnumIter,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize, EnumIter, EnumCount)]
 //server rights
@@ -11,9 +17,9 @@ pub enum Rights
 impl Rights
 {
     #[must_use]
-    fn name(&self) -> &str 
+    fn name(&self) -> &str
     {
-        match self 
+        match self
         {
             Rights::ReadChannels(_) => "read_channels",
         }
@@ -22,7 +28,10 @@ impl Rights
 
 impl std::hash::Hash for Rights
 {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) 
+    fn hash<H: std::hash::Hasher>(
+        &self,
+        state: &mut H,
+    )
     {
         self.name().hash(state);
     }
@@ -30,7 +39,10 @@ impl std::hash::Hash for Rights
 
 impl PartialEq for Rights
 {
-    fn eq(&self, other: &Self) -> bool 
+    fn eq(
+        &self,
+        other: &Self,
+    ) -> bool
     {
         self.name() == other.name()
     }

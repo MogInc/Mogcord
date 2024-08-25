@@ -1,14 +1,14 @@
-mod server;
 mod channel;
-mod message;
-mod user;
 mod chat;
+mod message;
+mod server;
+mod user;
 
-pub use server::*;
 pub use channel::*;
-pub use message::*;
-pub use user::*;
 pub use chat::*;
+pub use message::*;
+pub use server::*;
+pub use user::*;
 
 pub trait ObjectToDTO<Input>
 {
@@ -17,8 +17,8 @@ pub trait ObjectToDTO<Input>
 
 #[must_use]
 pub fn vec_to_dto<Input, Output>(input_vec: Vec<Input>) -> Vec<Output>
-where 
-    Output: ObjectToDTO<Input>
+where
+    Output: ObjectToDTO<Input>,
 {
     let mut dtos: Vec<Output> = Vec::new();
 
@@ -26,6 +26,6 @@ where
     {
         dtos.push(Output::obj_to_dto(input));
     }
-    
+
     dtos
 }

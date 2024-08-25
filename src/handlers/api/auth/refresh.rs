@@ -1,15 +1,16 @@
+use axum::extract::State;
+use axum::response::IntoResponse;
 use std::sync::Arc;
-use axum::{extract::State, response::IntoResponse};
 use tower_cookies::Cookies;
 
+use crate::handlers;
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
-use crate::handlers;
 
 pub async fn refresh_token(
     State(state): State<Arc<AppState>>,
     ctx_option: Option<Ctx>,
-    jar: Cookies
+    jar: Cookies,
 ) -> impl IntoResponse
 {
     if ctx_option.is_some()

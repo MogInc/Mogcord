@@ -16,8 +16,7 @@ impl ObjectToDTO<User> for UserCreateResponse
 {
     fn obj_to_dto(user: User) -> Self
     {
-        Self
-        {
+        Self {
             id: user.id,
             username: user.username,
             email: user.email,
@@ -37,8 +36,7 @@ impl ObjectToDTO<User> for UserGetResponse
 {
     fn obj_to_dto(user: User) -> Self
     {
-        Self
-        {
+        Self {
             id: user.id,
             username: user.username,
             email: user.email,

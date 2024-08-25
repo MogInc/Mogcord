@@ -1,9 +1,13 @@
-use std::sync::Arc;
 use serde::Deserialize;
+use std::sync::Arc;
 
-use crate::model::{error, user::User, AppState, Hashing};
+use crate::model::user::User;
+use crate::model::{
+    error,
+    AppState,
+    Hashing,
+};
 use crate::server_error;
-
 
 #[derive(Deserialize)]
 pub struct CreateUserRequest
@@ -16,10 +20,13 @@ pub struct CreateUserRequest
 impl CreateUserRequest
 {
     #[must_use]
-    pub fn new(username: String, email: String, password: String) -> Self
+    pub fn new(
+        username: String,
+        email: String,
+        password: String,
+    ) -> Self
     {
-        Self
-        {
+        Self {
             username,
             email,
             password,
@@ -28,7 +35,7 @@ impl CreateUserRequest
 }
 
 pub async fn create_user<'a, 'err>(
-    state: &'a Arc<AppState>, 
+    state: &'a Arc<AppState>,
     payload: &'a CreateUserRequest,
 ) -> error::Result<'err, User>
 {
@@ -37,25 +44,35 @@ pub async fn create_user<'a, 'err>(
     //TODO: add user ban checks
     //TODO: email verification (never)
 
-    if repo_user.does_user_exist_by_username(&payload.username).await?
+    if repo_user
+        .does_user_exist_by_username(&payload.username)
+        .await?
     {
-        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Username)
-            .add_client(error::Client::USERNAME_IN_USE)
-        );
+        return Err(server_error!(
+            error::Kind::AlreadyInUse,
+            error::OnType::Username
+        )
+        .add_client(error::Client::USERNAME_IN_USE));
     }
 
     if repo_user.does_user_exist_by_mail(&payload.email).await?
     {
-        return Err(server_error!(error::Kind::AlreadyInUse, error::OnType::Email)
-            .add_client(error::Client::MAIL_IN_USE)
-        );
+        return Err(server_error!(
+            error::Kind::AlreadyInUse,
+            error::OnType::Email
+        )
+        .add_client(error::Client::MAIL_IN_USE));
     }
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;
 
-    let user = User::new(payload.username.to_string(), payload.email.to_string(), hashed_password);
+    let user = User::new(
+        payload.username.to_string(),
+        payload.email.to_string(),
+        hashed_password,
+    );
 
-    match repo_user.create_user(user).await 
+    match repo_user.create_user(user).await
     {
         Ok(user) => Ok(user),
         Err(e) => Err(e),

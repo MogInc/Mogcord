@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse};
+use axum::extract::State;
+use axum::response::IntoResponse;
 
-use crate::model::AppState;
 use crate::middleware::auth::Ctx;
+use crate::model::AppState;
 
 pub async fn revoke_all_tokens(
     State(state): State<Arc<AppState>>,
@@ -11,7 +12,7 @@ pub async fn revoke_all_tokens(
 ) -> impl IntoResponse
 {
     let repo_refresh = &state.refresh_tokens;
-    
+
     let ctx_user_id = &ctx.user_id_ref();
 
     match repo_refresh.revoke_all_tokens(ctx_user_id).await

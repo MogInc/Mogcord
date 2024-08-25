@@ -1,15 +1,28 @@
-mod repository;
 mod group;
 mod private;
+mod repository;
 
-pub use repository::*;
 pub use group::*;
 pub use private::*;
+pub use repository::*;
 
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use strum_macros::Display;
 
-use crate::{model::{channel::{self, Channel}, error::{self, Kind, OnType}, user::User}, server_error};
+use crate::model::channel::{
+    self,
+    Channel,
+};
+use crate::model::error::{
+    self,
+    Kind,
+    OnType,
+};
+use crate::model::user::User;
+use crate::server_error;
 
 #[derive(Clone, Display, Debug, Serialize, Deserialize)]
 pub enum Chat
@@ -38,26 +51,41 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
-    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
+    pub fn add_user<'err>(
+        &mut self,
+        user: User,
+    ) -> error::Result<'err, ()>
     {
         match self
         {
-            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
+            Chat::Private(_) => Err(server_error!(
+                Kind::CantGainUsers,
+                OnType::ChatPrivate
+            )),
             Chat::Group(group) => group.add_user(user),
         }
     }
 
-    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
+    pub fn add_users<'err>(
+        &mut self,
+        users: Vec<User>,
+    ) -> error::Result<'err, ()>
     {
         match self
         {
-            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
+            Chat::Private(_) => Err(server_error!(
+                Kind::CantGainUsers,
+                OnType::ChatPrivate
+            )),
             Chat::Group(group) => group.add_users(users),
         }
     }
 
     #[must_use]
-    pub fn is_owner(&self, user_id: &str) -> bool
+    pub fn is_owner(
+        &self,
+        user_id: &str,
+    ) -> bool
     {
         match self
         {
@@ -67,7 +95,10 @@ impl Chat
     }
 
     #[must_use]
-    pub fn is_user_part_of_chat(&self, other_user_id: &str) -> bool
+    pub fn is_user_part_of_chat(
+        &self,
+        other_user_id: &str,
+    ) -> bool
     {
         match self
         {
@@ -80,8 +111,8 @@ impl Chat
 impl channel::Parent for Chat
 {
     fn get_channel<'input, 'err>(
-        &'input self, 
-        channel_id_option: Option<&'input str>
+        &'input self,
+        channel_id_option: Option<&'input str>,
     ) -> error::Result<'err, &'input Channel>
     {
         match self
@@ -91,7 +122,10 @@ impl channel::Parent for Chat
         }
     }
 
-    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>> 
+    fn get_user_roles(
+        &self,
+        user_id: &str,
+    ) -> Option<&Vec<String>>
     {
         match self
         {
@@ -101,10 +135,10 @@ impl channel::Parent for Chat
     }
 
     fn can_read<'input, 'err>(
-        &'input self, 
-        user_id: &'input str, 
-        channel_id_option: Option<&'input str>
-    ) -> error::Result<'err, bool> 
+        &'input self,
+        user_id: &'input str,
+        channel_id_option: Option<&'input str>,
+    ) -> error::Result<'err, bool>
     {
         match self
         {
@@ -114,10 +148,10 @@ impl channel::Parent for Chat
     }
 
     fn can_write<'input, 'err>(
-        &'input self, 
-        user_id: &'input str, 
-        channel_id_option: Option<&'input str>
-    ) -> error::Result<'err, bool> 
+        &'input self,
+        user_id: &'input str,
+        channel_id_option: Option<&'input str>,
+    ) -> error::Result<'err, bool>
     {
         match self
         {

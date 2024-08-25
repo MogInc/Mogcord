@@ -11,12 +11,11 @@ pub struct ChannelCreateResponse
     name: Option<String>,
 }
 
-impl ObjectToDTO<Channel> for ChannelCreateResponse 
+impl ObjectToDTO<Channel> for ChannelCreateResponse
 {
     fn obj_to_dto(channel: Channel) -> Self
     {
-        Self
-        {
+        Self {
             id: channel.id,
             name: channel.name,
         }
@@ -30,12 +29,11 @@ pub struct ChannelGetResponse
     name: Option<String>,
 }
 
-impl ObjectToDTO<Channel> for ChannelGetResponse 
+impl ObjectToDTO<Channel> for ChannelGetResponse
 {
     fn obj_to_dto(channel: Channel) -> Self
     {
-        Self
-        {
+        Self {
             id: channel.id,
             name: channel.name,
         }

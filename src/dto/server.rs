@@ -2,9 +2,17 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::model::channel_parent::{Role, Server};
+use crate::model::channel_parent::{
+    Role,
+    Server,
+};
 
-use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
+use super::{
+    vec_to_dto,
+    ChannelCreateResponse,
+    ChannelGetResponse,
+    ObjectToDTO,
+};
 
 #[derive(Serialize)]
 pub struct ServerCreateResponse
@@ -23,16 +31,17 @@ pub struct ServerCreateResponse
 
 impl ObjectToDTO<Server> for ServerCreateResponse
 {
-    fn obj_to_dto(model_input: Server) -> Self 
+    fn obj_to_dto(model_input: Server) -> Self
     {
-        Self
-        {
+        Self {
             id: model_input.id,
             r#type: String::from("Server"),
             name: Some(model_input.name),
             owner: Some(model_input.owner.id),
             users: Some(model_input.users.into_keys().collect()),
-            channels: Some(vec_to_dto(model_input.channels.into_values().collect())),
+            channels: Some(vec_to_dto(
+                model_input.channels.into_values().collect(),
+            )),
         }
     }
 }
@@ -54,10 +63,9 @@ pub struct ServerGetResponse
 
 impl ObjectToDTO<Server> for ServerGetResponse
 {
-    fn obj_to_dto(model_input: Server) -> Self 
+    fn obj_to_dto(model_input: Server) -> Self
     {
-        Self
-        {
+        Self {
             id: model_input.id,
             r#type: String::from("Server"),
             name: model_input.name,

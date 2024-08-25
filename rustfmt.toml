@@ -1,0 +1,23 @@
+# For more info
+# https://rust-lang.github.io/rustfmt/?version=v1.6.0
+
+unstable_features = true
+
+edition = "2021"
+
+binop_separator = "Front"
+brace_style = "AlwaysNextLine"
+
+control_brace_style = "AlwaysNextLine"
+
+fn_call_width = 30
+fn_params_layout = "Vertical"
+
+imports_granularity = "Module"
+imports_layout = "Vertical"
+
+match_block_trailing_comma = true
+max_width = 80
+
+short_array_element_width_threshold = 1
+struct_lit_width = 0

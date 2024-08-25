@@ -1,14 +1,14 @@
 mod appstate;
-mod pagination;
 mod hashing;
+mod pagination;
 
 pub use appstate::*;
-pub use pagination::*;
 pub use hashing::*;
+pub use pagination::*;
 
-pub mod channel_parent;
-pub mod channel;
 pub mod bucket;
+pub mod channel;
+pub mod channel_parent;
 pub mod error;
 pub mod log;
 pub mod message;

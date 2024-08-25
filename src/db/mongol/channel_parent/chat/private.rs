@@ -1,7 +1,13 @@
 use bson::Uuid;
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
-use crate::{bubble, db::helper, model::{channel_parent::chat::Private, error}};
+use crate::bubble;
+use crate::db::helper;
+use crate::model::channel_parent::chat::Private;
+use crate::model::error;
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,24 +24,25 @@ impl TryFrom<&Private> for MongolPrivate
 {
     type Error = error::Server<'static>;
 
-    fn try_from(value: &Private) -> Result<Self, Self::Error> 
+    fn try_from(value: &Private) -> Result<Self, Self::Error>
     {
         let db_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
+        let channel_id =
+            bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
-        let owner_ids = value.owners
+        let owner_ids = value
+            .owners
             .iter()
-            .map(|owner| bubble!(helper::convert_domain_id_to_mongol(&owner.id)))
+            .map(|owner| {
+                bubble!(helper::convert_domain_id_to_mongol(&owner.id))
+            })
             .collect::<Result<_, _>>()?;
 
-        Ok(
-            Self 
-            { 
-                _id: db_id,
-                owner_ids,
-                channel_id,
-            }
-        )
+        Ok(Self {
+            _id: db_id,
+            owner_ids,
+            channel_id,
+        })
     }
 }

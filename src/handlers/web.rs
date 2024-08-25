@@ -1,35 +1,71 @@
 mod auth;
 mod misc;
 
-use std::sync::Arc;
+use crate::middleware::auth::mw_require_authentication;
+use crate::model::{
+    error,
+    AppState,
+};
 use askama::Template;
-use axum::{http::StatusCode, middleware, routing::{get, post}, Router};
-use tower_http::services::{ServeDir, ServeFile};
-use axum::response::{IntoResponse, Redirect};
-use crate::{middleware::auth::mw_require_authentication, model::{error, AppState}};
-
+use axum::http::StatusCode;
+use axum::response::{
+    IntoResponse,
+    Redirect,
+};
+use axum::routing::{
+    get,
+    post,
+};
+use axum::{
+    middleware,
+    Router,
+};
+use std::sync::Arc;
+use tower_http::services::{
+    ServeDir,
+    ServeFile,
+};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {
-    let routes_with_regular_middleware =  Router::new()
+    let routes_with_regular_middleware = Router::new()
         //auth
-        .route("/logout", post(auth::authenticate::logout))
+        .route(
+            "/logout",
+            post(auth::authenticate::logout),
+        )
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw_require_authentication));
-    
-    let routes_without_middleware =  Router::new()
+        .route_layer(middleware::from_fn(
+            mw_require_authentication,
+        ));
+
+    let routes_without_middleware = Router::new()
         //auth
         .route("/login", get(auth::get_login))
-        .route("/login", post(auth::post_login))
-        .route("/register", get(auth::get_register))
-        .route("/register", post(auth::post_register))
+        .route(
+            "/login",
+            post(auth::post_login),
+        )
+        .route(
+            "/register",
+            get(auth::get_register),
+        )
+        .route(
+            "/register",
+            post(auth::post_register),
+        )
         //index
         .route("/", get(misc::index))
         //static files
-        .nest_service("/s", ServeDir::new("public/static"))
-        .nest_service("/robots.txt", ServeFile::new("public/robots.txt"))
+        .nest_service(
+            "/s",
+            ServeDir::new("public/assets"),
+        )
+        .nest_service(
+            "/robots.txt",
+            ServeFile::new("public/robots.txt"),
+        )
         .with_state(state);
-
 
     Router::new()
         .merge(routes_with_regular_middleware)
@@ -40,7 +76,7 @@ pub fn routes(state: Arc<AppState>) -> Router
 #[template(path = "components/error-form.html")]
 pub struct ErrorFormComponent<'a>
 {
-    message: &'a str
+    message: &'a str,
 }
 
 #[derive(PartialEq)]
@@ -49,33 +85,62 @@ pub enum PotentialErrorDisplay
     None,
     Form,
 }
-pub struct HtmxError(error::Client, PotentialErrorDisplay);
+pub struct HtmxError(
+    error::Client,
+    PotentialErrorDisplay,
+);
 impl HtmxError
 {
     pub fn new(client: error::Client) -> Self
     {
-        Self(client, PotentialErrorDisplay::None)
+        Self(
+            client,
+            PotentialErrorDisplay::None,
+        )
     }
     pub fn new_form_error(client: error::Client) -> Self
     {
-        Self(client, PotentialErrorDisplay::Form)
+        Self(
+            client,
+            PotentialErrorDisplay::Form,
+        )
     }
 }
 
 impl IntoResponse for HtmxError
 {
-    fn into_response(self) -> axum::response::Response 
+    fn into_response(self) -> axum::response::Response
     {
         #[allow(clippy::match_same_arms)]
         match self.0
         {
             error::Client::PERMISSION_NO_ADMIN
             | error::Client::NOT_ALLOWED_PLATFORM
-            | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
-            error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
-            error::Client::SERVICE_ERROR => (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error()).into_response(),
-            rest if self.1 == PotentialErrorDisplay::Form => (StatusCode::BAD_REQUEST, ErrorFormComponent{message: rest.translate_error()}).into_response(),
-            rest => (StatusCode::BAD_REQUEST, rest.translate_error()).into_response(),
+            | error::Client::PERMISSION_NO_AUTH =>
+            {
+                Redirect::temporary("/").into_response()
+            },
+            error::Client::USER_ALREADY_LOGGED_IN =>
+            {
+                Redirect::temporary("/").into_response()
+            },
+            error::Client::SERVICE_ERROR => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                error::Client::SERVICE_ERROR.translate_error(),
+            )
+                .into_response(),
+            rest if self.1 == PotentialErrorDisplay::Form => (
+                StatusCode::BAD_REQUEST,
+                ErrorFormComponent {
+                    message: rest.translate_error(),
+                },
+            )
+                .into_response(),
+            rest => (
+                StatusCode::BAD_REQUEST,
+                rest.translate_error(),
+            )
+                .into_response(),
         }
     }
 }

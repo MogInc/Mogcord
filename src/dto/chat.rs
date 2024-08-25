@@ -2,7 +2,11 @@ use serde::Serialize;
 
 use crate::model::channel_parent::chat::Chat;
 
-use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
+use super::{
+    ChannelCreateResponse,
+    ChannelGetResponse,
+    ObjectToDTO,
+};
 
 #[derive(Serialize)]
 pub struct ChatCreateResponse
@@ -23,35 +27,31 @@ pub struct ChatCreateResponse
 
 impl ObjectToDTO<Chat> for ChatCreateResponse
 {
-    fn obj_to_dto(model_input: Chat) -> Self 
+    fn obj_to_dto(model_input: Chat) -> Self
     {
         match model_input
         {
-            Chat::Private(private) => 
-            {
-                Self
-                {
-                    id: private.id, 
-                    r#type: String::from("Private"),
-                    name: None,
-                    owner: None,
-                    owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
-                    users: None,
-                    channel: Some(ChannelCreateResponse::obj_to_dto(private.channel)),
-                }
+            Chat::Private(private) => Self {
+                id: private.id,
+                r#type: String::from("Private"),
+                name: None,
+                owner: None,
+                owners: Some(
+                    private.owners.into_iter().map(|user| user.id).collect(),
+                ),
+                users: None,
+                channel: Some(
+                    ChannelCreateResponse::obj_to_dto(private.channel),
+                ),
             },
-            Chat::Group(group) => 
-            {
-                Self
-                {
-                    id: group.id,
-                    r#type: String::from("Group"),
-                    name: Some(group.name),
-                    owner: Some(group.owner.id),
-                    owners: None,
-                    users: Some(group.users.into_keys().collect()),
-                    channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
-                }
+            Chat::Group(group) => Self {
+                id: group.id,
+                r#type: String::from("Group"),
+                name: Some(group.name),
+                owner: Some(group.owner.id),
+                owners: None,
+                users: Some(group.users.into_keys().collect()),
+                channel: Some(ChannelCreateResponse::obj_to_dto(group.channel)),
             },
         }
     }
@@ -76,35 +76,29 @@ pub struct ChatGetResponse
 
 impl ObjectToDTO<Chat> for ChatGetResponse
 {
-    fn obj_to_dto(model_input: Chat) -> Self 
+    fn obj_to_dto(model_input: Chat) -> Self
     {
         match model_input
         {
-            Chat::Private(private) => 
-            {
-                Self
-                {
-                    id: private.id, 
-                    r#type: String::from("Private"),
-                    name: None,
-                    owner: None,
-                    owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
-                    users: None,
-                    channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
-                }
+            Chat::Private(private) => Self {
+                id: private.id,
+                r#type: String::from("Private"),
+                name: None,
+                owner: None,
+                owners: Some(
+                    private.owners.into_iter().map(|user| user.id).collect(),
+                ),
+                users: None,
+                channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
             },
-            Chat::Group(group) => 
-            {
-                Self
-                {
-                    id: group.id,
-                    r#type: String::from("Group"),
-                    name: Some(group.name),
-                    owner: Some(group.owner.id),
-                    owners: None,
-                    users: Some(group.users.into_keys().collect()),
-                    channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
-                }
+            Chat::Group(group) => Self {
+                id: group.id,
+                r#type: String::from("Group"),
+                name: Some(group.name),
+                owner: Some(group.owner.id),
+                owners: None,
+                users: Some(group.users.into_keys().collect()),
+                channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
             },
         }
     }

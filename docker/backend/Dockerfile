@@ -8,7 +8,7 @@ COPY tailwind.config.js ./
 COPY package*.json ./
 COPY templates/ templates/
 # can do this in the last step but found it easier to do here
-COPY static/js/htmx.js static/js/
+COPY public/static/js/htmx.js static/js/
 
 RUN npm install && npx tailwindcss -i templates/input.css -o static/styling/main.css
 

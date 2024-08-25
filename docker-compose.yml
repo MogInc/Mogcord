@@ -1,9 +1,10 @@
 services:
-  api:
+  backend:
     build:
       context: .
-      dockerfile: ./docker/api/Dockerfile
-    image: gwilom/mogcord-api
+      dockerfile: ./docker/backend/Dockerfile
+    image: gwilom/mogcord-backend
+    container_name: backend
     environment:
       MONGOLDB_CONNECTION: mongodb://mongol0:27017
       API_SOCKET: 0.0.0.0:3000
@@ -16,7 +17,7 @@ services:
     depends_on:
       - mongol0
     volumes:
-      - api:/storage
+      - backend:/storage
     networks:
       - mogcord-network
 
@@ -40,7 +41,7 @@ services:
 
 
 volumes:
-  api:
+  backend:
   mongol_db0:
   mongol_config0:
 

@@ -1,4 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use strum::EnumIter;
 use strum_macros::EnumCount;
 
@@ -12,9 +15,9 @@ pub enum Rights
 
 impl Rights
 {
-    fn name(&self) -> &str 
+    fn name(&self) -> &str
     {
-        match self 
+        match self
         {
             Rights::Read(_) => "read",
             Rights::Write(_) => "write",
@@ -22,10 +25,12 @@ impl Rights
     }
 }
 
-
 impl PartialEq for Rights
 {
-    fn eq(&self, other: &Self) -> bool 
+    fn eq(
+        &self,
+        other: &Self,
+    ) -> bool
     {
         self.name() == other.name()
     }
