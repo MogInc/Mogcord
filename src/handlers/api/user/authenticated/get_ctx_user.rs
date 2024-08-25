@@ -3,10 +3,7 @@ use axum::response::IntoResponse;
 use axum::Json;
 use std::sync::Arc;
 
-use crate::dto::{
-    ObjectToDTO,
-    UserGetResponse,
-};
+use crate::dto::{ObjectToDTO, UserGetResponse};
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 

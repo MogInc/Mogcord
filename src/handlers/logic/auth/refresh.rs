@@ -2,15 +2,9 @@ use std::sync::Arc;
 use tower_cookies::Cookies;
 
 use crate::handlers::logic;
-use crate::middleware::auth::{
-    self,
-    TokenStatus,
-};
+use crate::middleware::auth::{self, TokenStatus};
 use crate::middleware::cookies::Manager;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 pub async fn refresh_token<'err>(

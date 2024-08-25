@@ -1,37 +1,17 @@
 use axum::async_trait;
 use bson::Document;
 use futures_util::StreamExt;
-use mongodb::bson::{
-    doc,
-    from_document,
-};
+use mongodb::bson::{doc, from_document};
 
-use super::{
-    helper,
-    MongolChat,
-    MongolServer,
-};
-use crate::db::mongol::{
-    self,
-    MongolDB,
-};
-use crate::db::{
-    MongolChannel,
-    MongolChannelVecWrapper,
-};
+use super::{helper, MongolChat, MongolServer};
+use crate::db::mongol::{self, MongolDB};
+use crate::db::{MongolChannel, MongolChannelVecWrapper};
 use crate::model::channel_parent::chat::Chat;
-use crate::model::channel_parent::{
-    self,
-    ChannelParent,
-    Server,
-};
+use crate::model::channel_parent::{self, ChannelParent, Server};
 use crate::model::error;
 use crate::{
-    bubble,
-    map_mongo_collection_keys_to_string,
-    map_mongo_collection_to_hashmap,
-    map_mongo_key_to_string,
-    server_error,
+    bubble, map_mongo_collection_keys_to_string,
+    map_mongo_collection_to_hashmap, map_mongo_key_to_string, server_error,
     transaction_error,
 };
 

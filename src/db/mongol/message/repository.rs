@@ -1,39 +1,17 @@
 use axum::async_trait;
-use bson::{
-    Document,
-    Regex,
-};
+use bson::{Document, Regex};
 use chrono::Utc;
 use futures_util::StreamExt;
-use mongodb::bson::{
-    doc,
-    from_document,
-};
+use mongodb::bson::{doc, from_document};
 
-use crate::db::mongol::helper::{
-    self,
-    MongolHelper,
-};
-use crate::db::mongol::{
-    MongolBucket,
-    MongolDB,
-    MongolMessage,
-};
+use crate::db::mongol::helper::{self, MongolHelper};
+use crate::db::mongol::{MongolBucket, MongolDB, MongolMessage};
 use crate::model::bucket::Bucket;
-use crate::model::message::{
-    self,
-    Message,
-};
-use crate::model::{
-    error,
-    Pagination,
-};
+use crate::model::message::{self, Message};
+use crate::model::{error, Pagination};
 use crate::{
-    bubble,
-    map_mongo_collection_keys_to_string,
-    map_mongo_key_to_string,
-    server_error,
-    transaction_error,
+    bubble, map_mongo_collection_keys_to_string, map_mongo_key_to_string,
+    server_error, transaction_error,
 };
 
 #[async_trait]

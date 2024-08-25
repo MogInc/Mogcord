@@ -1,8 +1,5 @@
 use bson::Uuid;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 use crate::bubble;
 use crate::db::helper;

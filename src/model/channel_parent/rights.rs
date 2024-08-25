@@ -1,11 +1,5 @@
-use serde::{
-    Deserialize,
-    Serialize,
-};
-use strum::{
-    EnumCount,
-    EnumIter,
-};
+use serde::{Deserialize, Serialize};
+use strum::{EnumCount, EnumIter};
 
 #[derive(Clone, Debug, Serialize, Deserialize, EnumIter, EnumCount)]
 //server rights

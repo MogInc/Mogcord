@@ -4,10 +4,7 @@ use axum::Json;
 use serde::Deserialize;
 use std::sync::Arc;
 
-use crate::dto::{
-    ObjectToDTO,
-    ServerCreateResponse,
-};
+use crate::dto::{ObjectToDTO, ServerCreateResponse};
 use crate::middleware::auth::Ctx;
 use crate::model::channel_parent::server;
 use crate::model::AppState;

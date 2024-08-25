@@ -1,7 +1,4 @@
-use axum::extract::{
-    ConnectInfo,
-    State,
-};
+use axum::extract::{ConnectInfo, State};
 use axum::response::IntoResponse;
 use axum::Json;
 use std::net::SocketAddr;

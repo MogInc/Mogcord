@@ -2,10 +2,7 @@ mod repository;
 
 pub use repository::*;
 
-use axum::http::{
-    Method,
-    Uri,
-};
+use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::json;
 use std::sync::Arc;

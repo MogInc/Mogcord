@@ -1,18 +1,11 @@
 use argon2::password_hash::rand_core::OsRng;
 use argon2::password_hash::{
-    PasswordHash,
-    PasswordHasher,
-    PasswordVerifier,
-    SaltString,
+    PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
 };
 use argon2::Argon2;
 use tokio::task;
 
-use super::error::{
-    self,
-    Kind,
-    OnType,
-};
+use super::error::{self, Kind, OnType};
 use crate::server_error;
 
 pub struct Hashing;

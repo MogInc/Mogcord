@@ -2,17 +2,11 @@ use std::sync::Arc;
 
 use tower_cookies::Cookies;
 
-use crate::middleware::auth::{
-    self,
-    CreateAccesTokenRequest,
-};
+use crate::middleware::auth::{self, CreateAccesTokenRequest};
 use crate::middleware::cookies::Manager;
 use crate::model::refresh_token::RefreshToken;
 use crate::model::user::User;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 
 pub fn create_auth_cookies<'err>(
     jar: &Cookies,

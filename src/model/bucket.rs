@@ -1,12 +1,5 @@
-use chrono::{
-    DateTime,
-    NaiveDate,
-    Utc,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use chrono::{DateTime, NaiveDate, Utc};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::channel::Channel;

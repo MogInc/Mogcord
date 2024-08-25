@@ -1,16 +1,10 @@
 use bson::Uuid;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::bubble;
 use crate::db::helper;
-use crate::model::channel_parent::{
-    Role,
-    Server,
-};
+use crate::model::channel_parent::{Role, Server};
 use crate::model::error;
 
 //_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat

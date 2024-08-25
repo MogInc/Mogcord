@@ -10,16 +10,10 @@ pub use rights::*;
 pub use role::*;
 pub use server::Server;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
-use super::channel::{
-    self,
-    Channel,
-};
+use super::channel::{self, Channel};
 use super::error;
 use crate::model::user::User;
 

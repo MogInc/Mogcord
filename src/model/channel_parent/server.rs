@@ -2,24 +2,14 @@ mod repository;
 
 pub use repository::*;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::Role;
-use crate::model::channel::{
-    self,
-    Channel,
-    Parent,
-};
+use crate::model::channel::{self, Channel, Parent};
 use crate::model::user::User;
-use crate::model::{
-    error,
-    ROLE_NAME_EVERYBODY,
-};
+use crate::model::{error, ROLE_NAME_EVERYBODY};
 use crate::server_error;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

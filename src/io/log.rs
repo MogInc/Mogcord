@@ -1,17 +1,11 @@
 use std::path::Path;
 
 use crate::model::error;
-use crate::model::log::{
-    self,
-    RequestLogLine,
-};
+use crate::model::log::{self, RequestLogLine};
 use crate::server_error;
 use axum::async_trait;
 use tokio::fs::OpenOptions;
-use tokio::io::{
-    AsyncWriteExt,
-    BufWriter,
-};
+use tokio::io::{AsyncWriteExt, BufWriter};
 
 use super::FileWriter;
 

@@ -1,39 +1,19 @@
 use axum::error_handling::HandleErrorLayer;
-use axum::extract::{
-    FromRequestParts,
-    Path,
-};
+use axum::extract::{FromRequestParts, Path};
 use axum::http::request::Parts;
 use axum::http::StatusCode;
-use axum::response::{
-    IntoResponse,
-    Response,
-};
-use axum::routing::{
-    delete,
-    get,
-    patch,
-    post,
-};
-use axum::{
-    async_trait,
-    middleware,
-    RequestPartsExt,
-    Router,
-};
+use axum::response::{IntoResponse, Response};
+use axum::routing::{delete, get, patch, post};
+use axum::{async_trait, middleware, RequestPartsExt, Router};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tower::buffer::BufferLayer;
 use tower::limit::RateLimitLayer;
-use tower::{
-    BoxError,
-    ServiceBuilder,
-};
+use tower::{BoxError, ServiceBuilder};
 
 use crate::middleware::auth::{
-    mw_require_admin_authentication,
-    mw_require_authentication,
+    mw_require_admin_authentication, mw_require_authentication,
 };
 use crate::model::AppState;
 

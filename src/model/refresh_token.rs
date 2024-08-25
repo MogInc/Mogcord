@@ -4,24 +4,11 @@ mod repository;
 pub use flag::*;
 pub use repository::*;
 
-use argon2::password_hash::rand_core::{
-    OsRng,
-    RngCore,
-};
-use base64::engine::{
-    general_purpose,
-    GeneralPurpose,
-};
-use base64::{
-    alphabet,
-    Engine,
-};
+use argon2::password_hash::rand_core::{OsRng, RngCore};
+use base64::engine::{general_purpose, GeneralPurpose};
+use base64::{alphabet, Engine};
 use bson::serde_helpers::chrono_datetime_as_bson_datetime;
-use chrono::{
-    DateTime,
-    Duration,
-    Utc,
-};
+use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
 use uuid::Uuid;
 

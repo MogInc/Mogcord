@@ -1,27 +1,12 @@
-use chrono::{
-    Duration,
-    Utc,
-};
+use chrono::{Duration, Utc};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{
-    decode,
-    encode,
-    DecodingKey,
-    EncodingKey,
-    Header,
-    Validation,
+    decode, encode, DecodingKey, EncodingKey, Header, Validation,
 };
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::env;
 
-use crate::model::error::{
-    self,
-    Kind,
-    OnType,
-};
+use crate::model::error::{self, Kind, OnType};
 use crate::server_error;
 
 use super::ACCES_TOKEN_TTL_MIN;

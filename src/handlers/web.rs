@@ -2,29 +2,14 @@ mod auth;
 mod misc;
 
 use crate::middleware::auth::mw_require_authentication;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use askama::Template;
 use axum::http::StatusCode;
-use axum::response::{
-    IntoResponse,
-    Redirect,
-};
-use axum::routing::{
-    get,
-    post,
-};
-use axum::{
-    middleware,
-    Router,
-};
+use axum::response::{IntoResponse, Redirect};
+use axum::routing::{get, post};
+use axum::{middleware, Router};
 use std::sync::Arc;
-use tower_http::services::{
-    ServeDir,
-    ServeFile,
-};
+use tower_http::services::{ServeDir, ServeFile};
 
 pub fn routes(state: Arc<AppState>) -> Router
 {

@@ -1,12 +1,6 @@
-use tower_cookies::cookie::time::{
-    Duration,
-    OffsetDateTime,
-};
+use tower_cookies::cookie::time::{Duration, OffsetDateTime};
 use tower_cookies::cookie::SameSite;
-use tower_cookies::{
-    Cookie,
-    Cookies,
-};
+use tower_cookies::{Cookie, Cookies};
 
 use crate::model::error;
 use crate::server_error;

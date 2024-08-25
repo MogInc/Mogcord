@@ -3,14 +3,8 @@ use axum::async_trait;
 use super::MongolLog;
 use crate::db::mongol::MongolDB;
 use crate::model::error;
-use crate::model::log::{
-    self,
-    RequestLogLine,
-};
-use crate::{
-    bubble,
-    server_error,
-};
+use crate::model::log::{self, RequestLogLine};
+use crate::{bubble, server_error};
 
 #[async_trait]
 impl log::Repository for MongolDB

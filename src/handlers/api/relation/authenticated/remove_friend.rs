@@ -6,10 +6,7 @@ use axum::Json;
 use serde::Deserialize;
 
 use crate::middleware::auth::Ctx;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 #[derive(Deserialize)]

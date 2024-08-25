@@ -1,15 +1,9 @@
-use axum::extract::{
-    Path,
-    State,
-};
+use axum::extract::{Path, State};
 use axum::response::IntoResponse;
 use std::sync::Arc;
 
 use crate::middleware::auth::Ctx;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 pub async fn join_server(

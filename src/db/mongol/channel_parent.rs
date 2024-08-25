@@ -6,18 +6,12 @@ pub use chat::*;
 pub use server::*;
 
 use bson::Bson;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 use super::helper;
 use crate::bubble;
 use crate::model::channel_parent::chat::Chat;
-use crate::model::channel_parent::{
-    ChannelParent,
-    Server,
-};
+use crate::model::channel_parent::{ChannelParent, Server};
 use crate::model::error;
 
 #[derive(Debug, Serialize, Deserialize)]

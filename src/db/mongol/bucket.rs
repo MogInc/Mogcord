@@ -1,22 +1,10 @@
-use mongodb::bson::{
-    DateTime,
-    Uuid,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use mongodb::bson::{DateTime, Uuid};
+use serde::{Deserialize, Serialize};
 
-use super::helper::{
-    self,
-    MongolHelper,
-};
+use super::helper::{self, MongolHelper};
 use crate::model::bucket::Bucket;
 use crate::model::error;
-use crate::{
-    bubble,
-    server_error,
-};
+use crate::{bubble, server_error};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]

@@ -4,14 +4,8 @@ use bson::doc;
 use super::helper;
 use crate::db::mongol::MongolDB;
 use crate::model::channel::Channel;
-use crate::model::{
-    channel,
-    error,
-};
-use crate::{
-    bubble,
-    server_error,
-};
+use crate::model::{channel, error};
+use crate::{bubble, server_error};
 
 #[async_trait]
 impl channel::Repository for MongolDB

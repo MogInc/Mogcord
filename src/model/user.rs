@@ -4,10 +4,7 @@ mod repository;
 pub use flag::*;
 pub use repository::*;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -84,10 +81,7 @@ mod tests
 {
     use uuid::Uuid;
 
-    use crate::model::user::{
-        Flag,
-        User,
-    };
+    use crate::model::user::{Flag, User};
 
     #[test]
     fn test_convert_user_is_valid()

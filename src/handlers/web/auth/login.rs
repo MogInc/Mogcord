@@ -2,10 +2,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use askama::Template;
-use axum::extract::{
-    ConnectInfo,
-    State,
-};
+use axum::extract::{ConnectInfo, State};
 use axum::response::IntoResponse;
 use axum::Form;
 use axum_htmx::HxRedirect;

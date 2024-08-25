@@ -3,11 +3,7 @@ use std::sync::Arc;
 use tower_cookies::Cookies;
 
 use crate::handlers::logic;
-use crate::model::{
-    error,
-    AppState,
-    Hashing,
-};
+use crate::model::{error, AppState, Hashing};
 use crate::server_error;
 
 #[derive(Deserialize)]

@@ -1,20 +1,8 @@
 use std::fmt;
 
-use chrono::{
-    DateTime,
-    Datelike,
-    NaiveDate,
-    Timelike,
-    Utc,
-};
-use mongodb::bson::{
-    self,
-    Uuid,
-};
-use serde::{
-    Serialize,
-    Serializer,
-};
+use chrono::{DateTime, Datelike, NaiveDate, Timelike, Utc};
+use mongodb::bson::{self, Uuid};
+use serde::{Serialize, Serializer};
 
 use crate::model::error;
 use crate::server_error;

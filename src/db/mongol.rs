@@ -20,16 +20,8 @@ pub use user::*;
 
 use bson::doc;
 use mongodb::error::Error;
-use mongodb::options::{
-    ClientOptions,
-    Compressor,
-    IndexOptions,
-};
-use mongodb::{
-    Client,
-    Collection,
-    IndexModel,
-};
+use mongodb::options::{ClientOptions, Compressor, IndexOptions};
+use mongodb::{Client, Collection, IndexModel};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]

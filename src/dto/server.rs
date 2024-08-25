@@ -2,16 +2,10 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::model::channel_parent::{
-    Role,
-    Server,
-};
+use crate::model::channel_parent::{Role, Server};
 
 use super::{
-    vec_to_dto,
-    ChannelCreateResponse,
-    ChannelGetResponse,
-    ObjectToDTO,
+    vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO,
 };
 
 #[derive(Serialize)]

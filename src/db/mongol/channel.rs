@@ -1,17 +1,11 @@
 mod repository;
 
 use mongodb::bson::Uuid;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 use crate::bubble;
 use crate::db::mongol::helper;
-use crate::model::channel::{
-    Channel,
-    Role,
-};
+use crate::model::channel::{Channel, Role};
 use crate::model::channel_parent::chat::Chat;
 use crate::model::channel_parent::Server;
 use crate::model::error;

@@ -4,10 +4,7 @@ mod private;
 pub use group::*;
 pub use private::*;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
 use crate::bubble;
 use crate::model::channel_parent::chat::Chat;

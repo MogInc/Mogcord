@@ -1,27 +1,11 @@
 use axum::async_trait;
-use bson::{
-    doc,
-    from_document,
-    DateTime,
-    Document,
-};
+use bson::{doc, from_document, DateTime, Document};
 use futures_util::StreamExt;
 
-use crate::db::mongol::{
-    helper,
-    MongolDB,
-    MongolRefreshToken,
-};
+use crate::db::mongol::{helper, MongolDB, MongolRefreshToken};
 use crate::model::error;
-use crate::model::refresh_token::{
-    self,
-    RefreshToken,
-};
-use crate::{
-    bubble,
-    map_mongo_key_to_string,
-    server_error,
-};
+use crate::model::refresh_token::{self, RefreshToken};
+use crate::{bubble, map_mongo_key_to_string, server_error};
 
 #[async_trait]
 impl refresh_token::Repository for MongolDB

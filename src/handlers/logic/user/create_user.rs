@@ -2,11 +2,7 @@ use serde::Deserialize;
 use std::sync::Arc;
 
 use crate::model::user::User;
-use crate::model::{
-    error,
-    AppState,
-    Hashing,
-};
+use crate::model::{error, AppState, Hashing};
 use crate::server_error;
 
 #[derive(Deserialize)]

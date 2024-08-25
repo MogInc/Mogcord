@@ -1,24 +1,14 @@
-use axum::extract::{
-    self,
-    Path,
-    State,
-};
+use axum::extract::{self, Path, State};
 use axum::response::IntoResponse;
 use axum::Json;
 use serde::Deserialize;
 use std::sync::Arc;
 
-use crate::dto::{
-    MessageCreateResponse,
-    ObjectToDTO,
-};
+use crate::dto::{MessageCreateResponse, ObjectToDTO};
 use crate::middleware::auth::Ctx;
 use crate::model::channel::Parent;
 use crate::model::message::Message;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 #[derive(Deserialize)]

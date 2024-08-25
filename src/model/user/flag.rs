@@ -1,15 +1,6 @@
-use chrono::{
-    DateTime,
-    Utc,
-};
-use serde::de::{
-    self,
-    Visitor,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use chrono::{DateTime, Utc};
+use serde::de::{self, Visitor};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 

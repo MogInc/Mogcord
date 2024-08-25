@@ -8,10 +8,7 @@ pub use repository::*;
 pub use rights::*;
 pub use role::*;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use uuid::Uuid;
 

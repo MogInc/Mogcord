@@ -1,29 +1,12 @@
 mod repository;
 
-use bson::{
-    Bson,
-    DateTime,
-    Uuid,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use bson::{Bson, DateTime, Uuid};
+use serde::{Deserialize, Serialize};
 
-use super::helper::{
-    self,
-    as_string,
-    MongolHelper,
-};
+use super::helper::{self, as_string, MongolHelper};
 use crate::model::error;
-use crate::model::refresh_token::{
-    self,
-    RefreshToken,
-};
-use crate::{
-    bubble,
-    server_error,
-};
+use crate::model::refresh_token::{self, RefreshToken};
+use crate::{bubble, server_error};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRefreshToken

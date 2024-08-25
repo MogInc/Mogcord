@@ -14,10 +14,7 @@ pub const DEVICE_ID_TTL_MIN: i64 = 60 * 24 * 365 * 5;
 
 use axum::async_trait;
 use axum::body::Body;
-use axum::extract::{
-    FromRequestParts,
-    State,
-};
+use axum::extract::{FromRequestParts, State};
 use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
@@ -26,10 +23,7 @@ use tower_cookies::Cookies;
 
 use crate::middleware::auth;
 use crate::middleware::cookies::Manager;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 pub async fn mw_require_authentication(

@@ -7,10 +7,7 @@ use std::collections::HashMap;
 use super::helper;
 use crate::bubble;
 use crate::model::error;
-use crate::model::log::{
-    RequestLogLine,
-    RequestLogLinePersonal,
-};
+use crate::model::log::{RequestLogLine, RequestLogLinePersonal};
 
 #[derive(Debug, Serialize)]
 pub struct MongolLog

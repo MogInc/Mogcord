@@ -1,13 +1,7 @@
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::model::channel::{
-    self,
-    Channel,
-};
+use crate::model::channel::{self, Channel};
 use crate::model::error;
 use crate::model::user::User;
 use crate::server_error;

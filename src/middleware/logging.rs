@@ -1,30 +1,17 @@
 use std::sync::Arc;
 
 use axum::extract::State;
-use axum::http::{
-    Method,
-    Uri,
-};
-use axum::response::{
-    IntoResponse,
-    Response,
-};
+use axum::http::{Method, Uri};
+use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
 use tower_cookies::Cookies;
 use uuid::Uuid;
 
-use crate::middleware::auth::{
-    self,
-    Ctx,
-};
+use crate::middleware::auth::{self, Ctx};
 use crate::middleware::cookies::Manager;
 use crate::model::error;
-use crate::model::log::{
-    log_request,
-    Repository,
-    RequestLogLinePersonal,
-};
+use crate::model::log::{log_request, Repository, RequestLogLinePersonal};
 
 pub async fn main_response_mapper(
     State(state): State<Arc<dyn Repository>>,

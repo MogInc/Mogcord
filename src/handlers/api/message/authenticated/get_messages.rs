@@ -1,24 +1,13 @@
-use axum::extract::{
-    Path,
-    Query,
-    State,
-};
+use axum::extract::{Path, Query, State};
 use axum::response::IntoResponse;
 use axum::Json;
 use std::sync::Arc;
 
-use crate::dto::{
-    vec_to_dto,
-    MessageGetResponse,
-};
+use crate::dto::{vec_to_dto, MessageGetResponse};
 use crate::middleware::auth::Ctx;
 use crate::model::channel::Parent;
 use crate::model::message::Message;
-use crate::model::{
-    error,
-    AppState,
-    Pagination,
-};
+use crate::model::{error, AppState, Pagination};
 use crate::server_error;
 
 pub async fn get_messages(

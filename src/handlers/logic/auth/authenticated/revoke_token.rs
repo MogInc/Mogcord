@@ -1,15 +1,9 @@
 use std::sync::Arc;
 use tower_cookies::Cookies;
 
-use crate::middleware::auth::{
-    self,
-    Ctx,
-};
+use crate::middleware::auth::{self, Ctx};
 use crate::middleware::cookies::Manager;
-use crate::model::{
-    error,
-    AppState,
-};
+use crate::model::{error, AppState};
 use crate::server_error;
 
 //can see this as a logout

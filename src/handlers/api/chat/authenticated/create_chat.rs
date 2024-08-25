@@ -4,17 +4,10 @@ use axum::Json;
 use serde::Deserialize;
 use std::sync::Arc;
 
-use crate::dto::{
-    ChatCreateResponse,
-    ObjectToDTO,
-};
+use crate::dto::{ChatCreateResponse, ObjectToDTO};
 use crate::middleware::auth::Ctx;
 use crate::model::channel_parent::chat::Chat;
-use crate::model::{
-    channel_parent,
-    error,
-    AppState,
-};
+use crate::model::{channel_parent, error, AppState};
 use crate::server_error;
 
 #[derive(Deserialize)]

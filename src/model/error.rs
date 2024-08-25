@@ -2,10 +2,7 @@ use std::collections::HashMap;
 use std::fmt;
 
 use axum::http::StatusCode;
-use axum::response::{
-    IntoResponse,
-    Response,
-};
+use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 
 pub type Result<'err, T> = core::result::Result<T, Server<'err>>;

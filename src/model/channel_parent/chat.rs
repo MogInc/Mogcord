@@ -6,21 +6,11 @@ pub use group::*;
 pub use private::*;
 pub use repository::*;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use strum_macros::Display;
 
-use crate::model::channel::{
-    self,
-    Channel,
-};
-use crate::model::error::{
-    self,
-    Kind,
-    OnType,
-};
+use crate::model::channel::{self, Channel};
+use crate::model::error::{self, Kind, OnType};
 use crate::model::user::User;
 use crate::server_error;
 

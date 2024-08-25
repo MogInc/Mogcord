@@ -2,11 +2,7 @@ use axum::async_trait;
 
 use crate::model::error;
 
-use super::{
-    chat,
-    server,
-    ChannelParent,
-};
+use super::{chat, server, ChannelParent};
 
 #[async_trait]
 pub trait Repository:

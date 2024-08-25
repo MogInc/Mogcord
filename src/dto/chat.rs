@@ -2,11 +2,7 @@ use serde::Serialize;
 
 use crate::model::channel_parent::chat::Chat;
 
-use super::{
-    ChannelCreateResponse,
-    ChannelGetResponse,
-    ObjectToDTO,
-};
+use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ChatCreateResponse

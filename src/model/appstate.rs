@@ -4,13 +4,7 @@ use crate::db::MongolDB;
 use crate::io::FileWriter;
 
 use super::{
-    channel,
-    channel_parent,
-    log,
-    message,
-    refresh_token,
-    relation,
-    user,
+    channel, channel_parent, log, message, refresh_token, relation, user,
 };
 
 pub struct AppState

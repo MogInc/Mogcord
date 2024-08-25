@@ -1,31 +1,12 @@
 use axum::async_trait;
 use bson::Document;
 use futures_util::StreamExt;
-use mongodb::bson::{
-    doc,
-    from_document,
-    Uuid,
-};
+use mongodb::bson::{doc, from_document, Uuid};
 
-use crate::db::mongol::{
-    helper,
-    MongolDB,
-    MongolUser,
-    MongolUserVec,
-};
-use crate::model::user::{
-    self,
-    User,
-};
-use crate::model::{
-    error,
-    Pagination,
-};
-use crate::{
-    bubble,
-    map_mongo_key_to_string,
-    server_error,
-};
+use crate::db::mongol::{helper, MongolDB, MongolUser, MongolUserVec};
+use crate::model::user::{self, User};
+use crate::model::{error, Pagination};
+use crate::{bubble, map_mongo_key_to_string, server_error};
 
 #[async_trait]
 impl user::Repository for MongolDB

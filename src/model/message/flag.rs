@@ -1,15 +1,6 @@
-use chrono::{
-    DateTime,
-    Utc,
-};
-use serde::de::{
-    self,
-    Visitor,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use chrono::{DateTime, Utc};
+use serde::de::{self, Visitor};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 
@@ -175,10 +166,7 @@ mod tests
     use chrono::Utc;
     use std::str::FromStr;
 
-    use crate::model::message::flag::{
-        Flag,
-        MessageFlagParseError,
-    };
+    use crate::model::message::flag::{Flag, MessageFlagParseError};
 
     macro_rules! from_str_base_tests_valid
     {
