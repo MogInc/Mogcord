@@ -20,9 +20,7 @@ use crate::db::mongol::{
     MongolMessage,
 };
 use crate::model::bucket::Bucket;
-use crate::model::error::{
-    self,
-};
+use crate::model::error;
 use crate::model::message::{
     self,
     Message,

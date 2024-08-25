@@ -2,9 +2,7 @@ use axum::async_trait;
 
 use super::MongolLog;
 use crate::db::mongol::MongolDB;
-use crate::model::error::{
-    self,
-};
+use crate::model::error;
 use crate::model::log::{
     self,
     RequestLogLine,

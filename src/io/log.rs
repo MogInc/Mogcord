@@ -1,8 +1,6 @@
 use std::path::Path;
 
-use crate::model::error::{
-    self,
-};
+use crate::model::error;
 use crate::model::log::{
     self,
     RequestLogLine,
