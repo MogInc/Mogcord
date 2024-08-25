@@ -35,10 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
         listener.local_addr()
     );
 
-    axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>(), )
     .await
     .unwrap();
 
