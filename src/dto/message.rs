@@ -22,8 +22,7 @@ impl ObjectToDTO<Message> for MessageCreateResponse
 {
     fn obj_to_dto(message: Message) -> Self
     {
-        Self
-        {
+        Self {
             id: message.id,
             value: message.value,
             timestamp: message.timestamp.to_rfc3339(),
@@ -34,7 +33,6 @@ impl ObjectToDTO<Message> for MessageCreateResponse
         }
     }
 }
-
 
 #[derive(Serialize)]
 pub struct MessageGetResponse
@@ -54,8 +52,7 @@ impl ObjectToDTO<Message> for MessageGetResponse
 {
     fn obj_to_dto(message: Message) -> Self
     {
-        Self
-        {
+        Self {
             id: message.id,
             value: message.value,
             timestamp: message.timestamp.to_rfc3339(),

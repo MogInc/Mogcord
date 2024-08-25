@@ -1,10 +1,20 @@
+use axum::extract::{
+    Query,
+    State,
+};
+use axum::response::IntoResponse;
+use axum::Json;
 use std::sync::Arc;
-use axum::{extract::{Query, State}, response::IntoResponse, Json};
 
-use crate::model::{AppState, Pagination};
-use crate::dto::{vec_to_dto, UserGetResponse};
+use crate::dto::{
+    vec_to_dto,
+    UserGetResponse,
+};
 use crate::model::user::User;
-
+use crate::model::{
+    AppState,
+    Pagination,
+};
 
 pub async fn get_users(
     State(state): State<Arc<AppState>>,
@@ -15,9 +25,12 @@ pub async fn get_users(
 
     let pagination = Pagination::new(pagination);
 
-    match repo_user.get_users(pagination).await 
+    match repo_user.get_users(pagination).await
     {
-        Ok(users) => Ok(Json(vec_to_dto::<User, UserGetResponse>(users))),
+        Ok(users) => Ok(Json(vec_to_dto::<
+            User,
+            UserGetResponse,
+        >(users))),
         Err(e) => Err(e),
     }
 }

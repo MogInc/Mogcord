@@ -1,8 +1,15 @@
 use std::sync::Arc;
 use tower_cookies::Cookies;
 
-use crate::model::{error, AppState};
-use crate::middleware::{auth::{self, Ctx}, cookies::Manager};
+use crate::middleware::auth::{
+    self,
+    Ctx,
+};
+use crate::middleware::cookies::Manager;
+use crate::model::{
+    error,
+    AppState,
+};
 use crate::server_error;
 
 //can see this as a logout
@@ -14,14 +21,23 @@ pub async fn revoke_token<'err>(
 {
     let repo_refresh = &state.refresh_tokens;
 
-    let device_id_cookie = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str())
-        .map_err(|err| server_error!(err, error::Kind::NoAuth, error::OnType::Cookie))?;
-    
+    let device_id_cookie = jar
+        .get_cookie(auth::CookieNames::DEVICE_ID.as_str())
+        .map_err(|err| {
+            server_error!(
+                err,
+                error::Kind::NoAuth,
+                error::OnType::Cookie
+            )
+        })?;
+
     let ctx_user_id = ctx.user_id_ref();
 
-    match repo_refresh.revoke_token(ctx_user_id, &device_id_cookie).await
+    match repo_refresh
+        .revoke_token(ctx_user_id, &device_id_cookie)
+        .await
     {
-        Ok(()) => 
+        Ok(()) =>
         {
             jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string());
             jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());

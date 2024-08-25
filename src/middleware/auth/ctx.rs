@@ -1,40 +1,42 @@
 #[derive(Clone, Debug)]
 pub struct Ctx
 {
-	user_id: String,
-	is_admin: bool,
+    user_id: String,
+    is_admin: bool,
 }
 
-impl Ctx 
+impl Ctx
 {
-	#[must_use]
-	pub fn new(user_id: String, is_admin: bool) -> Self 
+    #[must_use]
+    pub fn new(
+        user_id: String,
+        is_admin: bool,
+    ) -> Self
     {
-		Self 
-        { 
+        Self {
             user_id,
-			is_admin,
+            is_admin,
         }
-	}
+    }
 }
 
-impl Ctx 
+impl Ctx
 {
-	#[must_use]
-	pub fn user_id(self) -> String 
+    #[must_use]
+    pub fn user_id(self) -> String
     {
-		self.user_id
-	}
+        self.user_id
+    }
 
-	#[must_use]
-	pub fn user_id_ref(&self) -> &str 
+    #[must_use]
+    pub fn user_id_ref(&self) -> &str
     {
-		&self.user_id
-	}
+        &self.user_id
+    }
 
-	#[must_use]
-	pub fn is_admin(&self) -> bool
+    #[must_use]
+    pub fn is_admin(&self) -> bool
     {
-		self.is_admin
-	}
+        self.is_admin
+    }
 }

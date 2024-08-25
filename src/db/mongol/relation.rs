@@ -1,8 +1,10 @@
 mod repository;
 
-
 use bson::Uuid;
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongolRelation
@@ -22,8 +24,7 @@ impl MongolRelation
     #[must_use]
     pub fn new(user_id: Uuid) -> Self
     {
-        Self
-        {
+        Self {
             user_id,
             friend_ids: Vec::new(),
             pending_incoming_friend_ids: Vec::new(),

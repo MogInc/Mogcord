@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use axum::{extract::State, response::IntoResponse};
+use axum::extract::State;
+use axum::response::IntoResponse;
 use tower_cookies::Cookies;
 
 use crate::handlers::logic;
-use crate::model::AppState;
 use crate::middleware::auth::Ctx;
+use crate::model::AppState;
 
 //can see this as a logout
 pub async fn revoke_token(

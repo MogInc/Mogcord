@@ -1,10 +1,25 @@
-use std::sync::Arc;
-use axum::{extract::{self, Path, State}, response::IntoResponse, Json};
+use axum::extract::{
+    self,
+    Path,
+    State,
+};
+use axum::response::IntoResponse;
+use axum::Json;
 use serde::Deserialize;
+use std::sync::Arc;
 
-use crate::{model::{channel::Parent, error, message::Message, AppState}, server_error};
+use crate::dto::{
+    MessageCreateResponse,
+    ObjectToDTO,
+};
 use crate::middleware::auth::Ctx;
-use crate::dto::{MessageCreateResponse, ObjectToDTO};
+use crate::model::channel::Parent;
+use crate::model::message::Message;
+use crate::model::{
+    error,
+    AppState,
+};
+use crate::server_error;
 
 #[derive(Deserialize)]
 pub struct CreateMessageRequest
@@ -24,28 +39,32 @@ pub async fn create_message(
 
     let ctx_user_id = ctx.user_id_ref();
 
-    let channel_parent = repo_parent
-        .get_channel_parent(&channel_id)
-        .await?;
+    let channel_parent = repo_parent.get_channel_parent(&channel_id).await?;
 
     if !channel_parent.can_write(ctx_user_id, Some(&channel_id))?
     {
-        return Err(server_error!(error::Kind::NotAllowed, error::OnType::ChannelParent)
-            .add_client(error::Client::MESSAGE_CREATE_FAIL)
-        );
+        return Err(server_error!(
+            error::Kind::NotAllowed,
+            error::OnType::ChannelParent
+        )
+        .add_client(error::Client::MESSAGE_CREATE_FAIL));
     }
 
-    let owner = repo_user
-        .get_user_by_id(ctx_user_id)
-        .await?;
+    let owner = repo_user.get_user_by_id(ctx_user_id).await?;
 
     let channel = channel_parent.get_channel(Some(&channel_id))?;
 
-    let message = Message::new(payload.value, owner, channel.clone());
+    let message = Message::new(
+        payload.value,
+        owner,
+        channel.clone(),
+    );
 
     match repo_message.create_message(message).await
     {
-        Ok(message) => Ok(Json(MessageCreateResponse::obj_to_dto(message))),
+        Ok(message) => Ok(Json(
+            MessageCreateResponse::obj_to_dto(message),
+        )),
         Err(err) => Err(err),
     }
 }
