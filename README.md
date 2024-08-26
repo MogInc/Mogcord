@@ -7,7 +7,9 @@
 
 [![Help Wanted](https://img.shields.io/github/issues/MogInc/Mogcord/help%20wanted?style=flat-square&color=%232EA043&label=help%20wanted)](https://github.com/MogInc/Mogcord/labels/help%20wanted)
 [![Good First Issue](https://img.shields.io/github/issues/MogInc/Mogcord/good%20first%20issue?style=flat-square&color=%232EA043&label=good%20first%20issue)](https://github.com/MogInc/Mogcord/labels/good%20first%20issue)
-[![Rust](https://github.com/MogInc/Mogcord/actions/workflows/rust.yml/badge.svg)](https://github.com/MogInc/Mogcord/actions/workflows/rust.yml)
+[![Build](https://github.com/MogInc/Mogcord/actions/workflows/build.yml/badge.svg)](https://github.com/MogInc/Mogcord/actions/workflows/build.yml)
+[![Clippy](https://github.com/MogInc/Mogcord/actions/workflows/linter_clippy.yml/badge.svg)](https://github.com/MogInc/Mogcord/actions/workflows/linter_clippy.yml)
+[![Fmt](https://github.com/MogInc/Mogcord/actions/workflows/fmt.yml/badge.svg)](https://github.com/MogInc/Mogcord/actions/workflows/fmt.yml)
 
 # Mogcord
 This is a basic messaging platform using Rust Axum.
