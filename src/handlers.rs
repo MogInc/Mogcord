@@ -18,10 +18,7 @@ pub fn new(state: Arc<AppState>) -> Router
     Router::new()
         .nest("/", web::routes(state.clone()))
         .nest("/api", api::routes(state.clone()))
-        .layer(middleware::map_response_with_state(
-            state.logs.clone(),
-            main_response_mapper,
-        ))
+        .layer(middleware::map_response_with_state(state.logs.clone(), main_response_mapper))
         .layer(middleware::from_fn_with_state(state, mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
         .fallback(page_not_found)

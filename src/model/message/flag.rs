@@ -34,8 +34,12 @@ impl fmt::Display for Flag
         match self
         {
             Self::None => write!(f, "none"),
-            Self::Edited { date } => write!(f, "edited|{date}"),
-            Self::Deleted { date } => write!(f, "deleted|{date}"),
+            Self::Edited {
+                date,
+            } => write!(f, "edited|{date}"),
+            Self::Deleted {
+                date,
+            } => write!(f, "deleted|{date}"),
         }
     }
 }
@@ -88,7 +92,9 @@ impl FromStr for Flag
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Edited { date })
+                        .map(|date| Flag::Edited {
+                            date,
+                        })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
                 }
                 else
@@ -102,7 +108,9 @@ impl FromStr for Flag
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Deleted { date })
+                        .map(|date| Flag::Deleted {
+                            date,
+                        })
                         .map_err(|_| MessageFlagParseError::InvalidDate)
                 }
                 else

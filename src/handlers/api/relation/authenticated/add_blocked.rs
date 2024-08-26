@@ -29,10 +29,8 @@ pub async fn add_blocked(
 
     if ctx_user_id == other_user_id
     {
-        return Err(
-            server_error!(error::Kind::IsSelf, error::OnType::RelationBlocked)
-                .add_client(error::Client::RELATION_SELF_TRY_BLOCK_SELF),
-        );
+        return Err(server_error!(error::Kind::IsSelf, error::OnType::RelationBlocked)
+            .add_client(error::Client::RELATION_SELF_TRY_BLOCK_SELF));
     }
 
     if !repo_user.does_user_exist_by_id(other_user_id).await?
@@ -45,10 +43,8 @@ pub async fn add_blocked(
         .does_blocked_exist(ctx_user_id, other_user_id)
         .await?
     {
-        return Err(
-            server_error!(error::Kind::InValid, error::OnType::RelationBlocked)
-                .add_client(error::Client::RELATION_USER_ALREADY_BLOCKED),
-        );
+        return Err(server_error!(error::Kind::InValid, error::OnType::RelationBlocked)
+            .add_client(error::Client::RELATION_USER_ALREADY_BLOCKED));
     }
 
     match repo_relation

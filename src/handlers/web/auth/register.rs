@@ -27,9 +27,7 @@ pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, 
 {
     if ctx_option.is_some()
     {
-        return Err(HtmxError::new(
-            crate::model::error::Client::USER_ALREADY_LOGGED_IN,
-        ));
+        return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
     let page = Register {
@@ -60,16 +58,12 @@ pub async fn post_register(
 {
     if ctx_option.is_some()
     {
-        return Err(HtmxError::new(
-            crate::model::error::Client::USER_ALREADY_LOGGED_IN,
-        ));
+        return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
     if form.password != form.confirm_password
     {
-        return Err(HtmxError::new(
-            crate::model::error::Client::PASSWORD_CONFIRM_NOT_MATCH,
-        ));
+        return Err(HtmxError::new(crate::model::error::Client::PASSWORD_CONFIRM_NOT_MATCH));
     }
 
     let create_request =

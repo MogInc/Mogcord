@@ -38,7 +38,9 @@ impl FileWriter
     pub fn new(folder_path: String) -> Self
     {
         std::fs::create_dir_all(&folder_path).expect("failed to create");
-        Self { folder_path }
+        Self {
+            folder_path,
+        }
     }
 }
 

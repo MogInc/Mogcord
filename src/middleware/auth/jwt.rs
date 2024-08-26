@@ -36,7 +36,10 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     #[must_use]
     pub fn new(user_id: &'user_info String, is_admin: bool) -> Self
     {
-        Self { user_id, is_admin }
+        Self {
+            user_id,
+            is_admin,
+        }
     }
 }
 
@@ -53,12 +56,9 @@ pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> error::Res
     let acces_token_key = env::var("ACCES_TOKEN_KEY")
         .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;
 
-    let acces_token = encode(
-        &Header::default(),
-        &claims,
-        &EncodingKey::from_secret(acces_token_key.as_ref()),
-    )
-    .map_err(|_| server_error!(Kind::Create, OnType::AccesToken))?;
+    let acces_token =
+        encode(&Header::default(), &claims, &EncodingKey::from_secret(acces_token_key.as_ref()))
+            .map_err(|_| server_error!(Kind::Create, OnType::AccesToken))?;
 
     Ok(acces_token)
 }
@@ -78,11 +78,7 @@ pub fn extract_acces_token<'err>(
         validation.validate_exp = false;
     }
 
-    match decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(acces_token_key.as_ref()),
-        &validation,
-    )
+    match decode::<Claims>(token, &DecodingKey::from_secret(acces_token_key.as_ref()), &validation)
     {
         Ok(acces_token_data) => Ok(acces_token_data.claims),
         Err(err) => match *err.kind()

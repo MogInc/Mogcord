@@ -18,7 +18,10 @@ impl LoginRequest
     #[must_use]
     pub fn new(email: String, password: String) -> Self
     {
-        Self { email, password }
+        Self {
+            email,
+            password,
+        }
     }
 }
 
@@ -38,11 +41,9 @@ pub async fn login<'err>(
 
     if !user.flag.is_allowed_on_mogcord()
     {
-        return Err(
-            server_error!(error::Kind::IncorrectPermissions, error::OnType::User)
-                .add_client(error::Client::NOT_ALLOWED_PLATFORM)
-                .add_debug_info("user flag", user.flag.to_string()),
-        );
+        return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::User)
+            .add_client(error::Client::NOT_ALLOWED_PLATFORM)
+            .add_debug_info("user flag", user.flag.to_string()));
     }
 
     Hashing::verify_hash(&payload.password, &user.hashed_password)

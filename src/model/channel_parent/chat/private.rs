@@ -62,13 +62,9 @@ impl Private
     {
         if !self.internal_is_owner_size_allowed()
         {
-            return Err(
-                server_error!(error::Kind::InValid, error::OnType::User).add_public_info(format!(
-                    "Expected: {}, found: {}",
-                    Self::PRIVATE_OWNER_MAX,
-                    self.owners.len()
-                )),
-            );
+            return Err(server_error!(error::Kind::InValid, error::OnType::User).add_public_info(
+                format!("Expected: {}, found: {}", Self::PRIVATE_OWNER_MAX, self.owners.len()),
+            ));
         }
 
         Ok(())

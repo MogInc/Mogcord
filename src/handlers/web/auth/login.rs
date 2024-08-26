@@ -27,9 +27,7 @@ pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, Htm
 {
     if ctx_option.is_some()
     {
-        return Err(HtmxError::new(
-            crate::model::error::Client::USER_ALREADY_LOGGED_IN,
-        ));
+        return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
     let page = Login {
@@ -52,9 +50,7 @@ pub async fn post_login(
 {
     if ctx_option.is_some()
     {
-        return Err(HtmxError::new(
-            crate::model::error::Client::USER_ALREADY_LOGGED_IN,
-        ));
+        return Err(HtmxError::new(crate::model::error::Client::USER_ALREADY_LOGGED_IN));
     }
 
     let login_result = logic::auth::login(&state, &jar, addr.to_string(), &form).await;

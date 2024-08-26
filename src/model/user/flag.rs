@@ -44,8 +44,12 @@ impl fmt::Display for Flag
         {
             Self::None => write!(f, "none"),
             Self::Disabled => write!(f, "disabled"),
-            Self::Banned { date } => write!(f, "banned|{date}"),
-            Self::Deleted { date } => write!(f, "deleted|{date}"),
+            Self::Banned {
+                date,
+            } => write!(f, "banned|{date}"),
+            Self::Deleted {
+                date,
+            } => write!(f, "deleted|{date}"),
             Self::Admin => write!(f, "admin"),
             Self::Owner => write!(f, "owner"),
         }
@@ -101,7 +105,9 @@ impl FromStr for Flag
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Deleted { date })
+                        .map(|date| Flag::Deleted {
+                            date,
+                        })
                         .map_err(|_| UserFlagParseError::InvalidDate)
                 }
                 else
@@ -115,7 +121,9 @@ impl FromStr for Flag
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Banned { date })
+                        .map(|date| Flag::Banned {
+                            date,
+                        })
                         .map_err(|_| UserFlagParseError::InvalidDate)
                 }
                 else

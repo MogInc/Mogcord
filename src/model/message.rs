@@ -58,10 +58,8 @@ impl Message
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
-            return Err(
-                server_error!(error::Kind::IncorrectPermissions, error::OnType::Message)
-                    .add_client(error::Client::MESSAGE_EDIT_FAIL),
-            );
+            return Err(server_error!(error::Kind::IncorrectPermissions, error::OnType::Message)
+                .add_client(error::Client::MESSAGE_EDIT_FAIL));
         }
 
         if self.value == value
@@ -70,7 +68,9 @@ impl Message
         }
 
         self.value = value;
-        self.flag = Flag::Edited { date: Utc::now() };
+        self.flag = Flag::Edited {
+            date: Utc::now(),
+        };
 
         Ok(true)
     }

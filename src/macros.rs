@@ -95,12 +95,13 @@ macro_rules! map_mongo_collection_keys_to_string
 /// ```
 /// # Note
 /// if you have transformed the collection you want to map it needs to go in a
-/// seperate addFields ```ignore
+/// seperate addFields
+/// ```ignore
 /// doc!
 /// {
 ///     "$addFields":
 ///     {
-///         "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),
+///         "users": map_mongo_collection_keys_to_string!("$users", "_id", "id", "uuid"),     
 ///     },
 /// },
 /// doc!

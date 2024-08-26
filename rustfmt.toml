@@ -12,3 +12,9 @@ brace_style = "AlwaysNextLine"
 control_brace_style = "AlwaysNextLine"
 imports_granularity = "Module"
 imports_layout = "Mixed"
+
+
+use_small_heuristics = "Max"
+chain_width = 60
+struct_lit_width = 0
+struct_variant_width = 0

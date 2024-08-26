@@ -27,10 +27,8 @@ pub async fn remove_blocked(
 
     if ctx_user_id == other_user_id
     {
-        return Err(
-            server_error!(error::Kind::IsSelf, error::OnType::RelationBlocked)
-                .add_client(error::Client::RELATION_SELF_TRY_UNBLOCK_SELF),
-        );
+        return Err(server_error!(error::Kind::IsSelf, error::OnType::RelationBlocked)
+            .add_client(error::Client::RELATION_SELF_TRY_UNBLOCK_SELF));
     }
 
     //no clue if i need more checks as like is_user_blocked

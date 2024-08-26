@@ -10,7 +10,10 @@ impl Ctx
     #[must_use]
     pub fn new(user_id: String, is_admin: bool) -> Self
     {
-        Self { user_id, is_admin }
+        Self {
+            user_id,
+            is_admin,
+        }
     }
 }
 

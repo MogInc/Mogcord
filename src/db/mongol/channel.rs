@@ -37,14 +37,14 @@ impl TryFrom<&Chat> for MongolChannel
     {
         let mongol_channel = match value
         {
-            Chat::Private(val) => bubble!(MongolChannel::try_from((
-                &val.channel,
-                ParentType::ChatPrivate
-            )))?,
-            Chat::Group(val) => bubble!(MongolChannel::try_from((
-                &val.channel,
-                ParentType::ChatGroup
-            )))?,
+            Chat::Private(val) =>
+            {
+                bubble!(MongolChannel::try_from((&val.channel, ParentType::ChatPrivate)))?
+            }
+            Chat::Group(val) =>
+            {
+                bubble!(MongolChannel::try_from((&val.channel, ParentType::ChatGroup)))?
+            }
         };
 
         Ok(mongol_channel)

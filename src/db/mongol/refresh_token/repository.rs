@@ -20,10 +20,8 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().insert_one(&db_token).await
         {
             Ok(_) => Ok(token),
-            Err(err) => Err(
-                server_error!(error::Kind::Insert, error::OnType::RefreshToken)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Insert, error::OnType::RefreshToken)
+                .add_debug_info("error", err.to_string())),
         }
     }
 
@@ -103,10 +101,8 @@ impl refresh_token::Repository for MongolDB
 
                 Ok(refresh_token)
             }
-            None => Err(
-                server_error!(error::Kind::NotFound, error::OnType::RefreshToken)
-                    .add_debug_info("device id", device_id.to_string()),
-            ),
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::RefreshToken)
+                .add_debug_info("device id", device_id.to_string())),
         }
     }
 
@@ -132,10 +128,8 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
+                .add_debug_info("error", err.to_string())),
         }
     }
 
@@ -159,10 +153,8 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_many(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Revoke, error::OnType::RefreshToken)
+                .add_debug_info("error", err.to_string())),
         }
     }
 
@@ -187,10 +179,8 @@ impl refresh_token::Repository for MongolDB
         match self.refresh_tokens().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::Update, error::OnType::RefreshToken)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Update, error::OnType::RefreshToken)
+                .add_debug_info("error", err.to_string())),
         }
     }
 }

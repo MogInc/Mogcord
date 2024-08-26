@@ -34,17 +34,11 @@ pub fn routes(state: Arc<AppState>) -> Router
     let routes_with_regular_middleware = Router::new()
         //auth
         .route("/auth/revoke", delete(auth::authenticated::revoke_token))
-        .route(
-            "/auth/revoke/all",
-            delete(auth::authenticated::revoke_all_tokens),
-        )
+        .route("/auth/revoke/all", delete(auth::authenticated::revoke_all_tokens))
         //chat
         .route("/chat", post(chat::authenticated::create_chat))
         .route("/chat/:chat_id", get(chat::authenticated::get_chat))
-        .route(
-            "/chat/:chat_id/users",
-            post(chat::authenticated::add_users_to_chat),
-        )
+        .route("/chat/:chat_id/users", post(chat::authenticated::add_users_to_chat))
         //messages
         .route(
             "/channels/:channel_id/messages",
@@ -60,10 +54,7 @@ pub fn routes(state: Arc<AppState>) -> Router
             post(relation::authenticated::add_friend)
                 .delete(relation::authenticated::remove_friend),
         )
-        .route(
-            "/users/friends/confirm",
-            post(relation::authenticated::confirm_friend),
-        )
+        .route("/users/friends/confirm", post(relation::authenticated::confirm_friend))
         .route(
             "/users/blocked",
             post(relation::authenticated::add_blocked)
@@ -71,19 +62,10 @@ pub fn routes(state: Arc<AppState>) -> Router
         )
         //servers
         .route("/servers", post(server::authenticated::create_server))
-        .route(
-            "/servers/:server_id",
-            get(server::authenticated::get_server),
-        )
-        .route(
-            "/servers/:server_id/join",
-            post(server::authenticated::join_server),
-        )
+        .route("/servers/:server_id", get(server::authenticated::get_server))
+        .route("/servers/:server_id/join", post(server::authenticated::join_server))
         //users
-        .route(
-            "/users/current",
-            get(user::authenticated::get_ctx_user_auth),
-        )
+        .route("/users/current", get(user::authenticated::get_ctx_user_auth))
         .route_layer(middleware::from_fn(mw_require_authentication))
         .with_state(state.clone());
 
@@ -95,10 +77,7 @@ pub fn routes(state: Arc<AppState>) -> Router
                 ServiceBuilder::new()
                     .layer(HandleErrorLayer::new(handle_too_many_requests))
                     .layer(BufferLayer::new(1024))
-                    .layer(RateLimitLayer::new(
-                        Limit::Login.attempts(),
-                        Limit::Login.duration(),
-                    )),
+                    .layer(RateLimitLayer::new(Limit::Login.attempts(), Limit::Login.duration())),
             ),
         )
         .route("/auth/refresh", post(auth::refresh_token))
@@ -140,10 +119,7 @@ impl Limit
 
 async fn handle_too_many_requests(err: BoxError) -> (StatusCode, String)
 {
-    (
-        StatusCode::TOO_MANY_REQUESTS,
-        format!("To many requests: {err}"),
-    )
+    (StatusCode::TOO_MANY_REQUESTS, format!("To many requests: {err}"))
 }
 
 #[derive(Debug)]

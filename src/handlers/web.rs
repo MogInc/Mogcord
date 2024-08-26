@@ -22,10 +22,7 @@ pub fn routes(state: Arc<AppState>) -> Router
     let routes_without_middleware = Router::new()
         //auth
         .route("/login", get(auth::get_login).post(auth::post_login))
-        .route(
-            "/register",
-            get(auth::get_register).post(auth::post_register),
-        )
+        .route("/register", get(auth::get_register).post(auth::post_register))
         //index
         .route("/", get(misc::index))
         //public files
@@ -75,11 +72,11 @@ impl IntoResponse for HtmxError
             | error::Client::NOT_ALLOWED_PLATFORM
             | error::Client::PERMISSION_NO_AUTH => Redirect::temporary("/").into_response(),
             error::Client::USER_ALREADY_LOGGED_IN => Redirect::temporary("/").into_response(),
-            error::Client::SERVICE_ERROR => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                error::Client::SERVICE_ERROR.translate_error(),
-            )
-                .into_response(),
+            error::Client::SERVICE_ERROR =>
+            {
+                (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error())
+                    .into_response()
+            }
             rest if self.1 == PotentialErrorDisplay::Form => (
                 StatusCode::BAD_REQUEST,
                 ErrorFormComponent {

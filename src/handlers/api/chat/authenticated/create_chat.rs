@@ -15,11 +15,12 @@ pub enum CreateChatRequest
 {
     Private
     {
-        user_id: String
+        user_id: String,
     },
     Group
     {
-        name: String, user_ids: Vec<String>
+        name: String,
+        user_ids: Vec<String>,
     },
 }
 pub async fn create_chat(
@@ -36,7 +37,9 @@ pub async fn create_chat(
 
     let chat = match payload
     {
-        CreateChatRequest::Private { user_id } =>
+        CreateChatRequest::Private {
+            user_id,
+        } =>
         {
             if &user_id == ctx_user_id
             {
@@ -48,10 +51,8 @@ pub async fn create_chat(
                 .does_friendship_exist(ctx_user_id, &user_id)
                 .await?
             {
-                return Err(
-                    server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
-                        .add_client(error::Client::CHAT_ADD_NON_FRIEND),
-                );
+                return Err(server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
+                    .add_client(error::Client::CHAT_ADD_NON_FRIEND));
             }
 
             let owners = repo_user
@@ -62,7 +63,10 @@ pub async fn create_chat(
 
             Chat::Private(private)
         }
-        CreateChatRequest::Group { name, user_ids } =>
+        CreateChatRequest::Group {
+            name,
+            user_ids,
+        } =>
         {
             let owner = repo_user.get_user_by_id(ctx_user_id).await?;
 
@@ -74,10 +78,8 @@ pub async fn create_chat(
                 .does_friendships_exist(ctx_user_id, user_ids)
                 .await?
             {
-                return Err(
-                    server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
-                        .add_client(error::Client::CHAT_ADD_NON_FRIEND),
-                );
+                return Err(server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
+                    .add_client(error::Client::CHAT_ADD_NON_FRIEND));
             }
 
             let group = channel_parent::chat::Group::new(name, owner, users)?;
@@ -88,10 +90,8 @@ pub async fn create_chat(
 
     if repo_chat.does_chat_exist(&chat).await?
     {
-        return Err(
-            server_error!(error::Kind::AlreadyExists, error::OnType::Chat)
-                .add_client(error::Client::CHAT_ALREADY_EXISTS),
-        );
+        return Err(server_error!(error::Kind::AlreadyExists, error::OnType::Chat)
+            .add_client(error::Client::CHAT_ALREADY_EXISTS));
     }
 
     match repo_chat.create_chat(chat).await

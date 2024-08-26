@@ -82,10 +82,8 @@ impl Server
     {
         if self.is_user_part_of_server(&user.id)
         {
-            return Err(
-                server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
-                    .add_debug_info("user id", user.id),
-            );
+            return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
+                .add_debug_info("user id", user.id));
         }
 
         self.users.insert(user.id.to_string(), user);
@@ -99,10 +97,8 @@ impl Server
         {
             if self.is_user_part_of_server(&user.id)
             {
-                return Err(
-                    server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
-                        .add_debug_info("user id", user.id.to_string()),
-                );
+                return Err(server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
+                    .add_debug_info("user id", user.id.to_string()));
             }
         }
 

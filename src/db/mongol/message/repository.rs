@@ -264,7 +264,9 @@ fn internal_valid_message_filter() -> Document
 {
     let valid_flags = [
         message::Flag::None,
-        message::Flag::Edited { date: Utc::now() },
+        message::Flag::Edited {
+            date: Utc::now(),
+        },
     ];
 
     let valid_flags_bson: Vec<Regex> = valid_flags

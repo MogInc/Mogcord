@@ -62,7 +62,11 @@ impl Channel
     #[must_use]
     pub fn convert(id: String, name: Option<String>, roles: BTreeSet<Role>) -> Self
     {
-        Self { id, name, roles }
+        Self {
+            id,
+            name,
+            roles,
+        }
     }
 
     pub fn add_role(&mut self, mut role: Role)

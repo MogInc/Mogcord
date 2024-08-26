@@ -28,10 +28,7 @@ pub async fn add_friend(
 
     if ctx_user_id == other_user_id
     {
-        return Err(server_error!(
-            error::Kind::IsSelf,
-            error::OnType::RelationFriend
-        ));
+        return Err(server_error!(error::Kind::IsSelf, error::OnType::RelationFriend));
     }
 
     if !repo_user.does_user_exist_by_id(other_user_id).await?
@@ -44,30 +41,24 @@ pub async fn add_friend(
         .does_blocked_exist(ctx_user_id, other_user_id)
         .await?
     {
-        return Err(
-            server_error!(error::Kind::InValid, error::OnType::RelationBlocked)
-                .add_client(error::Client::RELATION_USER_BLOCKED),
-        );
+        return Err(server_error!(error::Kind::InValid, error::OnType::RelationBlocked)
+            .add_client(error::Client::RELATION_USER_BLOCKED));
     }
 
     if repo_relation
         .does_blocked_exist(other_user_id, ctx_user_id)
         .await?
     {
-        return Err(
-            server_error!(error::Kind::NotAllowed, error::OnType::Relation)
-                .add_client(error::Client::RELATION_USER_BLOCKED_YOU),
-        );
+        return Err(server_error!(error::Kind::NotAllowed, error::OnType::Relation)
+            .add_client(error::Client::RELATION_USER_BLOCKED_YOU));
     }
 
     if repo_relation
         .does_outgoing_friendship_exist(ctx_user_id, other_user_id)
         .await?
     {
-        return Err(
-            server_error!(error::Kind::AlreadyExists, error::OnType::RelationFriend)
-                .add_client(error::Client::RELATION_USER_ALREADY_FRIEND),
-        );
+        return Err(server_error!(error::Kind::AlreadyExists, error::OnType::RelationFriend)
+            .add_client(error::Client::RELATION_USER_ALREADY_FRIEND));
     }
 
     match repo_relation

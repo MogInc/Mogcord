@@ -64,16 +64,8 @@ pub async fn main_response_mapper(
 
     let user_info = RequestLogLinePersonal::new(ctx.map(Ctx::user_id), device_id_option);
 
-    log_request(
-        state,
-        req_id,
-        user_info,
-        req_method,
-        uri,
-        service_error,
-        client_error_option,
-    )
-    .await;
+    log_request(state, req_id, user_info, req_method, uri, service_error, client_error_option)
+        .await;
 
     println!();
 

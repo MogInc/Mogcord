@@ -118,10 +118,7 @@ impl channel_parent::Repository for MongolDB
 
                 Ok(channel_parent)
             }
-            None => Err(server_error!(
-                error::Kind::Unexpected,
-                error::OnType::ChannelParent
-            )),
+            None => Err(server_error!(error::Kind::Unexpected, error::OnType::ChannelParent)),
         }
     }
 }
@@ -189,10 +186,8 @@ impl channel_parent::chat::Repository for MongolDB
         {
             Chat::Private(_) =>
             {
-                return Err(
-                    server_error!(error::Kind::Update, error::OnType::ChatPrivate)
-                        .add_client(error::Client::PRIVATE_CHAT_TRY_EDIT),
-                );
+                return Err(server_error!(error::Kind::Update, error::OnType::ChatPrivate)
+                    .add_client(error::Client::PRIVATE_CHAT_TRY_EDIT));
             }
             Chat::Group(group) =>
             {
@@ -259,7 +254,9 @@ impl channel_parent::chat::Repository for MongolDB
 
         let pipeline = match &mongol_chat
         {
-            MongolChat::Private { .. } =>
+            MongolChat::Private {
+                ..
+            } =>
             {
                 let mut pipeline = vec![doc! {
                     "$match":
@@ -272,7 +269,9 @@ impl channel_parent::chat::Repository for MongolDB
 
                 pipeline
             }
-            MongolChat::Group { .. } =>
+            MongolChat::Group {
+                ..
+            } =>
             {
                 let mut pipeline = vec![doc! {
                     "$match":
@@ -429,12 +428,10 @@ impl channel_parent::server::Repository for MongolDB
         match self.servers().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::CantGainUsers, error::OnType::Server)
-                    .add_debug_info("error", err.to_string())
-                    .add_debug_info("server id", server_id.to_string())
-                    .add_debug_info("user to add", user_id.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::CantGainUsers, error::OnType::Server)
+                .add_debug_info("error", err.to_string())
+                .add_debug_info("server id", server_id.to_string())
+                .add_debug_info("user to add", user_id.to_string())),
         }
     }
 

@@ -60,10 +60,7 @@ impl RefreshToken
     {
         if !self.internal_is_valid()
         {
-            return Err(server_error!(
-                error::Kind::NotAllowed,
-                error::OnType::RefreshToken
-            ));
+            return Err(server_error!(error::Kind::NotAllowed, error::OnType::RefreshToken));
         }
 
         self.expiration_date = Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS);

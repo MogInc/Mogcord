@@ -200,10 +200,8 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(
-                    server_error!(error::Kind::Update, error::OnType::RelationFriend)
-                        .add_debug_info("error", err.to_string()),
-                )
+                Err(server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                    .add_debug_info("error", err.to_string()))
             }
         }
     }
@@ -285,10 +283,8 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(
-                    server_error!(error::Kind::Update, error::OnType::RelationBlocked)
-                        .add_debug_info("error", err.to_string()),
-                )
+                Err(server_error!(error::Kind::Update, error::OnType::RelationBlocked)
+                    .add_debug_info("error", err.to_string()))
             }
         }
     }
@@ -358,10 +354,8 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(
-                    server_error!(error::Kind::Update, error::OnType::RelationFriend)
-                        .add_debug_info("error", err.to_string()),
-                )
+                Err(server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                    .add_debug_info("error", err.to_string()))
             }
         }
     }
@@ -389,10 +383,8 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::Delete, error::OnType::RelationFriend)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Delete, error::OnType::RelationFriend)
+                .add_debug_info("error", err.to_string())),
         }
     }
 
@@ -415,10 +407,8 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(
-                server_error!(error::Kind::Delete, error::OnType::RelationBlocked)
-                    .add_debug_info("error", err.to_string()),
-            ),
+            Err(err) => Err(server_error!(error::Kind::Delete, error::OnType::RelationBlocked)
+                .add_debug_info("error", err.to_string())),
         }
     }
 }
