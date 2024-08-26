@@ -67,11 +67,8 @@ pub fn routes(state: Arc<AppState>) -> Router
         //messages
         .route(
             "/channels/:channel_id/messages",
-            get(message::authenticated::get_messages),
-        )
-        .route(
-            "/channels/:channel_id/messages",
-            post(message::authenticated::create_message),
+            get(message::authenticated::get_messages)
+                .post(message::authenticated::create_message),
         )
         .route(
             "/channels/:channel_id/messages/:message_id",
@@ -80,23 +77,17 @@ pub fn routes(state: Arc<AppState>) -> Router
         //relations
         .route(
             "/users/friends",
-            post(relation::authenticated::add_friend),
+            post(relation::authenticated::add_friend)
+                .delete(relation::authenticated::remove_friend),
         )
         .route(
             "/users/friends/confirm",
             post(relation::authenticated::confirm_friend),
         )
         .route(
-            "/users/friends",
-            delete(relation::authenticated::remove_friend),
-        )
-        .route(
             "/users/blocked",
-            post(relation::authenticated::add_blocked),
-        )
-        .route(
-            "/users/blocked",
-            delete(relation::authenticated::remove_blocked),
+            post(relation::authenticated::add_blocked)
+                .delete(relation::authenticated::remove_blocked),
         )
         //servers
         .route(

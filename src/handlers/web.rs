@@ -33,11 +33,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         )
         .route(
             "/register",
-            get(auth::get_register),
-        )
-        .route(
-            "/register",
-            post(auth::post_register),
+            get(auth::get_register).post(auth::post_register),
         )
         //index
         .route("/", get(misc::index))
