@@ -159,10 +159,7 @@ where
 {
     type Rejection = Response;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        _state: &S,
-    ) -> Result<Self, Self::Rejection>
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection>
     {
         let params: Path<HashMap<String, String>> =
             parts.extract().await.map_err(IntoResponse::into_response)?;

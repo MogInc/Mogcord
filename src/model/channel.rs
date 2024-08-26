@@ -25,10 +25,7 @@ pub struct Channel
 impl Channel
 {
     #[must_use]
-    pub fn new(
-        name: Option<String>,
-        add_base_roles: bool,
-    ) -> Self
+    pub fn new(name: Option<String>, add_base_roles: bool) -> Self
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
@@ -63,23 +60,12 @@ impl Channel
     }
 
     #[must_use]
-    pub fn convert(
-        id: String,
-        name: Option<String>,
-        roles: BTreeSet<Role>,
-    ) -> Self
+    pub fn convert(id: String, name: Option<String>, roles: BTreeSet<Role>) -> Self
     {
-        Self {
-            id,
-            name,
-            roles,
-        }
+        Self { id, name, roles }
     }
 
-    pub fn add_role(
-        &mut self,
-        mut role: Role,
-    )
+    pub fn add_role(&mut self, mut role: Role)
     {
         let rank = (self.roles.len() + 1).min(role.rank);
         role.rank = rank;
@@ -143,10 +129,7 @@ impl Channel
     /// assert!(channel.can_role_read("a"));
     /// assert!(channel.can_role_read("b"));
     /// ```
-    pub fn can_role_read(
-        &self,
-        role_name: &str,
-    ) -> bool
+    pub fn can_role_read(&self, role_name: &str) -> bool
     {
         self.internal_can_role_perform_action(role_name, Role::can_read)
     }
@@ -189,10 +172,7 @@ impl Channel
     /// assert!(channel.can_role_write("a"));
     /// assert!(channel.can_role_write("b"));
     /// ```
-    pub fn can_role_write(
-        &self,
-        role_name: &str,
-    ) -> bool
+    pub fn can_role_write(&self, role_name: &str) -> bool
     {
         self.internal_can_role_perform_action(role_name, Role::can_write)
     }
@@ -203,11 +183,7 @@ impl Channel
         !self.roles.is_empty()
     }
 
-    fn internal_can_role_perform_action<T>(
-        &self,
-        role_name: &str,
-        func: T,
-    ) -> bool
+    fn internal_can_role_perform_action<T>(&self, role_name: &str, func: T) -> bool
     where
         T: Fn(&Role) -> Option<bool>,
     {

@@ -105,7 +105,7 @@ impl MongolDB
     }
 
     async fn internal_add_refresh_token_indexes(
-        coll: &Collection<MongolRefreshToken>
+        coll: &Collection<MongolRefreshToken>,
     ) -> Result<(), Error>
     {
         let device_user_flag_expiration_compound = IndexModel::builder()

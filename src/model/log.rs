@@ -54,15 +54,9 @@ pub struct RequestLogLinePersonal
 impl RequestLogLinePersonal
 {
     #[must_use]
-    pub fn new(
-        user_id: Option<String>,
-        device_id: Option<String>,
-    ) -> Self
+    pub fn new(user_id: Option<String>, device_id: Option<String>) -> Self
     {
-        Self {
-            user_id,
-            device_id,
-        }
+        Self { user_id, device_id }
     }
 }
 

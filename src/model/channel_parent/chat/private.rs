@@ -17,11 +17,7 @@ pub struct Private
 impl Private
 {
     #[must_use]
-    fn convert(
-        id: String,
-        owners: Vec<User>,
-        channel: Channel,
-    ) -> Self
+    fn convert(id: String, owners: Vec<User>, channel: Channel) -> Self
     {
         Self {
             id,
@@ -57,10 +53,7 @@ impl Private
     }
 
     #[must_use]
-    pub fn is_owner(
-        &self,
-        user_id: &str,
-    ) -> bool
+    pub fn is_owner(&self, user_id: &str) -> bool
     {
         self.owners.iter().any(|user| user.id == user_id)
     }
@@ -96,10 +89,7 @@ impl channel::Parent for Private
         Ok(&self.channel)
     }
 
-    fn get_user_roles(
-        &self,
-        _: &str,
-    ) -> Option<&Vec<String>>
+    fn get_user_roles(&self, _: &str) -> Option<&Vec<String>>
     {
         None
     }

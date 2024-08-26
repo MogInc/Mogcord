@@ -7,10 +7,7 @@ pub trait Parent
         &'input self,
         channel_id_option: Option<&'input str>,
     ) -> error::Result<'err, &'input Channel>;
-    fn get_user_roles(
-        &self,
-        user_id: &str,
-    ) -> Option<&Vec<String>>;
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>>;
     fn can_read<'input, 'err>(
         &'input self,
         user_id: &'input str,

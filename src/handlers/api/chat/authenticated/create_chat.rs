@@ -36,9 +36,7 @@ pub async fn create_chat(
 
     let chat = match payload
     {
-        CreateChatRequest::Private {
-            user_id,
-        } =>
+        CreateChatRequest::Private { user_id } =>
         {
             if &user_id == ctx_user_id
             {
@@ -63,11 +61,8 @@ pub async fn create_chat(
             let private = channel_parent::chat::Private::new(owners)?;
 
             Chat::Private(private)
-        },
-        CreateChatRequest::Group {
-            name,
-            user_ids,
-        } =>
+        }
+        CreateChatRequest::Group { name, user_ids } =>
         {
             let owner = repo_user.get_user_by_id(ctx_user_id).await?;
 
@@ -88,7 +83,7 @@ pub async fn create_chat(
             let group = channel_parent::chat::Group::new(name, owner, users)?;
 
             Chat::Group(group)
-        },
+        }
     };
 
     if repo_chat.does_chat_exist(&chat).await?

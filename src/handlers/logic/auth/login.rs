@@ -16,15 +16,9 @@ pub struct LoginRequest
 impl LoginRequest
 {
     #[must_use]
-    pub fn new(
-        email: String,
-        password: String,
-    ) -> Self
+    pub fn new(email: String, password: String) -> Self
     {
-        Self {
-            email,
-            password,
-        }
+        Self { email, password }
     }
 }
 

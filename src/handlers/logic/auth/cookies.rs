@@ -44,7 +44,7 @@ pub fn create_auth_cookies<'err>(
             );
 
             Ok(())
-        },
+        }
         Err(err) => Err(err),
     }
 }
@@ -74,13 +74,13 @@ pub async fn get_refresh_token<'err>(
                 let refresh_token = RefreshToken::create_token(user, ip_addr, Some(cookie_id));
 
                 repo_refresh.create_token(refresh_token).await
-            },
+            }
         },
         Err(_) =>
         {
             let refresh_token = RefreshToken::create_token(user, ip_addr, None);
 
             repo_refresh.create_token(refresh_token).await
-        },
+        }
     }
 }

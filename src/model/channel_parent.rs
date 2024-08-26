@@ -38,10 +38,7 @@ impl ChannelParent
         matches!(self, ChannelParent::Server(_))
     }
 
-    pub fn add_user<'err>(
-        &mut self,
-        user: User,
-    ) -> error::Result<'err, ()>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         match self
         {
@@ -50,10 +47,7 @@ impl ChannelParent
         }
     }
 
-    pub fn add_users<'err>(
-        &mut self,
-        users: Vec<User>,
-    ) -> error::Result<'err, ()>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         match self
         {
@@ -63,10 +57,7 @@ impl ChannelParent
     }
 
     #[must_use]
-    pub fn is_owner(
-        &self,
-        user_id: &str,
-    ) -> bool
+    pub fn is_owner(&self, user_id: &str) -> bool
     {
         match self
         {
@@ -76,10 +67,7 @@ impl ChannelParent
     }
 
     #[must_use]
-    pub fn is_user_part_of_channel_parent(
-        &self,
-        other_user_id: &str,
-    ) -> bool
+    pub fn is_user_part_of_channel_parent(&self, other_user_id: &str) -> bool
     {
         match self
         {
@@ -103,10 +91,7 @@ impl channel::Parent for ChannelParent
         }
     }
 
-    fn get_user_roles(
-        &self,
-        user_id: &str,
-    ) -> Option<&Vec<String>>
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>>
     {
         match self
         {

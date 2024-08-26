@@ -12,10 +12,7 @@ pub enum CookieNames
 
 impl fmt::Display for CookieNames
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         write!(f, "{}", self.as_str())
     }

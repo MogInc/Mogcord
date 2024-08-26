@@ -33,11 +33,7 @@ pub struct Message
 impl Message
 {
     #[must_use]
-    pub fn new(
-        value: String,
-        owner: User,
-        channel: Channel,
-    ) -> Self
+    pub fn new(value: String, owner: User, channel: Channel) -> Self
     {
         Self {
             id: Uuid::now_v7().to_string(),
@@ -74,18 +70,13 @@ impl Message
         }
 
         self.value = value;
-        self.flag = Flag::Edited {
-            date: Utc::now(),
-        };
+        self.flag = Flag::Edited { date: Utc::now() };
 
         Ok(true)
     }
 
     #[must_use]
-    pub fn is_channel_part_of_message(
-        &self,
-        channel_id: &str,
-    ) -> bool
+    pub fn is_channel_part_of_message(&self, channel_id: &str) -> bool
     {
         self.channel.id == *channel_id
     }

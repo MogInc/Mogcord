@@ -6,10 +6,7 @@ use axum::response::IntoResponse;
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
-pub async fn revoke_all_tokens(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
+pub async fn revoke_all_tokens(State(state): State<Arc<AppState>>, ctx: Ctx) -> impl IntoResponse
 {
     let repo_refresh = &state.refresh_tokens;
 

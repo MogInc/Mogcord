@@ -102,7 +102,7 @@ impl refresh_token::Repository for MongolDB
                 })?;
 
                 Ok(refresh_token)
-            },
+            }
             None => Err(
                 server_error!(error::Kind::NotFound, error::OnType::RefreshToken)
                     .add_debug_info("device id", device_id.to_string()),

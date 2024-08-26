@@ -56,7 +56,7 @@ pub async fn mw_require_admin_authentication(
                 return Err(server_error!(error::Kind::NoAuth, error::OnType::Rights)
                     .add_client(error::Client::PERMISSION_NO_ADMIN));
             }
-        },
+        }
         Err(err) => return Err(err),
     }
 
@@ -83,7 +83,7 @@ pub async fn mw_ctx_resolver<'err>(
 
             let _ = crate::handlers::logic::auth::refresh_token(&state, &jar).await;
             ctx_result = get_ctx(&jar);
-        },
+        }
         Err(_) => jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string()),
     }
 
@@ -110,10 +110,7 @@ where
 {
     type Rejection = error::Server<'static>;
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        _state: &S,
-    ) -> Result<Self, Self::Rejection>
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection>
     {
         parts
             .extensions

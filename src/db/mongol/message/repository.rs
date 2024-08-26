@@ -110,7 +110,7 @@ impl message::Repository for MongolDB
                 message.bucket_id = Some(bucket_current._id.to_string());
 
                 Ok(message)
-            },
+            }
             Err(err) =>
             {
                 session
@@ -120,7 +120,7 @@ impl message::Repository for MongolDB
 
                 Err(server_error!(error::Kind::Insert, error::OnType::Message)
                     .add_debug_info("error", err.to_string()))
-            },
+            }
         }
     }
 
@@ -182,7 +182,7 @@ impl message::Repository for MongolDB
                             .add_debug_info("error", err.to_string())
                     })?;
                     messages.push(message);
-                },
+                }
                 Err(err) => println!("{err}"),
             };
         }
@@ -253,7 +253,7 @@ impl message::Repository for MongolDB
                 })?;
 
                 Ok(message)
-            },
+            }
             None => Err(server_error!(error::Kind::NotFound, error::OnType::Message)
                 .add_debug_info("message id", message_id.to_string())),
         }
@@ -264,9 +264,7 @@ fn internal_valid_message_filter() -> Document
 {
     let valid_flags = [
         message::Flag::None,
-        message::Flag::Edited {
-            date: Utc::now(),
-        },
+        message::Flag::Edited { date: Utc::now() },
     ];
 
     let valid_flags_bson: Vec<Regex> = valid_flags

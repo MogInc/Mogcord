@@ -43,7 +43,8 @@ macro_rules! map_mongo_key_to_string
 ///
 /// uses [`map_mongo_key_to_string`] to map the individual keys
 ///
-/// signature(`$collection_name`, `current_id_name`, `rename_id_to`, `mongo_id_type`)
+/// signature(`$collection_name`, `current_id_name`, `rename_id_to`,
+/// `mongo_id_type`)
 ///
 /// `$` prefix means its a mongo field
 /// # Examples
@@ -93,8 +94,8 @@ macro_rules! map_mongo_collection_keys_to_string
 /// }
 /// ```
 /// # Note
-/// if you have transformed the collection you want to map it needs to go in a seperate addFields
-/// ```ignore
+/// if you have transformed the collection you want to map it needs to go in a
+/// seperate addFields ```ignore
 /// doc!
 /// {
 ///     "$addFields":
@@ -137,7 +138,8 @@ macro_rules! map_mongo_collection_to_hashmap {
 ///
 /// signature(`error::Server`) => [`from_child`]
 ///
-/// signature(`error::Server`, `error::Kind`, `error::OnType`) => [`new_from_child`]
+/// signature(`error::Server`, `error::Kind`, `error::OnType`) =>
+/// [`new_from_child`]
 ///
 /// # Examples
 /// ```
@@ -167,7 +169,8 @@ macro_rules! server_error {
     };
 }
 
-/// sugar for [`.map_err(|x| server_error(x))`] or [`.map_err(|x| crate::model::error::Server::from_child(x, file!(), line!()))`]
+/// sugar for [`.map_err(|x| server_error(x))`] or [`.map_err(|x|
+/// crate::model::error::Server::from_child(x, file!(), line!()))`]
 ///
 /// signature(`result<T, error::Server<'_>>`)
 ///

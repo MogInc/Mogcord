@@ -108,19 +108,19 @@ impl error::Client
             error::Client::NOT_ALLOWED_PLATFORM =>
             {
                 "You're not allowed on this platform anymore, contact support for more info."
-            },
+            }
             error::Client::CHAT_EDIT_NOT_OWNER => "You dont have the permissions to edit this chat",
             error::Client::CHAT_PARENT_CTX_NOT_PART_OF_PARENT =>
             {
                 "You're not part of this channel parent."
-            },
+            }
             error::Client::CHAT_CTX_NOT_PART_OF_CHAT => "You're not part of this chat.",
             error::Client::SERVER_CTX_NOT_PART_OF_SERVER => "You're not part of this server.",
             error::Client::PASSWORD_CONFIRM_NOT_MATCH => "Passwords do not match.",
             error::Client::PERMISSION_NO_ADMIN =>
             {
                 "You dont have permissions to acces this resource, please refrain from using this."
-            },
+            }
             error::Client::PERMISSION_NO_AUTH => "Please re-authenticate.",
             error::Client::PRIVATE_CHAT_TRY_EDIT => "Private chats cant be edited.",
             error::Client::COOKIES_NOT_FOUND => "You're missing certain cookies.",
@@ -132,11 +132,11 @@ impl error::Client
             error::Client::RELATION_NO_INCOMING_FRIEND =>
             {
                 "There seems to be no incoming friend request from that user."
-            },
+            }
             error::Client::RELATION_DUPLICATE_OUTGOING_FRIEND =>
             {
                 "You've already send a friend request."
-            },
+            }
             error::Client::RELATION_SELF_TRY_BLOCK_SELF => "Can't block yourself.",
             error::Client::RELATION_SELF_TRY_FRIEND_SELF => "Can't add yourself as a friend.",
             error::Client::RELATION_SELF_TRY_UNBLOCK_SELF => "Can't unblock yourself.",

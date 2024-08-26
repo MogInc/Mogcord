@@ -7,10 +7,7 @@ use crate::middleware::cookies::Manager;
 use crate::model::{error, AppState};
 use crate::server_error;
 
-pub async fn refresh_token<'err>(
-    state: &Arc<AppState>,
-    jar: &Cookies,
-) -> error::Result<'err, ()>
+pub async fn refresh_token<'err>(state: &Arc<AppState>, jar: &Cookies) -> error::Result<'err, ()>
 {
     let repo_refresh = &state.refresh_tokens;
 

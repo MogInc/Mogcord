@@ -22,10 +22,7 @@ impl Rights
 
 impl std::hash::Hash for Rights
 {
-    fn hash<H: std::hash::Hasher>(
-        &self,
-        state: &mut H,
-    )
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
     {
         self.name().hash(state);
     }
@@ -33,10 +30,7 @@ impl std::hash::Hash for Rights
 
 impl PartialEq for Rights
 {
-    fn eq(
-        &self,
-        other: &Self,
-    ) -> bool
+    fn eq(&self, other: &Self) -> bool
     {
         self.name() == other.name()
     }

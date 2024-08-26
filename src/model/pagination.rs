@@ -13,10 +13,7 @@ impl Pagination
     const MIN_PAGE_NR: usize = 1;
     const MAX_PER_PAGE: usize = 50;
 
-    fn new_valid(
-        page: usize,
-        per_page: usize,
-    ) -> Self
+    fn new_valid(page: usize, per_page: usize) -> Self
     {
         Self {
             page: page.max(Self::MIN_PAGE_NR),

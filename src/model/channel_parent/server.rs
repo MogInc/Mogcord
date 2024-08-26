@@ -54,10 +54,7 @@ impl Server
         }
     }
 
-    pub fn new<'err>(
-        name: String,
-        owner: User,
-    ) -> error::Result<'err, Self>
+    pub fn new<'err>(name: String, owner: User) -> error::Result<'err, Self>
     {
         let base_channel = Channel::new(Some(String::from("Welcome")), true);
 
@@ -81,10 +78,7 @@ impl Server
 
 impl Server
 {
-    pub fn add_user<'err>(
-        &mut self,
-        user: User,
-    ) -> error::Result<'err, ()>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         if self.is_user_part_of_server(&user.id)
         {
@@ -99,10 +93,7 @@ impl Server
         Ok(())
     }
 
-    pub fn add_users<'err>(
-        &mut self,
-        users: Vec<User>,
-    ) -> error::Result<'err, ()>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         for user in &users
         {
@@ -127,28 +118,19 @@ impl Server
     }
 
     #[must_use]
-    pub fn is_owner(
-        &self,
-        user_id: &str,
-    ) -> bool
+    pub fn is_owner(&self, user_id: &str) -> bool
     {
         self.owner.id == user_id
     }
 
     #[must_use]
-    pub fn is_user_part_of_server(
-        &self,
-        other_user: &str,
-    ) -> bool
+    pub fn is_user_part_of_server(&self, other_user: &str) -> bool
     {
         self.is_owner(other_user) || self.users.contains_key(other_user)
     }
 
     #[must_use]
-    pub fn filter_channels(
-        self,
-        user_id: &str,
-    ) -> Self
+    pub fn filter_channels(self, user_id: &str) -> Self
     {
         let filtered_channels = if self
             .internal_server_check_permision(user_id, Role::can_read_channels)
@@ -193,10 +175,7 @@ impl channel::Parent for Server
         }
     }
 
-    fn get_user_roles(
-        &self,
-        user_id: &str,
-    ) -> Option<&Vec<String>>
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>>
     {
         self.user_roles.get(user_id)
     }

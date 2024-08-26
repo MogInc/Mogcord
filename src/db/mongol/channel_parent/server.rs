@@ -7,7 +7,8 @@ use crate::db::helper;
 use crate::model::channel_parent::{Role, Server};
 use crate::model::error;
 
-//_id gets an ObjectId signed and will most likely do some voodoo to retrieve a chat
+//_id gets an ObjectId signed and will most likely do some voodoo to retrieve a
+//_id chat
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::pub_underscore_fields)]
 #[allow(clippy::used_underscore_binding)]

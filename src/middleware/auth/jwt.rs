@@ -34,15 +34,9 @@ pub struct CreateAccesTokenRequest<'id>
 impl<'user_info> CreateAccesTokenRequest<'user_info>
 {
     #[must_use]
-    pub fn new(
-        user_id: &'user_info String,
-        is_admin: bool,
-    ) -> Self
+    pub fn new(user_id: &'user_info String, is_admin: bool) -> Self
     {
-        Self {
-            user_id,
-            is_admin,
-        }
+        Self { user_id, is_admin }
     }
 }
 
@@ -100,7 +94,7 @@ pub fn extract_acces_token<'err>(
                     .add_debug_info("acces token", token.to_string());
 
                 Err(err)
-            },
+            }
         },
     }
 }

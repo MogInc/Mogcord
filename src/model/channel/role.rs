@@ -16,10 +16,7 @@ pub struct Role
 impl Role
 {
     #[must_use]
-    pub fn new_neutral(
-        name: String,
-        rank: usize,
-    ) -> Self
+    pub fn new_neutral(name: String, rank: usize) -> Self
     {
         Self {
             name,
@@ -29,10 +26,7 @@ impl Role
     }
 
     #[must_use]
-    pub fn new_public(
-        name: String,
-        rank: usize,
-    ) -> Self
+    pub fn new_public(name: String, rank: usize) -> Self
     {
         Self {
             name,
@@ -42,10 +36,7 @@ impl Role
     }
 
     #[must_use]
-    pub fn new_private(
-        name: String,
-        rank: usize,
-    ) -> Self
+    pub fn new_private(name: String, rank: usize) -> Self
     {
         Self {
             name,
@@ -117,10 +108,7 @@ impl Role
         })?
     }
 
-    pub fn add_right(
-        &mut self,
-        right: Rights,
-    )
+    pub fn add_right(&mut self, right: Rights)
     {
         if let Some(pos) = self.rights.iter().position(|r| r == &right)
         {
@@ -132,10 +120,7 @@ impl Role
         }
     }
 
-    pub fn remove_right(
-        &mut self,
-        right: &Rights,
-    )
+    pub fn remove_right(&mut self, right: &Rights)
     {
         self.rights.retain(|r| r != right);
     }
@@ -143,10 +128,7 @@ impl Role
 
 impl std::hash::Hash for Role
 {
-    fn hash<H: std::hash::Hasher>(
-        &self,
-        state: &mut H,
-    )
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
     {
         self.name.hash(state);
     }
@@ -154,10 +136,7 @@ impl std::hash::Hash for Role
 
 impl Ord for Role
 {
-    fn cmp(
-        &self,
-        other: &Self,
-    ) -> Ordering
+    fn cmp(&self, other: &Self) -> Ordering
     {
         self.rank.cmp(&other.rank)
     }
@@ -165,10 +144,7 @@ impl Ord for Role
 
 impl PartialOrd for Role
 {
-    fn partial_cmp(
-        &self,
-        other: &Self,
-    ) -> Option<Ordering>
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering>
     {
         Some(self.cmp(other))
     }
@@ -176,10 +152,7 @@ impl PartialOrd for Role
 
 impl PartialEq for Role
 {
-    fn eq(
-        &self,
-        other: &Self,
-    ) -> bool
+    fn eq(&self, other: &Self) -> bool
     {
         self.name == other.name
     }

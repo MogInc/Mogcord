@@ -41,10 +41,7 @@ impl Chat
         matches!(self, Chat::Group(_))
     }
 
-    pub fn add_user<'err>(
-        &mut self,
-        user: User,
-    ) -> error::Result<'err, ()>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         match self
         {
@@ -53,10 +50,7 @@ impl Chat
         }
     }
 
-    pub fn add_users<'err>(
-        &mut self,
-        users: Vec<User>,
-    ) -> error::Result<'err, ()>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         match self
         {
@@ -66,10 +60,7 @@ impl Chat
     }
 
     #[must_use]
-    pub fn is_owner(
-        &self,
-        user_id: &str,
-    ) -> bool
+    pub fn is_owner(&self, user_id: &str) -> bool
     {
         match self
         {
@@ -79,10 +70,7 @@ impl Chat
     }
 
     #[must_use]
-    pub fn is_user_part_of_chat(
-        &self,
-        other_user_id: &str,
-    ) -> bool
+    pub fn is_user_part_of_chat(&self, other_user_id: &str) -> bool
     {
         match self
         {
@@ -106,10 +94,7 @@ impl channel::Parent for Chat
         }
     }
 
-    fn get_user_roles(
-        &self,
-        user_id: &str,
-    ) -> Option<&Vec<String>>
+    fn get_user_roles(&self, user_id: &str) -> Option<&Vec<String>>
     {
         match self
         {

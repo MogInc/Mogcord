@@ -26,10 +26,7 @@ impl Flag
 
 impl fmt::Display for Flag
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         match self
         {
@@ -51,18 +48,12 @@ impl<'de> Deserialize<'de> for Flag
         {
             type Value = Flag;
 
-            fn expecting(
-                &self,
-                formatter: &mut std::fmt::Formatter,
-            ) -> std::fmt::Result
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result
             {
                 formatter.write_str("data")
             }
 
-            fn visit_str<E>(
-                self,
-                v: &str,
-            ) -> Result<Self::Value, E>
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
             {
@@ -99,17 +90,14 @@ pub enum RefreshTokenFlagParseError
 
 impl fmt::Display for RefreshTokenFlagParseError
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         match *self
         {
             RefreshTokenFlagParseError::InvalidFormat =>
             {
                 write!(f, "Invalid format")
-            },
+            }
         }
     }
 }

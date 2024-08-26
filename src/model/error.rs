@@ -25,12 +25,7 @@ pub struct Server<'err>
 impl<'err> Server<'err>
 {
     #[must_use]
-    pub fn new(
-        kind: Kind,
-        on_type: OnType,
-        stack: &'err str,
-        line_nr: u32,
-    ) -> Self
+    pub fn new(kind: Kind, on_type: OnType, stack: &'err str, line_nr: u32) -> Self
     {
         Self {
             kind,
@@ -85,10 +80,7 @@ impl<'err> Server<'err>
     }
 
     #[must_use]
-    pub fn add_client(
-        mut self,
-        client: Client,
-    ) -> Self
+    pub fn add_client(mut self, client: Client) -> Self
     {
         self.client = client;
 
@@ -97,10 +89,7 @@ impl<'err> Server<'err>
 
     #[must_use]
     #[allow(clippy::extend_with_drain)]
-    pub fn add_child(
-        mut self,
-        mut child: Self,
-    ) -> Self
+    pub fn add_child(mut self, mut child: Self) -> Self
     {
         self.client = child.client.clone();
         self.pub_info = child.pub_info.take();
@@ -111,11 +100,7 @@ impl<'err> Server<'err>
     }
 
     #[must_use]
-    pub fn add_debug_info(
-        mut self,
-        key: &'err str,
-        debug_info: String,
-    ) -> Self
+    pub fn add_debug_info(mut self, key: &'err str, debug_info: String) -> Self
     {
         self.debug_info.insert(key, debug_info);
 
@@ -123,10 +108,7 @@ impl<'err> Server<'err>
     }
 
     #[must_use]
-    pub fn add_public_info(
-        mut self,
-        public_info: String,
-    ) -> Self
+    pub fn add_public_info(mut self, public_info: String) -> Self
     {
         if self.pub_info.is_none()
         {
@@ -206,11 +188,7 @@ pub enum OnType
 
 impl Server<'_>
 {
-    fn fmt_with_depth(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-        depth: usize,
-    ) -> fmt::Result
+    fn fmt_with_depth(&self, f: &mut fmt::Formatter<'_>, depth: usize) -> fmt::Result
     {
         write!(
             f,
@@ -230,10 +208,7 @@ impl Server<'_>
 
 impl fmt::Display for Server<'_>
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         self.fmt_with_depth(f, 0)
     }
@@ -294,7 +269,7 @@ impl Server<'_>
             Kind::FileOpening | Kind::FlushBuffer | Kind::Write | Kind::Unexpected =>
             {
                 StatusCode::INTERNAL_SERVER_ERROR
-            },
+            }
         };
 
         (status_code, self.client.clone(), self.pub_info.as_ref())
@@ -343,10 +318,7 @@ pub enum Client
 
 impl fmt::Display for Client
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         write!(f, "{self:?}")
     }

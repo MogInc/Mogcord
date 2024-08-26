@@ -43,10 +43,7 @@ impl user::Repository for MongolDB
         internal_does_user_exist(self, filter).await
     }
 
-    async fn create_user<'input, 'err>(
-        &'input self,
-        user: User,
-    ) -> error::Result<'err, User>
+    async fn create_user<'input, 'err>(&'input self, user: User) -> error::Result<'err, User>
     {
         let db_user = bubble!(MongolUser::try_from(&user))?;
 
@@ -58,10 +55,7 @@ impl user::Repository for MongolDB
         }
     }
 
-    async fn create_users<'input, 'err>(
-        &'input self,
-        users: Vec<User>,
-    ) -> error::Result<'err, ()>
+    async fn create_users<'input, 'err>(&'input self, users: Vec<User>) -> error::Result<'err, ()>
     {
         let db_users = bubble!(MongolUserVec::try_from(&users))?;
 
@@ -151,7 +145,7 @@ impl user::Repository for MongolDB
                             .add_debug_info("error", err.to_string())
                     })?;
                     users.push(user);
-                },
+                }
                 Err(err) => println!("{err}"),
             }
         }
@@ -204,7 +198,7 @@ impl user::Repository for MongolDB
                             .add_debug_info("error", err.to_string())
                     })?;
                     users.push(user);
-                },
+                }
                 Err(err) => println!("{err}"),
             }
         }

@@ -37,11 +37,7 @@ impl Group
         }
     }
 
-    pub fn new<'err>(
-        name: String,
-        owner: User,
-        users: Vec<User>,
-    ) -> error::Result<'err, Self>
+    pub fn new<'err>(name: String, owner: User, users: Vec<User>) -> error::Result<'err, Self>
     {
         let users_sanitized = users
             .into_iter()
@@ -69,10 +65,7 @@ impl Group
 {
     const GROUP_USER_MIN: usize = 2;
 
-    pub fn add_user<'err>(
-        &mut self,
-        user: User,
-    ) -> error::Result<'err, ()>
+    pub fn add_user<'err>(&mut self, user: User) -> error::Result<'err, ()>
     {
         if self.is_user_part_of_server(&user.id)
         {
@@ -87,10 +80,7 @@ impl Group
         Ok(())
     }
 
-    pub fn add_users<'err>(
-        &mut self,
-        users: Vec<User>,
-    ) -> error::Result<'err, ()>
+    pub fn add_users<'err>(&mut self, users: Vec<User>) -> error::Result<'err, ()>
     {
         for user in &users
         {
@@ -110,19 +100,13 @@ impl Group
     }
 
     #[must_use]
-    pub fn is_owner(
-        &self,
-        user_id: &str,
-    ) -> bool
+    pub fn is_owner(&self, user_id: &str) -> bool
     {
         self.owner.id == user_id
     }
 
     #[must_use]
-    pub fn is_user_part_of_server(
-        &self,
-        other_user: &str,
-    ) -> bool
+    pub fn is_user_part_of_server(&self, other_user: &str) -> bool
     {
         self.is_owner(other_user) || self.users.contains_key(other_user)
     }
@@ -156,10 +140,7 @@ impl channel::Parent for Group
         Ok(&self.channel)
     }
 
-    fn get_user_roles(
-        &self,
-        _: &str,
-    ) -> Option<&Vec<String>>
+    fn get_user_roles(&self, _: &str) -> Option<&Vec<String>>
     {
         None
     }

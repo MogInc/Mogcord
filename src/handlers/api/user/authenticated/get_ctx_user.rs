@@ -7,10 +7,7 @@ use crate::dto::{ObjectToDTO, UserGetResponse};
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
-pub async fn get_ctx_user_auth(
-    State(state): State<Arc<AppState>>,
-    ctx: Ctx,
-) -> impl IntoResponse
+pub async fn get_ctx_user_auth(State(state): State<Arc<AppState>>, ctx: Ctx) -> impl IntoResponse
 {
     let repo_user = &state.users;
 

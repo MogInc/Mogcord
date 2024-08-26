@@ -7,30 +7,17 @@ use crate::server_error;
 
 pub trait Manager
 {
-    fn create_cookie(
-        &self,
-        name: String,
-        value: String,
-        ttl_in_mins: i64,
-    );
+    fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64);
     fn get_cookie<'incoming, 'err>(
         &'incoming self,
         name: &'incoming str,
     ) -> error::Result<'err, String>;
-    fn remove_cookie(
-        &self,
-        name: String,
-    );
+    fn remove_cookie(&self, name: String);
 }
 
 impl Manager for Cookies
 {
-    fn create_cookie(
-        &self,
-        name: String,
-        value: String,
-        ttl_in_mins: i64,
-    )
+    fn create_cookie(&self, name: String, value: String, ttl_in_mins: i64)
     {
         let cookie = Cookie::build((name, value))
             .path("/")
@@ -55,10 +42,7 @@ impl Manager for Cookies
         )
     }
 
-    fn remove_cookie(
-        &self,
-        name: String,
-    )
+    fn remove_cookie(&self, name: String)
     {
         let cookie = Cookie::build(name).path("/").build();
 

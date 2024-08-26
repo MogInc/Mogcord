@@ -16,11 +16,7 @@ pub struct CreateUserRequest
 impl CreateUserRequest
 {
     #[must_use]
-    pub fn new(
-        username: String,
-        email: String,
-        password: String,
-    ) -> Self
+    pub fn new(username: String, email: String, password: String) -> Self
     {
         Self {
             username,

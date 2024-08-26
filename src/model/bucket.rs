@@ -18,10 +18,7 @@ pub struct Bucket
 impl Bucket
 {
     #[must_use]
-    pub fn new(
-        channel: &Channel,
-        date: &DateTime<Utc>,
-    ) -> Self
+    pub fn new(channel: &Channel, date: &DateTime<Utc>) -> Self
     {
         Self {
             id: Uuid::now_v7().to_string(),
@@ -34,10 +31,7 @@ impl Bucket
 
 impl Bucket
 {
-    pub fn add_message(
-        &mut self,
-        message: Message,
-    )
+    pub fn add_message(&mut self, message: Message)
     {
         self.messages.push(message);
     }

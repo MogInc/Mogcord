@@ -15,10 +15,7 @@ pub struct Role
 impl Role
 {
     #[must_use]
-    pub fn new(
-        name: String,
-        rank: usize,
-    ) -> Self
+    pub fn new(name: String, rank: usize) -> Self
     {
         Self {
             name,
@@ -28,10 +25,7 @@ impl Role
     }
 
     #[must_use]
-    pub fn new_private(
-        name: String,
-        rank: usize,
-    ) -> Self
+    pub fn new_private(name: String, rank: usize) -> Self
     {
         Self {
             name,
@@ -79,10 +73,7 @@ impl Role
 
 impl std::hash::Hash for Role
 {
-    fn hash<H: std::hash::Hasher>(
-        &self,
-        state: &mut H,
-    )
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
     {
         self.name.hash(state);
     }
@@ -90,10 +81,7 @@ impl std::hash::Hash for Role
 
 impl PartialEq for Role
 {
-    fn eq(
-        &self,
-        other: &Self,
-    ) -> bool
+    fn eq(&self, other: &Self) -> bool
     {
         self.name == other.name
     }

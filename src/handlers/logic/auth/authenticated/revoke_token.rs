@@ -31,7 +31,7 @@ pub async fn revoke_token<'err>(
             jar.remove_cookie(auth::CookieNames::AUTH_REFRESH.to_string());
 
             Ok(())
-        },
+        }
         Err(err) => Err(err),
     }
 }

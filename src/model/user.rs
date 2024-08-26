@@ -37,11 +37,7 @@ impl User
         }
     }
     #[must_use]
-    pub fn new(
-        username: String,
-        email: String,
-        hashed_password: String,
-    ) -> Self
+    pub fn new(username: String, email: String, hashed_password: String) -> Self
     {
         Self {
             id: Uuid::now_v7().to_string(),
@@ -55,10 +51,7 @@ impl User
 
 impl std::hash::Hash for User
 {
-    fn hash<H: std::hash::Hasher>(
-        &self,
-        state: &mut H,
-    )
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H)
     {
         self.id.hash(state);
     }
@@ -66,10 +59,7 @@ impl std::hash::Hash for User
 
 impl PartialEq for User
 {
-    fn eq(
-        &self,
-        other: &Self,
-    ) -> bool
+    fn eq(&self, other: &Self) -> bool
     {
         self.id == other.id
     }

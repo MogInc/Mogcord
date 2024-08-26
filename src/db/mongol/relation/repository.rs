@@ -59,7 +59,7 @@ impl relation::Repository for MongolDB
                     .any(|id| !other_user_ids_local.contains(id));
 
                 Ok(is_all_friends)
-            },
+            }
             None => Ok(other_user_ids_local.is_empty()),
         }
     }
@@ -192,7 +192,7 @@ impl relation::Repository for MongolDB
                     .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
-            },
+            }
             Err(err) =>
             {
                 session
@@ -204,7 +204,7 @@ impl relation::Repository for MongolDB
                     server_error!(error::Kind::Update, error::OnType::RelationFriend)
                         .add_debug_info("error", err.to_string()),
                 )
-            },
+            }
         }
     }
 
@@ -277,7 +277,7 @@ impl relation::Repository for MongolDB
                     .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
-            },
+            }
             Err(err) =>
             {
                 session
@@ -289,7 +289,7 @@ impl relation::Repository for MongolDB
                     server_error!(error::Kind::Update, error::OnType::RelationBlocked)
                         .add_debug_info("error", err.to_string()),
                 )
-            },
+            }
         }
     }
 
@@ -350,7 +350,7 @@ impl relation::Repository for MongolDB
                     .map_err(|err| transaction_error!(err))?;
 
                 Ok(())
-            },
+            }
             Err(err) =>
             {
                 session
@@ -362,7 +362,7 @@ impl relation::Repository for MongolDB
                     server_error!(error::Kind::Update, error::OnType::RelationFriend)
                         .add_debug_info("error", err.to_string()),
                 )
-            },
+            }
         }
     }
 
@@ -423,10 +423,7 @@ impl relation::Repository for MongolDB
     }
 }
 
-async fn add_relation<'err>(
-    repo: &MongolDB,
-    current_user_id: Uuid,
-) -> error::Result<'err, ()>
+async fn add_relation<'err>(repo: &MongolDB, current_user_id: Uuid) -> error::Result<'err, ()>
 {
     let filter = doc! { "user_id" : current_user_id };
 

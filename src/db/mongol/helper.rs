@@ -67,7 +67,7 @@ pub fn convert_domain_id_to_mongol<'err>(id: &str) -> error::Result<'err, Uuid>
 }
 
 pub fn convert_domain_ids_to_mongol<'input, 'err>(
-    ids: &'input [&'input str]
+    ids: &'input [&'input str],
 ) -> error::Result<'err, Vec<Uuid>>
 {
     ids.iter()
@@ -75,10 +75,7 @@ pub fn convert_domain_ids_to_mongol<'input, 'err>(
         .collect()
 }
 
-pub fn as_string<S, T>(
-    v: &T,
-    s: S,
-) -> Result<S::Ok, S::Error>
+pub fn as_string<S, T>(v: &T, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
     T: fmt::Display,

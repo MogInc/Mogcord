@@ -24,10 +24,7 @@ impl Rights
 
 impl PartialEq for Rights
 {
-    fn eq(
-        &self,
-        other: &Self,
-    ) -> bool
+    fn eq(&self, other: &Self) -> bool
     {
         self.name() == other.name()
     }

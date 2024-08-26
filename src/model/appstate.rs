@@ -20,10 +20,7 @@ pub struct AppState
 
 impl AppState
 {
-    pub async fn new(
-        db_con: &str,
-        log_path: &str,
-    ) -> Arc<Self>
+    pub async fn new(db_con: &str, log_path: &str) -> Arc<Self>
     {
         let db = Arc::new(MongolDB::init(db_con).await.expect("Couldnt connect to db"));
 

@@ -38,21 +38,14 @@ impl Flag
 
 impl fmt::Display for Flag
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         match self
         {
             Self::None => write!(f, "none"),
             Self::Disabled => write!(f, "disabled"),
-            Self::Banned {
-                date,
-            } => write!(f, "banned|{date}"),
-            Self::Deleted {
-                date,
-            } => write!(f, "deleted|{date}"),
+            Self::Banned { date } => write!(f, "banned|{date}"),
+            Self::Deleted { date } => write!(f, "deleted|{date}"),
             Self::Admin => write!(f, "admin"),
             Self::Owner => write!(f, "owner"),
         }
@@ -71,18 +64,12 @@ impl<'de> Deserialize<'de> for Flag
         {
             type Value = Flag;
 
-            fn expecting(
-                &self,
-                formatter: &mut std::fmt::Formatter,
-            ) -> std::fmt::Result
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result
             {
                 formatter.write_str("data")
             }
 
-            fn visit_str<E>(
-                self,
-                v: &str,
-            ) -> Result<Self::Value, E>
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
             {
@@ -114,32 +101,28 @@ impl FromStr for Flag
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Deleted {
-                            date,
-                        })
+                        .map(|date| Flag::Deleted { date })
                         .map_err(|_| UserFlagParseError::InvalidDate)
                 }
                 else
                 {
                     Err(UserFlagParseError::InvalidFormat)
                 }
-            },
+            }
             "banned" =>
             {
                 if parts.len() == 2
                 {
                     parts[1]
                         .parse::<DateTime<Utc>>()
-                        .map(|date| Flag::Banned {
-                            date,
-                        })
+                        .map(|date| Flag::Banned { date })
                         .map_err(|_| UserFlagParseError::InvalidDate)
                 }
                 else
                 {
                     Err(UserFlagParseError::InvalidFormat)
                 }
-            },
+            }
             "admin" => Ok(Flag::Admin),
             "owner" => Ok(Flag::Owner),
             _ => Err(UserFlagParseError::InvalidFormat),
@@ -156,10 +139,7 @@ pub enum UserFlagParseError
 
 impl fmt::Display for UserFlagParseError
 {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         match *self
         {

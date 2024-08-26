@@ -34,7 +34,8 @@ pub async fn remove_friend(
     }
 
     //no clue if i need more checks as like is_user_a_friend
-    //maybe is handy if remove_user_as_friend is expensive and end users are spamming endpoint
+    //maybe is handy if remove_user_as_friend is expensive and end users are
+    // spamming endpoint
     match repo_relation
         .remove_user_as_friend(ctx_user_id, other_user_id)
         .await

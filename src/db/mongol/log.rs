@@ -53,13 +53,10 @@ pub struct MongolLogServerError
 }
 
 fn internal_create_server_error(
-    value: Option<&error::Server<'_>>
+    value: Option<&error::Server<'_>>,
 ) -> Option<Vec<MongolLogServerError>>
 {
-    fn internal_collect_errors(
-        server: &error::Server<'_>,
-        errors: &mut Vec<MongolLogServerError>,
-    )
+    fn internal_collect_errors(server: &error::Server<'_>, errors: &mut Vec<MongolLogServerError>)
     {
         errors.push(MongolLogServerError {
             kind: server.kind.to_string(),

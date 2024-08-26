@@ -34,11 +34,7 @@ pub struct RefreshToken
 impl RefreshToken
 {
     #[must_use]
-    pub fn create_token(
-        owner: User,
-        ip_addr: String,
-        device_id_option: Option<String>,
-    ) -> Self
+    pub fn create_token(owner: User, ip_addr: String, device_id_option: Option<String>) -> Self
     {
         const CUSTOM_ENGINE: GeneralPurpose =
             GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);

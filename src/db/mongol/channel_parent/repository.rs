@@ -56,7 +56,7 @@ impl channel_parent::Repository for MongolDB
                     server_error!(error::Kind::Fetch, error::OnType::ChatPrivate)
                         .add_debug_info("error", err.to_string())
                 })?
-            },
+            }
             mongol::ParentType::ChatGroup =>
             {
                 let mut pipeline = Vec::new();
@@ -74,7 +74,7 @@ impl channel_parent::Repository for MongolDB
                     server_error!(error::Kind::Fetch, error::OnType::ChatGroup)
                         .add_debug_info("error", err.to_string())
                 })?
-            },
+            }
             mongol::ParentType::Server =>
             {
                 let mut pipeline = Vec::new();
@@ -99,7 +99,7 @@ impl channel_parent::Repository for MongolDB
                     server_error!(error::Kind::Fetch, error::OnType::Server)
                         .add_debug_info("error", err.to_string())
                 })?
-            },
+            }
         };
 
         let document_option = cursor.next().await.transpose().map_err(|err| {
@@ -117,7 +117,7 @@ impl channel_parent::Repository for MongolDB
                 })?;
 
                 Ok(channel_parent)
-            },
+            }
             None => Err(server_error!(
                 error::Kind::Unexpected,
                 error::OnType::ChannelParent
@@ -129,10 +129,7 @@ impl channel_parent::Repository for MongolDB
 #[async_trait]
 impl channel_parent::chat::Repository for MongolDB
 {
-    async fn create_chat<'input, 'err>(
-        &'input self,
-        chat: Chat,
-    ) -> error::Result<'err, Chat>
+    async fn create_chat<'input, 'err>(&'input self, chat: Chat) -> error::Result<'err, Chat>
     {
         let db_chat = bubble!(MongolChat::try_from(&chat))?;
         let db_channel = bubble!(MongolChannel::try_from(&chat))?;
@@ -171,7 +168,7 @@ impl channel_parent::chat::Repository for MongolDB
                     .map_err(|err| transaction_error!(err))?;
 
                 Ok(chat)
-            },
+            }
             Err(err) =>
             {
                 session
@@ -181,14 +178,11 @@ impl channel_parent::chat::Repository for MongolDB
 
                 Err(server_error!(error::Kind::Insert, error::OnType::Chat)
                     .add_debug_info("error", err.to_string()))
-            },
+            }
         }
     }
 
-    async fn update_chat<'input, 'err>(
-        &'input self,
-        chat: Chat,
-    ) -> error::Result<'err, ()>
+    async fn update_chat<'input, 'err>(&'input self, chat: Chat) -> error::Result<'err, ()>
     {
         let filter: Document;
         let update = match chat
@@ -199,7 +193,7 @@ impl channel_parent::chat::Repository for MongolDB
                     server_error!(error::Kind::Update, error::OnType::ChatPrivate)
                         .add_client(error::Client::PRIVATE_CHAT_TRY_EDIT),
                 );
-            },
+            }
             Chat::Group(group) =>
             {
                 let chat_id = bubble!(mongol::helper::convert_domain_id_to_mongol(&group.id))?;
@@ -216,7 +210,7 @@ impl channel_parent::chat::Repository for MongolDB
                         "Group.user_ids": bubble!(mongol::helper::convert_domain_ids_to_mongol(&user_ids))?,
                     }
                 }
-            },
+            }
         };
 
         match self.chats().update_one(filter, update).await
@@ -265,9 +259,7 @@ impl channel_parent::chat::Repository for MongolDB
 
         let pipeline = match &mongol_chat
         {
-            MongolChat::Private {
-                ..
-            } =>
+            MongolChat::Private { .. } =>
             {
                 let mut pipeline = vec![doc! {
                     "$match":
@@ -279,10 +271,8 @@ impl channel_parent::chat::Repository for MongolDB
                 pipeline.extend(internal_private_chat_pipeline());
 
                 pipeline
-            },
-            MongolChat::Group {
-                ..
-            } =>
+            }
+            MongolChat::Group { .. } =>
             {
                 let mut pipeline = vec![doc! {
                     "$match":
@@ -294,7 +284,7 @@ impl channel_parent::chat::Repository for MongolDB
                 pipeline.extend(internal_group_chat_pipeline());
 
                 pipeline
-            },
+            }
         };
 
         let mut cursor = self.chats().aggregate(pipeline).await.map_err(|err| {
@@ -317,7 +307,7 @@ impl channel_parent::chat::Repository for MongolDB
                 })?;
 
                 Ok(chat)
-            },
+            }
             None => Err(server_error!(error::Kind::NotFound, error::OnType::Chat)
                 .add_debug_info("chat id", chat_id.to_string())),
         }
@@ -335,7 +325,7 @@ impl channel_parent::chat::Repository for MongolDB
                 doc! {
                     "Private.owner_ids": private.owner_ids,
                 }
-            },
+            }
             //debating on wether to allow inf groups with same users
             MongolChat::Group(group) =>
             {
@@ -344,7 +334,7 @@ impl channel_parent::chat::Repository for MongolDB
                     "Group.owner_id": group.owner_id,
                     "Group.user_ids": group.user_ids,
                 }
-            },
+            }
         };
 
         let projection = doc! {
@@ -405,7 +395,7 @@ impl channel_parent::server::Repository for MongolDB
                     .map_err(|err| transaction_error!(err))?;
 
                 Ok(server)
-            },
+            }
             Err(err) =>
             {
                 session
@@ -415,7 +405,7 @@ impl channel_parent::server::Repository for MongolDB
 
                 Err(server_error!(error::Kind::Insert, error::OnType::Server)
                     .add_debug_info("error", err.to_string()))
-            },
+            }
         }
     }
 
@@ -484,7 +474,7 @@ impl channel_parent::server::Repository for MongolDB
                 })?;
 
                 Ok(server)
-            },
+            }
             None => Err(server_error!(error::Kind::NotFound, error::OnType::Server)
                 .add_client(error::Client::SERVER_NOT_FOUND)),
         }
@@ -526,7 +516,7 @@ impl channel_parent::server::Repository for MongolDB
                 })?;
 
                 return Ok(server);
-            },
+            }
             None => Err(server_error!(error::Kind::NotFound, error::OnType::Server)),
         }
     }
