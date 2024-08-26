@@ -27,10 +27,8 @@ impl TryFrom<RequestLogLine<'_>> for MongolLog
 
     fn try_from(value: RequestLogLine) -> Result<Self, Self::Error>
     {
-        let req_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.req_id))?;
-        let server_error =
-            internal_create_server_error(value.server_error.as_ref());
+        let req_id = bubble!(helper::convert_domain_id_to_mongol(&value.req_id))?;
+        let server_error = internal_create_server_error(value.server_error.as_ref());
 
         Ok(Self {
             req_id,
@@ -66,19 +64,11 @@ fn internal_create_server_error(
         errors.push(MongolLogServerError {
             kind: server.kind.to_string(),
             on_type: server.on_type.to_string(),
-            stack: format!(
-                "{}: {}",
-                server.stack, server.line_nr
-            ),
+            stack: format!("{}: {}", server.stack, server.line_nr),
             debug_info: server
                 .debug_info
                 .iter()
-                .map(|(key, val)| {
-                    (
-                        (*key).to_string(),
-                        val.to_owned(),
-                    )
-                })
+                .map(|(key, val)| ((*key).to_string(), val.to_owned()))
                 .collect(),
             pub_info: server.pub_info.clone(),
         });

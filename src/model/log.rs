@@ -36,17 +36,11 @@ pub async fn log_request(
         server_error: service_error.cloned(),
     };
 
-    println!(
-        "   ->> log_request: \n{:#}",
-        json!(log_line)
-    );
+    println!("   ->> log_request: \n{:#}", json!(log_line));
     if let Err(err) = state.create_log(log_line).await
     {
         println!("	->> LOG INSERT FAILED");
-        println!(
-            "   ->> log_request FAILED INSERT: \n{}",
-            json!(err)
-        );
+        println!("   ->> log_request FAILED INSERT: \n{}", json!(err));
     }
 }
 

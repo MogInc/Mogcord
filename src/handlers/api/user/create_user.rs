@@ -15,9 +15,7 @@ pub async fn create_user(
 {
     match logic::user::create_user(&state, &payload).await
     {
-        Ok(user) => Ok(Json(
-            UserCreateResponse::obj_to_dto(user),
-        )),
+        Ok(user) => Ok(Json(UserCreateResponse::obj_to_dto(user))),
         Err(err) => Err(err),
     }
 }

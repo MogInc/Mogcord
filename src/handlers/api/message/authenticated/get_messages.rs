@@ -27,33 +27,25 @@ pub async fn get_messages(
 
     if !chat.is_user_part_of_channel_parent(current_user_id)
     {
-        return Err(server_error!(
-            error::Kind::NotPartOf,
-            error::OnType::ChannelParent
-        )
-        .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER));
+        return Err(
+            server_error!(error::Kind::NotPartOf, error::OnType::ChannelParent)
+                .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER),
+        );
     }
 
-    if !chat.can_read(
-        current_user_id,
-        Some(&channel_id),
-    )?
+    if !chat.can_read(current_user_id, Some(&channel_id))?
     {
-        return Err(server_error!(
-            error::Kind::NotPartOf,
-            error::OnType::ChannelParent
-        )
-        .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER));
+        return Err(
+            server_error!(error::Kind::NotPartOf, error::OnType::ChannelParent)
+                .add_client(error::Client::SERVER_CTX_NOT_PART_OF_SERVER),
+        );
     }
 
     match repo_message
         .get_valid_messages(&channel_id, pagination)
         .await
     {
-        Ok(messages) => Ok(Json(vec_to_dto::<
-            Message,
-            MessageGetResponse,
-        >(messages))),
+        Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageGetResponse>(messages))),
         Err(e) => Err(e),
     }
 }

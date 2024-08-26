@@ -38,11 +38,7 @@ impl Private
 
         let channel = Channel::new(None, false);
 
-        let private_chat = Private::convert(
-            channel.id.to_string(),
-            owners_sanitized,
-            channel,
-        );
+        let private_chat = Private::convert(channel.id.to_string(), owners_sanitized, channel);
 
         private_chat.internal_is_meeting_requirements()?;
 
@@ -69,20 +65,17 @@ impl Private
         self.owners.iter().any(|user| user.id == user_id)
     }
 
-    fn internal_is_meeting_requirements<'err>(&self)
-        -> error::Result<'err, ()>
+    fn internal_is_meeting_requirements<'err>(&self) -> error::Result<'err, ()>
     {
         if !self.internal_is_owner_size_allowed()
         {
-            return Err(server_error!(
-                error::Kind::InValid,
-                error::OnType::User
-            )
-            .add_public_info(format!(
-                "Expected: {}, found: {}",
-                Self::PRIVATE_OWNER_MAX,
-                self.owners.len()
-            )));
+            return Err(
+                server_error!(error::Kind::InValid, error::OnType::User).add_public_info(format!(
+                    "Expected: {}, found: {}",
+                    Self::PRIVATE_OWNER_MAX,
+                    self.owners.len()
+                )),
+            );
         }
 
         Ok(())

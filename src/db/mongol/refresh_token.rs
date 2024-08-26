@@ -26,23 +26,15 @@ impl TryFrom<&RefreshToken> for MongolRefreshToken
 
     fn try_from(value: &RefreshToken) -> Result<Self, Self::Error>
     {
-        let device_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.device_id))?;
-        let owner_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
+        let device_id = bubble!(helper::convert_domain_id_to_mongol(&value.device_id))?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
         let expiration_date = value
             .expiration_date
             .convert_to_bson_datetime()
             .map_err(|_| {
-                server_error!(
-                    error::Kind::InValid,
-                    error::OnType::Date
-                )
-                .add_debug_info(
-                    "refresh expiration",
-                    value.expiration_date.to_rfc3339(),
-                )
+                server_error!(error::Kind::InValid, error::OnType::Date)
+                    .add_debug_info("refresh expiration", value.expiration_date.to_rfc3339())
             })?;
 
         Ok(Self {

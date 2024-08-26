@@ -39,10 +39,7 @@ impl CookieNames
     {
         match self
         {
-            CookieNames::AUTH_ACCES | CookieNames::AUTH_REFRESH =>
-            {
-                60 * 24 * 365
-            },
+            CookieNames::AUTH_ACCES | CookieNames::AUTH_REFRESH => 60 * 24 * 365,
             CookieNames::DEVICE_ID => 60 * 24 * 365 * 5,
         }
     }

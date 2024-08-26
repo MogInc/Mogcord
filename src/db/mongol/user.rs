@@ -53,9 +53,7 @@ impl TryFrom<&Vec<User>> for MongolUserVec
 
         for user in value
         {
-            db_users.push(bubble!(
-                MongolUser::try_from(user)
-            )?);
+            db_users.push(bubble!(MongolUser::try_from(user))?);
         }
 
         Ok(MongolUserVec(db_users))

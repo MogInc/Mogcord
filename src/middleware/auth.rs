@@ -53,11 +53,8 @@ pub async fn mw_require_admin_authentication(
         {
             if !&ctx.is_admin()
             {
-                return Err(server_error!(
-                    error::Kind::NoAuth,
-                    error::OnType::Rights
-                )
-                .add_client(error::Client::PERMISSION_NO_ADMIN));
+                return Err(server_error!(error::Kind::NoAuth, error::OnType::Rights)
+                    .add_client(error::Client::PERMISSION_NO_ADMIN));
             }
         },
         Err(err) => return Err(err),
@@ -84,8 +81,7 @@ pub async fn mw_ctx_resolver<'err>(
         {
             println!("REFRESH");
 
-            let _ =
-                crate::handlers::logic::auth::refresh_token(&state, &jar).await;
+            let _ = crate::handlers::logic::auth::refresh_token(&state, &jar).await;
             ctx_result = get_ctx(&jar);
         },
         Err(_) => jar.remove_cookie(auth::CookieNames::AUTH_ACCES.to_string()),
@@ -102,10 +98,7 @@ pub fn get_ctx<'err>(jar: &Cookies) -> Result<Ctx, error::Server<'err>>
         .get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
         .and_then(|val| internal_parse_token(val.as_str()))
     {
-        Ok(claims) => Ok(Ctx::new(
-            claims.sub,
-            claims.is_admin,
-        )),
+        Ok(claims) => Ok(Ctx::new(claims.sub, claims.is_admin)),
         Err(e) => Err(e),
     }
 }
@@ -125,21 +118,14 @@ where
         parts
             .extensions
             .get::<Result<Ctx, error::Server>>()
-            .ok_or(server_error!(
-                error::Kind::NotFound,
-                error::OnType::Ctx
-            ))?
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Ctx))?
             .clone()
     }
 }
 
-fn internal_parse_token<'err>(acces_token: &str)
-    -> error::Result<'err, Claims>
+fn internal_parse_token<'err>(acces_token: &str) -> error::Result<'err, Claims>
 {
-    let claims = jwt::extract_acces_token(
-        acces_token,
-        &TokenStatus::DisallowExpired,
-    )?;
+    let claims = jwt::extract_acces_token(acces_token, &TokenStatus::DisallowExpired)?;
 
     Ok(claims)
 }

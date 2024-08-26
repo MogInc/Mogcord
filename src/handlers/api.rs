@@ -12,9 +12,7 @@ use tower::buffer::BufferLayer;
 use tower::limit::RateLimitLayer;
 use tower::{BoxError, ServiceBuilder};
 
-use crate::middleware::auth::{
-    mw_require_admin_authentication, mw_require_authentication,
-};
+use crate::middleware::auth::{mw_require_admin_authentication, mw_require_authentication};
 use crate::model::AppState;
 
 mod auth;
@@ -28,38 +26,21 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_admin_middleware = Router::new()
         //users
-        .route(
-            "/admin/users/:user_id",
-            get(user::admin::get_user),
-        )
-        .route(
-            "/admin/users",
-            get(user::admin::get_users),
-        )
+        .route("/admin/users/:user_id", get(user::admin::get_user))
+        .route("/admin/users", get(user::admin::get_users))
         .with_state(state.clone())
-        .route_layer(middleware::from_fn(
-            mw_require_admin_authentication,
-        ));
+        .route_layer(middleware::from_fn(mw_require_admin_authentication));
 
     let routes_with_regular_middleware = Router::new()
         //auth
-        .route(
-            "/auth/revoke",
-            delete(auth::authenticated::revoke_token),
-        )
+        .route("/auth/revoke", delete(auth::authenticated::revoke_token))
         .route(
             "/auth/revoke/all",
             delete(auth::authenticated::revoke_all_tokens),
         )
         //chat
-        .route(
-            "/chat",
-            post(chat::authenticated::create_chat),
-        )
-        .route(
-            "/chat/:chat_id",
-            get(chat::authenticated::get_chat),
-        )
+        .route("/chat", post(chat::authenticated::create_chat))
+        .route("/chat/:chat_id", get(chat::authenticated::get_chat))
         .route(
             "/chat/:chat_id/users",
             post(chat::authenticated::add_users_to_chat),
@@ -67,8 +48,7 @@ pub fn routes(state: Arc<AppState>) -> Router
         //messages
         .route(
             "/channels/:channel_id/messages",
-            get(message::authenticated::get_messages)
-                .post(message::authenticated::create_message),
+            get(message::authenticated::get_messages).post(message::authenticated::create_message),
         )
         .route(
             "/channels/:channel_id/messages/:message_id",
@@ -90,10 +70,7 @@ pub fn routes(state: Arc<AppState>) -> Router
                 .delete(relation::authenticated::remove_blocked),
         )
         //servers
-        .route(
-            "/servers",
-            post(server::authenticated::create_server),
-        )
+        .route("/servers", post(server::authenticated::create_server))
         .route(
             "/servers/:server_id",
             get(server::authenticated::get_server),
@@ -107,9 +84,7 @@ pub fn routes(state: Arc<AppState>) -> Router
             "/users/current",
             get(user::authenticated::get_ctx_user_auth),
         )
-        .route_layer(middleware::from_fn(
-            mw_require_authentication,
-        ))
+        .route_layer(middleware::from_fn(mw_require_authentication))
         .with_state(state.clone());
 
     let routes_without_middleware = Router::new()
@@ -118,9 +93,7 @@ pub fn routes(state: Arc<AppState>) -> Router
             "/auth/login",
             post(auth::login).layer(
                 ServiceBuilder::new()
-                    .layer(HandleErrorLayer::new(
-                        handle_too_many_requests,
-                    ))
+                    .layer(HandleErrorLayer::new(handle_too_many_requests))
                     .layer(BufferLayer::new(1024))
                     .layer(RateLimitLayer::new(
                         Limit::Login.attempts(),
@@ -128,15 +101,9 @@ pub fn routes(state: Arc<AppState>) -> Router
                     )),
             ),
         )
-        .route(
-            "/auth/refresh",
-            post(auth::refresh_token),
-        )
+        .route("/auth/refresh", post(auth::refresh_token))
         //users
-        .route(
-            "/users",
-            post(user::create_user),
-        )
+        .route("/users", post(user::create_user))
         .with_state(state);
 
     Router::new()
@@ -200,22 +167,14 @@ where
         let params: Path<HashMap<String, String>> =
             parts.extract().await.map_err(IntoResponse::into_response)?;
 
-        let version = params.get("version").ok_or_else(|| {
-            (
-                StatusCode::NOT_FOUND,
-                "version param missing",
-            )
-                .into_response()
-        })?;
+        let version = params
+            .get("version")
+            .ok_or_else(|| (StatusCode::NOT_FOUND, "version param missing").into_response())?;
 
         match version.to_lowercase().as_str()
         {
             "v1" => Ok(Version::V1),
-            _ => Err((
-                StatusCode::NOT_FOUND,
-                "unknown version",
-            )
-                .into_response()),
+            _ => Err((StatusCode::NOT_FOUND, "unknown version").into_response()),
         }
     }
 }

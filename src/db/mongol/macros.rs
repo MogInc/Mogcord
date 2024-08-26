@@ -5,9 +5,6 @@ macro_rules! transaction_error {
             $crate::model::error::Kind::Unexpected,
             $crate::model::error::OnType::Transaction
         )
-        .add_debug_info(
-            "mongo transaction error",
-            $mongo_err.to_string(),
-        )
+        .add_debug_info("mongo transaction error", $mongo_err.to_string())
     };
 }

@@ -22,14 +22,9 @@ pub async fn get_chat(
 
     if !chat.is_user_part_of_chat(ctx_user_id)
     {
-        return Err(server_error!(
-            error::Kind::NotPartOf,
-            error::OnType::Chat
-        )
-        .add_client(error::Client::CHAT_CTX_NOT_PART_OF_CHAT));
+        return Err(server_error!(error::Kind::NotPartOf, error::OnType::Chat)
+            .add_client(error::Client::CHAT_CTX_NOT_PART_OF_CHAT));
     }
 
-    Ok(Json(
-        ChatGetResponse::obj_to_dto(chat),
-    ))
+    Ok(Json(ChatGetResponse::obj_to_dto(chat)))
 }

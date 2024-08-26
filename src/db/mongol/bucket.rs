@@ -23,30 +23,20 @@ impl TryFrom<&Bucket> for MongolBucket
 
     fn try_from(value: &Bucket) -> Result<Self, Self::Error>
     {
-        let bucket_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
+        let bucket_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let channel_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
         let bucket_date = value.date.convert_to_bson_date().map_err(|err| {
-            server_error!(
-                error::Kind::Parse,
-                error::OnType::Date
-            )
-            .add_debug_info(
-                "bucket date",
-                value.date.to_string(),
-            )
-            .add_debug_info("error", err.to_string())
+            server_error!(error::Kind::Parse, error::OnType::Date)
+                .add_debug_info("bucket date", value.date.to_string())
+                .add_debug_info("error", err.to_string())
         })?;
 
         let bucket_message_ids = value
             .messages
             .iter()
-            .map(|message| {
-                bubble!(helper::convert_domain_id_to_mongol(&message.id))
-            })
+            .map(|message| bubble!(helper::convert_domain_id_to_mongol(&message.id)))
             .collect::<Result<_, _>>()?;
 
         Ok(Self {

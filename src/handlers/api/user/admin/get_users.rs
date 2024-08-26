@@ -18,10 +18,7 @@ pub async fn get_users(
 
     match repo_user.get_users(pagination).await
     {
-        Ok(users) => Ok(Json(vec_to_dto::<
-            User,
-            UserGetResponse,
-        >(users))),
+        Ok(users) => Ok(Json(vec_to_dto::<User, UserGetResponse>(users))),
         Err(e) => Err(e),
     }
 }

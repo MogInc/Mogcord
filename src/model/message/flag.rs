@@ -23,10 +23,7 @@ impl Flag
     #[must_use]
     pub fn is_allowed_to_be_editted(&self) -> bool
     {
-        matches!(
-            self,
-            Self::None | Self::Edited { .. }
-        )
+        matches!(self, Self::None | Self::Edited { .. })
     }
 }
 
@@ -77,8 +74,7 @@ impl<'de> Deserialize<'de> for Flag
             where
                 E: serde::de::Error,
             {
-                Flag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
+                Flag::from_str(v).map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 

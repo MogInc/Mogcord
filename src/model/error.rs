@@ -137,9 +137,7 @@ impl<'err> Server<'err>
     }
 }
 
-#[derive(
-    Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr,
-)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum Kind
 {
@@ -173,9 +171,7 @@ pub enum Kind
     Write,
 }
 
-#[derive(
-    Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr,
-)]
+#[derive(Debug, strum_macros::Display, Clone, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
 pub enum OnType
 {
@@ -219,12 +215,7 @@ impl Server<'_>
         write!(
             f,
             "{}: {:?}::{:?} - {} on ln:{} | {:?} |",
-            depth,
-            self.kind,
-            self.on_type,
-            self.stack,
-            self.line_nr,
-            self.debug_info
+            depth, self.kind, self.on_type, self.stack, self.line_nr, self.debug_info
         )?;
 
         if let Some(ref child) = self.child
@@ -264,13 +255,7 @@ impl Server<'_>
 {
     #[must_use]
     #[allow(clippy::match_same_arms)]
-    pub fn client_status_and_error(
-        &self
-    ) -> (
-        StatusCode,
-        Client,
-        Option<&String>,
-    )
+    pub fn client_status_and_error(&self) -> (StatusCode, Client, Option<&String>)
     {
         #[allow(clippy::match_wildcard_for_single_variants)]
         let status_code = match &self.kind
@@ -306,17 +291,13 @@ impl Server<'_>
 
             Kind::NoAuth => StatusCode::UNAUTHORIZED,
 
-            Kind::FileOpening
-            | Kind::FlushBuffer
-            | Kind::Write
-            | Kind::Unexpected => StatusCode::INTERNAL_SERVER_ERROR,
+            Kind::FileOpening | Kind::FlushBuffer | Kind::Write | Kind::Unexpected =>
+            {
+                StatusCode::INTERNAL_SERVER_ERROR
+            },
         };
 
-        (
-            status_code,
-            self.client.clone(),
-            self.pub_info.as_ref(),
-        )
+        (status_code, self.client.clone(), self.pub_info.as_ref())
     }
 }
 

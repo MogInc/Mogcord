@@ -55,12 +55,9 @@ impl TryFrom<(&Channel, ParentType)> for MongolChannel
 {
     type Error = error::Server<'static>;
 
-    fn try_from(
-        (value, parent_type): (&Channel, ParentType)
-    ) -> Result<Self, Self::Error>
+    fn try_from((value, parent_type): (&Channel, ParentType)) -> Result<Self, Self::Error>
     {
-        let channel_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
         Ok(Self {
             _id: channel_id,
@@ -82,12 +79,7 @@ impl TryFrom<&Server> for MongolChannelVecWrapper
         let mongol_channels = value
             .channels
             .values()
-            .map(|channel| {
-                bubble!(MongolChannel::try_from((
-                    channel,
-                    ParentType::Server
-                )))
-            })
+            .map(|channel| bubble!(MongolChannel::try_from((channel, ParentType::Server))))
             .collect::<Result<_, _>>()?;
 
         Ok(Self(mongol_channels))

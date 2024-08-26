@@ -20,9 +20,5 @@ pub async fn logout(
         .await
         .map_err(|err| HtmxError::new(err.client))?;
 
-    Ok((
-        HxRedirect("/".parse().unwrap()),
-        "",
-    )
-        .into_response())
+    Ok((HxRedirect("/".parse().unwrap()), "").into_response())
 }

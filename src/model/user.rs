@@ -103,10 +103,7 @@ mod tests
         assert_eq!(id, user.id);
         assert_eq!(username, user.username);
         assert_eq!(email, user.email);
-        assert_eq!(
-            hashed_password,
-            user.hashed_password
-        );
+        assert_eq!(hashed_password, user.hashed_password);
         assert_eq!(user_flag, user.flag);
     }
 
@@ -117,19 +114,12 @@ mod tests
         let email: String = String::from("ElGoblino@example.com");
         let hashed_password: String = String::from("fake_hashed_password");
 
-        let user: User = User::new(
-            username.clone(),
-            email.clone(),
-            hashed_password.clone(),
-        );
+        let user: User = User::new(username.clone(), email.clone(), hashed_password.clone());
 
         assert!(Uuid::parse_str(&user.id).is_ok());
         assert_eq!(username, user.username);
         assert_eq!(email, user.email);
-        assert_eq!(
-            hashed_password,
-            user.hashed_password
-        );
+        assert_eq!(hashed_password, user.hashed_password);
         assert_eq!(Flag::None, user.flag);
     }
 }

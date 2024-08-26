@@ -27,33 +27,30 @@ pub async fn confirm_friend(
 
     if ctx_user_id == other_user_id
     {
-        return Err(server_error!(
-            error::Kind::IsSelf,
-            error::OnType::RelationFriend
-        )
-        .add_client(error::Client::RELATION_SELF_TRY_FRIEND_SELF));
+        return Err(
+            server_error!(error::Kind::IsSelf, error::OnType::RelationFriend)
+                .add_client(error::Client::RELATION_SELF_TRY_FRIEND_SELF),
+        );
     }
 
     if !repo_relation
         .does_incoming_friendship_exist(ctx_user_id, other_user_id)
         .await?
     {
-        return Err(server_error!(
-            error::Kind::NotFound,
-            error::OnType::RelationFriend
-        )
-        .add_client(error::Client::RELATION_NO_INCOMING_FRIEND));
+        return Err(
+            server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
+                .add_client(error::Client::RELATION_NO_INCOMING_FRIEND),
+        );
     }
 
     if repo_relation
         .does_friendship_exist(ctx_user_id, other_user_id)
         .await?
     {
-        return Err(server_error!(
-            error::Kind::AlreadyExists,
-            error::OnType::RelationFriend
-        )
-        .add_client(error::Client::RELATION_USER_ALREADY_FRIEND));
+        return Err(
+            server_error!(error::Kind::AlreadyExists, error::OnType::RelationFriend)
+                .add_client(error::Client::RELATION_USER_ALREADY_FRIEND),
+        );
     }
 
     match repo_relation

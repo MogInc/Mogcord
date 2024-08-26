@@ -28,12 +28,7 @@ impl Pagination
     pub fn new(page_option: Option<Query<Pagination>>) -> Self
     {
         page_option
-            .map(|Query(pagination)| {
-                Self::new_valid(
-                    pagination.page,
-                    pagination.page_size,
-                )
-            })
+            .map(|Query(pagination)| Self::new_valid(pagination.page, pagination.page_size))
             .unwrap_or_default()
     }
 }

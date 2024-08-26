@@ -23,9 +23,7 @@ pub struct Login<'a>
     nav_button_crud_type: &'a str,
     nav_button_route: &'a str,
 }
-pub async fn get_login(
-    ctx_option: Option<Ctx>
-) -> Result<impl IntoResponse, HtmxError>
+pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
     if ctx_option.is_some()
     {
@@ -41,11 +39,7 @@ pub async fn get_login(
         nav_button_route: "/register",
     };
 
-    Ok((
-        HxRedirect("/login".parse().unwrap()),
-        page,
-    )
-        .into_response())
+    Ok((HxRedirect("/login".parse().unwrap()), page).into_response())
 }
 
 pub async fn post_login(
@@ -63,26 +57,14 @@ pub async fn post_login(
         ));
     }
 
-    let login_result = logic::auth::login(
-        &state,
-        &jar,
-        addr.to_string(),
-        &form,
-    )
-    .await;
+    let login_result = logic::auth::login(&state, &jar, addr.to_string(), &form).await;
 
     if let Err(err) = login_result
     {
-        Err(HtmxError::new_form_error(
-            err.client,
-        ))
+        Err(HtmxError::new_form_error(err.client))
     }
     else
     {
-        Ok((
-            HxRedirect("/".parse().unwrap()),
-            "",
-        )
-            .into_response())
+        Ok((HxRedirect("/".parse().unwrap()), "").into_response())
     }
 }

@@ -41,12 +41,9 @@ pub struct MongolDB
 
 impl MongolDB
 {
-    pub async fn init(
-        connection_string: &str
-    ) -> Result<Self, Box<dyn std::error::Error>>
+    pub async fn init(connection_string: &str) -> Result<Self, Box<dyn std::error::Error>>
     {
-        let mut client_options =
-            ClientOptions::parse(connection_string).await?;
+        let mut client_options = ClientOptions::parse(connection_string).await?;
 
         client_options.app_name = Some("Mogcord".to_string());
         client_options.connect_timeout = Some(Duration::from_secs(30));
@@ -82,8 +79,7 @@ impl MongolDB
         let messages: Collection<MongolMessage> = db.collection("messages");
         Self::internal_add_message_indexes(&messages).await?;
 
-        let refreshtokens: Collection<MongolRefreshToken> =
-            db.collection("refresh_tokens");
+        let refreshtokens: Collection<MongolRefreshToken> = db.collection("refresh_tokens");
         Self::internal_add_refresh_token_indexes(&refreshtokens).await?;
 
         let relations: Collection<MongolRelation> = db.collection("relations");
@@ -113,7 +109,7 @@ impl MongolDB
     ) -> Result<(), Error>
     {
         let device_user_flag_expiration_compound = IndexModel::builder()
-            .keys(doc!{ "device_id": 1, "owner_id": 1, "flag": -1, "expiration_date": -1 })
+            .keys(doc! { "device_id": 1, "owner_id": 1, "flag": -1, "expiration_date": -1 })
             .build();
 
         let device_flag_expiration_compound = IndexModel::builder()
@@ -137,9 +133,7 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_message_indexes(
-        coll: &Collection<MongolMessage>
-    ) -> Result<(), Error>
+    async fn internal_add_message_indexes(coll: &Collection<MongolMessage>) -> Result<(), Error>
     {
         let channel_timestamp_flag_compound = IndexModel::builder()
             .keys(doc! { "channel_id": 1, "timestamp": -1, "flag": 1 })
@@ -150,18 +144,13 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_server_indexes(
-        coll: &Collection<MongolServer>
-    ) -> Result<(), Error>
+    async fn internal_add_server_indexes(coll: &Collection<MongolServer>) -> Result<(), Error>
     {
-        let owner_index =
-            IndexModel::builder().keys(doc! { "owner_id": 1}).build();
+        let owner_index = IndexModel::builder().keys(doc! { "owner_id": 1}).build();
 
-        let users_index =
-            IndexModel::builder().keys(doc! { "user_ids": 1}).build();
+        let users_index = IndexModel::builder().keys(doc! { "user_ids": 1}).build();
 
-        let channels_index =
-            IndexModel::builder().keys(doc! { "channel_ids": 1}).build();
+        let channels_index = IndexModel::builder().keys(doc! { "channel_ids": 1}).build();
 
         coll.create_index(owner_index).await?;
         coll.create_index(users_index).await?;
@@ -170,9 +159,7 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_bucket_indexes(
-        coll: &Collection<MongolBucket>
-    ) -> Result<(), Error>
+    async fn internal_add_bucket_indexes(coll: &Collection<MongolBucket>) -> Result<(), Error>
     {
         let channel_date_compound = IndexModel::builder()
             .keys(doc! { "channel_id": 1, "date": -1 })
@@ -183,9 +170,7 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_relation_indexes(
-        coll: &Collection<MongolRelation>
-    ) -> Result<(), Error>
+    async fn internal_add_relation_indexes(coll: &Collection<MongolRelation>) -> Result<(), Error>
     {
         let user_friends_compound = IndexModel::builder()
             .keys(doc! { "user_id": 1, "friend_ids": 1 })
@@ -211,12 +196,9 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_chat_indexes(
-        coll: &Collection<MongolChat>
-    ) -> Result<(), Error>
+    async fn internal_add_chat_indexes(coll: &Collection<MongolChat>) -> Result<(), Error>
     {
-        let opts_sparse =
-            IndexOptions::builder().unique(true).sparse(true).build();
+        let opts_sparse = IndexOptions::builder().unique(true).sparse(true).build();
 
         let private_id_index = IndexModel::builder()
             .keys(doc! { "Private._id": 1 })
@@ -252,9 +234,7 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_user_indexes(
-        coll: &Collection<MongolUser>
-    ) -> Result<(), Error>
+    async fn internal_add_user_indexes(coll: &Collection<MongolUser>) -> Result<(), Error>
     {
         let opts = IndexOptions::builder().unique(true).build();
 
@@ -274,9 +254,7 @@ impl MongolDB
         Ok(())
     }
 
-    async fn internal_add_log_indexes(
-        coll: &Collection<MongolLog>
-    ) -> Result<(), Error>
+    async fn internal_add_log_indexes(coll: &Collection<MongolLog>) -> Result<(), Error>
     {
         let opts = IndexOptions::builder().unique(true).build();
 

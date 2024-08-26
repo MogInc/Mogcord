@@ -23,9 +23,7 @@ pub struct Register<'a>
     nav_button_crud_type: &'a str,
     nav_button_route: &'a str,
 }
-pub async fn get_register(
-    ctx_option: Option<Ctx>
-) -> Result<impl IntoResponse, HtmxError>
+pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
     if ctx_option.is_some()
     {
@@ -41,11 +39,7 @@ pub async fn get_register(
         nav_button_route: "/login",
     };
 
-    Ok((
-        HxRedirect("/register".parse().unwrap()),
-        page,
-    )
-        .into_response())
+    Ok((HxRedirect("/register".parse().unwrap()), page).into_response())
 }
 
 #[derive(Deserialize)]
@@ -78,11 +72,8 @@ pub async fn post_register(
         ));
     }
 
-    let create_request = logic::user::CreateUserRequest::new(
-        form.username,
-        form.email,
-        form.password,
-    );
+    let create_request =
+        logic::user::CreateUserRequest::new(form.username, form.email, form.password);
 
     let user = logic::user::create_user(&state, &create_request)
         .await
@@ -90,21 +81,13 @@ pub async fn post_register(
 
     //schedule some task to see if ban evader
 
-    let refresh_token = logic::auth::cookies::get_refresh_token(
-        &state,
-        &jar,
-        addr.to_string(),
-        user,
-    )
-    .await
-    .map_err(|err| HtmxError::new_form_error(err.client))?;
+    let refresh_token =
+        logic::auth::cookies::get_refresh_token(&state, &jar, addr.to_string(), user)
+            .await
+            .map_err(|err| HtmxError::new_form_error(err.client))?;
 
     logic::auth::cookies::create_auth_cookies(&jar, refresh_token)
         .map_err(|err| HtmxError::new_form_error(err.client))?;
 
-    Ok((
-        HxRedirect("/".parse().unwrap()),
-        "",
-    )
-        .into_response())
+    Ok((HxRedirect("/".parse().unwrap()), "").into_response())
 }

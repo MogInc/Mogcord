@@ -9,28 +9,20 @@ use crate::server_error;
 
 pub trait MongolHelper
 {
-    fn convert_to_bson_date(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>;
-    fn convert_to_bson_datetime(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>;
+    fn convert_to_bson_date(&self) -> Result<bson::DateTime, bson::datetime::Error>;
+    fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>;
 }
 
 impl MongolHelper for DateTime<Utc>
 {
-    fn convert_to_bson_date(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>
+    fn convert_to_bson_date(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         let date = self.date_naive();
         MongolHelper::convert_to_bson_date(&date)
     }
 
     #[allow(clippy::cast_possible_truncation)]
-    fn convert_to_bson_datetime(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>
+    fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
             .year(self.year())
@@ -46,9 +38,7 @@ impl MongolHelper for DateTime<Utc>
 impl MongolHelper for NaiveDate
 {
     #[allow(clippy::cast_possible_truncation)]
-    fn convert_to_bson_date(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>
+    fn convert_to_bson_date(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
             .year(self.year())
@@ -58,9 +48,7 @@ impl MongolHelper for NaiveDate
     }
 
     #[allow(clippy::cast_possible_truncation)]
-    fn convert_to_bson_datetime(
-        &self
-    ) -> Result<bson::DateTime, bson::datetime::Error>
+    fn convert_to_bson_datetime(&self) -> Result<bson::DateTime, bson::datetime::Error>
     {
         bson::DateTime::builder()
             .year(self.year())
@@ -70,15 +58,11 @@ impl MongolHelper for NaiveDate
     }
 }
 
-pub fn convert_domain_id_to_mongol<'err>(id: &str)
-    -> error::Result<'err, Uuid>
+pub fn convert_domain_id_to_mongol<'err>(id: &str) -> error::Result<'err, Uuid>
 {
     Uuid::parse_str(id).map_err(|_| {
-        server_error!(
-            error::Kind::InValid,
-            error::OnType::Mongo
-        )
-        .add_debug_info("incoming id", id.to_string())
+        server_error!(error::Kind::InValid, error::OnType::Mongo)
+            .add_debug_info("incoming id", id.to_string())
     })
 }
 

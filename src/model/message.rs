@@ -62,11 +62,10 @@ impl Message
     {
         if !self.is_user_allowed_to_edit_message(user_id, user_roles)
         {
-            return Err(server_error!(
-                error::Kind::IncorrectPermissions,
-                error::OnType::Message
-            )
-            .add_client(error::Client::MESSAGE_EDIT_FAIL));
+            return Err(
+                server_error!(error::Kind::IncorrectPermissions, error::OnType::Message)
+                    .add_client(error::Client::MESSAGE_EDIT_FAIL),
+            );
         }
 
         if self.value == value
@@ -103,23 +102,17 @@ impl Message
             return false;
         }
 
-        let can_read = user_roles_option.map_or(
-            !self.channel.has_roles(),
-            |user_roles| {
-                user_roles
-                    .iter()
-                    .any(|user_role| self.channel.can_role_read(user_role))
-            },
-        );
+        let can_read = user_roles_option.map_or(!self.channel.has_roles(), |user_roles| {
+            user_roles
+                .iter()
+                .any(|user_role| self.channel.can_role_read(user_role))
+        });
 
-        let can_write = user_roles_option.map_or(
-            !self.channel.has_roles(),
-            |user_roles| {
-                user_roles
-                    .iter()
-                    .any(|user_role| self.channel.can_role_write(user_role))
-            },
-        );
+        let can_write = user_roles_option.map_or(!self.channel.has_roles(), |user_roles| {
+            user_roles
+                .iter()
+                .any(|user_role| self.channel.can_role_write(user_role))
+        });
 
         can_read && can_write
     }

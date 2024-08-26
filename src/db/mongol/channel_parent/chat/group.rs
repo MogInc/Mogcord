@@ -27,11 +27,9 @@ impl TryFrom<&Group> for MongolGroup
     {
         let db_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let channel_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
-        let owner_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
         let user_ids = value
             .users

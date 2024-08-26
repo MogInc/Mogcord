@@ -66,8 +66,7 @@ impl<'de> Deserialize<'de> for Flag
             where
                 E: serde::de::Error,
             {
-                Flag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
+                Flag::from_str(v).map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 

@@ -1,8 +1,6 @@
 use chrono::{Duration, Utc};
 use jsonwebtoken::errors::ErrorKind;
-use jsonwebtoken::{
-    decode, encode, DecodingKey, EncodingKey, Header, Validation,
-};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -48,37 +46,25 @@ impl<'user_info> CreateAccesTokenRequest<'user_info>
     }
 }
 
-pub fn create_acces_token<'err>(
-    request: &CreateAccesTokenRequest
-) -> error::Result<'err, String>
+pub fn create_acces_token<'err>(request: &CreateAccesTokenRequest) -> error::Result<'err, String>
 {
     let claims = Claims {
         sub: request.user_id.clone(),
         is_admin: request.is_admin,
         #[allow(clippy::cast_possible_truncation)]
         #[allow(clippy::cast_sign_loss)]
-        exp: (Utc::now() + Duration::minutes(ACCES_TOKEN_TTL_MIN)).timestamp()
-            as usize,
+        exp: (Utc::now() + Duration::minutes(ACCES_TOKEN_TTL_MIN)).timestamp() as usize,
     };
 
-    let acces_token_key = env::var("ACCES_TOKEN_KEY").map_err(|_| {
-        server_error!(
-            Kind::NotFound,
-            OnType::AccesTokenHashKey
-        )
-    })?;
+    let acces_token_key = env::var("ACCES_TOKEN_KEY")
+        .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;
 
     let acces_token = encode(
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(acces_token_key.as_ref()),
     )
-    .map_err(|_| {
-        server_error!(
-            Kind::Create,
-            OnType::AccesToken
-        )
-    })?;
+    .map_err(|_| server_error!(Kind::Create, OnType::AccesToken))?;
 
     Ok(acces_token)
 }
@@ -88,12 +74,8 @@ pub fn extract_acces_token<'err>(
     acces_token_status: &TokenStatus,
 ) -> error::Result<'err, Claims>
 {
-    let acces_token_key = env::var("ACCES_TOKEN_KEY").map_err(|_| {
-        server_error!(
-            Kind::NotFound,
-            OnType::AccesTokenHashKey
-        )
-    })?;
+    let acces_token_key = env::var("ACCES_TOKEN_KEY")
+        .map_err(|_| server_error!(Kind::NotFound, OnType::AccesTokenHashKey))?;
 
     let mut validation = Validation::default();
 
@@ -111,20 +93,11 @@ pub fn extract_acces_token<'err>(
         Ok(acces_token_data) => Ok(acces_token_data.claims),
         Err(err) => match *err.kind()
         {
-            ErrorKind::ExpiredSignature => Err(server_error!(
-                Kind::Expired,
-                OnType::AccesToken
-            )),
+            ErrorKind::ExpiredSignature => Err(server_error!(Kind::Expired, OnType::AccesToken)),
             _ =>
             {
-                let err = server_error!(
-                    error::Kind::InValid,
-                    error::OnType::AccesToken
-                )
-                .add_debug_info(
-                    "acces token",
-                    token.to_string(),
-                );
+                let err = server_error!(error::Kind::InValid, error::OnType::AccesToken)
+                    .add_debug_info("acces token", token.to_string());
 
                 Err(err)
             },

@@ -33,28 +33,21 @@ pub async fn create_message(
 
     if !channel_parent.can_write(ctx_user_id, Some(&channel_id))?
     {
-        return Err(server_error!(
-            error::Kind::NotAllowed,
-            error::OnType::ChannelParent
-        )
-        .add_client(error::Client::MESSAGE_CREATE_FAIL));
+        return Err(
+            server_error!(error::Kind::NotAllowed, error::OnType::ChannelParent)
+                .add_client(error::Client::MESSAGE_CREATE_FAIL),
+        );
     }
 
     let owner = repo_user.get_user_by_id(ctx_user_id).await?;
 
     let channel = channel_parent.get_channel(Some(&channel_id))?;
 
-    let message = Message::new(
-        payload.value,
-        owner,
-        channel.clone(),
-    );
+    let message = Message::new(payload.value, owner, channel.clone());
 
     match repo_message.create_message(message).await
     {
-        Ok(message) => Ok(Json(
-            MessageCreateResponse::obj_to_dto(message),
-        )),
+        Ok(message) => Ok(Json(MessageCreateResponse::obj_to_dto(message))),
         Err(err) => Err(err),
     }
 }

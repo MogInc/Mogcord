@@ -4,9 +4,7 @@ use serde::Serialize;
 
 use crate::model::channel_parent::{Role, Server};
 
-use super::{
-    vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO,
-};
+use super::{vec_to_dto, ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 
 #[derive(Serialize)]
 pub struct ServerCreateResponse
@@ -33,9 +31,7 @@ impl ObjectToDTO<Server> for ServerCreateResponse
             name: Some(model_input.name),
             owner: Some(model_input.owner.id),
             users: Some(model_input.users.into_keys().collect()),
-            channels: Some(vec_to_dto(
-                model_input.channels.into_values().collect(),
-            )),
+            channels: Some(vec_to_dto(model_input.channels.into_values().collect())),
         }
     }
 }

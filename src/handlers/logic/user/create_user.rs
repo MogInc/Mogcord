@@ -44,20 +44,18 @@ pub async fn create_user<'a, 'err>(
         .does_user_exist_by_username(&payload.username)
         .await?
     {
-        return Err(server_error!(
-            error::Kind::AlreadyInUse,
-            error::OnType::Username
-        )
-        .add_client(error::Client::USERNAME_IN_USE));
+        return Err(
+            server_error!(error::Kind::AlreadyInUse, error::OnType::Username)
+                .add_client(error::Client::USERNAME_IN_USE),
+        );
     }
 
     if repo_user.does_user_exist_by_mail(&payload.email).await?
     {
-        return Err(server_error!(
-            error::Kind::AlreadyInUse,
-            error::OnType::Email
-        )
-        .add_client(error::Client::MAIL_IN_USE));
+        return Err(
+            server_error!(error::Kind::AlreadyInUse, error::OnType::Email)
+                .add_client(error::Client::MAIL_IN_USE),
+        );
     }
 
     let hashed_password = Hashing::hash_text(&payload.password).await?;

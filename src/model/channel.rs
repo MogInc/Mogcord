@@ -36,10 +36,7 @@ impl Channel
 
         if add_base_roles
         {
-            let role = Role::new_neutral(
-                crate::model::ROLE_NAME_EVERYBODY.to_string(),
-                1,
-            );
+            let role = Role::new_neutral(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
             roles = BTreeSet::from([role]);
         }
 
@@ -55,10 +52,7 @@ impl Channel
     {
         let name_sanitized = name.map(|name| name.trim().to_owned());
 
-        let role = Role::new_private(
-            crate::model::ROLE_NAME_EVERYBODY.to_string(),
-            1,
-        );
+        let role = Role::new_private(crate::model::ROLE_NAME_EVERYBODY.to_string(), 1);
         let roles = BTreeSet::from([role]);
 
         Self {
@@ -219,8 +213,7 @@ impl Channel
     {
         for role in &self.roles
         {
-            if role.name == ROLE_NAME_EVERYBODY
-                && role.can_read().unwrap_or(true)
+            if role.name == ROLE_NAME_EVERYBODY && role.can_read().unwrap_or(true)
             {
                 return true;
             }

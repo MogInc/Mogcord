@@ -76,11 +76,10 @@ impl Group
     {
         if self.is_user_part_of_server(&user.id)
         {
-            return Err(server_error!(
-                error::Kind::AlreadyPartOf,
-                error::OnType::ChatGroup
-            )
-            .add_debug_info("user id", user.id));
+            return Err(
+                server_error!(error::Kind::AlreadyPartOf, error::OnType::ChatGroup)
+                    .add_debug_info("user id", user.id),
+            );
         }
 
         self.users.insert(user.id.to_string(), user);
@@ -97,11 +96,10 @@ impl Group
         {
             if self.is_user_part_of_server(&user.id)
             {
-                return Err(server_error!(
-                    error::Kind::AlreadyPartOf,
-                    error::OnType::ChatGroup
-                )
-                .add_debug_info("user id", user.id.to_string()));
+                return Err(
+                    server_error!(error::Kind::AlreadyPartOf, error::OnType::ChatGroup)
+                        .add_debug_info("user id", user.id.to_string()),
+                );
             }
         }
 
@@ -131,20 +129,17 @@ impl Group
 
     #[allow(clippy::unnecessary_wraps)]
     #[allow(clippy::unused_self)]
-    fn internal_is_meeting_requirements<'err>(&self)
-        -> error::Result<'err, ()>
+    fn internal_is_meeting_requirements<'err>(&self) -> error::Result<'err, ()>
     {
         if self.users.len() < Self::GROUP_USER_MIN
         {
-            return Err(server_error!(
-                error::Kind::InValid,
-                error::OnType::User
-            )
-            .add_public_info(format!(
-                "Expected atleast: {}, found: {}",
-                Self::GROUP_USER_MIN,
-                self.users.len()
-            )));
+            return Err(
+                server_error!(error::Kind::InValid, error::OnType::User).add_public_info(format!(
+                    "Expected atleast: {}, found: {}",
+                    Self::GROUP_USER_MIN,
+                    self.users.len()
+                )),
+            );
         }
 
         Ok(())

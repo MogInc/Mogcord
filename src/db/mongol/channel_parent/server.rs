@@ -33,8 +33,7 @@ impl TryFrom<&Server> for MongolServer
     {
         let db_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let owner_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
         let user_ids = value
             .users

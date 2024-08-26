@@ -18,9 +18,7 @@ pub async fn get_ctx_user_auth(
 
     match repo_user.get_user_by_id(ctx_user_id).await
     {
-        Ok(user) => Ok(Json(
-            UserGetResponse::obj_to_dto(user),
-        )),
+        Ok(user) => Ok(Json(UserGetResponse::obj_to_dto(user))),
         Err(e) => Err(e),
     }
 }

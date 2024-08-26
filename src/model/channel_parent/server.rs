@@ -59,29 +59,17 @@ impl Server
         owner: User,
     ) -> error::Result<'err, Self>
     {
-        let base_channel = Channel::new(
-            Some(String::from("Welcome")),
-            true,
-        );
+        let base_channel = Channel::new(Some(String::from("Welcome")), true);
 
-        let base_role = Role::new(
-            ROLE_NAME_EVERYBODY.to_string(),
-            1,
-        );
+        let base_role = Role::new(ROLE_NAME_EVERYBODY.to_string(), 1);
 
         let server = Self {
             id: Uuid::now_v7().to_string(),
             name,
             owner,
             users: HashMap::new(),
-            channels: HashMap::from([(
-                base_channel.id.clone(),
-                base_channel,
-            )]),
-            roles: HashMap::from([(
-                ROLE_NAME_EVERYBODY.to_string(),
-                base_role,
-            )]),
+            channels: HashMap::from([(base_channel.id.clone(), base_channel)]),
+            roles: HashMap::from([(ROLE_NAME_EVERYBODY.to_string(), base_role)]),
             user_roles: HashMap::new(),
         };
 
@@ -100,11 +88,10 @@ impl Server
     {
         if self.is_user_part_of_server(&user.id)
         {
-            return Err(server_error!(
-                error::Kind::AlreadyPartOf,
-                error::OnType::Server
-            )
-            .add_debug_info("user id", user.id));
+            return Err(
+                server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
+                    .add_debug_info("user id", user.id),
+            );
         }
 
         self.users.insert(user.id.to_string(), user);
@@ -121,11 +108,10 @@ impl Server
         {
             if self.is_user_part_of_server(&user.id)
             {
-                return Err(server_error!(
-                    error::Kind::AlreadyPartOf,
-                    error::OnType::Server
-                )
-                .add_debug_info("user id", user.id.to_string()));
+                return Err(
+                    server_error!(error::Kind::AlreadyPartOf, error::OnType::Server)
+                        .add_debug_info("user id", user.id.to_string()),
+                );
             }
         }
 
@@ -135,9 +121,7 @@ impl Server
         Ok(())
     }
 
-    pub fn is_server_meeting_requirements<'err>(
-        &self
-    ) -> error::Result<'err, ()>
+    pub fn is_server_meeting_requirements<'err>(&self) -> error::Result<'err, ()>
     {
         Ok(())
     }
@@ -166,17 +150,13 @@ impl Server
         user_id: &str,
     ) -> Self
     {
-        let filtered_channels = if self.internal_server_check_permision(
-            user_id,
-            Role::can_read_channels,
-        )
+        let filtered_channels = if self
+            .internal_server_check_permision(user_id, Role::can_read_channels)
         {
             self.channels
                 .clone()
                 .into_iter()
-                .filter(|(channel_id, _)| {
-                    self.can_read(user_id, Some(channel_id)).unwrap_or(false)
-                })
+                .filter(|(channel_id, _)| self.can_read(user_id, Some(channel_id)).unwrap_or(false))
                 .collect()
         }
         else
@@ -205,14 +185,11 @@ impl channel::Parent for Server
     {
         match channel_id_option
         {
-            Some(id) => self.channels.get(id).ok_or(server_error!(
-                error::Kind::NotFound,
-                error::OnType::Channel
-            )),
-            None => Err(server_error!(
-                error::Kind::NotFound,
-                error::OnType::Channel
-            )),
+            Some(id) => self
+                .channels
+                .get(id)
+                .ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel)),
+            None => Err(server_error!(error::Kind::NotFound, error::OnType::Channel)),
         }
     }
 
@@ -230,11 +207,7 @@ impl channel::Parent for Server
         channel_id_option: Option<&'input str>,
     ) -> error::Result<'err, bool>
     {
-        self.internal_channel_check_permission(
-            user_id,
-            channel_id_option,
-            Channel::can_role_read,
-        )
+        self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_read)
     }
 
     fn can_write<'input, 'err>(
@@ -243,11 +216,7 @@ impl channel::Parent for Server
         channel_id_option: Option<&'input str>,
     ) -> error::Result<'err, bool>
     {
-        self.internal_channel_check_permission(
-            user_id,
-            channel_id_option,
-            Channel::can_role_write,
-        )
+        self.internal_channel_check_permission(user_id, channel_id_option, Channel::can_role_write)
     }
 }
 
@@ -272,13 +241,11 @@ impl Server
         let user_roles_option = self.get_user_roles(user_id);
 
         let roles_default: &Vec<String> = &Vec::new();
-        let user_roles: &Vec<String> =
-            user_roles_option.unwrap_or(roles_default);
+        let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);
 
         for (name, role) in &self.roles
         {
-            if name == ROLE_NAME_EVERYBODY
-                && role.can_read_channels().unwrap_or(true)
+            if name == ROLE_NAME_EVERYBODY && role.can_read_channels().unwrap_or(true)
             {
                 return true;
             }
@@ -316,19 +283,16 @@ impl Server
 
         let user_roles_option = self.get_user_roles(user_id);
 
-        let channel_id = channel_id_option.ok_or(server_error!(
-            error::Kind::NotFound,
-            error::OnType::Channel
-        ))?;
+        let channel_id = channel_id_option
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel))?;
 
-        let channel = self.channels.get(channel_id).ok_or(server_error!(
-            error::Kind::NotFound,
-            error::OnType::Channel
-        ))?;
+        let channel = self
+            .channels
+            .get(channel_id)
+            .ok_or(server_error!(error::Kind::NotFound, error::OnType::Channel))?;
 
         let roles_default: &Vec<String> = &Vec::new();
-        let user_roles: &Vec<String> =
-            user_roles_option.unwrap_or(roles_default);
+        let user_roles: &Vec<String> = user_roles_option.unwrap_or(roles_default);
 
         for user_role in user_roles
         {

@@ -42,29 +42,22 @@ pub async fn create_chat(
         {
             if &user_id == ctx_user_id
             {
-                return Err(server_error!(
-                    error::Kind::IsSelf,
-                    error::OnType::Chat
-                )
-                .add_client(error::Client::CHAT_ADD_WITH_SELF));
+                return Err(server_error!(error::Kind::IsSelf, error::OnType::Chat)
+                    .add_client(error::Client::CHAT_ADD_WITH_SELF));
             }
 
             if !repo_relation
                 .does_friendship_exist(ctx_user_id, &user_id)
                 .await?
             {
-                return Err(server_error!(
-                    error::Kind::NotFound,
-                    error::OnType::RelationFriend
-                )
-                .add_client(error::Client::CHAT_ADD_NON_FRIEND));
+                return Err(
+                    server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
+                        .add_client(error::Client::CHAT_ADD_NON_FRIEND),
+                );
             }
 
             let owners = repo_user
-                .get_users_by_id(vec![
-                    ctx_user_id.to_string(),
-                    user_id,
-                ])
+                .get_users_by_id(vec![ctx_user_id.to_string(), user_id])
                 .await?;
 
             let private = channel_parent::chat::Private::new(owners)?;
@@ -80,18 +73,16 @@ pub async fn create_chat(
 
             let users = repo_user.get_users_by_id(user_ids).await?;
 
-            let user_ids: Vec<&str> =
-                users.iter().map(|user| &*user.id).collect();
+            let user_ids: Vec<&str> = users.iter().map(|user| &*user.id).collect();
 
             if !repo_relation
                 .does_friendships_exist(ctx_user_id, user_ids)
                 .await?
             {
-                return Err(server_error!(
-                    error::Kind::NotFound,
-                    error::OnType::RelationFriend
-                )
-                .add_client(error::Client::CHAT_ADD_NON_FRIEND));
+                return Err(
+                    server_error!(error::Kind::NotFound, error::OnType::RelationFriend)
+                        .add_client(error::Client::CHAT_ADD_NON_FRIEND),
+                );
             }
 
             let group = channel_parent::chat::Group::new(name, owner, users)?;
@@ -102,18 +93,15 @@ pub async fn create_chat(
 
     if repo_chat.does_chat_exist(&chat).await?
     {
-        return Err(server_error!(
-            error::Kind::AlreadyExists,
-            error::OnType::Chat
-        )
-        .add_client(error::Client::CHAT_ALREADY_EXISTS));
+        return Err(
+            server_error!(error::Kind::AlreadyExists, error::OnType::Chat)
+                .add_client(error::Client::CHAT_ALREADY_EXISTS),
+        );
     }
 
     match repo_chat.create_chat(chat).await
     {
-        Ok(chat) => Ok(Json(
-            ChatCreateResponse::obj_to_dto(chat),
-        )),
+        Ok(chat) => Ok(Json(ChatCreateResponse::obj_to_dto(chat))),
         Err(e) => Err(e),
     }
 }

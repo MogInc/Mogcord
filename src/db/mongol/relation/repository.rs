@@ -15,11 +15,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, bool>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! {
             "$and":
@@ -38,24 +36,18 @@ impl relation::Repository for MongolDB
         other_user_ids: Vec<&'input str>,
     ) -> error::Result<'err, bool>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_ids_local =
-            bubble!(helper::convert_domain_ids_to_mongol(&other_user_ids))?;
+        let other_user_ids_local = bubble!(helper::convert_domain_ids_to_mongol(&other_user_ids))?;
 
         let filter = doc! {
             "user_id" : current_user_id_local,
         };
 
-        let mongol_relation_option =
-            self.relations().find_one(filter).await.map_err(|err| {
-                server_error!(
-                    error::Kind::Fetch,
-                    error::OnType::RelationFriend
-                )
+        let mongol_relation_option = self.relations().find_one(filter).await.map_err(|err| {
+            server_error!(error::Kind::Fetch, error::OnType::RelationFriend)
                 .add_debug_info("error", err.to_string())
-            })?;
+        })?;
 
         match mongol_relation_option
         {
@@ -78,11 +70,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, bool>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! {
             "$and":
@@ -108,11 +98,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, bool>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! {
             "$and":
@@ -131,11 +119,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, bool>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! {
             "$and":
@@ -154,11 +140,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, ()>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let mut session = self
             .client()
@@ -185,27 +169,18 @@ impl relation::Repository for MongolDB
         add_relation(self, other_user_id_local).await?;
 
         self.relations()
-            .update_one(
-                filter_other_user,
-                update_other_user,
-            )
+            .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
             .map_err(|err| {
-                server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationFriend
-                )
-                .add_debug_info("error", err.to_string())
+                server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                    .add_debug_info("error", err.to_string())
             })?;
 
         //can remove this match and have implicit abort
         match self
             .relations()
-            .update_one(
-                filter_current_user,
-                update_current_user,
-            )
+            .update_one(filter_current_user, update_current_user)
             .session(&mut session)
             .await
         {
@@ -225,11 +200,10 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationFriend
+                Err(
+                    server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                        .add_debug_info("error", err.to_string()),
                 )
-                .add_debug_info("error", err.to_string()))
             },
         }
     }
@@ -240,11 +214,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, ()>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let mut session = self
             .client()
@@ -282,27 +254,18 @@ impl relation::Repository for MongolDB
         add_relation(self, other_user_id_local).await?;
 
         self.relations()
-            .update_one(
-                filter_other_user,
-                update_other_user,
-            )
+            .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
             .map_err(|err| {
-                server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationBlocked
-                )
-                .add_debug_info("error", err.to_string())
+                server_error!(error::Kind::Update, error::OnType::RelationBlocked)
+                    .add_debug_info("error", err.to_string())
             })?;
 
         //can remove this match and have implicit abort
         match self
             .relations()
-            .update_one(
-                filter_current_user,
-                update_current_user,
-            )
+            .update_one(filter_current_user, update_current_user)
             .session(&mut session)
             .await
         {
@@ -322,11 +285,10 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationBlocked
+                Err(
+                    server_error!(error::Kind::Update, error::OnType::RelationBlocked)
+                        .add_debug_info("error", err.to_string()),
                 )
-                .add_debug_info("error", err.to_string()))
             },
         }
     }
@@ -337,11 +299,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, ()>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let mut session = self
             .client()
@@ -367,27 +327,18 @@ impl relation::Repository for MongolDB
         };
 
         self.relations()
-            .update_one(
-                filter_other_user,
-                update_other_user,
-            )
+            .update_one(filter_other_user, update_other_user)
             .session(&mut session)
             .await
             .map_err(|err| {
-                server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationFriend
-                )
-                .add_debug_info("error", err.to_string())
+                server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                    .add_debug_info("error", err.to_string())
             })?;
 
         //can remove this match and have implicit abort
         match self
             .relations()
-            .update_one(
-                filter_current_user,
-                update_current_user,
-            )
+            .update_one(filter_current_user, update_current_user)
             .session(&mut session)
             .await
         {
@@ -407,11 +358,10 @@ impl relation::Repository for MongolDB
                     .await
                     .map_err(|err| transaction_error!(err))?;
 
-                Err(server_error!(
-                    error::Kind::Update,
-                    error::OnType::RelationFriend
+                Err(
+                    server_error!(error::Kind::Update, error::OnType::RelationFriend)
+                        .add_debug_info("error", err.to_string()),
                 )
-                .add_debug_info("error", err.to_string()))
             },
         }
     }
@@ -422,11 +372,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, ()>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 
@@ -441,11 +389,10 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(server_error!(
-                error::Kind::Delete,
-                error::OnType::RelationFriend
-            )
-            .add_debug_info("error", err.to_string())),
+            Err(err) => Err(
+                server_error!(error::Kind::Delete, error::OnType::RelationFriend)
+                    .add_debug_info("error", err.to_string()),
+            ),
         }
     }
 
@@ -455,11 +402,9 @@ impl relation::Repository for MongolDB
         other_user_id: &'input str,
     ) -> error::Result<'err, ()>
     {
-        let current_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
+        let current_user_id_local = bubble!(helper::convert_domain_id_to_mongol(current_user_id))?;
 
-        let other_user_id_local =
-            bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
+        let other_user_id_local = bubble!(helper::convert_domain_id_to_mongol(other_user_id))?;
 
         let filter = doc! { "user_id" : current_user_id_local };
 
@@ -470,11 +415,10 @@ impl relation::Repository for MongolDB
         match self.relations().update_one(filter, update).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(server_error!(
-                error::Kind::Delete,
-                error::OnType::RelationBlocked
-            )
-            .add_debug_info("error", err.to_string())),
+            Err(err) => Err(
+                server_error!(error::Kind::Delete, error::OnType::RelationBlocked)
+                    .add_debug_info("error", err.to_string()),
+            ),
         }
     }
 }
@@ -486,25 +430,18 @@ async fn add_relation<'err>(
 {
     let filter = doc! { "user_id" : current_user_id };
 
-    let relation_option =
-        repo.relations().find_one(filter).await.map_err(|err| {
-            server_error!(
-                error::Kind::Fetch,
-                error::OnType::Relation
-            )
+    let relation_option = repo.relations().find_one(filter).await.map_err(|err| {
+        server_error!(error::Kind::Fetch, error::OnType::Relation)
             .add_debug_info("error", err.to_string())
-        })?;
+    })?;
 
     if relation_option.is_none()
     {
         let relation = MongolRelation::new(current_user_id);
 
         repo.relations().insert_one(relation).await.map_err(|err| {
-            server_error!(
-                error::Kind::Insert,
-                error::OnType::Relation
-            )
-            .add_debug_info("error", err.to_string())
+            server_error!(error::Kind::Insert, error::OnType::Relation)
+                .add_debug_info("error", err.to_string())
         })?;
     }
 
@@ -519,10 +456,7 @@ async fn does_user_relation_exist<'err>(
     match repo.relations().find_one(filter).await
     {
         Ok(option) => Ok(option.is_some()),
-        Err(err) => Err(server_error!(
-            error::Kind::Fetch,
-            error::OnType::Relation
-        )
-        .add_debug_info("error", err.to_string())),
+        Err(err) => Err(server_error!(error::Kind::Fetch, error::OnType::Relation)
+            .add_debug_info("error", err.to_string())),
     }
 }

@@ -14,10 +14,8 @@ pub fn create_auth_cookies<'err>(
 ) -> error::Result<'err, ()>
 {
     let user = refresh_token.owner;
-    let create_token_request = CreateAccesTokenRequest::new(
-        &user.id,
-        user.flag.is_mogcord_admin_or_owner(),
-    );
+    let create_token_request =
+        CreateAccesTokenRequest::new(&user.id, user.flag.is_mogcord_admin_or_owner());
 
     match auth::create_acces_token(&create_token_request)
     {
@@ -64,20 +62,16 @@ pub async fn get_refresh_token<'err>(
     //more compelled to use option 1 since gives more control to suspend accounts
     let repo_refresh = &state.refresh_tokens;
 
-    let device_id_cookie_result =
-        jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str());
+    let device_id_cookie_result = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str());
 
     match device_id_cookie_result
     {
-        Ok(cookie_id) => match repo_refresh
-            .get_valid_token(&cookie_id, &user.id)
-            .await
+        Ok(cookie_id) => match repo_refresh.get_valid_token(&cookie_id, &user.id).await
         {
             Ok(db_refresh_token) => Ok(db_refresh_token),
             Err(_) =>
             {
-                let refresh_token =
-                    RefreshToken::create_token(user, ip_addr, Some(cookie_id));
+                let refresh_token = RefreshToken::create_token(user, ip_addr, Some(cookie_id));
 
                 repo_refresh.create_token(refresh_token).await
             },

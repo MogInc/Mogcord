@@ -24,11 +24,10 @@ pub async fn join_server(
         .does_blocked_exist(&server.owner.id, ctx_user_id)
         .await?
     {
-        return Err(server_error!(
-            error::Kind::NotAllowed,
-            error::OnType::Relation
-        )
-        .add_client(error::Client::SERVER_BLOCKED_YOU));
+        return Err(
+            server_error!(error::Kind::NotAllowed, error::OnType::Relation)
+                .add_client(error::Client::SERVER_BLOCKED_YOU),
+        );
     }
 
     let user = repo_user.get_user_by_id(ctx_user_id).await?;

@@ -32,13 +32,9 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
                 r#type: String::from("Private"),
                 name: None,
                 owner: None,
-                owners: Some(
-                    private.owners.into_iter().map(|user| user.id).collect(),
-                ),
+                owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                 users: None,
-                channel: Some(
-                    ChannelCreateResponse::obj_to_dto(private.channel),
-                ),
+                channel: Some(ChannelCreateResponse::obj_to_dto(private.channel)),
             },
             Chat::Group(group) => Self {
                 id: group.id,
@@ -81,9 +77,7 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                 r#type: String::from("Private"),
                 name: None,
                 owner: None,
-                owners: Some(
-                    private.owners.into_iter().map(|user| user.id).collect(),
-                ),
+                owners: Some(private.owners.into_iter().map(|user| user.id).collect()),
                 users: None,
                 channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
             },

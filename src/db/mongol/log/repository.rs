@@ -19,11 +19,8 @@ impl log::Repository for MongolDB
         match self.logs().insert_one(mongol_log).await
         {
             Ok(_) => Ok(()),
-            Err(err) => Err(server_error!(
-                error::Kind::Insert,
-                error::OnType::Log
-            )
-            .add_debug_info("error", err.to_string())),
+            Err(err) => Err(server_error!(error::Kind::Insert, error::OnType::Log)
+                .add_debug_info("error", err.to_string())),
         }
     }
 }

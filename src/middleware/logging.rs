@@ -25,52 +25,44 @@ pub async fn main_response_mapper(
     let req_id = Uuid::now_v7();
 
     let service_error = res.extensions().get::<error::Server>();
-    let client_status_error =
-        service_error.map(error::Server::client_status_and_error);
+    let client_status_error = service_error.map(error::Server::client_status_and_error);
 
-    let error_response = client_status_error.as_ref().map(
-        |(status_code, client_error, extra_info)| {
-            let client_error_body = if extra_info.is_none()
-            {
-                json!(
+    let error_response =
+        client_status_error
+            .as_ref()
+            .map(|(status_code, client_error, extra_info)| {
+                let client_error_body = if extra_info.is_none()
                 {
-                    "error":
+                    json!(
                     {
-                        "req_id": req_id.to_string(),
-                        "type": client_error.as_ref(),
-                    }
-                })
-            }
-            else
-            {
-                json!(
+                        "error":
+                        {
+                            "req_id": req_id.to_string(),
+                            "type": client_error.as_ref(),
+                        }
+                    })
+                }
+                else
                 {
-                    "error":
+                    json!(
                     {
-                        "req_id": req_id.to_string(),
-                        "type": client_error.as_ref(),
-                        "extra": extra_info,
-                    }
-                })
-            };
+                        "error":
+                        {
+                            "req_id": req_id.to_string(),
+                            "type": client_error.as_ref(),
+                            "extra": extra_info,
+                        }
+                    })
+                };
 
-            (
-                *status_code,
-                Json(client_error_body),
-            )
-                .into_response()
-        },
-    );
+                (*status_code, Json(client_error_body)).into_response()
+            });
 
     let client_error_option = client_status_error.map(|(_, client, _)| client);
 
-    let device_id_option =
-        jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str()).ok();
+    let device_id_option = jar.get_cookie(auth::CookieNames::DEVICE_ID.as_str()).ok();
 
-    let user_info = RequestLogLinePersonal::new(
-        ctx.map(Ctx::user_id),
-        device_id_option,
-    );
+    let user_info = RequestLogLinePersonal::new(ctx.map(Ctx::user_id), device_id_option);
 
     log_request(
         state,

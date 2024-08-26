@@ -25,12 +25,8 @@ impl TryFrom<&Chat> for MongolChat
     {
         match value
         {
-            Chat::Private(private) => Ok(Self::Private(bubble!(
-                MongolPrivate::try_from(private)
-            )?)),
-            Chat::Group(group) => Ok(Self::Group(bubble!(
-                MongolGroup::try_from(group)
-            )?)),
+            Chat::Private(private) => Ok(Self::Private(bubble!(MongolPrivate::try_from(private))?)),
+            Chat::Group(group) => Ok(Self::Group(bubble!(MongolGroup::try_from(group))?)),
         }
     }
 }

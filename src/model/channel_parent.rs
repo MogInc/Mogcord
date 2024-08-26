@@ -83,14 +83,8 @@ impl ChannelParent
     {
         match self
         {
-            ChannelParent::Chat(value) =>
-            {
-                value.is_user_part_of_chat(other_user_id)
-            },
-            ChannelParent::Server(value) =>
-            {
-                value.is_user_part_of_server(other_user_id)
-            },
+            ChannelParent::Chat(value) => value.is_user_part_of_chat(other_user_id),
+            ChannelParent::Server(value) => value.is_user_part_of_server(other_user_id),
         }
     }
 }
@@ -129,14 +123,8 @@ impl channel::Parent for ChannelParent
     {
         match self
         {
-            ChannelParent::Chat(val) =>
-            {
-                val.can_read(user_id, channel_id_option)
-            },
-            ChannelParent::Server(val) =>
-            {
-                val.can_read(user_id, channel_id_option)
-            },
+            ChannelParent::Chat(val) => val.can_read(user_id, channel_id_option),
+            ChannelParent::Server(val) => val.can_read(user_id, channel_id_option),
         }
     }
 
@@ -148,14 +136,8 @@ impl channel::Parent for ChannelParent
     {
         match self
         {
-            ChannelParent::Chat(val) =>
-            {
-                val.can_write(user_id, channel_id_option)
-            },
-            ChannelParent::Server(val) =>
-            {
-                val.can_write(user_id, channel_id_option)
-            },
+            ChannelParent::Chat(val) => val.can_write(user_id, channel_id_option),
+            ChannelParent::Server(val) => val.can_write(user_id, channel_id_option),
         }
     }
 }

@@ -26,19 +26,13 @@ impl Flag
     #[must_use]
     pub fn is_mogcord_admin_or_owner(&self) -> bool
     {
-        matches!(
-            self,
-            Self::Admin | Self::Owner
-        )
+        matches!(self, Self::Admin | Self::Owner)
     }
 
     #[must_use]
     pub fn is_allowed_on_mogcord(&self) -> bool
     {
-        matches!(
-            self,
-            Self::None | Self::Admin | Self::Owner
-        )
+        matches!(self, Self::None | Self::Admin | Self::Owner)
     }
 }
 
@@ -92,13 +86,11 @@ impl<'de> Deserialize<'de> for Flag
             where
                 E: serde::de::Error,
             {
-                Flag::from_str(v)
-                    .map_err(|_| de::Error::unknown_field(v, FIELDS))
+                Flag::from_str(v).map_err(|_| de::Error::unknown_field(v, FIELDS))
             }
         }
 
-        const FIELDS: &[&str] =
-            &["none", "disabled", "deleted", "banned", "admin", "owner"];
+        const FIELDS: &[&str] = &["none", "disabled", "deleted", "banned", "admin", "owner"];
 
         deserializer.deserialize_identifier(UserFlagVisitor)
     }

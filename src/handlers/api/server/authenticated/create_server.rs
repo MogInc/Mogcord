@@ -31,9 +31,7 @@ pub async fn create_server(
 
     match repo_server.create_server(server).await
     {
-        Ok(server) => Ok(Json(
-            ServerCreateResponse::obj_to_dto(server),
-        )),
+        Ok(server) => Ok(Json(ServerCreateResponse::obj_to_dto(server))),
         Err(err) => Err(err),
     }
 }

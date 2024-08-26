@@ -48,10 +48,7 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(server_error!(
-                Kind::CantGainUsers,
-                OnType::ChatPrivate
-            )),
+            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
             Chat::Group(group) => group.add_user(user),
         }
     }
@@ -63,10 +60,7 @@ impl Chat
     {
         match self
         {
-            Chat::Private(_) => Err(server_error!(
-                Kind::CantGainUsers,
-                OnType::ChatPrivate
-            )),
+            Chat::Private(_) => Err(server_error!(Kind::CantGainUsers, OnType::ChatPrivate)),
             Chat::Group(group) => group.add_users(users),
         }
     }

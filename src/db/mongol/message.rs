@@ -31,14 +31,11 @@ impl TryFrom<&Message> for MongolMessage
 
     fn try_from(value: &Message) -> Result<Self, Self::Error>
     {
-        let message_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
+        let message_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let owner_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
+        let owner_id = bubble!(helper::convert_domain_id_to_mongol(&value.owner.id))?;
 
-        let channel_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
         let bucket_id_option = value
             .bucket_id

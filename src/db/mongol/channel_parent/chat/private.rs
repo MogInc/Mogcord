@@ -25,15 +25,12 @@ impl TryFrom<&Private> for MongolPrivate
     {
         let db_id = bubble!(helper::convert_domain_id_to_mongol(&value.id))?;
 
-        let channel_id =
-            bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
+        let channel_id = bubble!(helper::convert_domain_id_to_mongol(&value.channel.id))?;
 
         let owner_ids = value
             .owners
             .iter()
-            .map(|owner| {
-                bubble!(helper::convert_domain_id_to_mongol(&owner.id))
-            })
+            .map(|owner| bubble!(helper::convert_domain_id_to_mongol(&owner.id)))
             .collect::<Result<_, _>>()?;
 
         Ok(Self {

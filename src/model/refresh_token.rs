@@ -40,10 +40,8 @@ impl RefreshToken
         device_id_option: Option<String>,
     ) -> Self
     {
-        const CUSTOM_ENGINE: GeneralPurpose = GeneralPurpose::new(
-            &alphabet::URL_SAFE,
-            general_purpose::NO_PAD,
-        );
+        const CUSTOM_ENGINE: GeneralPurpose =
+            GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
 
         let mut random_number = [0u8; 64];
 
@@ -56,8 +54,7 @@ impl RefreshToken
             value: refresh_token,
             device_id: device_id_option.unwrap_or(Uuid::now_v7().to_string()),
             ip_addr,
-            expiration_date: (Utc::now()
-                + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
+            expiration_date: (Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS)),
             flag: Flag::None,
             owner,
         }
@@ -73,8 +70,7 @@ impl RefreshToken
             ));
         }
 
-        self.expiration_date =
-            Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS);
+        self.expiration_date = Utc::now() + Duration::days(REFRESH_TOKEN_TTL_IN_DAYS);
 
         Ok(self)
     }

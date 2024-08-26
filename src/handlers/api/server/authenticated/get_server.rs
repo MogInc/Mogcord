@@ -30,7 +30,5 @@ pub async fn get_server(
 
     let server = server.filter_channels(ctx_user_id);
 
-    Ok(Json(
-        ServerGetResponse::obj_to_dto(server),
-    ))
+    Ok(Json(ServerGetResponse::obj_to_dto(server)))
 }
