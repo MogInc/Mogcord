@@ -2,31 +2,42 @@ use askama::Template;
 
 use crate::middleware::auth::Ctx;
 
+use super::{NavbarComponent, NavbarLink};
+
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct Index<'a>
 {
     title: &'a str,
-    nav_button_value: &'a str,
-    nav_button_crud_type: &'a str,
-    nav_button_route: &'a str,
+    navbar: NavbarComponent<'a>,
 }
 
 pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
 {
-    let (nav_button_value, nav_button_crud_type, nav_button_route) = if ctx_option.is_some()
+    let navbar = if ctx_option.is_some()
     {
-        ("Log out", "post", "/logout")
+        NavbarComponent {
+            button_value: "Log out",
+            button_crud_type: "post",
+            button_route: "/logout",
+            links: vec![NavbarLink {
+                value: "App",
+                redirect: "/",
+            }],
+        }
     }
     else
     {
-        ("Log in", "get", "/login")
+        NavbarComponent {
+            button_value: "Log in",
+            button_crud_type: "get",
+            button_route: "/login",
+            links: Vec::new(),
+        }
     };
 
     Index {
         title: "Index",
-        nav_button_value,
-        nav_button_crud_type,
-        nav_button_route,
+        navbar,
     }
 }

@@ -10,7 +10,7 @@ use tower_cookies::Cookies;
 
 use crate::handlers::logic;
 use crate::handlers::logic::auth::LoginRequest;
-use crate::handlers::web::HtmxError;
+use crate::handlers::web::{HtmxError, NavbarComponent};
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
@@ -19,9 +19,7 @@ use crate::model::AppState;
 pub struct Login<'a>
 {
     title: &'a str,
-    nav_button_value: &'a str,
-    nav_button_crud_type: &'a str,
-    nav_button_route: &'a str,
+    navbar: NavbarComponent<'a>,
 }
 pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
@@ -32,9 +30,12 @@ pub async fn get_login(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, Htm
 
     let page = Login {
         title: "Login",
-        nav_button_value: "Register",
-        nav_button_crud_type: "get",
-        nav_button_route: "/register",
+        navbar: NavbarComponent {
+            button_value: "Register",
+            button_crud_type: "get",
+            button_route: "/register",
+            links: Vec::new(),
+        },
     };
 
     Ok((HxRedirect("/login".parse().unwrap()), page).into_response())

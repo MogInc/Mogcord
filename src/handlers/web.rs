@@ -35,6 +35,20 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_without_middleware)
 }
 
+pub struct NavbarComponent<'a>
+{
+    button_value: &'a str,
+    button_crud_type: &'a str,
+    button_route: &'a str,
+    links: Vec<NavbarLink<'a>>,
+}
+
+pub struct NavbarLink<'a>
+{
+    value: &'a str,
+    redirect: &'a str,
+}
+
 #[derive(Template)]
 #[template(path = "components/alerts/error.html")]
 pub struct AlertErrorComponent<'a>

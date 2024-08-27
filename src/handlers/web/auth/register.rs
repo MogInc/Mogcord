@@ -10,7 +10,7 @@ use serde::Deserialize;
 use tower_cookies::Cookies;
 
 use crate::handlers::logic;
-use crate::handlers::web::HtmxError;
+use crate::handlers::web::{HtmxError, NavbarComponent};
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
@@ -19,9 +19,7 @@ use crate::model::AppState;
 pub struct Register<'a>
 {
     title: &'a str,
-    nav_button_value: &'a str,
-    nav_button_crud_type: &'a str,
-    nav_button_route: &'a str,
+    navbar: NavbarComponent<'a>,
 }
 pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
@@ -32,9 +30,12 @@ pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, 
 
     let page = Register {
         title: "Register",
-        nav_button_value: "Login",
-        nav_button_crud_type: "get",
-        nav_button_route: "/login",
+        navbar: NavbarComponent {
+            button_value: "Log in",
+            button_crud_type: "get",
+            button_route: "/login",
+            links: Vec::new(),
+        },
     };
 
     Ok((HxRedirect("/register".parse().unwrap()), page).into_response())

@@ -1,4 +1,4 @@
-{% macro new(value, crud, route) %}
+{% macro new(nav) %}
 <nav class="border-b border-white px-2 sm:px-4 py-2.5">
     <div class="container flex flex-wrap items-center justify-between mx-auto">
         <a href="/" class="flex items-center hover:no-underline">
@@ -7,16 +7,32 @@
                 src="./pub/img/hehe-logo.png"
                 alt="Hehe cat"
             />
-            <span class="self-center text-xl font-semibold whitespace-nowrap text-white transition-colors duration-300 hover:text-blue-400">
+            <span class="self-center text-xl font-semibold whitespace-nowrap text-white hover-text-links">
                 Mogcord.
             </span>
         </a>
         <div class="flex md:order-2">
+        <div
+            class="items-start justify-between content-center pr-4"
+            >
+            <ul class="flex content-center">
+                {% for link in nav.links %}
+                <li>
+                    <a
+                        class="navbar-a"
+                        href={{ link.redirect }}
+                    >
+                        {{ link.value }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+          </div>
             <button
               class="transition-colors duration-300 text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 min-w-24"
-              hx-{{ crud }}={{ route }}
+              hx-{{ nav.button_crud_type }}={{ nav.button_route }}
             >
-              {{ value }}
+              {{ nav.button_value }}
             </button>
         </div>
     </div>
