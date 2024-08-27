@@ -12,7 +12,7 @@ brace_style = "AlwaysNextLine"
 control_brace_style = "AlwaysNextLine"
 imports_granularity = "Module"
 imports_layout = "Mixed"
-
+match_arm_blocks = false
 
 use_small_heuristics = "Max"
 chain_width = 60

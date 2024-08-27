@@ -267,9 +267,7 @@ impl Server<'_>
             Kind::NoAuth => StatusCode::UNAUTHORIZED,
 
             Kind::FileOpening | Kind::FlushBuffer | Kind::Write | Kind::Unexpected =>
-            {
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+                StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         (status_code, self.client.clone(), self.pub_info.as_ref())
