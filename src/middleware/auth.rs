@@ -8,9 +8,7 @@ pub use cookie_names::*;
 pub use ctx::*;
 pub use jwt::*;
 
-pub const ACCES_TOKEN_TTL_MIN: i64 = 10 * 10000;
-pub const REFRESH_TOKEN_TTL_MIN: i64 = 60 * 24 * 365;
-pub const DEVICE_ID_TTL_MIN: i64 = 60 * 24 * 365 * 5;
+pub const ACCES_TOKEN_TTL_MIN: i64 = 10;
 
 use axum::async_trait;
 use axum::body::Body;
