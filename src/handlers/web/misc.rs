@@ -22,7 +22,7 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
             button_route: "/logout",
             links: vec![NavbarLink {
                 value: "App",
-                redirect: "/",
+                redirect: "/channels",
             }],
         }
     }

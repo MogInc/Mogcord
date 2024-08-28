@@ -1,4 +1,4 @@
-pub mod authenticate;
+pub mod authenticated;
 mod login;
 mod register;
 

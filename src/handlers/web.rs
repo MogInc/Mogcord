@@ -1,4 +1,5 @@
 mod auth;
+mod chat;
 mod misc;
 
 use crate::middleware::auth::mw_require_authentication;
@@ -15,7 +16,9 @@ pub fn routes(state: Arc<AppState>) -> Router
 {
     let routes_with_regular_middleware = Router::new()
         //auth
-        .route("/logout", post(auth::authenticate::logout))
+        .route("/logout", post(auth::authenticated::logout))
+        //channels
+        .route("/channels", get(chat::authenticated::get_chats))
         .with_state(state.clone())
         .route_layer(middleware::from_fn(mw_require_authentication));
 
