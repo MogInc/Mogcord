@@ -19,8 +19,8 @@ pub fn routes(state: Arc<AppState>) -> Router
         .route("/logout", post(auth::authenticated::logout))
         //channels
         .route("/channels", get(chat::authenticated::get_chats))
-        .with_state(state.clone())
-        .route_layer(middleware::from_fn(mw_require_authentication));
+        .route_layer(middleware::from_fn(mw_require_authentication))
+        .with_state(state.clone());
 
     let routes_without_middleware = Router::new()
         //auth
