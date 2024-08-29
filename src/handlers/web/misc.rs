@@ -5,7 +5,7 @@ use crate::middleware::auth::Ctx;
 use super::{NavbarComponent, NavbarLink};
 
 #[derive(Template)]
-#[template(path = "index.html")]
+#[template(path = "pages/index.html")]
 pub struct Index<'a>
 {
     title: &'a str,

@@ -15,7 +15,7 @@ use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
 #[derive(Template)]
-#[template(path = "login.html")]
+#[template(path = "pages/login.html")]
 pub struct Login<'a>
 {
     title: &'a str,

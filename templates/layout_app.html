@@ -1,9 +1,22 @@
 {%  import "macros/header.html" as header %}
+{%  import "macros/nav.html" as nav %}
 
 <!DOCTYPE html>
 <html lang="en">
     {%- call header::new(title) -%}
-<body>
+<body 
+    class="bg-neutral-900 flex flex-col h-screen justify-between"
+    hx-boost="true"
+    x-data
+    >
+    {%- call nav::new(navbar) -%}
+    <main 
+        class="mb-auto"
+    >
+        {% block content %}
 
+        {% endblock %}
+    </main>
+    {% include "components/footer.html" %}
 </body>
 </html>
