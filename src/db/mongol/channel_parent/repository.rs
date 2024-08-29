@@ -312,6 +312,67 @@ impl channel_parent::chat::Repository for MongolDB
         }
     }
 
+    async fn get_chats_by_user<'input, 'err>(
+        &'input self,
+        user_id: &'input str,
+    ) -> error::Result<'err, Vec<Chat>>
+    {
+        let user_id_local = bubble!(helper::convert_domain_id_to_mongol(user_id))?;
+
+        let mut pipeline_base = vec![doc! {
+            "$match":
+            {
+                "Private.owner_ids": user_id_local
+            }
+        }];
+
+        let mut pipeline_group = vec![doc! {
+            "$match":
+            {
+                "$or":
+                [
+                  { "Group.owner_id": user_id_local },
+                  { "Group.user_ids": user_id_local },
+                ]
+            }
+        }];
+        pipeline_group.extend(internal_group_chat_pipeline());
+
+        pipeline_base.extend(internal_private_chat_pipeline());
+        pipeline_base.push(doc! {
+            "$unionWith":
+            {
+                "coll": "chats",
+                "pipeline": pipeline_group
+            }
+        });
+
+        let mut cursor = self.chats().aggregate(pipeline_base).await.map_err(|err| {
+            server_error!(error::Kind::Fetch, error::OnType::Chat)
+                .add_debug_info("error", err.to_string())
+        })?;
+
+        let mut chats: Vec<Chat> = Vec::new();
+
+        while let Some(result) = cursor.next().await
+        {
+            match result
+            {
+                Ok(doc) =>
+                {
+                    let chat: Chat = from_document(doc).map_err(|err| {
+                        server_error!(error::Kind::Parse, error::OnType::Chat)
+                            .add_debug_info("error", err.to_string())
+                    })?;
+                    chats.push(chat);
+                }
+                Err(err) => println!("{err}"),
+            }
+        }
+
+        Ok(chats)
+    }
+
     async fn does_chat_exist<'input, 'err>(
         &'input self,
         chat: &'input Chat,
