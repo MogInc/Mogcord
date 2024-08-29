@@ -53,12 +53,11 @@ impl relation::Repository for MongolDB
         {
             Some(mongol_relation) =>
             {
-                let is_all_friends = mongol_relation
-                    .friend_ids
+                let contains_stranger = other_user_ids_local
                     .iter()
-                    .any(|id| !other_user_ids_local.contains(id));
+                    .any(|id| !mongol_relation.friend_ids.contains(id));
 
-                Ok(is_all_friends)
+                Ok(!contains_stranger)
             }
             None => Ok(other_user_ids_local.is_empty()),
         }
