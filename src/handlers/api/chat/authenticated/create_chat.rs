@@ -19,7 +19,7 @@ pub enum CreateChatRequest
     },
     Group
     {
-        name: String,
+        name: Option<String>,
         user_ids: Vec<String>,
     },
 }

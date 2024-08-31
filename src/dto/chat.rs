@@ -39,7 +39,7 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
             Chat::Group(group) => Self {
                 id: group.id,
                 r#type: String::from("Group"),
-                name: Some(group.name),
+                name: group.name,
                 owner: Some(group.owner.id),
                 owners: None,
                 users: Some(group.users.into_keys().collect()),
@@ -80,15 +80,33 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                 users: None,
                 channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
             },
-            Chat::Group(group) => Self {
-                id: group.id,
-                r#type: String::from("Group"),
-                name: group.name,
-                owner: Some(group.owner.id),
-                owners: None,
-                users: Some(group.users.into_keys().collect()),
-                channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
-            },
+            Chat::Group(group) =>
+            {
+                let name = if let Some(name) = group.name
+                {
+                    name
+                }
+                else
+                {
+                    group
+                        .users
+                        .values()
+                        .chain(std::iter::once(&group.owner))
+                        .map(|user| user.username.clone())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                };
+
+                Self {
+                    id: group.id,
+                    r#type: String::from("Group"),
+                    name,
+                    owner: Some(group.owner.id),
+                    owners: None,
+                    users: Some(group.users.into_keys().collect()),
+                    channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
+                }
+            }
         }
     }
 
@@ -120,7 +138,34 @@ impl ObjectToDTO<Chat> for ChatGetResponse
                     channel: Some(ChannelGetResponse::obj_to_dto(private.channel)),
                 }
             }
-            Chat::Group(_) => Self::obj_to_dto(model_input),
+            Chat::Group(group) =>
+            {
+                let name = if let Some(name) = group.name
+                {
+                    name
+                }
+                else
+                {
+                    group
+                        .users
+                        .values()
+                        .chain(std::iter::once(&group.owner))
+                        .filter(|user| user.id != current_user_id)
+                        .map(|user| user.username.clone())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                };
+
+                Self {
+                    id: group.id,
+                    r#type: String::from("Group"),
+                    name,
+                    owner: Some(group.owner.id),
+                    owners: None,
+                    users: Some(group.users.into_keys().collect()),
+                    channel: Some(ChannelGetResponse::obj_to_dto(group.channel)),
+                }
+            }
         }
     }
 }

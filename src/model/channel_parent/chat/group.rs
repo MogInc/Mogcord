@@ -10,7 +10,7 @@ use crate::server_error;
 pub struct Group
 {
     pub id: String,
-    pub name: String,
+    pub name: Option<String>,
     pub owner: User,
     //key is user id
     pub users: HashMap<String, User>,
@@ -22,7 +22,7 @@ impl Group
     #[must_use]
     fn convert(
         id: String,
-        name: String,
+        name: Option<String>,
         owner: User,
         users: HashMap<String, User>,
         channel: Channel,
@@ -37,8 +37,18 @@ impl Group
         }
     }
 
-    pub fn new<'err>(name: String, owner: User, users: Vec<User>) -> error::Result<'err, Self>
+    pub fn new<'err>(
+        name: Option<String>,
+        owner: User,
+        users: Vec<User>,
+    ) -> error::Result<'err, Self>
     {
+        let name = match name
+        {
+            Some(name) if !name.trim().is_empty() => Some(name.trim().to_string()),
+            _ => None,
+        };
+
         let users_sanitized = users
             .into_iter()
             .filter(|user| user.id != owner.id)

@@ -14,7 +14,7 @@ use crate::model::error;
 pub struct MongolGroup
 {
     pub _id: Uuid,
-    pub name: String,
+    pub name: Option<String>,
     pub owner_id: Uuid,
     pub user_ids: Vec<Uuid>,
     pub channel_id: Uuid,
@@ -40,7 +40,7 @@ impl TryFrom<&Group> for MongolGroup
 
         Ok(Self {
             _id: db_id,
-            name: value.name.to_string(),
+            name: value.name.clone(),
             owner_id,
             user_ids,
             channel_id,
