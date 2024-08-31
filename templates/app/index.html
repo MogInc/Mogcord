@@ -5,11 +5,7 @@
     class="flex flex-col justify-center items-center"
 >
     <div class="text-left text-white mt-4">
-        <ul id="dropdown-pages" class="py-1 space-y-1">
-            {% for chat in chats %}
-                {% include "components/sidebar-chat.html" %}
-            {% endfor %}
-        </ul>
+        {% include "components/sidebar.html" %}
     </div>
 </div>
 {% endblock %}
