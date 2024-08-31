@@ -2,7 +2,7 @@
 
 {% block content %} 
 <div 
-    class="flex flex-col justify-center items-center"
+    class="flex flex-col justify-center items-center" x-data="{ current_chat: $persist('df').using(sessionStorage) }"
 >
     <div class="text-left text-white mt-4">
         {% include "components/sidebar.html" %}
