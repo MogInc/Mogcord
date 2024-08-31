@@ -383,7 +383,7 @@ impl channel_parent::chat::Repository for MongolDB
             MongolChat::Private(private) =>
             {
                 doc! {
-                    "Private.owner_ids": private.owner_ids,
+                    "Private.owner_ids": { "$all": private.owner_ids },
                 }
             }
             //debating on wether to allow inf groups with same users
@@ -392,7 +392,10 @@ impl channel_parent::chat::Repository for MongolDB
                 doc! {
                     "Group.name": group.name,
                     "Group.owner_id": group.owner_id,
-                    "Group.user_ids": group.user_ids,
+                    "Group.user_ids": {
+                        "$size": i32::try_from(group.user_ids.len()).ok().unwrap_or(0),
+                        "$all": group.user_ids
+                    }
                 }
             }
         };
