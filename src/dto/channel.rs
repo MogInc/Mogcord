@@ -7,8 +7,8 @@ use super::ObjectToDTO;
 #[derive(Serialize)]
 pub struct ChannelCreateResponse
 {
-    id: String,
-    name: Option<String>,
+    pub id: String,
+    pub name: Option<String>,
 }
 
 impl ObjectToDTO<Channel> for ChannelCreateResponse
@@ -25,8 +25,8 @@ impl ObjectToDTO<Channel> for ChannelCreateResponse
 #[derive(Serialize)]
 pub struct ChannelGetResponse
 {
-    id: String,
-    name: Option<String>,
+    pub id: String,
+    pub name: Option<String>,
 }
 
 impl ObjectToDTO<Channel> for ChannelGetResponse

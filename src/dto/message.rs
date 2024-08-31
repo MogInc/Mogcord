@@ -7,15 +7,15 @@ use super::ObjectToDTO;
 #[derive(Serialize)]
 pub struct MessageCreateResponse
 {
-    id: String,
-    value: String,
-    timestamp: String,
-    owner_id: String,
-    channel_id: String,
-    bucket_id: String,
+    pub id: String,
+    pub value: String,
+    pub timestamp: String,
+    pub owner_id: String,
+    pub channel_id: String,
+    pub bucket_id: String,
     //we actually gonna delete stuff?
     //(:sins:)
-    flag: String,
+    pub flag: String,
 }
 
 impl ObjectToDTO<Message> for MessageCreateResponse
@@ -37,15 +37,15 @@ impl ObjectToDTO<Message> for MessageCreateResponse
 #[derive(Serialize)]
 pub struct MessageGetResponse
 {
-    id: String,
-    value: String,
-    timestamp: String,
-    owner_id: String,
-    channel_id: String,
-    bucket_id: String,
+    pub id: String,
+    pub value: String,
+    pub timestamp: String,
+    pub owner_id: String,
+    pub channel_id: String,
+    pub bucket_id: String,
     //we actually gonna delete stuff?
     //(:sins:)
-    flag: String,
+    pub flag: String,
 }
 
 impl ObjectToDTO<Message> for MessageGetResponse

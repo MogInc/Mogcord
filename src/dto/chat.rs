@@ -7,18 +7,18 @@ use super::{ChannelCreateResponse, ChannelGetResponse, ObjectToDTO};
 #[derive(Serialize)]
 pub struct ChatCreateResponse
 {
-    id: String,
-    r#type: String,
+    pub id: String,
+    pub r#type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    owner: Option<String>,
+    pub owner: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    owners: Option<Vec<String>>,
+    pub owners: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    users: Option<Vec<String>>,
+    pub users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    channel: Option<ChannelCreateResponse>,
+    pub channel: Option<ChannelCreateResponse>,
 }
 
 impl ObjectToDTO<Chat> for ChatCreateResponse
@@ -52,18 +52,18 @@ impl ObjectToDTO<Chat> for ChatCreateResponse
 #[derive(Serialize)]
 pub struct ChatGetResponse
 {
-    id: String,
-    r#type: String,
+    pub id: String,
+    pub r#type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    owner: Option<String>,
+    pub owner: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    owners: Option<Vec<String>>,
+    pub owners: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    users: Option<Vec<String>>,
+    pub users: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    channel: Option<ChannelGetResponse>,
+    pub channel: Option<ChannelGetResponse>,
 }
 
 impl ObjectToDTO<Chat> for ChatGetResponse
