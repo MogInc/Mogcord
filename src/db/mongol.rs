@@ -198,21 +198,22 @@ impl MongolDB
 
     async fn internal_add_chat_indexes(coll: &Collection<MongolChat>) -> Result<(), Error>
     {
-        let opts_sparse = IndexOptions::builder().unique(true).sparse(true).build();
+        let opts_sparse_uq = IndexOptions::builder().unique(true).sparse(true).build();
+        let opts_sparse = IndexOptions::builder().sparse(true).build();
 
         let private_id_index = IndexModel::builder()
             .keys(doc! { "Private._id": 1 })
-            .options(opts_sparse.clone())
+            .options(opts_sparse_uq.clone())
             .build();
 
         let private_owners_index = IndexModel::builder()
             .keys(doc! { "Private.owner_ids": 1 })
-            .options(opts_sparse.clone())
+            .options(opts_sparse_uq.clone())
             .build();
 
         let group_id_index = IndexModel::builder()
             .keys(doc! { "Group._id": 1 })
-            .options(opts_sparse.clone())
+            .options(opts_sparse_uq)
             .build();
 
         let group_owner_index = IndexModel::builder()
