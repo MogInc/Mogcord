@@ -1,20 +1,11 @@
-{%  import "macros/header.html" as header %}
-{%  import "macros/nav.html" as nav %}
+{% extends "layout.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-    {%- call header::new(title) -%}
-<body 
-    class="bg-neutral-900 flex flex-col h-screen justify-between"
-    hx-boost="true"
-    x-data
-    >
-    <main 
-        class="mb-auto"
-    >
-        {% block layout %}
+{% block layout %} 
 
-        {% endblock %}
+    <main class="mb-auto">
+    {% block app %}
+
+    {% endblock %}
     </main>
-</body>
-</html>
+
+{% endblock %}
