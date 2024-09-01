@@ -56,17 +56,29 @@ pub enum PotentialErrorDisplay
     None,
     Alert,
 }
-pub struct HtmxError(pub error::Client, pub PotentialErrorDisplay);
+
+pub struct HtmxError
+{
+    pub client: error::Client,
+    pub display: PotentialErrorDisplay,
+}
+
 impl HtmxError
 {
     #[must_use]
     pub fn new(client: error::Client) -> Self
     {
-        Self(client, PotentialErrorDisplay::None)
+        Self {
+            client,
+            display: PotentialErrorDisplay::None,
+        }
     }
     #[must_use]
     pub fn new_form_error(client: error::Client) -> Self
     {
-        Self(client, PotentialErrorDisplay::Alert)
+        Self {
+            client,
+            display: PotentialErrorDisplay::Alert,
+        }
     }
 }

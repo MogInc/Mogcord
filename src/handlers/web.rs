@@ -72,7 +72,7 @@ impl IntoResponse for model::HtmxError
     fn into_response(self) -> axum::response::Response
     {
         #[allow(clippy::match_same_arms)]
-        match self.0
+        match self.client
         {
             error::Client::PERMISSION_NO_ADMIN
             | error::Client::NOT_ALLOWED_PLATFORM
@@ -81,7 +81,7 @@ impl IntoResponse for model::HtmxError
             error::Client::SERVICE_ERROR =>
                 (StatusCode::INTERNAL_SERVER_ERROR, error::Client::SERVICE_ERROR.translate_error())
                     .into_response(),
-            rest if self.1 == model::PotentialErrorDisplay::Alert => (
+            rest if self.display == model::PotentialErrorDisplay::Alert => (
                 StatusCode::BAD_REQUEST,
                 AlertErrorComponent {
                     message: rest.translate_error(),
