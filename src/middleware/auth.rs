@@ -22,7 +22,7 @@ use tower_cookies::Cookies;
 use crate::middleware::auth;
 use crate::middleware::cookies::Manager;
 use crate::model::{error, AppState};
-use crate::server_error;
+use crate::{bubble, server_error};
 
 pub async fn mw_require_authentication(
     ctx: error::Result<'_, Ctx>,
@@ -92,8 +92,7 @@ pub async fn mw_ctx_resolver<'err>(
 
 pub fn get_ctx<'err>(jar: &Cookies) -> Result<Ctx, error::Server<'err>>
 {
-    match jar
-        .get_cookie(auth::CookieNames::AUTH_ACCES.as_str())
+    match bubble!(jar.get_cookie(auth::CookieNames::AUTH_ACCES.as_str()))
         .and_then(|val| internal_parse_token(val.as_str()))
     {
         Ok(claims) => Ok(Ctx::new(claims.sub, claims.is_admin)),

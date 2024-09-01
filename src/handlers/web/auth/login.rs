@@ -10,7 +10,8 @@ use tower_cookies::Cookies;
 
 use crate::handlers::logic;
 use crate::handlers::logic::auth::LoginRequest;
-use crate::handlers::web::{HtmxError, NavbarComponent};
+use crate::handlers::web::model::HtmxError;
+use crate::handlers::web::NavbarComponent;
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
