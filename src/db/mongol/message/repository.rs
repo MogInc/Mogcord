@@ -127,7 +127,7 @@ impl message::Repository for MongolDB
     async fn get_valid_messages<'input, 'err>(
         &'input self,
         channel_id: &'input str,
-        pagination: Pagination,
+        pagination: &Pagination,
     ) -> error::Result<'err, Vec<Message>>
     {
         let channel_id_local = bubble!(helper::convert_domain_id_to_mongol(channel_id))?;
