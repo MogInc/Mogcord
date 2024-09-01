@@ -12,6 +12,8 @@ pub async fn get_chat<'a>(
     pagination: Option<Query<Pagination>>,
 )
 {
+    let _ = logic::chats::authenticated::get_chat(&state, &ctx, &channel_id).await;
+
     let pagination = Pagination::new(pagination);
 
     let _ =
