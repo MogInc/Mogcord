@@ -23,6 +23,6 @@ pub trait Repository: Send + Sync
     async fn get_valid_messages<'input, 'err>(
         &'input self,
         channel_id: &'input str,
-        pagination: Pagination,
+        pagination: &Pagination,
     ) -> error::Result<'err, Vec<Message>>;
 }
