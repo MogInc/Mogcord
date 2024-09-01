@@ -54,9 +54,5 @@ pub async fn create_user<'a, 'err>(
 
     let user = User::new(payload.username.to_string(), payload.email.to_string(), hashed_password);
 
-    match repo_user.create_user(user).await
-    {
-        Ok(user) => Ok(user),
-        Err(e) => Err(e),
-    }
+    repo_user.create_user(user).await
 }
