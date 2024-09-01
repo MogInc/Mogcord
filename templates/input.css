@@ -6,7 +6,7 @@
 {
     .hover-text-links
     {
-        @apply transition-colors duration-300 hover:text-blue-400
+        @apply transition-colors duration-300 hover:text-blue-400;
     }
 
     .btn-form-primary 
@@ -31,11 +31,11 @@
 
     .navbar-a
     {
-        @apply text-xl font-semibold whitespace-nowrap text-white hover-text-links
+        @apply text-xl font-semibold whitespace-nowrap text-white hover-text-links;
     }
 
     .navbar-a-active
     {
-        @apply text-xl font-semibold whitespace-nowrap text-white underline decoration-2 underline-offset-4
+        @apply text-xl font-semibold whitespace-nowrap text-white underline decoration-2 underline-offset-4;
     }
 }
