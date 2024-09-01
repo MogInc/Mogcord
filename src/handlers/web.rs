@@ -1,6 +1,5 @@
 mod auth;
 mod chat;
-mod message;
 mod middleware;
 mod misc;
 mod model;
@@ -27,7 +26,7 @@ pub fn routes(state: Arc<AppState>) -> Router
     let routes_with_htmx_regular_middleware = Router::new()
         //channels
         .route("/channels", get(chat::authenticated::get_chats))
-        .route("/channels/:channel_id", get(message::authenticated::get_messages))
+        .route("/channels/:channel_id", get(chat::authenticated::get_chat))
         .route_layer(axum::middleware::from_fn(mw_require_htmx_authentication))
         .with_state(state.clone());
 
