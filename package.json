@@ -1,8 +1,9 @@
 {
   "scripts": {
-    "dev": "npm install && cargo watch -i \"{**/static/**,**/templates/input.css,docker/**}\" -s \"npx tailwindcss -i templates/input.css -o public/assets/static/styling/main.css && cargo run\"",
-    "debug": "npm install && npx tailwindcss -i templates/input.css -o public/assets/static/styling/main.css && cargo build && xcopy public target\\debug\\public\\ /e /y",
-    "release": "npm install && npx tailwindcss -i templates/input.css -o public/assets/static/styling/main.css && cargo build --release && xcopy public target\\release\\public\\ /e /y"
+    "dev": "npm install && cargo watch -i \"{**/static/**,**/templates/input.css,docker/**}\" -s \"npm run tail && cargo run\"",
+    "debug": "npm install && npm run tail && cargo build && xcopy public target\\debug\\public\\ /e /y",
+    "release": "npm install && npm run tail && cargo build --release && xcopy public target\\release\\public\\ /e /y",
+    "tail": "npx tailwindcss -i templates/input.css -o public/assets/static/styling/main.css"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.7"
