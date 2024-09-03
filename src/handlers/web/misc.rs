@@ -2,13 +2,13 @@ use askama::Template;
 
 use crate::middleware::auth::Ctx;
 
-use super::{NavbarComponent, NavbarLink};
+use super::{HeaderComponent, NavbarComponent, NavbarLink};
 
 #[derive(Template)]
 #[template(path = "web/index.html")]
 pub struct Index<'a>
 {
-    title: &'a str,
+    header: HeaderComponent<'a>,
     navbar: NavbarComponent<'a>,
 }
 
@@ -37,7 +37,7 @@ pub async fn index<'a>(ctx_option: Option<Ctx>) -> Index<'a>
     };
 
     Index {
-        title: "Index",
+        header: HeaderComponent::new("Index"),
         navbar,
     }
 }

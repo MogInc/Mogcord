@@ -47,6 +47,21 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_without_middleware)
 }
 
+pub struct HeaderComponent<'a>
+{
+    title: &'a str,
+}
+
+impl<'a> HeaderComponent<'a>
+{
+    pub fn new(title: &'a str) -> Self
+    {
+        Self {
+            title,
+        }
+    }
+}
+
 pub struct NavbarComponent<'a>
 {
     button_value: &'a str,

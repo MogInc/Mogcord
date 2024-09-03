@@ -1,8 +1,6 @@
-{%  import "macros/header.html" as header %}
-
 <!DOCTYPE html>
 <html lang="en">
-    {%- call header::new(title) -%}
+    {% include "components/header.html" %}
 <body 
     class="bg-neutral-900 flex flex-col h-screen justify-between"
     hx-boost="true"

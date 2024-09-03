@@ -9,14 +9,15 @@ use crate::dto::{
 };
 use crate::handlers::logic;
 use crate::handlers::web::model::HtmxError;
+use crate::handlers::web::HeaderComponent;
 use crate::middleware::auth::Ctx;
 use crate::model::{AppState, Pagination};
 
 #[derive(Template)]
 #[template(path = "app/chat.html")]
-pub struct ChatPage
+pub struct ChatPage<'a>
 {
-    title: String,
+    header: HeaderComponent<'a>,
     chat: ChatGetResponse,
     chats: Vec<ChatGetResponse>,
     messages: Vec<MessageGetResponse>,
@@ -41,7 +42,7 @@ pub async fn get_chat<'a>(
     let chat: ChatGetResponse = logic::chats::authenticated::get_chat(&state, &ctx, &channel_id)
         .await
         .map_err(|err| HtmxError::new(err.client))
-        .map(ObjectToDTO::obj_to_dto)?;
+        .map(|chat| ObjectToDTO::obj_to_dto_with_user(chat, ctx.user_id_ref()))?;
 
     let pagination = Pagination::new(pagination);
 
@@ -69,7 +70,7 @@ pub async fn get_chat<'a>(
             if let Ok(chats) = chats { vec_to_dto_with_user(chats, ctx_user) } else { Vec::new() };
 
         ChatPage {
-            title: chat.name.clone(),
+            header: HeaderComponent::new(chat.name.clone().as_str()),
             chat,
             chats,
             messages,
