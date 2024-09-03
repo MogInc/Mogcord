@@ -9,10 +9,7 @@ use crate::db::mongol::{MongolBucket, MongolDB, MongolMessage};
 use crate::model::bucket::Bucket;
 use crate::model::message::{self, Message};
 use crate::model::{error, Pagination};
-use crate::{
-    bubble, map_mongo_collection_keys_to_string, map_mongo_key_to_string, server_error,
-    transaction_error,
-};
+use crate::{bubble, map_mongo_key_to_string, server_error, transaction_error};
 
 #[async_trait]
 impl message::Repository for MongolDB
