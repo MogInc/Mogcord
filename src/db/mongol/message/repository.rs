@@ -287,14 +287,14 @@ fn internal_valid_message_filter() -> Document
     doc! { "$in": valid_flags_bson }
 }
 
-fn internal_message_pipeline() -> [Document; 8]
+fn internal_message_pipeline() -> [Document; 6]
 {
     [
         //join with chat
         doc! {
             "$lookup":
             {
-                "from": "chats",
+                "from": "channels",
                 "localField": "channel_id",
                 "foreignField": "_id",
                 "as": "channel"
@@ -310,11 +310,11 @@ fn internal_message_pipeline() -> [Document; 8]
                 "as": "owner"
             }
         },
-        //should only have 1 chat
+        //should only have 1 channel
         doc! {
             "$unwind":
             {
-                "path": "$chat"
+                "path": "$channel"
             }
         },
         //should only have 1 owner
@@ -324,36 +324,14 @@ fn internal_message_pipeline() -> [Document; 8]
                 "path": "$owner"
             }
         },
-        //join with owners of chat
-        doc! {
-            "$lookup":
-            {
-                "from": "users",
-                "localField": "chat.owner_ids",
-                "foreignField": "_id",
-                "as": "chat.owners"
-            }
-        },
-        //join with users of chat
-        doc! {
-            "$lookup":
-            {
-                "from": "users",
-                "localField": "chat.user_ids",
-                "foreignField": "_id",
-                "as": "chat.users"
-            }
-        },
         //converts from special ids to string
         doc! {
             "$addFields":
             {
                 "id": map_mongo_key_to_string!("$_id", "uuid"),
                 "bucket_id": map_mongo_key_to_string!("$bucket_id", "uuid"),
-                "chat.id": map_mongo_key_to_string!("$chat._id", "uuid"),
+                "channel.id": map_mongo_key_to_string!("$chat._id", "uuid"),
                 "owner.id": map_mongo_key_to_string!("$owner._id", "uuid"),
-                "chat.owners": map_mongo_collection_keys_to_string!("$chat.owners", "_id", "id", "uuid"),
-                "chat.users": map_mongo_collection_keys_to_string!("$chat.users", "_id", "id", "uuid"),
             }
         },
         //hide unneeded fields
@@ -362,13 +340,8 @@ fn internal_message_pipeline() -> [Document; 8]
             [
                 "_id",
                 "owner_id",
-                "chat_id",
-                "chat._id",
-                "chat.owner_ids",
-                "chat.user_ids",
-                "chat.bucket_ids",
-                "chat.owners._id",
-                "chat.users._id",
+                "channel_id",
+                "channel._id",
                 "owner._id"
             ]
         },
