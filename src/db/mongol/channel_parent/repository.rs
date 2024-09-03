@@ -37,7 +37,7 @@ impl channel_parent::Repository for MongolDB
                     .add_debug_info("channel id", channel_id.to_string()),
             )?;
 
-        let mut cursor = match mongol_channel.parent_type
+        let mut cursor = match &mongol_channel.parent_type
         {
             mongol::ParentType::ChatPrivate =>
             {
@@ -111,10 +111,22 @@ impl channel_parent::Repository for MongolDB
         {
             Some(document) =>
             {
-                let channel_parent = from_document(document).map_err(|err| {
-                    server_error!(error::Kind::Parse, error::OnType::ChannelParent)
-                        .add_debug_info("error", err.to_string())
-                })?;
+                let channel_parent = match &mongol_channel.parent_type
+                {
+                    mongol::ParentType::ChatPrivate | mongol::ParentType::ChatGroup =>
+                    {
+                        let chat: Chat = from_document(document).map_err(|err| {
+                            server_error!(error::Kind::Parse, error::OnType::ChannelParent)
+                                .add_debug_info("error", err.to_string())
+                        })?;
+
+                        ChannelParent::Chat(chat)
+                    }
+                    mongol::ParentType::Server => from_document(document).map_err(|err| {
+                        server_error!(error::Kind::Parse, error::OnType::ChannelParent)
+                            .add_debug_info("error", err.to_string())
+                    })?,
+                };
 
                 Ok(channel_parent)
             }
