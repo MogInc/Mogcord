@@ -17,6 +17,7 @@ pub async fn get_messages(
 ) -> impl IntoResponse
 {
     let pagination = Pagination::new(pagination);
+
     match logic::message::authenticated::get_messages(&state, &channel_id, &ctx, &pagination).await
     {
         Ok(messages) => Ok(Json(vec_to_dto::<Message, MessageGetResponse>(messages))),

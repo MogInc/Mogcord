@@ -44,8 +44,8 @@ impl Default for Pagination
     fn default() -> Self
     {
         Self {
-            page: 1,
-            page_size: 25,
+            page: Self::MIN_PAGE_NR,
+            page_size: Self::MAX_PER_PAGE,
         }
     }
 }
