@@ -1,5 +1,11 @@
-<div>HELLOOOOOOOOOOOOOOOOOOO</div>
+{% extends "app/index.html" %}
 
-{% for message in messages %}
-    <div>{{message.value}}</div>
-{% endfor %}
+{% block index %} 
+
+    <div x-init="current_chat = '{{ chat.id }}'"></div>
+    <div>HELLOOOOOOOOOOOOOOOOOOO</div>
+    {% for message in messages %}
+        <div>{{message.value}}</div>
+    {% endfor %}
+
+{% endblock %}

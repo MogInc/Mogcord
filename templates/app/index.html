@@ -4,6 +4,7 @@
 <div 
     class="flex h-full w-full flex-row items-stretch overflow-hidden" x-data="{ current_chat: $persist('df').using(sessionStorage) }"
 >
+<div x-init="current_chat = 'df'"></div>
     {% include "components/sidebar.html" %}
     <div id="app_main" class="text-left text-white mt-4">
         {% block index %}

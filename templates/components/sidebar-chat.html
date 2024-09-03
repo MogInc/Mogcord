@@ -1,4 +1,4 @@
-<li id="{{ chat.id }}" hx-boost="true" hx-get="/channels/{{ chat.id }}" hx-target="#app_main" hx-push-url="/channels/{{chat.id}}" class="flex items-center gap-4 p-1 pl-3 px-2 w-full text-base font-normal text-gray-900 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 relative cursor-pointer" :class="current_chat == '{{ chat.id }}' ? 'bg-slate-300 dark:bg-slate-600' : ''">
+<li id="{{ chat.id }}" hx-boost="true" hx-get="/channels/{{ chat.id }}" hx-target="#app_main" hx-push-url="/channels/{{chat.id}}" class="flex items-center gap-4 p-1 pl-3 px-2 w-full text-base font-normal rounded-lg group text-white hover:bg-neutral-700 relative cursor-pointer" :class="current_chat == '{{ chat.id }}' ? 'bg-neutral-700' : ''">
     <div class="relative w-9 h-9 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
     <svg class="absolute w-10 h-10 text-gray-400 -left-0.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
     </div>
