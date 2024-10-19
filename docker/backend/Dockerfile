@@ -8,7 +8,7 @@ COPY tailwind.config.js ./
 COPY package*.json ./
 COPY templates/ templates/
 # can do this in the last step but found it easier to do here
-COPY public/static/js/htmx.js static/js/
+COPY public/assets/static/js/htmx.js static/js/
 
 RUN npm install && npx tailwindcss -i templates/input.css -o static/styling/main.css
 
@@ -27,7 +27,10 @@ ENV API_PORT=$API_PORT
 ENV BUILD_TYPE=$BUILD_TYPE
 
 COPY --from=rust-builder /mogcord/target/x86_64-unknown-linux-musl/$BUILD_TYPE/mogcord /mogcord
-COPY --from=tailwind-builder /mogcord/static/ static/
+COPY --from=tailwind-builder /mogcord/static/ public/assets/static/
+COPY public/assets/img/ public/assets/img/
+COPY public/assets/favicon.ico public/assets/
+COPY public/robots.txt public/
 
 ENTRYPOINT ["/mogcord"]
 EXPOSE ${API_PORT}
