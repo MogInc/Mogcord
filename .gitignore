@@ -15,3 +15,7 @@ node_modules/
 
 #css
 public/assets/static/styling/**
+
+# VP
+**.vpp.vbak**
+**.vpp.bak**
