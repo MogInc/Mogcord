@@ -27,10 +27,8 @@ ENV API_PORT=$API_PORT
 ENV BUILD_TYPE=$BUILD_TYPE
 
 COPY --from=rust-builder /mogcord/target/x86_64-unknown-linux-musl/$BUILD_TYPE/mogcord /mogcord
+COPY public/ public/
 COPY --from=tailwind-builder /mogcord/static/ public/assets/static/
-COPY public/assets/img/ public/assets/img/
-COPY public/assets/favicon.ico public/assets/
-COPY public/robots.txt public/
 
 ENTRYPOINT ["/mogcord"]
 EXPOSE ${API_PORT}
