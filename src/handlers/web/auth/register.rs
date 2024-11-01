@@ -11,7 +11,7 @@ use tower_cookies::Cookies;
 
 use crate::handlers::logic;
 use crate::handlers::web::model::HtmxError;
-use crate::handlers::web::{HeaderComponent, NavbarComponent};
+use crate::handlers::web::{HeadComponent, HeaderComponent};
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
@@ -19,8 +19,8 @@ use crate::model::AppState;
 #[template(path = "web/register.html")]
 pub struct Register<'a>
 {
+    head: HeadComponent<'a>,
     header: HeaderComponent<'a>,
-    navbar: NavbarComponent<'a>,
 }
 pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, HtmxError>
 {
@@ -30,8 +30,8 @@ pub async fn get_register(ctx_option: Option<Ctx>) -> Result<impl IntoResponse, 
     }
 
     let page = Register {
-        header: HeaderComponent::new("Register"),
-        navbar: NavbarComponent {
+        head: HeadComponent::new("Register"),
+        header: HeaderComponent {
             button_value: "Log in",
             button_crud_type: "get",
             button_route: "/login",

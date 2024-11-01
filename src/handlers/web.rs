@@ -47,12 +47,12 @@ pub fn routes(state: Arc<AppState>) -> Router
         .merge(routes_without_middleware)
 }
 
-pub struct HeaderComponent<'a>
+pub struct HeadComponent<'a>
 {
     title: &'a str,
 }
 
-impl<'a> HeaderComponent<'a>
+impl<'a> HeadComponent<'a>
 {
     pub fn new(title: &'a str) -> Self
     {
@@ -62,15 +62,15 @@ impl<'a> HeaderComponent<'a>
     }
 }
 
-pub struct NavbarComponent<'a>
+pub struct HeaderComponent<'a>
 {
     button_value: &'a str,
     button_crud_type: &'a str,
     button_route: &'a str,
-    links: Vec<NavbarLink<'a>>,
+    links: Vec<NavLink<'a>>,
 }
 
-pub struct NavbarLink<'a>
+pub struct NavLink<'a>
 {
     value: &'a str,
     redirect: &'a str,

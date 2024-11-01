@@ -5,7 +5,7 @@ use axum::extract::State;
 
 use crate::dto::{vec_to_dto_with_user, ChatGetResponse};
 use crate::handlers::logic;
-use crate::handlers::web::HeaderComponent;
+use crate::handlers::web::HeadComponent;
 use crate::middleware::auth::Ctx;
 use crate::model::AppState;
 
@@ -13,7 +13,7 @@ use crate::model::AppState;
 #[template(path = "app/index.html")]
 pub struct Index<'a>
 {
-    header: HeaderComponent<'a>,
+    head: HeadComponent<'a>,
     chats: Vec<ChatGetResponse>,
 }
 
@@ -26,7 +26,7 @@ pub async fn get_chats<'a>(State(state): State<Arc<AppState>>, ctx: Ctx) -> Inde
         if let Ok(chats) = chats { vec_to_dto_with_user(chats, ctx_user) } else { Vec::new() };
 
     Index {
-        header: HeaderComponent::new("App"),
+        head: HeadComponent::new("App"),
         chats,
     }
 }

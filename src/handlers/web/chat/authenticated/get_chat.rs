@@ -9,7 +9,7 @@ use crate::dto::{
 };
 use crate::handlers::logic;
 use crate::handlers::web::model::HtmxError;
-use crate::handlers::web::HeaderComponent;
+use crate::handlers::web::HeadComponent;
 use crate::middleware::auth::Ctx;
 use crate::model::{AppState, Pagination};
 
@@ -17,7 +17,7 @@ use crate::model::{AppState, Pagination};
 #[template(path = "app/chat.html")]
 pub struct ChatPage<'a>
 {
-    header: HeaderComponent<'a>,
+    head: HeadComponent<'a>,
     chat: ChatGetResponse,
     chats: Vec<ChatGetResponse>,
     messages: Vec<MessageGetResponse>,
@@ -70,7 +70,7 @@ pub async fn get_chat<'a>(
             if let Ok(chats) = chats { vec_to_dto_with_user(chats, ctx_user) } else { Vec::new() };
 
         ChatPage {
-            header: HeaderComponent::new(chat.name.clone().as_str()),
+            head: HeadComponent::new(chat.name.clone().as_str()),
             chat,
             chats,
             messages,

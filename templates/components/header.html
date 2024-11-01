@@ -1,14 +1,38 @@
-<head>
-    <title>Mogcord - {{ header.title }}</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/pub/static/js/htmx.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
-
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
-    <!-- ALWAYS LAST -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <link href="/pub/static/styling/main.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="/pub/favicon.ico">   
-</head>
+<header class="border-b border-white px-2 sm:px-4 py-2.5">
+    <div class="container flex flex-wrap items-center justify-between mx-auto">
+        <a href="/" class="flex items-center hover:no-underline">
+            <img
+                class="h-6 mr-3 sm:h-9"
+                src="./pub/img/hehe-logo.png"
+                alt="Hehe cat"
+            />
+            <span class="self-center text-xl font-semibold whitespace-nowrap text-white hover-text-links">
+                Mogcord.
+            </span>
+        </a>
+        <div class="flex md:order-2">
+        <div
+            class="items-start justify-between content-center pr-4"
+            >
+            <ul class="flex content-center">
+                {% for link in header.links %}
+                <li>
+                    <a
+                        class="navbar-a"
+                        href={{ link.redirect }}
+                    >
+                        {{ link.value }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+          </div>
+            <button
+              class="transition-colors duration-300 text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0 min-w-24"
+              hx-{{ header.button_crud_type }}={{ header.button_route }}
+            >
+              {{ header.button_value }}
+            </button>
+        </div>
+    </div>
+</header>
