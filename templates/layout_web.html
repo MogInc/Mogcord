@@ -1,8 +1,7 @@
-{%  import "macros/nav.html" as nav %}
 {% extends "layout.html" %}
 
 {% block layout %} 
-    {%- call nav::new(navbar) -%}
+    {% include "components/nav.html" %}
     <main class="mb-auto">
         {% block web %}
 
